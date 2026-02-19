@@ -157,8 +157,8 @@ void AHeroCharacter::Tick(float DeltaTime)
             const FVector RightDirection = FVector::RightVector;
 
             // 위젯 좌표계와 월드 좌표계 매칭 (상황에 따라 Y축 반전 필요할 수 있음)
-            AddMovementInput(ForwardDirection, -JoyInput.Y);
-            AddMovementInput(RightDirection, JoyInput.X);
+            AddMovementInput(ForwardDirection, JoyInput.X);
+            AddMovementInput(RightDirection, JoyInput.Y);
 
             //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
         }

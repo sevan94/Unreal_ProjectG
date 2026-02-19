@@ -21,6 +21,8 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
         if (Spec)
         {
             AbilityObject = Spec->GetPrimaryInstance();
+            FString AbilityName = Spec->Ability->GetName();
+            UE_LOG(LogTemp, Log, TEXT("가져온 어빌리티 이름: %s"), *AbilityName);
 
             if (!AbilityObject)
             {

@@ -77,8 +77,8 @@ void AHeroCharacter::SpawnHero()
 
 void AHeroCharacter::MakeHeroDead()
 {
-    MovementComponent->DisableMovement();
     MovementComponent->StopMovementImmediately();
+    MovementComponent->DisableMovement();
     MovementComponent->SetComponentTickEnabled(false);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -146,7 +146,12 @@ void AHeroCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
+    if (bIsMoving)
+    {
+        CharacterMove();
+    }
+
+    //// 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
     //if (JoystickWidget)
     //{
     //    FVector2D JoyInput = JoystickWidget->GetJoystickVector();
@@ -180,15 +185,15 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
 {
-    if (Controller)
-    {
-        FVector2D InputDirection = InValue.Get<FVector2D>();
-        FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
-        //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
-        AddMovementInput(MoveDirection);
-    }
-    else
-        UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
+    //if (Controller)
+    //{
+    //    FVector2D InputDirection = InValue.Get<FVector2D>();
+    //    FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
+    //    //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
+    //    AddMovementInput(MoveDirection);
+    //}
+    //else
+    //    UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
 }
 
 void AHeroCharacter::OnAttackInput()
@@ -256,22 +261,24 @@ AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
     return ClosestActor;
 }
 
-void AHeroCharacter::MoveCharacter_Implementation(FVector2D JoyInput)
+void AHeroCharacter::MoveStart_Implementation(FVector2D JoyInput)
 {
-    FVector2D MoveDirection = JoyInput;
+    bIsMoving = true;
 
-    if (MoveDirection != FVector2D::ZeroVector)
-    {
-        const FVector ForwardDirection = FVector::ForwardVector;
-        const FVector RightDirection = FVector::RightVector;
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
+}
 
-        AddMovementInput(ForwardDirection, JoyInput.X);
-        AddMovementInput(RightDirection, JoyInput.Y);
-    }
+void AHeroCharacter::ChangeDirection_Implementation(FVector2D JoyInput)
+{
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
 }
 
 void AHeroCharacter::EndMovement_Implementation()
 {
-    AddMovementInput(FVector::ZeroVector);
+    bIsMoving = false;
 }
 
+void AHeroCharacter::CharacterMove()
+{
+    AddMovementInput(MoveDirection);
+}

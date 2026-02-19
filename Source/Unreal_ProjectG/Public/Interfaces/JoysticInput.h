@@ -24,7 +24,10 @@ class UNREAL_PROJECTG_API IJoysticInput
 public:
     //영웅 캐릭터 이동
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movement")
-    void MoveCharacter(FVector2D JoyInput);
+    void MoveStart(FVector2D JoyInput);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movement")
+    void ChangeDirection(FVector2D JoyInput);
 
     //영웅 캐릭터 정지
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movement")

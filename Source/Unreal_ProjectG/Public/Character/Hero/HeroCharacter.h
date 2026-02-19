@@ -62,10 +62,16 @@ private:
     AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
 
     UFUNCTION()
-    virtual void MoveCharacter_Implementation(FVector2D JoyInput) override;
+    virtual void MoveStart_Implementation(FVector2D JoyInput) override;
+
+    UFUNCTION()
+    virtual void ChangeDirection_Implementation(FVector2D JoyInput) override;
 
     UFUNCTION()
     virtual void EndMovement_Implementation() override;
+
+    UFUNCTION()
+    void CharacterMove();
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -134,4 +140,8 @@ private:
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
 
     TArray<AActor*> PotentialTargets;
+
+    bool bIsMoving = false;
+
+    FVector MoveDirection = FVector::ZeroVector;
 };

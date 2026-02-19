@@ -8,7 +8,7 @@
 #include "UI/Battle/BarWidget.h"
 #include "UI/Battle/ActiveSkillWidget.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
-#include "Interfaces/JoysticInput.h
+#include "Interfaces/JoysticInput.h"
 #include "Components/Combat/PawnCombatComponent.h"
 
 void UControlPanelWidget::InitBar(float CurrentHP, float MaxHP, float CurrentCost, float MaxCost)
@@ -66,11 +66,22 @@ FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
         if (BackgroundGeometry.IsUnderLocation(ScreenPos))
         {
             bIsAreaPressed = true;
+
+            // 위젯 로컬 좌표 계산
+            FVector2D LocalPos = BackgroundGeometry.AbsoluteToLocal(ScreenPos);
+            FVector2D Center = BackgroundGeometry.GetLocalSize() / 2.0f;
+
+            // 중심으로부터의 벡터 계산
+            FVector2D Delta = LocalPos - Center;
+
+            // 거리 제한 및 정규화
+            float Distance = FMath::Clamp(Delta.Size(), 0.0f, JoystickRange);
+            JoystickVector = Delta.GetSafeNormal(); // 이동 방향
             
             //인터페이스를 사용해 캐릭터 움직임
             if(Hero)
             {
-                IJoysticInput::Execute_MoveCharacter(Hero, JoystickVector);
+                IJoysticInput::Execute_MoveStart(Hero, JoystickVector);
             }
 
             return FReply::Handled().CaptureMouse(TakeWidget());
@@ -112,7 +123,7 @@ FReply UControlPanelWidget::NativeOnMouseMove(const FGeometry& InGeometry, const
         //인터페이스를 사용해 캐릭터 움직임
         if (Hero)
         {
-            IJoysticInput::Execute_MoveCharacter(Hero, JoystickVector);
+            IJoysticInput::Execute_ChangeDirection(Hero, JoystickVector);
         }
 
         return FReply::Handled();

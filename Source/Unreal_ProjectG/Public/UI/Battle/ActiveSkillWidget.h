@@ -36,6 +36,8 @@ protected:
     UFUNCTION()
     void OnActiveButtonClicked();
 
+    void UpdateSlot(bool bIsActivate);
+
 protected:
     // UI 바인딩
     UPROPERTY(meta = (BindWidget))

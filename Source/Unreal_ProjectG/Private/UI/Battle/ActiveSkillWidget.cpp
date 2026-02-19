@@ -110,12 +110,29 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     {
         // 이미 실행 중이라면 취소
         AbilitySystemComponent->CancelAbilityHandle(AbilitySpec);
+        UpdateSlot(false);
         //UE_LOG(LogTemp, Log, TEXT("어빌리티 취소 : %s"), *Spec->Ability->GetName());
     }
     else
     {
         // 실행 중이 아니라면 활성화
         AbilitySystemComponent->TryActivateAbility(AbilitySpec);
+        UpdateSlot(true);
         //UE_LOG(LogTemp, Log, TEXT("어빌리티 활성화 : %s"), *Spec->Ability->GetName());
     }
+}
+
+void UActiveSkillWidget::UpdateSlot(bool bIsActivate)
+{
+    FButtonStyle NewStyle = ActiveButton->GetStyle();
+    if (bIsActivate)
+    {
+        //NewStyle.Normal.SetResourceObject();
+    }
+    else
+    {
+        //NewStyle.Normal.SetResourceObject();
+    }
+
+    ActiveButton->SetStyle(NewStyle);
 }

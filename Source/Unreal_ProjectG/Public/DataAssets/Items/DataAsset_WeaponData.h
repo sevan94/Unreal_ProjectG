@@ -19,6 +19,6 @@ public:
     FORCEINLINE const FPGHeroWeaponData& GetHeroWeaponData() const { return HeroWeaponData; }
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Data")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FPGHeroWeaponData HeroWeaponData;
 };

@@ -2,17 +2,16 @@
 
 using UnrealBuildTool;
 
-public class Unreal_ProjectG : ModuleRules
+public class PGEditor : ModuleRules
 {
-	public Unreal_ProjectG(ReadOnlyTargetRules Target) : base(Target)
+	public PGEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-		"UMG", "GameplayTags", "GameplayAbilities", "GameplayTasks", "Niagara", "Slate", "SlateCore", });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "Unreal_ProjectG"});
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		 PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "PropertyEditor", "Slate", "SlateCore", "GameplayAbilities" });
 		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");

@@ -9,6 +9,7 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Components/Combat/PawnCombatComponent.h"
 #include "TimerManager.h"
+#include "UI/DataTable/SkillUIDataTable.h"
 
 void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandle)
 {
@@ -25,9 +26,21 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             {
                 AbilityObject = Spec->Ability;
             }
-            FString AbilityName = Spec->Ability->GetName();
             CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
             UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
+
+            FString AbilityName = AbilityObject->GetClass()->GetName();
+            if (SkillDataTable)
+            {
+                FSkillUIDataTable* FoundRow = SkillDataTable->FindRow<FSkillUIDataTable>(FName(*AbilityName), TEXT("Skill Lookup"));
+                if (FoundRow)
+                {
+                    SkillIcon = FoundRow->SkillIcon;
+
+                    // 초기 이미지 설정
+                    UpdateSlot(true);
+                }
+            }
 
             if (AbilitySystemComponent && CooldownTag.IsValid())
             {
@@ -110,14 +123,14 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     {
         // 이미 실행 중이라면 취소
         AbilitySystemComponent->CancelAbilityHandle(AbilitySpec);
-        UpdateSlot(false);
+        UpdateSlot(true);
         //UE_LOG(LogTemp, Log, TEXT("어빌리티 취소 : %s"), *Spec->Ability->GetName());
     }
     else
     {
         // 실행 중이 아니라면 활성화
         AbilitySystemComponent->TryActivateAbility(AbilitySpec);
-        UpdateSlot(true);
+        UpdateSlot(false);
         //UE_LOG(LogTemp, Log, TEXT("어빌리티 활성화 : %s"), *Spec->Ability->GetName());
     }
 }
@@ -127,11 +140,11 @@ void UActiveSkillWidget::UpdateSlot(bool bIsActivate)
     FButtonStyle NewStyle = ActiveButton->GetStyle();
     if (bIsActivate)
     {
-        //NewStyle.Normal.SetResourceObject();
+        NewStyle.Normal.SetResourceObject(SkillIcon);
     }
     else
     {
-        //NewStyle.Normal.SetResourceObject();
+        NewStyle.Normal.SetResourceObject(CancelIcon);
     }
 
     ActiveButton->SetStyle(NewStyle);

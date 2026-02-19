@@ -49,6 +49,15 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> CoolTimeText;
 
+    UPROPERTY(EditAnywhere, Category = "Data")
+    TObjectPtr<UDataTable> SkillDataTable;
+
+    UPROPERTY()
+    TObjectPtr<UTexture2D> SkillIcon;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    TObjectPtr<UTexture2D> CancelIcon;
+
     FGameplayTag CooldownTag;
 
 private:

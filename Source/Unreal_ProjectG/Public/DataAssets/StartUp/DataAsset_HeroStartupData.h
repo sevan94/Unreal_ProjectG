@@ -20,6 +20,6 @@ class UNREAL_PROJECTG_API UDataAsset_HeroStartupData : public UDataAsset_Startup
 virtual void GiveToAbilitySystemComponent(UPGAbilitySystemComponent* InASCToGive, int32 InLevel) override;
 
 private:
-UPROPERTY(EditDefaultsOnly, Category = "HeroStartupData", meta = (TitleProperty = "InputTag"))
-TArray<FPGHeroAbilitySet> HeroAbilitySets;
+UPROPERTY(EditDefaultsOnly, Category = "HeroStartupData")
+TArray<TSubclassOf<UPGHeroGameplayAbility>> HeroAbilities;
 };

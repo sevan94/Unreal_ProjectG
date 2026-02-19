@@ -10,6 +10,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Types/PGEnumTypes.h"
 #include "TimerManager.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 
 UHeroAbility_BaseMeleeAttack::UHeroAbility_BaseMeleeAttack()
 {
@@ -19,6 +20,12 @@ UHeroAbility_BaseMeleeAttack::UHeroAbility_BaseMeleeAttack()
 
 void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+        return;
+    }
+
     if (CachedWeaponStaticMesh == nullptr)
     {
         CachedWeaponStaticMesh = GetHeroCombatComponentFromActorInfo()->CachedWeaponMeshComponent.Get();
@@ -47,6 +54,8 @@ void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     // 이벤트 수신 핸들러 바인딩
     MeleeHitEventTask->EventReceived.AddUniqueDynamic(this, &UHeroAbility_BaseMeleeAttack::ToggleWeaponTrace);
     MeleeHitEventTask->ReadyForActivation();
+
+    UE_LOG(LogTemp, Log, TEXT("Hero Attack"));
 }
 
 void UHeroAbility_BaseMeleeAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

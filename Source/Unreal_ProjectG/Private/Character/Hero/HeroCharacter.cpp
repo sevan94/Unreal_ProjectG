@@ -137,6 +137,7 @@ void AHeroCharacter::BeginPlay()
     if (AggroCollision)
     {
         AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
+        AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
         UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
     }
 }
@@ -149,6 +150,11 @@ void AHeroCharacter::Tick(float DeltaTime)
     if (bIsMoving)
     {
         CharacterMove();
+    }
+
+    if (!(PotentialTargets.IsEmpty()))
+    {
+        ActivateAttack();
     }
 
     //// 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
@@ -215,8 +221,19 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
         if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
         {
             PotentialTargets.AddUnique(Unit);
+        }
+    }
+}
 
-            ActivateAttack();
+void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        {
+            PotentialTargets.RemoveSwap(Unit);
         }
     }
 }

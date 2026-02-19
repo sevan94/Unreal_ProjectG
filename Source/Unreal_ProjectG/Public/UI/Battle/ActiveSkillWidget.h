@@ -47,9 +47,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> CoolTimeText;
 
-    // 쿨타임용 태그
-    UPROPERTY(EditAnywhere, Category = "GAS")
-    FGameplayTag CoolDownTag;
+    FGameplayTag CooldownTag;
 
 private:
     // 영웅 어빌리티 시스템

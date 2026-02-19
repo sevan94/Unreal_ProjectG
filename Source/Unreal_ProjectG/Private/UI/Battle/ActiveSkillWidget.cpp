@@ -21,12 +21,20 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
         if (Spec)
         {
             AbilityObject = Spec->GetPrimaryInstance();
-            FString AbilityName = Spec->Ability->GetName();
-            UE_LOG(LogTemp, Log, TEXT("가져온 어빌리티 이름: %s"), *AbilityName);
-
             if (!AbilityObject)
             {
                 AbilityObject = Spec->Ability;
+            }
+            FString AbilityName = Spec->Ability->GetName();
+            CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
+            UE_LOG(LogTemp, Log, TEXT("어빌리티(%s)로부터 쿨다운 태그(%s)를 자동으로 가져왔습니다."),
+                *Spec->Ability->GetName(), *CooldownTag.ToString());
+
+            if (AbilitySystemComponent && CooldownTag.IsValid())
+            {
+                // 태그 변경 이벤트 등록
+                TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
+                    .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
             }
         }
     }
@@ -86,12 +94,6 @@ void UActiveSkillWidget::NativeConstruct()
     if (APawn* OwningPawn = GetOwningPlayerPawn())
     {
         AbilitySystemComponent = OwningPawn->FindComponentByClass<UAbilitySystemComponent>();
-        if (AbilitySystemComponent && CoolDownTag.IsValid())
-        {
-            // 태그 변경 이벤트 등록
-            TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CoolDownTag, EGameplayTagEventType::NewOrRemoved)
-                .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
-        }
     }
 
     if (ActiveButton)

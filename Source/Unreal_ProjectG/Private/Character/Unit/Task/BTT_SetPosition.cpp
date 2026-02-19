@@ -94,8 +94,8 @@ AUnitCharacter* UBTT_SetPosition::FindAlly(AUnitCharacter* SelfUnit, FVector Tar
     {
         AUnitCharacter* OtherUnit = Cast<AUnitCharacter>(Result.GetActor());
 
-        // 죽은 유닛은 방패막이로 쓸 수 없으므로 생존 여부 체크 (IsAlive() 등 커스텀 함수 사용)
-        if (OtherUnit /* && OtherUnit->IsAlive() */)
+        // 죽은 유닛은 방패막이로 쓸 수 없으므로 생존 여부 체크해야함
+        if (OtherUnit)
         {
             UAbilitySystemComponent* OtherASC = OtherUnit->GetAbilitySystemComponent();
             if (OtherASC)

@@ -8,9 +8,9 @@
 UPGCharacterAttributeSet::UPGCharacterAttributeSet()
 {
     InitMaxHealth(100.0f);
-    InitHealth(100.0f);
-    InitCost(0.0f);
+    InitHealth(GetMaxHealth());
     InitMaxCost(100.0f);
+    InitCost(GetMaxCost());
     InitAttackPower(10.0f);
     InitAttackSpeed(1.0f);
 }

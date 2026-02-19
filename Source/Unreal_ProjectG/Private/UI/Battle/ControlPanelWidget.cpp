@@ -11,20 +11,44 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "Components/Combat/PawnCombatComponent.h"
 
-void UControlPanelWidget::UpdateHP(float InValue)
+void UControlPanelWidget::UpdateHeroHP(float InValue)
 {
     HPBar->UpdateCurrent(InValue);
 }
 
-void UControlPanelWidget::InitHero()
+void UControlPanelWidget::UpdateMaxHeroHP(float InValue)
 {
-    UPGCharacterAttributeSet* AS = HeroCharacter->GetHeroAttributeSet();
-    HPBar->InitProgressBar(FLinearColor::Red, FText::FromString(TEXT("Hero HP")), AS->GetMaxHealth());
+    HPBar->InitProgressBar(FLinearColor::Red, FText::FromString(TEXT("Hero HP")), InValue);
 }
 
 void UControlPanelWidget::UpdateCost(float InValue)
 {
     CostBar->UpdateCurrent(InValue);
+}
+
+void UControlPanelWidget::UpdateMaxCost(float InValue)
+{
+    CostBar->InitProgressBar(FLinearColor::Blue, FText::FromString(TEXT("Cost")), InValue);
+}
+
+void UControlPanelWidget::UpdateBaseHP(FGameplayTag TeamTag, float InValue)
+{
+    
+}
+
+void UControlPanelWidget::UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue)
+{
+}
+
+void UControlPanelWidget::SetAbilitySpecHandle()
+{
+    // 영웅 무기 스킬 어빌리티 설정
+    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+    if (!SpecHandleArray.IsEmpty())
+    {
+        UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+        WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+    }
 }
 
 void UControlPanelWidget::NativeConstruct()
@@ -41,18 +65,22 @@ void UControlPanelWidget::NativeConstruct()
         HeroCharacter = Cast<AHeroCharacter>(Controller->GetPawn());
         if (HeroCharacter)
         {
-            HeroCharacter->OnHeroInitialize.AddDynamic(this, &UControlPanelWidget::InitHero);
-            HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHP);
+            HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHeroHP);
+            HeroCharacter->OnHeroMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxHeroHP);
+            HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
+            HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-            // 영웅 무기 스킬 어빌리티 설정
-            TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-            if (!SpecHandleArray.IsEmpty())
-            {
-                //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-                WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
-            }
+            //// 영웅 무기 스킬 어빌리티 설정
+            //TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+            //if (!SpecHandleArray.IsEmpty())
+            //{
+            //    //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+            //    WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+            //}
         }
     }
+
+    
 }
 
 FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

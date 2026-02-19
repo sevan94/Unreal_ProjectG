@@ -32,10 +32,8 @@ public:
 
     virtual void OnDie() {};
 
-    virtual void OnHealthUpdate(const struct FOnAttributeChangeData& Data);
-
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
-    FORCEINLINE UPGCharacterAttributeSet* GetHeroAttributeSet() const { return CharacterAttributeSet; }
+    FORCEINLINE UPGCharacterAttributeSet* GetAttributeSet() const { return CharacterAttributeSet; }
     FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
 protected:
     virtual void PossessedBy(AController* NewController) override;

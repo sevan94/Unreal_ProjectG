@@ -27,11 +27,6 @@ UPawnCombatComponent* APGCharacterBase::GetPawnCombatComponent() const
     return nullptr;
 }
 
-void APGCharacterBase::OnHealthUpdate(const FOnAttributeChangeData& Data)
-{
-    // 가상 함수
-}
-
 void APGCharacterBase::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
@@ -39,13 +34,6 @@ void APGCharacterBase::PossessedBy(AController* NewController)
     if (PGAbilitySystemComponent)
     {
         PGAbilitySystemComponent->InitAbilityActorInfo(this, this);
-    }
-
-    // 체력 변경 감지
-    if (CharacterAttributeSet)
-    {
-        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            UPGCharacterAttributeSet::GetHealthAttribute()).AddUObject(this, &APGCharacterBase::OnHealthUpdate);
     }
 
     // CharacterStartupData가 없으면 경고 로그 출력

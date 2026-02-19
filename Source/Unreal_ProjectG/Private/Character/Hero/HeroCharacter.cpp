@@ -66,17 +66,6 @@ void AHeroCharacter::SpawnCharacter()
     MovementComponent->Activate();
 }
 
-void AHeroCharacter::OnHealthUpdate(const FOnAttributeChangeData& Data)
-{
-    if (Data.Attribute == CharacterAttributeSet->GetHealthAttribute())
-    {
-        if (OnHeroHpChanged.IsBound())
-        {
-            OnHeroHpChanged.Broadcast(Data.NewValue);
-        }
-    }
-}
-
 void AHeroCharacter::MakeHeroDead()
 {
     MovementComponent->DisableMovement();
@@ -95,6 +84,21 @@ void AHeroCharacter::MakeHeroDead()
     if (OnPlayerDied.IsBound())
     {
         OnPlayerDied.Broadcast();
+    }
+}
+
+void AHeroCharacter::BroadCastAttributeSet()
+{
+    if (ResourceAttribute)
+    {
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
     }
 }
 
@@ -131,10 +135,8 @@ void AHeroCharacter::BeginPlay()
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
         }
     }
-    if (OnHeroInitialize.IsBound())
-    {
-        OnHeroInitialize.Broadcast();
-    }
+
+    BroadCastAttributeSet();
 }
 
 // Called every frame
@@ -155,6 +157,26 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
         enhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AHeroCharacter::OnMovementInput);
         enhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AHeroCharacter::OnAttackInput);
     }
+}
+
+void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroCostChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
 }
 
 void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)

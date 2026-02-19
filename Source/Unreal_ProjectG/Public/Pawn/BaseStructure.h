@@ -6,11 +6,13 @@
 #include "Components/SphereComponent.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
+#include "GameplayEffectTypes.h"
 #include "BaseStructure.generated.h"
 
 // 델리게이트 선언 (기지 파괴 알림용)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBaseDestroyed, ETeamType, DestroyedTeam);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBaseHpChanged, FGameplayTag, TeamTag, float, CurrentHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBaseMaxHpChanged, FGameplayTag, TeamTag, float, MaxHealth);
 
 
 UCLASS()
@@ -36,8 +38,8 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnBaseDestroyed OnBaseDestroyed;
 
-    UPROPERTY(BlueprintAssignable)
     FOnBaseHpChanged OnBaseHpChanged;
+    FOnBaseMaxHpChanged OnBaseMaxHpChanged;
 
     UPROPERTY(EditDefaultsOnly, Category = "GAS")
     TSubclassOf<class UGameplayEffect> InitStatEffect;
@@ -76,12 +78,17 @@ public:
    
     virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    virtual void OnHealthUpdate(const struct FOnAttributeChangeData& Data) override;
-
     // 블루프린트에서 투사체를 쏘거나 포탄 이펙트를 띄우기 위한 이벤트
     UFUNCTION(BlueprintImplementableEvent, Category = "Attack")
     void BP_OnBaseAttack(AActor* TargetActor);
 
     // 파괴 처리
     void DestroyBase();
+
+    // UI 연동 함수
+    void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
+    void MaxHealthChange(const FOnAttributeChangeData& Data) const;
+
+    // UI 테스트용 함수
+    void ChangeHP();
 };

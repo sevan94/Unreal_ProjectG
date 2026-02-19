@@ -54,6 +54,11 @@ void ABaseStructure::BeginPlay()
 
     }
 
+    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+        CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &ABaseStructure::CurrentHealthChange);
+    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+        CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
+
     // 오버랩 이벤트
     AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeBeginOverlap);
     AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeEndOverlap);
@@ -121,11 +126,6 @@ UAbilitySystemComponent* ABaseStructure::GetAbilitySystemComponent() const
     return PGAbilitySystemComponent;
 }
 
-void ABaseStructure::OnHealthUpdate(const FOnAttributeChangeData& Data)
-{
-
-}
-
 void ABaseStructure::DestroyBase()
 {
     // 이미 파괴된 상태라면 무시
@@ -141,4 +141,13 @@ void ABaseStructure::DestroyBase()
 
     // 2. 기지 파괴
     Destroy();
+}
+
+void ABaseStructure::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnBaseHpChanged.Broadcast(TeamTag, Data.NewValue);
+}
+void ABaseStructure::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnBaseMaxHpChanged.Broadcast(TeamTag, Data.NewValue);
 }

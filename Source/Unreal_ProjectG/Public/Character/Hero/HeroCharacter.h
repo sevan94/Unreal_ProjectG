@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
+#include "GameplayEffectTypes.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
+// 스테이터스 변화용 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroHpChanged, float, CurrentHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHeroInitialize);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxHPChanged, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroCostChanged, float, CurrentCost);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxCostChanged, float, MaxCost);
 
 class UHeroCombatComponent;
 
@@ -31,10 +35,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     virtual void OnDie() override;
 
-    // UI 업데이트 함수
-    virtual void OnHealthUpdate(const struct FOnAttributeChangeData& Data) override;
-
     void MakeHeroDead();
+
+    // UI 업데이트용 함수
+    void BroadCastAttributeSet();
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
@@ -43,6 +47,12 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    // UI 알림용 함수
+    void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
+    void MaxHealthChange(const FOnAttributeChangeData& Data) const;
+    void CurrentCostChange(const FOnAttributeChangeData& Data) const;
+    void MaxCostChange(const FOnAttributeChangeData& Data) const;
 
 private:
     //이동
@@ -57,7 +67,9 @@ public:
     FOnPlayerDied OnPlayerDied;
 
     FOnHeroHpChanged OnHeroHpChanged;
-    FOnHeroInitialize OnHeroInitialize;
+    FOnHeroMaxHPChanged OnHeroMaxHpChanged;
+    FOnHeroCostChanged OnHeroCostChanged;
+    FOnHeroMaxCostChanged OnHeroMaxCostChanged;
 
 protected:
     //컴포넌트

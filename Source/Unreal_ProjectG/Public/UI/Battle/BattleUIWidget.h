@@ -51,8 +51,9 @@ protected:
     TObjectPtr<UButton> PauseButton;
 
     // 컨트롤 패널 위젯
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (BindWidget))
     TObjectPtr<UControlPanelWidget> ControlPanel;
+
     UPROPERTY(Transient, meta = (BindWidgetAnimation))
     TObjectPtr<UWidgetAnimation> ControlPanelMoveAnim;
 

@@ -96,6 +96,14 @@ void AHeroCharacter::MakeHeroDead()
     }
 }
 
+void AHeroCharacter::InitializeHero()
+{
+    if (PGAbilitySystemComponent && GA_Initialize)
+    {
+        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Initialize);
+    }
+}
+
 void AHeroCharacter::OnDie()
 {
     if (PGAbilitySystemComponent && GA_Die)
@@ -131,6 +139,10 @@ void AHeroCharacter::BeginPlay()
         if (GA_Attack)
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1, 1, this));
+        }
+        if (GA_Initialize)
+        {
+            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
         }
     }
 

@@ -34,6 +34,10 @@ public:
     UFUNCTION()
     void MakeHeroDead();
 
+    //게임 시작시 호출할 함수. 코스트 재생 등
+    UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
+    void InitializeHero();
+
     void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
@@ -125,9 +129,12 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;
+
     //사망 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
-    TSubclassOf<class UGameplayAbility> GA_Die = nullptr;
+    TSubclassOf<UGameplayAbility> GA_Die = nullptr;
 
     //공격
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")

@@ -63,6 +63,7 @@ public:
     {
         CharacterStartupData = InData;
     }
+
 protected:
     //
     virtual void PossessedBy(AController* NewController) override;

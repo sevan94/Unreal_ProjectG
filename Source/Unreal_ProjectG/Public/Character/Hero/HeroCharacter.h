@@ -33,7 +33,7 @@ public:
     UFUNCTION()
     void MakeHeroDead();
 
-    void SetJoystickWidget(class UControlPanel* InWidget) { JoystickWidget = InWidget; }
+    void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
@@ -103,7 +103,7 @@ protected:
 
     // 조이스틱
     UPROPERTY()
-    TObjectPtr<class UControlPanel> JoystickWidget = nullptr;
+    TObjectPtr<class UControlPanelWidget> JoystickWidget = nullptr;
 
     //리소스를 관리하는 어트리뷰트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

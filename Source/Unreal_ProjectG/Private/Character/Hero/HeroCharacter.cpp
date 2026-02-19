@@ -14,12 +14,16 @@
 #include "DataAssets/StartUp/DataAsset_HeroStartupData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "Components/SphereComponent.h"
+#include "Character/Unit/UnitCharacter.h"
+#include "PGGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
     MovementComponent = GetCharacterMovement();
 
@@ -42,6 +46,11 @@ AHeroCharacter::AHeroCharacter()
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
     EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+
+    AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
+    AggroCollision->SetupAttachment(RootComponent);
+    AggroCollision->SetSphereRadius(500.f);
+    AggroCollision->SetGenerateOverlapEvents(true);
 }
 
 UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const
@@ -49,7 +58,7 @@ UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const
     return HeroCombatComponent;
 }
 
-void AHeroCharacter::SpawnCharacter()
+void AHeroCharacter::SpawnHero()
 {
     USkeletalMeshComponent* MeshComp = GetMesh();
     MeshComp->bPauseAnims = false;
@@ -100,14 +109,14 @@ void AHeroCharacter::OnDie()
 // Called when the game starts or when spawned
 void AHeroCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
     //ABP 가져오기
     AnimInstance = GetMesh()->GetAnimInstance();
 
     if (!CharacterStartupData.IsNull())
     {
-        if(UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
+        if (UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
         {
             LoadData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
         }
@@ -119,19 +128,28 @@ void AHeroCharacter::BeginPlay()
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
         }
+        if (GA_Attack)
+        {
+            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1, 1, this));
+        }
+    }
+
+    if (AggroCollision)
+    {
+        AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
+        UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
     }
 }
 
 // Called every frame
 void AHeroCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
     // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
     if (JoystickWidget)
     {
         FVector2D JoyInput = JoystickWidget->GetJoystickVector();
-        UE_LOG(LogTemp, Log, TEXT("조이스틱 위젯 확인"));
 
         if (!JoyInput.IsNearlyZero())
         {
@@ -142,7 +160,7 @@ void AHeroCharacter::Tick(float DeltaTime)
             AddMovementInput(ForwardDirection, -JoyInput.Y);
             AddMovementInput(RightDirection, JoyInput.X);
 
-            UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
+            //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
         }
     }
 }
@@ -150,7 +168,7 @@ void AHeroCharacter::Tick(float DeltaTime)
 // Called to bind functionality to input
 void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     if (enhancedInputComponent)
@@ -175,6 +193,66 @@ void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
 
 void AHeroCharacter::OnAttackInput()
 {
+    if (PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+    }
+}
 
+void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    UE_LOG(LogTemp, Log, TEXT("Overlap"));
+
+    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        {
+            PotentialTargets.AddUnique(Unit);
+
+            ActivateAttack();
+        }
+    }
+}
+
+void AHeroCharacter::ActivateAttack()
+{
+    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
+
+    FGameplayEventData EventData;
+    EventData.Instigator = this;
+    EventData.Target = AttackTarget;
+
+    /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
+    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+}
+
+AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
+{
+    if (TargetArray.IsEmpty())
+    {
+        return nullptr;
+    }
+
+    AActor* ClosestActor = nullptr;
+
+    float MinDistanceSq = MAX_flt;
+
+    for (AActor* Target : TargetArray)
+    {
+        if (IsValid(Target))
+        {
+            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
+
+            if (CurrentDistanceSq < MinDistanceSq)
+            {
+                MinDistanceSq = CurrentDistanceSq;
+                ClosestActor = Target;
+            }
+        }
+    }
+
+    return ClosestActor;
 }
 

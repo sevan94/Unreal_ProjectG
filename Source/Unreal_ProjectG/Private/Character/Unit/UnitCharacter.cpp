@@ -69,8 +69,6 @@ void AUnitCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) c
     }
 }
 
-
-
 void AUnitCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);

@@ -27,8 +27,7 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             }
             FString AbilityName = Spec->Ability->GetName();
             CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
-            UE_LOG(LogTemp, Log, TEXT("어빌리티(%s)로부터 쿨다운 태그(%s)를 자동으로 가져왔습니다."),
-                *Spec->Ability->GetName(), *CooldownTag.ToString());
+            UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
 
             if (AbilitySystemComponent && CooldownTag.IsValid())
             {
@@ -104,8 +103,19 @@ void UActiveSkillWidget::NativeConstruct()
 
 void UActiveSkillWidget::OnActiveButtonClicked()
 {
-    if (AbilitySystemComponent && AbilitySpec.IsValid())
+    FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpec);
+    if (!Spec) return;
+
+    if (Spec->IsActive())
     {
+        // 이미 실행 중이라면 취소
+        AbilitySystemComponent->CancelAbilityHandle(AbilitySpec);
+        //UE_LOG(LogTemp, Log, TEXT("어빌리티 취소 : %s"), *Spec->Ability->GetName());
+    }
+    else
+    {
+        // 실행 중이 아니라면 활성화
         AbilitySystemComponent->TryActivateAbility(AbilitySpec);
+        //UE_LOG(LogTemp, Log, TEXT("어빌리티 활성화 : %s"), *Spec->Ability->GetName());
     }
 }

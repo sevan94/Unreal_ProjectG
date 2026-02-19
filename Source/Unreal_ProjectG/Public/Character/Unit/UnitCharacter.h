@@ -59,7 +59,7 @@ public:
 
     void SetCharacterStartupData(const TSoftObjectPtr<class UDataAsset_UnitStartupData>& InData)
     {
-        CharacterStartupData = InData;
+        CharacterStartupData = InData.ToSoftObjectPath();
     }
 protected:
     //

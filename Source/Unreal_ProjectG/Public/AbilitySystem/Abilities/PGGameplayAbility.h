@@ -41,6 +41,8 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "PG|Ability", meta = (DisplayName = "Apply Gameplay Effect Spec Handle To Target Actor", ExpandEnumAsExecs = "OutSuccessType"))
     FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType);
 
+    // 타깃 액터에게 게임플레이 이펙트를 제거하는 네이티브 함수
+    void NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle);
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "PGGameplayAbility")
     EPGAbilityActivationPolicy AbilityActivationPolicy = EPGAbilityActivationPolicy::OnTriggered;

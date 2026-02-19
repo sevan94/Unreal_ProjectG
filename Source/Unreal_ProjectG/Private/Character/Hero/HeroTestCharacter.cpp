@@ -4,10 +4,12 @@
 #include "Character/Hero/HeroTestCharacter.h"
 #include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "DataAssets/Items/DataAsset_ArmorData.h"
+#include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AnimInstance/Hero/PGHeroLinkedAnimLayer.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Engine/AssetManager.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 
 AHeroTestCharacter::AHeroTestCharacter()
 {
@@ -36,6 +38,7 @@ void AHeroTestCharacter::SetupEquipmentToPawn()
         )
     );
 
+    // 비동기적으로 로드
     UAssetManager::GetStreamableManager().RequestAsyncLoad(
         ArmorDataAsset.ToSoftObjectPath(),
         FStreamableDelegate::CreateLambda(
@@ -48,6 +51,12 @@ void AHeroTestCharacter::SetupEquipmentToPawn()
             }
         )
     );
+
+    // 동기 로드
+    if(AccessoryDataAsset.LoadSynchronous())
+    {
+        SetupAccessoryToPawn();
+    }
 }
 
 void AHeroTestCharacter::SetupWeaponToPawn()
@@ -97,4 +106,14 @@ void AHeroTestCharacter::SetupWeaponToPawn()
 void AHeroTestCharacter::SetupArmorToPawn()
 {
     ArmorDataAsset.Get()->MakeOutgoingArmorEffectSpecHandle(PGAbilitySystemComponent, TestAbilityLevel);
+}
+
+void AHeroTestCharacter::SetupAccessoryToPawn()
+{
+    FGameplayAbilitySpec AbilitySpec(AccessoryDataAsset.Get()->GetGrantedAbility());
+    AbilitySpec.SourceObject = this;
+    AbilitySpec.Level = TestAbilityLevel;
+    PGAbilitySystemComponent->GiveAbility(AbilitySpec);
+
+    PGAbilitySystemComponent->TryActivateAbility(AbilitySpec.Handle);
 }

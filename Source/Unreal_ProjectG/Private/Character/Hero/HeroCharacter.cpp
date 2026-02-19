@@ -8,7 +8,6 @@
 #include "EnhancedInputComponent.h"
 #include "Components/Resource/HeroResourceComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/Equipment/EquipmentComponent.h"
 #include "UI/ControlPanel.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "DataAssets/StartUp/DataAsset_HeroStartupData.h"
@@ -38,10 +37,9 @@ AHeroCharacter::AHeroCharacter()
     WeaponStaticMesh->SetupAttachment(GetMesh());
     WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     ResourceAttribute = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("ResourceAttribute"));
-
+    
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
-    EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const

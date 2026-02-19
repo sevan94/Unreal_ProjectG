@@ -9,6 +9,7 @@
 class UImage;
 class UBarWidget;
 class UActiveSkillWidget;
+class AHeroCharacter;
 
 /**
  * 
@@ -62,4 +63,7 @@ private:
     bool bIsAreaPressed = false;
     float JoystickRange = 150.0f; // 블루프린트의 Clamp 값
     FVector2D JoystickVector = FVector2D::ZeroVector;
+
+    UPROPERTY()
+    TObjectPtr<AHeroCharacter> Hero = nullptr;
 };

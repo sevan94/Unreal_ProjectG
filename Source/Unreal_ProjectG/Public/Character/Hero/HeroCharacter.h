@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
+#include "Interfaces/JoysticInput.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
@@ -11,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
 class UHeroCombatComponent;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IJoysticInput
 {
     GENERATED_BODY()
 
@@ -59,6 +60,12 @@ private:
 
     UFUNCTION()
     AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
+
+    UFUNCTION()
+    virtual void MoveCharacter_Implementation(FVector2D JoyInput) override;
+
+    UFUNCTION()
+    virtual void EndMovement_Implementation() override;
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")

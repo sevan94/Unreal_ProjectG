@@ -147,22 +147,22 @@ void AHeroCharacter::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
     // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
-    if (JoystickWidget)
-    {
-        FVector2D JoyInput = JoystickWidget->GetJoystickVector();
+    //if (JoystickWidget)
+    //{
+    //    FVector2D JoyInput = JoystickWidget->GetJoystickVector();
 
-        if (!JoyInput.IsNearlyZero())
-        {
-            const FVector ForwardDirection = FVector::ForwardVector;
-            const FVector RightDirection = FVector::RightVector;
+    //    if (!JoyInput.IsNearlyZero())
+    //    {
+    //        const FVector ForwardDirection = FVector::ForwardVector;
+    //        const FVector RightDirection = FVector::RightVector;
 
-            // 위젯 좌표계와 월드 좌표계 매칭 (상황에 따라 Y축 반전 필요할 수 있음)
-            AddMovementInput(ForwardDirection, JoyInput.X);
-            AddMovementInput(RightDirection, JoyInput.Y);
+    //        // 위젯 좌표계와 월드 좌표계 매칭 (상황에 따라 Y축 반전 필요할 수 있음)
+    //        AddMovementInput(ForwardDirection, JoyInput.X);
+    //        AddMovementInput(RightDirection, JoyInput.Y);
 
-            //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
-        }
-    }
+    //        //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
+    //    }
+    //}
 }
 
 // Called to bind functionality to input
@@ -254,5 +254,24 @@ AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
     }
 
     return ClosestActor;
+}
+
+void AHeroCharacter::MoveCharacter_Implementation(FVector2D JoyInput)
+{
+    FVector2D MoveDirection = JoyInput;
+
+    if (MoveDirection != FVector2D::ZeroVector)
+    {
+        const FVector ForwardDirection = FVector::ForwardVector;
+        const FVector RightDirection = FVector::RightVector;
+
+        AddMovementInput(ForwardDirection, JoyInput.X);
+        AddMovementInput(RightDirection, JoyInput.Y);
+    }
+}
+
+void AHeroCharacter::EndMovement_Implementation()
+{
+    AddMovementInput(FVector::ZeroVector);
 }
 

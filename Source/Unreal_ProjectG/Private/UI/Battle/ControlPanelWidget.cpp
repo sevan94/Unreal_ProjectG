@@ -8,6 +8,7 @@
 #include "UI/Battle/BarWidget.h"
 #include "UI/Battle/ActiveSkillWidget.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
+#include "Interfaces/JoysticInput.h
 #include "Components/Combat/PawnCombatComponent.h"
 
 void UControlPanelWidget::InitBar(float CurrentHP, float MaxHP, float CurrentCost, float MaxCost)
@@ -30,7 +31,7 @@ void UControlPanelWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
     if (Hero)
     {
         UE_LOG(LogTemp, Log, TEXT("영웅 확인 완료"));
@@ -65,6 +66,13 @@ FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
         if (BackgroundGeometry.IsUnderLocation(ScreenPos))
         {
             bIsAreaPressed = true;
+            
+            //인터페이스를 사용해 캐릭터 움직임
+            if(Hero)
+            {
+                IJoysticInput::Execute_MoveCharacter(Hero, JoystickVector);
+            }
+
             return FReply::Handled().CaptureMouse(TakeWidget());
         }
     }
@@ -101,6 +109,12 @@ FReply UControlPanelWidget::NativeOnMouseMove(const FGeometry& InGeometry, const
         // 실제 이동에 사용할 벡터 업데이트 (0~1 사이 값)
         JoystickVector *= (Distance / JoystickRange);
 
+        //인터페이스를 사용해 캐릭터 움직임
+        if (Hero)
+        {
+            IJoysticInput::Execute_MoveCharacter(Hero, JoystickVector);
+        }
+
         return FReply::Handled();
     }
     return FReply::Unhandled();
@@ -117,6 +131,12 @@ FReply UControlPanelWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, c
         if (JoyStick)
         {
             JoyStick->SetRenderTranslation(FVector2D::ZeroVector);
+        }
+
+        //인터페이스를 사용해 캐릭터 정지
+        if (Hero)
+        {
+            IJoysticInput::Execute_EndMovement(Hero);
         }
 
         // 마우스 캡처 해제

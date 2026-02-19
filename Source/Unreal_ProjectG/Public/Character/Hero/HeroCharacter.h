@@ -13,34 +13,35 @@ class UHeroCombatComponent;
 UCLASS()
 class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	AHeroCharacter();
+    // Sets default values for this character's properties
+    AHeroCharacter();
 
     virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 
     //캐릭터 스폰(시작 혹은 부활 시)
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
-    void SpawnCharacter();
+    void SpawnHero();
 
-    //캐릭터 사망
+    //사망 호출
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     virtual void OnDie() override;
 
+    //사망상태로 만듬
+    UFUNCTION()
     void MakeHeroDead();
 
-
-    void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
+    void SetJoystickWidget(class UControlPanel* InWidget) { JoystickWidget = InWidget; }
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
     //이동
@@ -49,6 +50,15 @@ private:
     //공격
     UFUNCTION()
     void OnAttackInput();
+
+    UFUNCTION()
+    void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void ActivateAttack();
+
+    UFUNCTION()
+    AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -73,7 +83,9 @@ protected:
     TObjectPtr<UHeroCombatComponent> HeroCombatComponent = nullptr;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UEquipmentComponent> EquipmentComponent = nullptr;
-
+    //공격 판정용 콜리전. 공격 범위 처리용
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<class USphereComponent> AggroCollision = nullptr;
 
     //input action
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
@@ -90,14 +102,20 @@ protected:
     TObjectPtr<UAnimMontage> Attack_Magic = nullptr;
 
     // 조이스틱
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-    TObjectPtr<class UControlPanelWidget> JoystickWidget = nullptr;
+    UPROPERTY()
+    TObjectPtr<class UControlPanel> JoystickWidget = nullptr;
 
+    //리소스를 관리하는 어트리뷰트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
 
+    //사망 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<class UGameplayAbility> GA_Die = nullptr;
+
+    //공격
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
 
 private:
     //ABP
@@ -107,4 +125,6 @@ private:
     //리소스 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
+
+    TArray<AActor*> PotentialTargets;
 };

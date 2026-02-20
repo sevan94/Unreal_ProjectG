@@ -48,17 +48,29 @@ void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> P
 
     // 어빌리티 클래스는 항상 표시
     ChildBuilder.AddProperty(AbilityClassHandle.ToSharedRef());
-
-    // 어빌리티 Config는 어빌리티 클래스 선택 후에만 표시
-    ChildBuilder.AddProperty(AbilityConfigHandle.ToSharedRef())
+    
+    ChildBuilder.AddCustomRow(FText::FromString("AbilityConfig"))
         .Visibility(TAttribute<EVisibility>::Create(
             TAttribute<EVisibility>::FGetter::CreateSP(
-                this, &FAbilityEntryCustomization::GetConfigVisibility)));
+                this, &FAbilityEntryCustomization::GetConfigVisibility))) // AbilityClass에 맞는 Config가 있을 때만 표시
+        .NameContent()
+        [
+            AbilityConfigHandle->CreatePropertyNameWidget() // 이름 위젯은 기본 제공, 필요 시 커스터마이징 가능
+        ]
+        .ValueContent()
+        [
+            SNew(SObjectPropertyEntryBox)
+                .PropertyHandle(AbilityConfigHandle)
+                .AllowedClass(UAbilityConfig::StaticClass()) // 기본적으로 UAbilityConfig 클래스만 허용, 필터에서 세부 조정
+                .OnShouldFilterAsset(this, &FAbilityEntryCustomization::OnShouldFilterAsset) // 어빌리티 클래스에 맞는 Config만 나오도록 필터링
+        ];
 }
 
 void FAbilityEntryCustomization::OnAbilityClassChanged()
 {
-    if (!AbilityConfigHandle.IsValid()) return;
+    // IsValid()는 포인터가 NUllL이 아닌지만 체크, IsValidHandle()은 핸들이 유효한지 체크
+    if (!AbilityConfigHandle.IsValid() || !AbilityConfigHandle->IsValidHandle()) return;
+    if (!AbilityClassHandle.IsValid() || !AbilityClassHandle->IsValidHandle()) return;
 
     UObject* CurrentAbilityConfig = nullptr;
     AbilityConfigHandle->GetValue(CurrentAbilityConfig);
@@ -68,10 +80,25 @@ void FAbilityEntryCustomization::OnAbilityClassChanged()
     //새로 선택된 어빌리티 클래스에 매핑되는 Config 클래스 찾기
     UClass* RequiredConfigClass = GetRequiredConfigClass();
 
+    UE_LOG(LogTemp, Warning, TEXT("RequiredConfigClass: %s"),
+        RequiredConfigClass ? *RequiredConfigClass->GetName() : TEXT("nullptr"));
+
+    UE_LOG(LogTemp, Warning, TEXT("CurrentAbilityConfig: %s"),
+        CurrentAbilityConfig ? *CurrentAbilityConfig->GetName() : TEXT("nullptr"));
+
     // Config 타입이 맞지 않으면 Config 초기화
     if (RequiredConfigClass && !CurrentAbilityConfig->IsA(RequiredConfigClass))
     {
-        AbilityConfigHandle->SetValue((UObject*)nullptr);
+        TSharedPtr<IPropertyHandle> LocalHandle = AbilityConfigHandle; // 람다 캡처용 로컬 변수
+        GEditor->GetTimerManager()->SetTimerForNextTick([LocalHandle]()
+        {
+            if (LocalHandle.IsValid())
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Config 타입 불일치 → null로 초기화"));
+                //AbilityConfigHandle->SetValue((UObject*)nullptr);
+                LocalHandle->SetValueFromFormattedString(TEXT("None"));
+            }
+        });
     }
 }
 
@@ -110,4 +137,28 @@ EVisibility FAbilityEntryCustomization::GetConfigVisibility() const
 
     // 어빌리티 클래스에 매핑되는 Config가 있다면 표시, 없으면 숨김
     return AbilityClassObj ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+
+// True : 목록에서 제외, False : 목록에 포함
+bool FAbilityEntryCustomization::OnShouldFilterAsset(const FAssetData& AssetData) const
+{
+    UClass* RequiredConfigClass = GetRequiredConfigClass();
+    if (!RequiredConfigClass) return false; // 필터 설정이 안된 경우 모두 표시
+
+    // 에셋이 RequiredConfigClass의 서브클래스인지 확인
+    UClass* AssetClass = FindObject<UClass>(nullptr, *AssetData.AssetClassPath.ToString());
+    if (!AssetClass)
+    {
+        // 에셋 클래스를 찾지 못한 경우, 에디터에서 직접 로드 시도
+        AssetClass = LoadObject<UClass>(nullptr, *AssetData.AssetClassPath.ToString());
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("AssetClass: %s / RequiredClass: %s"),
+        AssetClass ? *AssetClass->GetName() : TEXT("nullptr"),
+        *RequiredConfigClass->GetName());
+
+    if (!AssetClass) return true; // 클래스 정보가 없으면 숨김
+
+    return !AssetClass->IsChildOf(RequiredConfigClass);
 }

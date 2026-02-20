@@ -6,6 +6,7 @@
 * FAbilityEntry 커스터마이저
 * AbilityClass 선택 시 알맞은 어빌리티 Config만 나오도록 하는 커스터마이저
 */
+//, public TSharedFromThis<FAbilityEntryCustomization>
 class FAbilityEntryCustomization : public IPropertyTypeCustomization
 {
 public:
@@ -29,6 +30,9 @@ public:
 private:
     // 어빌리티 클래스가 변경될 때마다 호출되는 함수
     void OnAbilityClassChanged();
+
+    // 어빌리티 클래스에 맞는 Config만 나오도록 하는 필터 함수
+    bool OnShouldFilterAsset(const FAssetData& AssetData) const;
 
     // 현재 선택된 어빌리티 클래스에 맞는 Config만 나오도록 하는 함수
     UClass* GetRequiredConfigClass() const;

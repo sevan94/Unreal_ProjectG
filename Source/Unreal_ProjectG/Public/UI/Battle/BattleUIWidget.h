@@ -60,7 +60,7 @@ protected:
     TObjectPtr<UControlPanelWidget> ControlPanel;
 
     UPROPERTY(Transient, meta = (BindWidgetAnimation))
-    TObjectPtr<UWidgetAnimation> ControlPanelMoveAnim;
+    UWidgetAnimation* ControlPanelMoveAnim;
 
 private:
     // 현재 배속 단계 (0: 1배, 1: 1.5배, 2: 2배)

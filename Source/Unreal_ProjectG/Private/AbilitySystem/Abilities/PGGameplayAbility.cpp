@@ -56,6 +56,8 @@ FActiveGameplayEffectHandle UPGGameplayAbility::NativeApplyEffectSpecHandleToTar
         *InSpecHandle.Data, TargetASC);
 }
 
+
+
 FActiveGameplayEffectHandle UPGGameplayAbility::BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType)
 {
     FActiveGameplayEffectHandle ActivateGameplayEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, InSpecHandle);
@@ -63,4 +65,15 @@ FActiveGameplayEffectHandle UPGGameplayAbility::BP_ApplyEffectSpecHandleToTarget
     OutSuccessType = ActivateGameplayEffectHandle.IsValid() ? EPGSuccessType::Successful : EPGSuccessType::Failed;
 
     return ActivateGameplayEffectHandle;
+}
+
+void UPGGameplayAbility::NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle)
+{
+    // TargetActor의 AbilitySystemComponent 가져오기
+    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+    
+    checkf(TargetASC, TEXT("TargetActor의 AbilitySystemComponent가 없습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
+    checkf(EffectHandle.IsValid(), TEXT("EffectHandle이 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
+    
+    TargetASC->RemoveActiveGameplayEffect(EffectHandle);
 }

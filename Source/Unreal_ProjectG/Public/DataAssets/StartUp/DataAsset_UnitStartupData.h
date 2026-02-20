@@ -25,7 +25,7 @@ public:
     FGameplayTag ElementTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info")
-    FGameplayTag SideTag;
+    FGameplayTag TeamTag;
 
     UPROPERTY(EditAnywhere, Category = "Stats")
     UBranchDataAsset* BranchData;
@@ -35,25 +35,27 @@ public:
     USkeletalMesh* SkeletalMesh;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    UAnimMontage* AttackMontage;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
     TSubclassOf<UAnimInstance> AnimBlueprint;
 
-    // --- [3] 능력치 (GAS 초기화용) ---
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float Health = 100.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
+    UAnimMontage* UnitBasicAttackMontage;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float AttackDamage = 10.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
+    UAnimMontage* UnitSkillMontage;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float AttackSpeed = 1.0f;
+    //// --- [3] 능력치 (GAS 초기화용) ---
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
+    //float Health = 100.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float MoveSpeed = 300.0f;
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
+    //float AttackDamage = 10.0f;
+
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
+    //float AttackSpeed = 1.0f;
+
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
+    //float MoveSpeed = 300.0f;
 private:
     UPROPERTY(EditDefaultsOnly, Category = "StartupData")
     TArray<TSubclassOf<UPGUnitGameplayAbility>> UnitCombatAbilities;
-
 };

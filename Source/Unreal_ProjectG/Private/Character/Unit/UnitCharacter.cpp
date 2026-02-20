@@ -117,9 +117,9 @@ void AUnitCharacter::InitUnitStartUpData()
                         GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
                     }
 
-                    if (StartUpData->AttackMontage)
+                    if (StartUpData->UnitBasicAttackMontage)
                     {
-                        UnitAttackMontage = StartUpData->AttackMontage;
+                        UnitAttackMontage = StartUpData->UnitBasicAttackMontage;
                     }
 
                     if (StartUpData->BranchData)
@@ -135,7 +135,7 @@ void AUnitCharacter::InitUnitStartUpData()
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
                     UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
 
-                    TeamTag = StartUpData->SideTag;
+                    TeamTag = StartUpData->TeamTag;
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
@@ -237,6 +237,7 @@ void AUnitCharacter::DeactivateUnit()
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
+        //유닛 서브시스템에서 정한 팀을 해제함 
         Subsystem->UnregisterUnit(this, TeamTag);
     }
 

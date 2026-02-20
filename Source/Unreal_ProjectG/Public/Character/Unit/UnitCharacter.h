@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
 #include "NativeGameplayTags.h"
-#include "GameplayTagAssetInterface.h"
 #include "UnitCharacter.generated.h"
 
 class UBehaviorTree;
@@ -21,7 +20,7 @@ DECLARE_MULTICAST_DELEGATE(FOnUnitStartUpDataLoaded);
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API AUnitCharacter : public APGCharacterBase, public IGameplayTagAssetInterface
+class UNREAL_PROJECTG_API AUnitCharacter : public APGCharacterBase
 {
 	GENERATED_BODY()
 	
@@ -31,7 +30,6 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-    virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
     // 컴뱂 인터페이스 구현
     virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 
@@ -61,7 +59,7 @@ public:
 
     void SetCharacterStartupData(const TSoftObjectPtr<class UDataAsset_UnitStartupData>& InData)
     {
-        CharacterStartupData = InData;
+        CharacterStartupData = InData.ToSoftObjectPath();
     }
 
 protected:

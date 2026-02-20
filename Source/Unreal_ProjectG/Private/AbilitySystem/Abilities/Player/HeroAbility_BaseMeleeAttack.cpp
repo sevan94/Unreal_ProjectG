@@ -11,6 +11,7 @@
 #include "Types/PGEnumTypes.h"
 #include "TimerManager.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "PGFunctionLibrary.h"
 
 UHeroAbility_BaseMeleeAttack::UHeroAbility_BaseMeleeAttack()
 {
@@ -116,12 +117,17 @@ void UHeroAbility_BaseMeleeAttack::PerformWeaponTrace()
         FLinearColor::Red, FLinearColor::Green, TraceDebugDuration
     );
 
+
+    if (OutHits.Num() <= 0)
+        return;
+
     // 히트된 액터들 처리
-    if (OutHits.Num() > 0)
+    for (FHitResult& OutHit : OutHits)
     {
-        for (FHitResult& OutHit : OutHits)
+        AActor* HitActor = OutHit.GetActor();
+        
+        if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
-            AActor* HitActor = OutHit.GetActor();
             if (HitActor && HitActor != GetAvatarActorFromActorInfo())
             {
                 HandleApplyDamage(HitActor);

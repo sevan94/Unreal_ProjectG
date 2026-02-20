@@ -60,6 +60,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
     bool bShowDebugSphere = false;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
+    TObjectPtr<AActor> OwnerActor;
+
     bool bIsTouching = false;
     FVector LastTouchLocation;
 

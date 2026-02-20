@@ -67,4 +67,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
 
+    //게임 플레이 큐 태그
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_AOEImpact);
+
 }

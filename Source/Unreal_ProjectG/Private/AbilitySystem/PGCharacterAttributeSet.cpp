@@ -2,6 +2,8 @@
 
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/Unit/UnitCharacter.h"
 
@@ -60,5 +62,16 @@ void UPGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
         SetCost(FMath::Clamp(GetCost(), 0.0f, GetMaxCost()));
 
         UE_LOG(LogTemp, Log, TEXT("Cost : %f"), GetCost());
+    }
+
+    if(Data.EvaluatedData.Attribute == GetMoveSpeedAttribute())
+    {
+        SetMoveSpeed(FMath::Max(0.0f, GetMoveSpeed()));
+
+        ACharacter* Character = Cast<ACharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor());
+        if(Character)
+        {
+            Character->GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
+        }
     }
 }

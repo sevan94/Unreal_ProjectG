@@ -9,16 +9,15 @@ void UDataAsset_HeroStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemCo
 {
     Super::GiveToAbilitySystemComponent(InASCToGive, InLevel);
     // 태그와 어빌리티 매핑이 필요해지면 사용
-    for (const FPGHeroAbilitySet& AbilitySet : HeroAbilitySets)
+    for (const TSubclassOf<UPGHeroGameplayAbility>& AbilityClass : HeroAbilities)
     {
-        if (!AbilitySet.IsValid())
+        if (!AbilityClass)
         {
             continue;
         }
-        FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
+        FGameplayAbilitySpec AbilitySpec(AbilityClass);
         AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
         AbilitySpec.Level = InLevel;
-        AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 
         InASCToGive->GiveAbility(AbilitySpec);
     }

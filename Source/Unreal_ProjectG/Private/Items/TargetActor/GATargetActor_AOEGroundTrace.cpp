@@ -3,6 +3,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/DecalComponent.h"
+#include "PGFunctionLibrary.h"
 
 AGATargetActor_AOEGroundTrace::AGATargetActor_AOEGroundTrace()
 {
@@ -115,9 +116,13 @@ void AGATargetActor_AOEGroundTrace::OnSphereOverlapBegin(UPrimitiveComponent* Ov
     if (PrimaryPC && PrimaryPC->GetPawn() == OtherActor)
         return;
 
-    // 오버랩된 액터 추가
-    OverlappedActors.AddUnique(OtherActor);
-    OnHighlightActorInAOE(OtherActor);
+    // 적팀이면 액터 빛나게 하기
+    if (UPGFunctionLibrary::IsTargetCharacterIsHostile(OwnerActor, OtherActor))
+    {
+        // 오버랩된 액터 추가
+        OverlappedActors.AddUnique(OtherActor);
+        OnHighlightActorInAOE(OtherActor);
+    }
 }
 
 void AGATargetActor_AOEGroundTrace::OnSphereOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -166,19 +171,14 @@ void AGATargetActor_AOEGroundTrace::OnTouchReleased()
 
 void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)
 {
-    UE_LOG(LogTemp, Warning, TEXT("OnHighlightActorInAOE: %s"), *InActor->GetName());
-
     // 머티리얼 변경
     TArray<UMeshComponent*> TargetMeshComponents;
     InActor->GetComponents<UMeshComponent>(TargetMeshComponents);
-
-    UE_LOG(LogTemp, Warning, TEXT("TargetMeshComponents Num: %d"), TargetMeshComponents.Num());
 
     for (UMeshComponent* MeshComp : TargetMeshComponents)
     {
         if(UMaterialInstanceDynamic* DynamicMat = MeshComp->CreateAndSetMaterialInstanceDynamic(0))
         {
-            UE_LOG(LogTemp, Warning, TEXT("Created Dynamic Material for Actor: %s"), *InActor->GetName());
             DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 1.f);
             HighlightedActorMap.Add(InActor, DynamicMat);
         }

@@ -8,6 +8,7 @@
 #include "Interfaces/PawnCombatInterface.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
+#include "GameplayTagAssetInterface.h"
 #include "PGCharacterBase.generated.h"
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterDiedDelegate, ABaseCharacter*, DeadCharacter);
 
@@ -17,7 +18,7 @@ class UDataAsset_StartupDataBase;
 
 
 UCLASS()
-class UNREAL_PROJECTG_API APGCharacterBase : public ACharacter, public IAbilitySystemInterface, public IPawnCombatInterface
+class UNREAL_PROJECTG_API APGCharacterBase : public ACharacter, public IAbilitySystemInterface, public IPawnCombatInterface, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
@@ -30,8 +31,11 @@ public:
     // 컴뱂 인터페이스 구현
     virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 
+    // 게임 태그 에셋 인터페이스 구현
+    virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
-    FORCEINLINE UPGCharacterAttributeSet* GetHeroAttributeSet() const { return CharacterAttributeSet; }
+    FORCEINLINE UPGCharacterAttributeSet* GetPGCharacterAttributeSet() const { return CharacterAttributeSet; }
     FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
 protected:
     virtual void PossessedBy(AController* NewController) override;

@@ -10,6 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
 
 class UHeroCombatComponent;
+class USphereComponent;
 
 UCLASS()
 class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IJoysticInput
@@ -42,7 +43,6 @@ public:
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
-
 protected:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
@@ -93,16 +93,15 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UCameraComponent> CameraComponent = nullptr;
     //무기 스태틱 메시 컴포넌트
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UStaticMeshComponent> WeaponStaticMesh = nullptr;
+
     //움직임 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UCharacterMovementComponent> MovementComponent = nullptr;
     // 컴뱃 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<UHeroCombatComponent> HeroCombatComponent = nullptr;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-    TObjectPtr<class UEquipmentComponent> EquipmentComponent = nullptr;
     //공격 판정용 콜리전. 공격 범위 처리용
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class USphereComponent> AggroCollision = nullptr;

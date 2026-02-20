@@ -46,4 +46,8 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Attribute")
     FGameplayAttributeData AttackSpeed;
     ATTRIBUTE_ACCESSORS(UPGCharacterAttributeSet, AttackSpeed)
+
+    UPROPERTY(BlueprintReadOnly, Category = "Attribute")
+    FGameplayAttributeData MoveSpeed;
+    ATTRIBUTE_ACCESSORS(UPGCharacterAttributeSet, MoveSpeed)
 };

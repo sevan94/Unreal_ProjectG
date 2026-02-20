@@ -27,6 +27,14 @@ UPawnCombatComponent* APGCharacterBase::GetPawnCombatComponent() const
     return nullptr;
 }
 
+void APGCharacterBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+    if(TeamTag.IsValid())
+    {
+        TagContainer.AddTag(TeamTag);
+    }
+}
+
 void APGCharacterBase::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);

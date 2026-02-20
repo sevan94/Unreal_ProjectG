@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
-#include "DataAssets/AbilityConfig.h"
+#include "DataAssets/Ability/AbilityConfig.h"
 #include "PGStructTypes.generated.h"
 
 class UPGHeroGameplayAbility;

@@ -3,7 +3,7 @@
 #include "IDetailChildrenBuilder.h"
 #include "PropertyCustomizationHelpers.h"
 #include "Types/PGStructTypes.h"
-#include "DataAssets/AbilityConfig.h"
+#include "DataAssets/Ability/AbilityConfig.h"
 
 // 어빌리티 클래스 헤더
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseMeleeAttack.h"

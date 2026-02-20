@@ -35,6 +35,9 @@ protected:
     FGameplayTag MeleeAttackCueTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
+    int32 MaxHitTargets = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
     TArray<TObjectPtr<UAnimMontage>> MeleeAttackMontages;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
@@ -42,9 +45,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
     float MeleeAttackDamageRadius = 100.f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    int32 MaxHitTargets = 1;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Debug")
     bool bEnableTraceDebug = false;

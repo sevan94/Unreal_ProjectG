@@ -61,6 +61,7 @@ public:
     {
         CharacterStartupData = InData.ToSoftObjectPath();
     }
+
 protected:
     //
     virtual void PossessedBy(AController* NewController) override;
@@ -68,7 +69,6 @@ protected:
 private:
     //비동기로 스타트업 데이터 로드 및 적용, 데이터 에셋에 있는 데이터를 전부 삽입하는 함수
     void InitUnitStartUpData();
-
 public:
     //적 베이스 정하려고 만든 변수(EditAnywhere긴 한데 현재는 정하는게 의미가 없긴 함)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Movement")

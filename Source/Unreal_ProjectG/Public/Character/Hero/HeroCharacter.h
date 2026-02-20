@@ -4,43 +4,63 @@
 
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
+#include "Interfaces/JoysticInput.h"
+#include "GameplayEffectTypes.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
+// 스테이터스 변화용 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroHpChanged, float, CurrentHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxHPChanged, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroCostChanged, float, CurrentCost);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxCostChanged, float, MaxCost);
 
 class UHeroCombatComponent;
 class USphereComponent;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IJoysticInput
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	AHeroCharacter();
+    // Sets default values for this character's properties
+    AHeroCharacter();
 
     virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 
     //캐릭터 스폰(시작 혹은 부활 시)
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
-    void SpawnCharacter();
+    void SpawnHero();
 
-    //캐릭터 사망
+    //사망 호출
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     virtual void OnDie() override;
 
+    //사망상태로 만듬
+    UFUNCTION()
     void MakeHeroDead();
 
+    //게임 시작시 호출할 함수. 코스트 재생 등
+    UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
+    void InitializeHero();
 
-    void SetJoystickWidget(class UControlPanel* InWidget) { JoystickWidget = InWidget; }
+    void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
+    // UI 업데이트용 함수
+    void BroadCastAttributeSet();
 
     FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    // UI 알림용 함수
+    void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
+    void MaxHealthChange(const FOnAttributeChangeData& Data) const;
+    void CurrentCostChange(const FOnAttributeChangeData& Data) const;
+    void MaxCostChange(const FOnAttributeChangeData& Data) const;
 
 private:
     //이동
@@ -50,9 +70,38 @@ private:
     UFUNCTION()
     void OnAttackInput();
 
+    UFUNCTION()
+    void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+    UFUNCTION()
+    void ActivateAttack();
+
+    UFUNCTION()
+    AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
+
+    UFUNCTION()
+    virtual void MoveStart_Implementation(FVector2D JoyInput) override;
+
+    UFUNCTION()
+    virtual void ChangeDirection_Implementation(FVector2D JoyInput) override;
+
+    UFUNCTION()
+    virtual void EndMovement_Implementation() override;
+
+    UFUNCTION()
+    void CharacterMove();
+
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
     FOnPlayerDied OnPlayerDied;
+
+    FOnHeroHpChanged OnHeroHpChanged;
+    FOnHeroMaxHPChanged OnHeroMaxHpChanged;
+    FOnHeroCostChanged OnHeroCostChanged;
+    FOnHeroMaxCostChanged OnHeroMaxCostChanged;
 
 protected:
     //컴포넌트
@@ -72,6 +121,9 @@ protected:
     // 컴뱃 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<UHeroCombatComponent> HeroCombatComponent = nullptr;
+    //공격 판정용 콜리전. 공격 범위 처리용
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<class USphereComponent> AggroCollision = nullptr;
 
     //input action
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
@@ -89,13 +141,25 @@ protected:
 
     // 조이스틱
     UPROPERTY()
-    TObjectPtr<class UControlPanel> JoystickWidget = nullptr;
+    TObjectPtr<class UControlPanelWidget> JoystickWidget = nullptr;
 
+    //리소스를 관리하는 어트리뷰트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
-    TSubclassOf<class UGameplayAbility> GA_Die = nullptr;
+    TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;
+
+    //사망 어빌리티
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TSubclassOf<UGameplayAbility> GA_Die = nullptr;
+
+    //공격
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<class UDataAsset_WeaponData> Weapon = nullptr;
 
 private:
     //ABP
@@ -105,4 +169,10 @@ private:
     //리소스 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
+
+    TArray<AActor*> PotentialTargets;
+
+    bool bIsMoving = false;
+
+    FVector MoveDirection = FVector::ZeroVector;
 };

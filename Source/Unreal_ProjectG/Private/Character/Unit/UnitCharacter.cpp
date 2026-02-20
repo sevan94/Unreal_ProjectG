@@ -47,6 +47,8 @@ void AUnitCharacter::BeginPlay()
     AIController = Cast<AAIController>(GetController());
 
     UE_LOG(LogTemp, Log, TEXT("BeginPlay"));
+
+
 }
 
 void AUnitCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -72,19 +74,30 @@ void AUnitCharacter::InitUnitStartUpData()
     {
         return;
     }
-
     // 비동기로 스타트업 데이터 로드 및 적용
     UAssetManager::GetStreamableManager().RequestAsyncLoad(
         CharacterStartupData.ToSoftObjectPath(),
         FStreamableDelegate::CreateLambda(
             [this]()
             {
+                if (IsHidden() || !IsValid(this))
+                {
+                    return;
+                }
+
                 if (UDataAsset_StartupDataBase* LoadedData = CharacterStartupData.Get())
                 {
                     LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
 
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
-                    StartUpData->SkeletalMesh;
+
+                    //if (CharacterAttributeSet)
+                    //{
+                    //    CharacterAttributeSet->InitHealth(StartUpData->Health);
+                    //    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
+                    //    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
+                    //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+                    //}
 
                     if (StartUpData->SkeletalMesh)
                     {
@@ -132,6 +145,7 @@ void AUnitCharacter::InitUnitStartUpData()
         )
     );
 }
+
 
 void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 {
@@ -181,30 +195,36 @@ void AUnitCharacter::OnDie()
 
 void AUnitCharacter::ActivateUnit()
 {
-    // 1. 시각적 처리
     SetActorHiddenInGame(false); // 보이게 하기
     SetActorEnableCollision(true); // 충돌 켜기
     SetActorTickEnabled(true); // 로직 다시 돌리기
 
-    InitUnitStartUpData();
-
-    // 3. 움직임 초기화
-    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-
-    // 4. (필요 시) AI 컨트롤러 재빙의
     if (Controller == nullptr && AIControllerClass)
     {
         SpawnDefaultController();
+    }
+    else
+    {
+        InitUnitStartUpData();
+    }
+    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+    if (TargetActor)
+    {
+        SetAttackTarget(TargetActor);
     }
 }
 
 void AUnitCharacter::DeactivateUnit()
 {
-    // 1. 동작 멈춤
-    if (GetController())
+
+    OnUnitStartUpDataLoadedDelegate.Clear();
+
+    if (AController* OldController = GetController())
     {
-        GetController()->StopMovement();
-        GetController()->UnPossess(); // 컨트롤러 연결 해제 (선택사항, 성능상 재사용 추천)
+        OldController->StopMovement();
+        OldController->UnPossess(); 
+        OldController->Destroy();   
     }
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
@@ -215,15 +235,13 @@ void AUnitCharacter::DeactivateUnit()
 
     // 2. 물리/이동 초기화
     GetCharacterMovement()->StopMovementImmediately();
-    GetCharacterMovement()->SetMovementMode(MOVE_None); // 물리 연산 최소화
+    GetCharacterMovement()->SetMovementMode(MOVE_None);
 
     // 3. 시각적 숨김
     SetActorEnableCollision(false);
     SetActorHiddenInGame(true);
-    SetActorTickEnabled(false); // 틱을 꺼서 성능 확보
+    SetActorTickEnabled(false);
 
-    // 4. 기타 정리 (타이머, 파티클 등)
-    GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 

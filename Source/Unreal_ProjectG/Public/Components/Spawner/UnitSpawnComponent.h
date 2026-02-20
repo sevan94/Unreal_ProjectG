@@ -37,6 +37,8 @@ protected:
 public:
     void SpawnRandomUnit();
 
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    void SetAttackTarget(AActor* InTargetActor);
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     TArray<FUnitSpawnInfo> SpawnList;
@@ -47,10 +49,11 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     bool bLoopSpawning = true;
 
-    // [추가] 컴포넌트 방식에서는 박스 컴포넌트를 직접 갖기보다, 범위 벡터만 갖는 게 깔끔함
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    FVector SpawnExtent = FVector(500.f, 500.f, 0.f);
+    int32 PoolSize = 10;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    TObjectPtr<AActor> AttackTarget;
 private:
     FTimerHandle SpawnTimerHandle;
 };

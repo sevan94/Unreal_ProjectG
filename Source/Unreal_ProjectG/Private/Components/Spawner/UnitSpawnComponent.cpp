@@ -14,10 +14,27 @@ void UUnitSpawnComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (SpawnList.Num() > 0 && GetWorld())
+    if (UWorld* World = GetWorld())
     {
-        GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UUnitSpawnComponent::SpawnRandomUnit, SpawnInterval, bLoopSpawning);
+        if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
+        {
+            for (const FUnitSpawnInfo& UnitInfo : SpawnList)
+            {
+                if (UnitInfo.UnitClass)
+                {
+                    SpawnSystem->PrewarmPool(UnitInfo.UnitClass, PoolSize);
+                }
+            }
+        }
+
+        // 기존 타이머 로직
+        if (SpawnList.Num() > 0)
+        {
+            GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &UUnitSpawnComponent::SpawnRandomUnit, SpawnInterval, bLoopSpawning);
+        }
     }
+
+
 }
 
 void UUnitSpawnComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -44,8 +61,14 @@ void UUnitSpawnComponent::SpawnRandomUnit()
                 SelectedUnit.UnitClass,
                 SelectedUnit.UnitData,
                 GetComponentLocation(),
-                GetComponentRotation() // 회전값도 컴포넌트 기준
+                GetComponentRotation(),
+                AttackTarget
             );
         }
     }
+}
+
+void UUnitSpawnComponent::SetAttackTarget(AActor* InTargetActor)
+{
+    AttackTarget = InTargetActor;
 }

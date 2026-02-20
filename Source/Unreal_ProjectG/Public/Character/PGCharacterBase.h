@@ -33,6 +33,8 @@ public:
 
     // 게임 태그 에셋 인터페이스 구현
     virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+    
+    virtual void OnDie() {};
 
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
     FORCEINLINE UPGCharacterAttributeSet* GetPGCharacterAttributeSet() const { return CharacterAttributeSet; }
@@ -40,7 +42,6 @@ public:
 protected:
     virtual void PossessedBy(AController* NewController) override;
 
-    virtual void OnDie() {};
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
     TObjectPtr<UPGAbilitySystemComponent> PGAbilitySystemComponent;

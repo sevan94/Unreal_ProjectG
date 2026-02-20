@@ -57,22 +57,37 @@ AUnitCharacter* UUnitSpawnSubsystem::GetUnitInstance(TSubclassOf<AUnitCharacter>
     return UnitToReturn;
 }
 
-void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData, FVector Location, FRotator Rotation)
+void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
+    TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData,
+    FVector Location, FRotator Rotation,
+    AActor* InTargetActor)
 {
     if (!UnitClass) return;
-
     AUnitCharacter* SpawnedUnit = GetUnitInstance(UnitClass);
-
     if (SpawnedUnit)
     {
         SpawnedUnit->SetActorLocationAndRotation(Location, Rotation);
-
-        // [수정] 직접 접근 대신 Setter 사용 (Error C2248 해결)
         SpawnedUnit->SetCharacterStartupData(UnitData);
-
+        if (InTargetActor)
+        {
+            SpawnedUnit->SetAttackTarget(InTargetActor);
+        }
         ActiveUnits.Add(SpawnedUnit);
         SpawnedUnit->ActivateUnit();
     }
+
+    if (!UnitClass || !GetWorld()) return;
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    //AUnitCharacter* NewUnit = GetWorld()->SpawnActor<AUnitCharacter>(UnitClass, Location, Rotation, SpawnParams);
+    //if (NewUnit)
+    //{
+    //    // 데이터 설정
+    //    NewUnit->SetCharacterStartupData(UnitData);
+    //    // 목록 관리가 필요하다면 추가 (선택사항)
+    //    ActiveUnits.Add(NewUnit);
+    //}
 }
 
 void UUnitSpawnSubsystem::ReturnToPool(AUnitCharacter* Unit)
@@ -112,7 +127,6 @@ void UUnitSpawnSubsystem::GetAllActiveUnits(TArray<AUnitCharacter*>& OutUnits)
 
 void UUnitSpawnSubsystem::DespawnAllActiveUnits()
 {
-    // 복사본을 만들어 순회 (ReturnToPool 내부에서 ActiveUnits를 수정하므로)
     TArray<TWeakObjectPtr<AUnitCharacter>> TempUnits = ActiveUnits;
 
     for (const auto& WeakUnit : TempUnits)
@@ -131,5 +145,10 @@ void UUnitSpawnSubsystem::OnUnitDied(AUnitCharacter* Victim)
     {
         // Destroy 대신 풀 반환 호출
         ReturnToPool(Victim);
+        ActiveUnits.Remove(Victim);
+
+        // [변경점] ReturnToPool 대신 그냥 Destroy
+        //Victim->Destroy();
+
     }
 }

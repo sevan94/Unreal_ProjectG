@@ -8,17 +8,22 @@
 #include "EnhancedInputComponent.h"
 #include "Components/Resource/HeroResourceComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "UI/ControlPanel.h"
+#include "UI/Battle/ControlPanelWidget.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "DataAssets/StartUp/DataAsset_HeroStartupData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "Components/SphereComponent.h"
+#include "Character/Unit/UnitCharacter.h"
+#include "PGGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "DataAssets/Items/DataAsset_WeaponData.h"
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
     MovementComponent = GetCharacterMovement();
 
@@ -40,6 +45,11 @@ AHeroCharacter::AHeroCharacter()
     
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
+
+    AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
+    AggroCollision->SetupAttachment(RootComponent);
+    AggroCollision->SetSphereRadius(500.f);
+    AggroCollision->SetGenerateOverlapEvents(true);
 }
 
 UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const
@@ -47,7 +57,7 @@ UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const
     return HeroCombatComponent;
 }
 
-void AHeroCharacter::SpawnCharacter()
+void AHeroCharacter::SpawnHero()
 {
     USkeletalMeshComponent* MeshComp = GetMesh();
     MeshComp->bPauseAnims = false;
@@ -66,8 +76,8 @@ void AHeroCharacter::SpawnCharacter()
 
 void AHeroCharacter::MakeHeroDead()
 {
-    MovementComponent->DisableMovement();
     MovementComponent->StopMovementImmediately();
+    MovementComponent->DisableMovement();
     MovementComponent->SetComponentTickEnabled(false);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -85,6 +95,29 @@ void AHeroCharacter::MakeHeroDead()
     }
 }
 
+void AHeroCharacter::InitializeHero()
+{
+    if (PGAbilitySystemComponent && GA_Initialize)
+    {
+        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Initialize);
+    }
+}
+
+void AHeroCharacter::BroadCastAttributeSet()
+{
+    if (ResourceAttribute)
+    {
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
+    }
+}
+
 void AHeroCharacter::OnDie()
 {
     if (PGAbilitySystemComponent && GA_Die)
@@ -98,14 +131,14 @@ void AHeroCharacter::OnDie()
 // Called when the game starts or when spawned
 void AHeroCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
     //ABP 가져오기
     AnimInstance = GetMesh()->GetAnimInstance();
 
     if (!CharacterStartupData.IsNull())
     {
-        if(UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
+        if (UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
         {
             LoadData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
         }
@@ -117,37 +150,46 @@ void AHeroCharacter::BeginPlay()
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
         }
+        if (GA_Attack)
+        {
+            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1, 1, this));
+        }
+        if (GA_Initialize)
+        {
+            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
+        }
     }
+
+    if (AggroCollision)
+    {
+        AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
+        AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
+        UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
+    }
+
+    BroadCastAttributeSet();
 }
 
 // Called every frame
 void AHeroCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
-    // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
-    if (JoystickWidget)
+    if (bIsMoving)
     {
-        FVector2D JoyInput = JoystickWidget->GetJoystickVector();
+        CharacterMove();
+    }
 
-        if (!JoyInput.IsNearlyZero())
-        {
-            const FVector ForwardDirection = FVector::ForwardVector;
-            const FVector RightDirection = FVector::RightVector;
-
-            // 위젯 좌표계와 월드 좌표계 매칭 (상황에 따라 Y축 반전 필요할 수 있음)
-            AddMovementInput(ForwardDirection, -JoyInput.Y);
-            AddMovementInput(RightDirection, JoyInput.X);
-
-            //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
-        }
+    if (!(PotentialTargets.IsEmpty()))
+    {
+        ActivateAttack();
     }
 }
 
 // Called to bind functionality to input
 void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     if (enhancedInputComponent)
@@ -157,21 +199,133 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     }
 }
 
+void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroCostChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
+}
+
 void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
 {
-    if (Controller)
-    {
-        FVector2D InputDirection = InValue.Get<FVector2D>();
-        FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
-        //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
-        AddMovementInput(MoveDirection);
-    }
-    else
-        UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
+    //if (Controller)
+    //{
+    //    FVector2D InputDirection = InValue.Get<FVector2D>();
+    //    FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
+    //    //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
+    //    AddMovementInput(MoveDirection);
+    //}
+    //else
+    //    UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
 }
 
 void AHeroCharacter::OnAttackInput()
 {
-
+    if (PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+    }
 }
 
+void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    UE_LOG(LogTemp, Log, TEXT("Overlap"));
+
+    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        {
+            PotentialTargets.AddUnique(Unit);
+        }
+    }
+}
+
+void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        {
+            PotentialTargets.RemoveSwap(Unit);
+        }
+    }
+}
+
+void AHeroCharacter::ActivateAttack()
+{
+    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
+
+    FGameplayEventData EventData;
+    EventData.Instigator = this;
+    EventData.Target = AttackTarget;
+
+    /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
+    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+}
+
+AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
+{
+    if (TargetArray.IsEmpty())
+    {
+        return nullptr;
+    }
+
+    AActor* ClosestActor = nullptr;
+
+    float MinDistanceSq = MAX_flt;
+
+    for (AActor* Target : TargetArray)
+    {
+        if (IsValid(Target))
+        {
+            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
+
+            if (CurrentDistanceSq < MinDistanceSq)
+            {
+                MinDistanceSq = CurrentDistanceSq;
+                ClosestActor = Target;
+            }
+        }
+    }
+
+    return ClosestActor;
+}
+
+void AHeroCharacter::MoveStart_Implementation(FVector2D JoyInput)
+{
+    bIsMoving = true;
+
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
+}
+
+void AHeroCharacter::ChangeDirection_Implementation(FVector2D JoyInput)
+{
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
+}
+
+void AHeroCharacter::EndMovement_Implementation()
+{
+    bIsMoving = false;
+}
+
+void AHeroCharacter::CharacterMove()
+{
+    AddMovementInput(MoveDirection);
+}

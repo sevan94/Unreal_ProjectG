@@ -21,7 +21,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     FVector StartLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
     FVector EndLocation = StartLocation + GetAvatarActorFromActorInfo()->GetActorForwardVector() * 500.0f;
     TArray<FHitResult> HitResults;
-    
+
     // 가장 가까운 폰 액터 찾기
     UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, MeleeAttackDamageRadius, TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 /* Pawn */ }, false, TArray<AActor*>(), bEnableTraceDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true, FLinearColor::Red, FLinearColor::Green, TraceDebugDuration);
     
@@ -41,7 +41,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     }
 
     // 타겟이 없으면 능력 종료
-    if (CurrentHitTargets == 0)
+    if (CurrentHitTargets <= 0)
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;

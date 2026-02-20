@@ -107,7 +107,20 @@ void URangeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
         FVector(0, 1, 0),                // Y축
         false                      // 채우기 여부
     );
-
+    DrawDebugCircle(
+        GetWorld(),
+        ControllPawn->GetActorLocation(),
+        Range,
+        48,                               // 더 매끄럽게 48 정도로 수정
+        FColor::Green,
+        false,
+        Interval + 0.1f,                  // [핵심] 서비스 실행 주기 + 알파 만큼 유지
+        0,
+        2.0f,
+        FVector(1, 0, 0),                // X축
+        FVector(0, 1, 0),                // Y축
+        false                      // 채우기 여부
+    );
     if (TargetEnemy)
     {
         DrawDebugLine(
@@ -126,4 +139,4 @@ void URangeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
     {
         AIC->SetUnitState(bInDetectRange ? EUnitState::Combat : EUnitState::Move);
     }
-}
+} 

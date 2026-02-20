@@ -4,6 +4,7 @@
 #include "UI/Battle/UnitSlotWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
@@ -19,21 +20,7 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     }
 
     // 버튼 이미지 설정
-    FButtonStyle NewStyle = UnitButton->GetStyle();
-
-    if (UnitData->UnitButtonNormalImage)
-    {
-        NewStyle.Normal.SetResourceObject(UnitData->UnitButtonNormalImage);
-        NewStyle.Hovered.SetResourceObject(UnitData->UnitButtonNormalImage);
-    }
-
-    if (UnitData->UnitButtonPressedImage)
-        NewStyle.Pressed.SetResourceObject(UnitData->UnitButtonPressedImage);
-
-    if (UnitData->UnitButtonUnableImage)
-        NewStyle.Disabled.SetResourceObject(UnitData->UnitButtonUnableImage);
-
-    UnitButton->SetStyle(NewStyle);
+    UnitImage->SetBrushFromTexture(UnitData->UnitButtonNormalImage);
 }
 
 void UUnitSlotWidget::NativeConstruct()

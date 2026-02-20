@@ -61,14 +61,6 @@ void AUnitCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AUnitCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
-{
-    if (TeamTag.IsValid())
-    {
-        TagContainer.AddTag(TeamTag);
-    }
-}
-
 void AUnitCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
@@ -99,13 +91,13 @@ void AUnitCharacter::InitUnitStartUpData()
 
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 
-                    if (CharacterAttributeSet)
-                    {
-                        CharacterAttributeSet->InitHealth(StartUpData->Health);
-                        CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
-                        CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
-                        CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
-                    }
+                    //if (CharacterAttributeSet)
+                    //{
+                    //    CharacterAttributeSet->InitHealth(StartUpData->Health);
+                    //    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
+                    //    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
+                    //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+                    //}
 
                     if (StartUpData->SkeletalMesh)
                     {

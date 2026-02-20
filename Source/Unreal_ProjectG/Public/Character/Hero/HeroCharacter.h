@@ -16,6 +16,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxCostChanged, float, MaxCos
 
 class UHeroCombatComponent;
 class USphereComponent;
+class UDataAsset_WeaponData;
+class UDataAsset_ArmorData;
+class UDataAsset_AccessoryData;
 
 UCLASS()
 class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
@@ -43,6 +46,16 @@ public:
     //게임 시작시 호출할 함수. 코스트 재생 등
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     void InitializeHero();
+
+    //무기 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipWeapon(UDataAsset_WeaponData* WeaponData);
+    //방어구 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipArmor(UDataAsset_ArmorData* ArmorData);
+    //악세 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
 
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
@@ -132,8 +145,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
 
+    //무기
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
-    TObjectPtr<class UDataAsset_WeaponData> Weapon = nullptr;
+    TObjectPtr<UDataAsset_WeaponData> Weapon = nullptr;
+    //방어구
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<UDataAsset_ArmorData> Armor = nullptr;
+    //악세
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<UDataAsset_AccessoryData> Accessory = nullptr;
 
 private:
     //ABP

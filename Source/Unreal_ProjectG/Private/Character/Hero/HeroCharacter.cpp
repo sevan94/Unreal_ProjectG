@@ -18,6 +18,9 @@
 #include "PGGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "DataAssets/Items/DataAsset_WeaponData.h"
+#include "DataAssets/Items/DataAsset_ArmorData.h"
+#include "DataAssets/Items/DataAsset_AccessoryData.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -103,6 +106,29 @@ void AHeroCharacter::InitializeHero()
     }
 }
 
+void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
+{
+    Weapon = WeaponData;
+
+    if(Weapon)
+    {
+        const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
+        if (Data.BaseAttackAbility && PGAbilitySystemComponent)
+        {
+            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1, 1, this));
+        }
+    }
+    
+}
+
+void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
+{
+}
+
+void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
+{
+}
+
 void AHeroCharacter::BroadCastAttributeSet()
 {
     if (ResourceAttribute)
@@ -150,10 +176,10 @@ void AHeroCharacter::BeginPlay()
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
         }
-        if (GA_Attack)
-        {
-            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1, 1, this));
-        }
+        //if (Weapon)
+        //{
+        //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
+        //}
         if (GA_Initialize)
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));

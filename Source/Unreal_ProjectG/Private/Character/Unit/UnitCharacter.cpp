@@ -100,11 +100,14 @@ void AUnitCharacter::InitUnitStartUpData()
                     LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
 
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
-                    StartUpData->SkeletalMesh;
-                    CharacterAttributeSet->InitHealth(StartUpData->Health);
-                    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
-                    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
-                    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+
+                    if (CharacterAttributeSet)
+                    {
+                        CharacterAttributeSet->InitHealth(StartUpData->Health);
+                        CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
+                        CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
+                        CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+                    }
 
                     if (StartUpData->SkeletalMesh)
                     {

@@ -3,13 +3,27 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
+#include "DataAssets/Ability/AbilityConfig.h"
 #include "PGStructTypes.generated.h"
 
 class UPGHeroGameplayAbility;
 class UPGHeroLinkedAnimLayer;
+class UPGGameplayAbility;
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FAbilityEntry
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<UPGGameplayAbility> AbilityClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced)
+    TObjectPtr<UAbilityConfig> AbilityConfig;
+};
 
 // 무기 데이터 구조체
 USTRUCT(BlueprintType)
@@ -29,12 +43,18 @@ struct FPGHeroWeaponData
     TSubclassOf<UPGHeroLinkedAnimLayer> WeaponAnimLayer;    
     
     // 무기 기본 경격 어빌리티
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
-    TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+    //TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
 
-    // 무기 스킬 어빌리티들
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
-    TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FAbilityEntry BaseAttackConfigMap;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<FAbilityEntry> WeaponSkillConfigMapArray;
+
+    //// 무기 스킬 어빌리티들
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    //TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
 
     // 무기 아이콘 텍스처
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
-#include "Interfaces/JoysticInput.h"
 #include "GameplayEffectTypes.h"
 #include "HeroCharacter.generated.h"
 
@@ -19,7 +18,7 @@ class UHeroCombatComponent;
 class USphereComponent;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IJoysticInput
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
 {
     GENERATED_BODY()
 
@@ -45,7 +44,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     void InitializeHero();
 
-    void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
@@ -81,18 +79,6 @@ private:
 
     UFUNCTION()
     AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
-
-    UFUNCTION()
-    virtual void MoveStart_Implementation(FVector2D JoyInput) override;
-
-    UFUNCTION()
-    virtual void ChangeDirection_Implementation(FVector2D JoyInput) override;
-
-    UFUNCTION()
-    virtual void EndMovement_Implementation() override;
-
-    UFUNCTION()
-    void CharacterMove();
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -131,18 +117,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
     TObjectPtr<UInputAction> IA_Attack = nullptr;
 
-    //애님 몽타주
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<class UAnimMontage> Attack_Melee = nullptr;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<UAnimMontage> Attack_Bow = nullptr;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<UAnimMontage> Attack_Magic = nullptr;
-
-    // 조이스틱
-    UPROPERTY()
-    TObjectPtr<class UControlPanelWidget> JoystickWidget = nullptr;
-
     //리소스를 관리하는 어트리뷰트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
@@ -171,8 +145,4 @@ private:
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
 
     TArray<AActor*> PotentialTargets;
-
-    bool bIsMoving = false;
-
-    FVector MoveDirection = FVector::ZeroVector;
 };

@@ -175,11 +175,6 @@ void AHeroCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (bIsMoving)
-    {
-        CharacterMove();
-    }
-
     if (!(PotentialTargets.IsEmpty()))
     {
         ActivateAttack();
@@ -306,26 +301,4 @@ AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
     }
 
     return ClosestActor;
-}
-
-void AHeroCharacter::MoveStart_Implementation(FVector2D JoyInput)
-{
-    bIsMoving = true;
-
-    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
-}
-
-void AHeroCharacter::ChangeDirection_Implementation(FVector2D JoyInput)
-{
-    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
-}
-
-void AHeroCharacter::EndMovement_Implementation()
-{
-    bIsMoving = false;
-}
-
-void AHeroCharacter::CharacterMove()
-{
-    AddMovementInput(MoveDirection);
 }

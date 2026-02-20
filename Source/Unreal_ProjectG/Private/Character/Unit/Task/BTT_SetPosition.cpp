@@ -20,16 +20,25 @@ UBTT_SetPosition::UBTT_SetPosition()
 EBTNodeResult::Type UBTT_SetPosition::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     AUnitDetourCrowdAIController* AIController = Cast<AUnitDetourCrowdAIController>(OwnerComp.GetAIOwner());
-    if (!AIController) return EBTNodeResult::Failed;
+    if (!AIController)
+    {
+        return EBTNodeResult::Failed;
+    }
 
     AUnitCharacter* SelfUnit = Cast<AUnitCharacter>(AIController->GetPawn());
     UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-    if (!SelfUnit || !BlackboardComp) return EBTNodeResult::Failed;
+    if (!SelfUnit || !BlackboardComp)
+    {
+        return EBTNodeResult::Failed;
+    }
 
     AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(AttackTargetKey.SelectedKeyName));
     float AttackRange = BlackboardComp->GetValueAsFloat(AttackRangeKey.SelectedKeyName);
 
-    if (!TargetActor || AttackRange <= 0.0f) return EBTNodeResult::Failed;
+    if (!TargetActor || AttackRange <= 0.0f)
+    {
+        return EBTNodeResult::Failed;
+    }
 
     FVector TargetLoc = TargetActor->GetActorLocation();
     FVector SelfLoc = SelfUnit->GetActorLocation();
@@ -62,7 +71,10 @@ EBTNodeResult::Type UBTT_SetPosition::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 AUnitCharacter* UBTT_SetPosition::FindAlly(AUnitCharacter* SelfUnit, FVector TargetLocation)
 {
-    if (!SelfUnit || !SelfUnit->GetWorld()) return nullptr;
+    if (!SelfUnit || !SelfUnit->GetWorld())
+    {
+        return nullptr;
+    }
 
     AUnitCharacter* NearestAlly = nullptr;
     float MinDistanceSquared = MAX_FLT;
@@ -85,7 +97,10 @@ AUnitCharacter* UBTT_SetPosition::FindAlly(AUnitCharacter* SelfUnit, FVector Tar
     );
 
     UAbilitySystemComponent* SelfASC = SelfUnit->GetAbilitySystemComponent(); 
-    if (!SelfASC) return nullptr;
+    if (!SelfASC)
+    {
+        return nullptr;
+    }
 
     bool bIsSelfAlly = SelfASC->HasMatchingGameplayTag(PGGameplayTags::Unit_Side_Ally);
     FGameplayTag MySideTag = bIsSelfAlly ? PGGameplayTags::Unit_Side_Ally : PGGameplayTags::Unit_Side_Foe;

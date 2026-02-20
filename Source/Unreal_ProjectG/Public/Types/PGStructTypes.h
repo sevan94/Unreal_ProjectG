@@ -21,7 +21,7 @@ struct FAbilityEntry
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<UPGGameplayAbility> AbilityClass;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, meta = (AllowAbstract = false))
     TObjectPtr<UAbilityConfig> AbilityConfig;
 };
 

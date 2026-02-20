@@ -1,12 +1,12 @@
 #pragma once
 
 #include "IPropertyTypeCustomization.h"
+#include "IPropertyUtilities.h"
 #include "PropertyHandle.h"
 /**
 * FAbilityEntry 커스터마이저
 * AbilityClass 선택 시 알맞은 어빌리티 Config만 나오도록 하는 커스터마이저
 */
-//, public TSharedFromThis<FAbilityEntryCustomization>
 class FAbilityEntryCustomization : public IPropertyTypeCustomization
 {
 public:
@@ -21,7 +21,7 @@ public:
         FDetailWidgetRow& HeaderRow,
         IPropertyTypeCustomizationUtils& Utils) override;
 
-    // CustomizeChildren에서는 AbilityClass에 맞는 Config만 나오도록 하는 로직
+    // CustomizeChildren 실행 타이밍은 
     virtual void CustomizeChildren(
         TSharedRef<IPropertyHandle> PropertyHandle,
         IDetailChildrenBuilder& ChildBuilder,
@@ -32,7 +32,7 @@ private:
     void OnAbilityClassChanged();
 
     // 어빌리티 클래스에 맞는 Config만 나오도록 하는 필터 함수
-    bool OnShouldFilterAsset(const FAssetData& AssetData) const;
+    void UpdateConfigClassFilter();
 
     // 현재 선택된 어빌리티 클래스에 맞는 Config만 나오도록 하는 함수
     UClass* GetRequiredConfigClass() const;
@@ -43,4 +43,7 @@ private:
 private:
     TSharedPtr<IPropertyHandle> AbilityClassHandle;
     TSharedPtr<IPropertyHandle> AbilityConfigHandle;
+
+    // 패널 업데이트를 위해 Utils 저장
+    TSharedPtr<IPropertyUtilities> PropertyUtilities;
 };

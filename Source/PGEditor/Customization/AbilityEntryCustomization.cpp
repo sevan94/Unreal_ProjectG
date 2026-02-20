@@ -1,7 +1,6 @@
 #include "AbilityEntryCustomization.h"
 #include "DetailWidgetRow.h"
 #include "IDetailChildrenBuilder.h"
-#include "PropertyCustomizationHelpers.h"
 #include "Types/PGStructTypes.h"
 #include "DataAssets/Ability/AbilityConfig.h"
 
@@ -36,34 +35,46 @@ void FAbilityEntryCustomization::CustomizeHeader(TSharedRef<IPropertyHandle> Pro
 // 자식 부분 커스터마이징
 void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyHandle, IDetailChildrenBuilder& ChildBuilder, IPropertyTypeCustomizationUtils& Utils)
 {
+    // 패널 업데이트용 Utils 저장
+    PropertyUtilities = Utils.GetPropertyUtilities();
+
     // FAbilityEntry의 AbilityClass와 AbilityConfig 핸들 가져오기
     AbilityClassHandle = PropertyHandle->GetChildHandle(
         GET_MEMBER_NAME_CHECKED(FAbilityEntry, AbilityClass));
     AbilityConfigHandle = PropertyHandle->GetChildHandle(
         GET_MEMBER_NAME_CHECKED(FAbilityEntry, AbilityConfig));
 
+    // 진입점에서 현재 AbilityClass에 맞는 Config 클래스 필터링
+    UpdateConfigClassFilter();
+
     // AbilityClass 변경 감지 -> Config 초기화
-    AbilityClassHandle->SetOnPropertyValueChanged(
-        FSimpleDelegate::CreateRaw(this, &FAbilityEntryCustomization::OnAbilityClassChanged));
+     AbilityClassHandle->SetOnPropertyValueChanged(
+        FSimpleDelegate::CreateSP(this, &FAbilityEntryCustomization::OnAbilityClassChanged)); // Create SP는 SharedFromThis 기반이라 객체가 소멸되면 자동으로 델리게이트 실행을 멈춤
+    //AbilityClassHandle->SetOnPropertyValueChanged(
+        //FSimpleDelegate::CreateRaw(this, &FAbilityEntryCustomization::OnAbilityClassChanged));
 
     // 어빌리티 클래스는 항상 표시
     ChildBuilder.AddProperty(AbilityClassHandle.ToSharedRef());
     
-    ChildBuilder.AddCustomRow(FText::FromString("AbilityConfig"))
+    ChildBuilder.AddProperty(AbilityConfigHandle.ToSharedRef())
         .Visibility(TAttribute<EVisibility>::Create(
             TAttribute<EVisibility>::FGetter::CreateSP(
-                this, &FAbilityEntryCustomization::GetConfigVisibility))) // AbilityClass에 맞는 Config가 있을 때만 표시
-        .NameContent()
-        [
-            AbilityConfigHandle->CreatePropertyNameWidget() // 이름 위젯은 기본 제공, 필요 시 커스터마이징 가능
-        ]
-        .ValueContent()
-        [
-            SNew(SObjectPropertyEntryBox)
-                .PropertyHandle(AbilityConfigHandle)
-                .AllowedClass(UAbilityConfig::StaticClass()) // 기본적으로 UAbilityConfig 클래스만 허용, 필터에서 세부 조정
-                .OnShouldFilterAsset(this, &FAbilityEntryCustomization::OnShouldFilterAsset) // 어빌리티 클래스에 맞는 Config만 나오도록 필터링
-        ];
+                this, &FAbilityEntryCustomization::GetConfigVisibility))); // AbilityClass에 맞는 Config가 있을 때만 표시
+}
+
+void FAbilityEntryCustomization::UpdateConfigClassFilter()
+{
+    if (!AbilityConfigHandle.IsValid() || !AbilityConfigHandle->IsValidHandle()) return;
+
+    FProperty* ConfigProperty = AbilityConfigHandle->GetProperty();
+    if (!ConfigProperty) return;
+
+    UClass* RequiredClass = GetRequiredConfigClass(); // 못 찾으면 UAbilityConfig 반환
+
+    UE_LOG(LogTemp, Warning, TEXT("Required Config Class: %s"), *RequiredClass->GetName());
+
+    // AllowedClasses 메타데이터를 동적으로 변경하여 에디터 클래스 피커가 이 값을 참조
+    ConfigProperty->SetMetaData(TEXT("AllowedClasses"), *RequiredClass->GetPathName());
 }
 
 void FAbilityEntryCustomization::OnAbilityClassChanged()
@@ -75,30 +86,30 @@ void FAbilityEntryCustomization::OnAbilityClassChanged()
     UObject* CurrentAbilityConfig = nullptr;
     AbilityConfigHandle->GetValue(CurrentAbilityConfig);
 
-    if (!CurrentAbilityConfig) return;
-
-    //새로 선택된 어빌리티 클래스에 매핑되는 Config 클래스 찾기
-    UClass* RequiredConfigClass = GetRequiredConfigClass();
-
-    UE_LOG(LogTemp, Warning, TEXT("RequiredConfigClass: %s"),
-        RequiredConfigClass ? *RequiredConfigClass->GetName() : TEXT("nullptr"));
-
-    UE_LOG(LogTemp, Warning, TEXT("CurrentAbilityConfig: %s"),
-        CurrentAbilityConfig ? *CurrentAbilityConfig->GetName() : TEXT("nullptr"));
-
-    // Config 타입이 맞지 않으면 Config 초기화
-    if (RequiredConfigClass && !CurrentAbilityConfig->IsA(RequiredConfigClass))
+    if (CurrentAbilityConfig)
     {
-        TSharedPtr<IPropertyHandle> LocalHandle = AbilityConfigHandle; // 람다 캡처용 로컬 변수
-        GEditor->GetTimerManager()->SetTimerForNextTick([LocalHandle]()
+        //새로 선택된 어빌리티 클래스에 매핑되는 Config 클래스 찾기
+        UClass* RequiredConfigClass = GetRequiredConfigClass();
+
+        // Config 타입이 맞지 않으면 Config 초기화
+        if (RequiredConfigClass && !CurrentAbilityConfig->IsA(RequiredConfigClass))
         {
-            if (LocalHandle.IsValid())
+            TSharedPtr<IPropertyHandle> LocalHandle = AbilityConfigHandle; // 람다 캡처용 로컬 변수
+            GEditor->GetTimerManager()->SetTimerForNextTick([LocalHandle]()
             {
-                UE_LOG(LogTemp, Warning, TEXT("Config 타입 불일치 → null로 초기화"));
-                //AbilityConfigHandle->SetValue((UObject*)nullptr);
-                LocalHandle->SetValueFromFormattedString(TEXT("None"));
-            }
-        });
+                if (LocalHandle.IsValid())
+                {
+                    //AbilityConfigHandle->SetValue((UObject*)nullptr);
+                    LocalHandle->SetValueFromFormattedString(TEXT("None"));
+                }
+            });
+        }
+    }
+
+    // 디테일 패널 업데이트
+    if(PropertyUtilities.IsValid())
+    {
+        PropertyUtilities->RequestRefresh();
     }
 }
 
@@ -137,28 +148,4 @@ EVisibility FAbilityEntryCustomization::GetConfigVisibility() const
 
     // 어빌리티 클래스에 매핑되는 Config가 있다면 표시, 없으면 숨김
     return AbilityClassObj ? EVisibility::Visible : EVisibility::Collapsed;
-}
-
-
-// True : 목록에서 제외, False : 목록에 포함
-bool FAbilityEntryCustomization::OnShouldFilterAsset(const FAssetData& AssetData) const
-{
-    UClass* RequiredConfigClass = GetRequiredConfigClass();
-    if (!RequiredConfigClass) return false; // 필터 설정이 안된 경우 모두 표시
-
-    // 에셋이 RequiredConfigClass의 서브클래스인지 확인
-    UClass* AssetClass = FindObject<UClass>(nullptr, *AssetData.AssetClassPath.ToString());
-    if (!AssetClass)
-    {
-        // 에셋 클래스를 찾지 못한 경우, 에디터에서 직접 로드 시도
-        AssetClass = LoadObject<UClass>(nullptr, *AssetData.AssetClassPath.ToString());
-    }
-
-    UE_LOG(LogTemp, Warning, TEXT("AssetClass: %s / RequiredClass: %s"),
-        AssetClass ? *AssetClass->GetName() : TEXT("nullptr"),
-        *RequiredConfigClass->GetName());
-
-    if (!AssetClass) return true; // 클래스 정보가 없으면 숨김
-
-    return !AssetClass->IsChildOf(RequiredConfigClass);
 }

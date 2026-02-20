@@ -62,6 +62,7 @@ void UActiveSkillWidget::OnCoolDownTagChanged(const FGameplayTag CallbackTag, in
     {
         // 쿨타임 오버레이 표시 및 타이머 시작
         if (CoolTimeOverlay) CoolTimeOverlay->SetVisibility(ESlateVisibility::Visible);
+        UpdateSlot(true);
 
         GetWorld()->GetTimerManager().SetTimer(CoolTimeTimerHandle, this, &UActiveSkillWidget::UpdateCoolTimeProgress, 0.1f, true);
     }
@@ -141,10 +142,14 @@ void UActiveSkillWidget::UpdateSlot(bool bIsActivate)
     if (bIsActivate)
     {
         NewStyle.Normal.SetResourceObject(SkillIcon);
+        NewStyle.Hovered.SetResourceObject(SkillIcon);
+        NewStyle.Pressed.SetResourceObject(SkillIcon);
     }
     else
     {
         NewStyle.Normal.SetResourceObject(CancelIcon);
+        NewStyle.Hovered.SetResourceObject(CancelIcon);
+        NewStyle.Pressed.SetResourceObject(CancelIcon);
     }
 
     ActiveButton->SetStyle(NewStyle);

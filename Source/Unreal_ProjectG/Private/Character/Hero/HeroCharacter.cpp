@@ -123,10 +123,12 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
 
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 {
+    Armor = ArmorData;
 }
 
 void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
 {
+    Accessory = AccessoryData;
 }
 
 void AHeroCharacter::BroadCastAttributeSet()

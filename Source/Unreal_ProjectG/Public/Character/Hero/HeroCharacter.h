@@ -140,6 +140,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<class UDataAsset_WeaponData> Weapon = nullptr;
+
 private:
     //ABP
     UPROPERTY()

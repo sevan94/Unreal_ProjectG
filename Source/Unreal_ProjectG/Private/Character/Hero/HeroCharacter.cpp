@@ -18,6 +18,7 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "DataAssets/Items/DataAsset_WeaponData.h
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()

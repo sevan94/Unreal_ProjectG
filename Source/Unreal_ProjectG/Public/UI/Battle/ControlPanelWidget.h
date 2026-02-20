@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GameplayTagContainer.h"
 #include "ControlPanelWidget.generated.h"
 
 class UImage;
 class UBarWidget;
+class UBaseHpWidget;
 class UActiveSkillWidget;
 class AHeroCharacter;
 
@@ -23,10 +25,23 @@ public:
     // 외부(캐릭터)에서 조이스틱 값을 가져갈 함수
     FVector2D GetJoystickVector() const { return JoystickVector; }
 
-    void InitBar(float CurrentHP, float MaxHP, float CurrentCost, float MaxCost);
-
-    void UpdateHP(float InValue);
+    // 
+    UFUNCTION()
+    void UpdateHeroHP(float InValue);
+    UFUNCTION()
+    void UpdateMaxHeroHP(float InValue);
+    UFUNCTION()
     void UpdateCost(float InValue);
+    UFUNCTION()
+    void UpdateMaxCost(float InValue);
+    UFUNCTION()
+    void UpdateBaseHP(FGameplayTag TeamTag, float InValue);
+    UFUNCTION()
+    void UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue);
+
+    // 스킬 테스트용 함수
+    UFUNCTION(BlueprintCallable)
+    void SetAbilitySpecHandle();
 
 protected:
     // 블루프린트 이벤트를 C++에서 오버라이드
@@ -40,6 +55,8 @@ protected:
 
 
 protected:
+    TObjectPtr<AHeroCharacter> HeroCharacter = nullptr;
+
     // 조이스틱 레버
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> JoyStick;
@@ -53,6 +70,13 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBarWidget> CostBar;
+
+    // 기지 체력 바
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UBaseHpWidget> PlayerHP;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UBaseHpWidget> EnemyHP;
 
     // 액티브 스킬
     UPROPERTY(meta = (BindWidget))

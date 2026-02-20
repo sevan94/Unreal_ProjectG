@@ -4,15 +4,14 @@
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Character/Hero/HeroCharacter.h"
-#include "Character/Unit/UnitCharacter.h"
+#include "Character/PGCharacterBase.h"
 
 UPGCharacterAttributeSet::UPGCharacterAttributeSet()
 {
     InitMaxHealth(100.0f);
-    InitHealth(100.0f);
-    InitCost(0.0f);
+    InitHealth(GetMaxHealth());
     InitMaxCost(100.0f);
+    InitCost(GetMaxCost());
     InitAttackPower(10.0f);
     InitAttackSpeed(1.0f);
 }
@@ -31,28 +30,39 @@ void UPGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attr
     }
 }
 
+//bool UPGCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+//{
+//    Super::PreGameplayEffectExecute(Data);
+//
+//    if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+//    {
+//        if (ABaseStructure* BaseStructure = Cast<ABaseStructure>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+//        {
+//            UE_LOG(LogTemp, Log, TEXT("%s Pre 기지 최대 체력: %f"), *BaseStructure->GetName(), GetMaxHealth());
+//            return true;
+//
+//        }
+//    }
+//    return false;
+//}
+
 void UPGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
     Super::PostGameplayEffectExecute(Data);
 
+    APGCharacterBase* BaseCharacter = Cast<APGCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor());
+
     if (Data.EvaluatedData.Attribute == GetHealthAttribute())
     {
-        SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-
         UE_LOG(LogTemp, Log, TEXT("Health : %f"), GetHealth());
+        SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 
         if (FMath::IsNearlyZero(GetHealth()))
         {
             UE_LOG(LogTemp, Log, TEXT("Dead"));
-            AHeroCharacter* HeroCharacter = Cast<AHeroCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor());
-            AUnitCharacter* UnitCharacter = Cast<AUnitCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor());
-            if (HeroCharacter)
+            if (BaseCharacter)
             {
-                HeroCharacter->OnDie();
-            }
-            if (UnitCharacter)
-            {
-                UnitCharacter->OnDie();
+                BaseCharacter->OnDie();
             }
         }
     }

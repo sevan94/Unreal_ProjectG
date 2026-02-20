@@ -24,8 +24,11 @@ void UBattleUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
+    // 배속 수치를 가져옴
+    float CurrentDilatedTime = UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+
     // 플레이 타임 누적
-    ElapsedPlayTime += InDeltaTime;
+    ElapsedPlayTime += InDeltaTime * CurrentDilatedTime;
 
     int32 TotalSeconds = FMath::FloorToInt(ElapsedPlayTime);
     int32 Minutes = TotalSeconds / 60;

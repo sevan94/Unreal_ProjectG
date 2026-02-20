@@ -19,7 +19,7 @@ class UNREAL_PROJECTG_API UBarWidget : public UUserWidget
 
 public:
     UFUNCTION(BlueprintCallable)
-    void InitProgressBar(FLinearColor InColor, FText InName, float InCurrent, float InMax);
+    void InitProgressBar(FLinearColor InColor, FText InName, float InMax);
 
     void UpdateCurrent(float InCurrent);
 	

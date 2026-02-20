@@ -1,19 +1,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Character/PGCharacterBase.h"
 #include "AbilitySystemInterface.h" 
 #include "Components/SphereComponent.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
+#include "GameplayEffectTypes.h"
 #include "BaseStructure.generated.h"
 
 // 델리게이트 선언 (기지 파괴 알림용)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBaseDestroyed, ETeamType, DestroyedTeam);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBaseHpChanged, FGameplayTag, TeamTag, float, CurrentHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBaseMaxHpChanged, FGameplayTag, TeamTag, float, MaxHealth);
 
 
 UCLASS()
-class UNREAL_PROJECTG_API ABaseStructure : public APawn, public IAbilitySystemInterface
+class UNREAL_PROJECTG_API ABaseStructure : public APGCharacterBase
 {
     GENERATED_BODY()
 
@@ -31,21 +34,12 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     TObjectPtr<class UStaticMeshComponent> MeshComp;
 
-    // --- [2] GAS 컴포넌트 ---
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
-    TObjectPtr<class UPGAbilitySystemComponent> AbilitySystemComponent;
-
-    
-    UPROPERTY()
-    TObjectPtr<class UPGCharacterAttributeSet> AttributeSet;
-
 public:
-    // --- [3] 게임 로직 ---
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
-    ETeamType TeamID;
-
     UPROPERTY(BlueprintAssignable)
     FOnBaseDestroyed OnBaseDestroyed;
+
+    FOnBaseHpChanged OnBaseHpChanged;
+    FOnBaseMaxHpChanged OnBaseMaxHpChanged;
 
     UPROPERTY(EditDefaultsOnly, Category = "GAS")
     TSubclassOf<class UGameplayEffect> InitStatEffect;
@@ -84,17 +78,17 @@ public:
    
     virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    // 체력 변경 콜백 (AttributeSet 델리게이트용)
-    void OnHealthChangedCallback(const struct FOnAttributeChangeData& Data);
-
-    // 블루프린트용 이벤트
-    UFUNCTION(BlueprintImplementableEvent, Category = "Base")
-    void OnHealthChanged(float NewHealth, float MaxHealth);
-
     // 블루프린트에서 투사체를 쏘거나 포탄 이펙트를 띄우기 위한 이벤트
     UFUNCTION(BlueprintImplementableEvent, Category = "Attack")
     void BP_OnBaseAttack(AActor* TargetActor);
 
     // 파괴 처리
     void DestroyBase();
+
+    // UI 연동 함수
+    void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
+    void MaxHealthChange(const FOnAttributeChangeData& Data) const;
+
+    // UI 테스트용 함수
+    void ChangeHP();
 };

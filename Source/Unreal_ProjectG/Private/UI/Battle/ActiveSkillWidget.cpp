@@ -9,6 +9,7 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Components/Combat/PawnCombatComponent.h"
 #include "TimerManager.h"
+#include "UI/DataTable/SkillUIDataTable.h"
 
 void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandle)
 {
@@ -21,10 +22,31 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
         if (Spec)
         {
             AbilityObject = Spec->GetPrimaryInstance();
-
             if (!AbilityObject)
             {
                 AbilityObject = Spec->Ability;
+            }
+            CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
+            UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
+
+            FString AbilityName = AbilityObject->GetClass()->GetName();
+            if (SkillDataTable)
+            {
+                FSkillUIDataTable* FoundRow = SkillDataTable->FindRow<FSkillUIDataTable>(FName(*AbilityName), TEXT("Skill Lookup"));
+                if (FoundRow)
+                {
+                    SkillIcon = FoundRow->SkillIcon;
+
+                    // 초기 이미지 설정
+                    UpdateSlot(true);
+                }
+            }
+
+            if (AbilitySystemComponent && CooldownTag.IsValid())
+            {
+                // 태그 변경 이벤트 등록
+                TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
+                    .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
             }
         }
     }
@@ -40,6 +62,7 @@ void UActiveSkillWidget::OnCoolDownTagChanged(const FGameplayTag CallbackTag, in
     {
         // 쿨타임 오버레이 표시 및 타이머 시작
         if (CoolTimeOverlay) CoolTimeOverlay->SetVisibility(ESlateVisibility::Visible);
+        UpdateSlot(true);
 
         GetWorld()->GetTimerManager().SetTimer(CoolTimeTimerHandle, this, &UActiveSkillWidget::UpdateCoolTimeProgress, 0.1f, true);
     }
@@ -84,12 +107,6 @@ void UActiveSkillWidget::NativeConstruct()
     if (APawn* OwningPawn = GetOwningPlayerPawn())
     {
         AbilitySystemComponent = OwningPawn->FindComponentByClass<UAbilitySystemComponent>();
-        if (AbilitySystemComponent && CoolDownTag.IsValid())
-        {
-            // 태그 변경 이벤트 등록
-            TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CoolDownTag, EGameplayTagEventType::NewOrRemoved)
-                .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
-        }
     }
 
     if (ActiveButton)
@@ -100,8 +117,40 @@ void UActiveSkillWidget::NativeConstruct()
 
 void UActiveSkillWidget::OnActiveButtonClicked()
 {
-    if (AbilitySystemComponent && AbilitySpec.IsValid())
+    FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpec);
+    if (!Spec) return;
+
+    if (Spec->IsActive())
     {
-        AbilitySystemComponent->TryActivateAbility(AbilitySpec);
+        // 이미 실행 중이라면 취소
+        AbilitySystemComponent->CancelAbilityHandle(AbilitySpec);
+        UpdateSlot(true);
+        //UE_LOG(LogTemp, Log, TEXT("어빌리티 취소 : %s"), *Spec->Ability->GetName());
     }
+    else
+    {
+        // 실행 중이 아니라면 활성화
+        AbilitySystemComponent->TryActivateAbility(AbilitySpec);
+        UpdateSlot(false);
+        //UE_LOG(LogTemp, Log, TEXT("어빌리티 활성화 : %s"), *Spec->Ability->GetName());
+    }
+}
+
+void UActiveSkillWidget::UpdateSlot(bool bIsActivate)
+{
+    FButtonStyle NewStyle = ActiveButton->GetStyle();
+    if (bIsActivate)
+    {
+        NewStyle.Normal.SetResourceObject(SkillIcon);
+        NewStyle.Hovered.SetResourceObject(SkillIcon);
+        NewStyle.Pressed.SetResourceObject(SkillIcon);
+    }
+    else
+    {
+        NewStyle.Normal.SetResourceObject(CancelIcon);
+        NewStyle.Hovered.SetResourceObject(CancelIcon);
+        NewStyle.Pressed.SetResourceObject(CancelIcon);
+    }
+
+    ActiveButton->SetStyle(NewStyle);
 }

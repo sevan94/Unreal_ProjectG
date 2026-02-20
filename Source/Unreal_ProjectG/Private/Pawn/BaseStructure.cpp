@@ -23,20 +23,13 @@ ABaseStructure::ABaseStructure()
     MeshComp->SetCollisionProfileName(TEXT("NoCollision")); 
 
     // 3. GAS 컴포넌트 생성
-    AbilitySystemComponent = CreateDefaultSubobject<UPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-    AbilitySystemComponent->SetIsReplicated(true);
+    PGAbilitySystemComponent->SetIsReplicated(true);
     
     // 4. 공격 사거리 스피어 생성
     AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
     AttackRangeSphere->SetupAttachment(RootComponent);
     AttackRangeSphere->SetSphereRadius(800.0f); // 기본 사거리
     AttackRangeSphere->SetCollisionProfileName(TEXT("Trigger")); // 감지 전용
-
-    // 기지도 체력이 있어야 하므로 AttributeSet을 생성해야 함
-    AttributeSet = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("AttributeSet"));
-
-   
-
 }
 
 
@@ -44,31 +37,27 @@ void ABaseStructure::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (AbilitySystemComponent)
+    if (PGAbilitySystemComponent)
     {
-        // GAS 초기화 (Owner = this, Avatar = this)
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
         // 초기 스탯 적용 (InitStatEffect가 있다면)
         if (InitStatEffect)
         {
-            FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+            FGameplayEffectContextHandle ContextHandle = PGAbilitySystemComponent->MakeEffectContext();
             ContextHandle.AddSourceObject(this);
-            FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
+            FGameplayEffectSpecHandle SpecHandle = PGAbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
 
             if (SpecHandle.IsValid())
             {
-                AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+                PGAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
             }
         }
 
-        // 체력 변경 감지
-        if (AttributeSet)
-        {
-            AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-                UPGCharacterAttributeSet::GetHealthAttribute()).AddUObject(this, &ABaseStructure::OnHealthChangedCallback);
-        }
     }
+
+    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+        CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &ABaseStructure::CurrentHealthChange);
+    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+        CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
 
     // 오버랩 이벤트
     AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeBeginOverlap);
@@ -113,17 +102,17 @@ void ABaseStructure::ProcessAttack()
     {
         AActor* CurrentTarget = TargetList[0]; // 사거리에 가장 먼저 들어온 타겟을 우선 공격
 
-        if (AttackDamageEffect && AbilitySystemComponent)
+        if (AttackDamageEffect && PGAbilitySystemComponent)
         {
             UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(CurrentTarget);
             if (TargetASC)
             {
                 // 데미지 이펙트(GE) 적용 -> 투사체 스폰 로직 추가 가능
-                FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+                FGameplayEffectContextHandle Context = PGAbilitySystemComponent->MakeEffectContext();
                 Context.AddSourceObject(this);
-                FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(AttackDamageEffect, 1.0f, Context);
+                FGameplayEffectSpecHandle Spec = PGAbilitySystemComponent->MakeOutgoingSpec(AttackDamageEffect, 1.0f, Context);
 
-                AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+                PGAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 
                 // 시각 효과 처리를 위해 BP 이벤트 호출
                 BP_OnBaseAttack(CurrentTarget);
@@ -134,24 +123,8 @@ void ABaseStructure::ProcessAttack()
 
 UAbilitySystemComponent* ABaseStructure::GetAbilitySystemComponent() const
 {
-    return AbilitySystemComponent;
+    return PGAbilitySystemComponent;
 }
-
-void ABaseStructure::OnHealthChangedCallback(const FOnAttributeChangeData& Data)
-{
-    float NewHealth = Data.NewValue;
-
-    // 체력이 0 이하이고 아직 파괴되지 않았다면
-    if (NewHealth <= 0.0f)
-    {
-        DestroyBase();
-    }
-
-    // 여기서 체력바 UI 업데이트 로직을 추가
-    OnHealthChanged(NewHealth, 1000.0f); // MaxHealth는 가져오는 로직 필요 (일단 하드코딩)
-}
-
-
 
 void ABaseStructure::DestroyBase()
 {
@@ -168,4 +141,13 @@ void ABaseStructure::DestroyBase()
 
     // 2. 기지 파괴
     Destroy();
+}
+
+void ABaseStructure::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnBaseHpChanged.Broadcast(TeamTag, Data.NewValue);
+}
+void ABaseStructure::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnBaseMaxHpChanged.Broadcast(TeamTag, Data.NewValue);
 }

@@ -9,7 +9,7 @@ AGATargetActor_AOEGroundTrace::AGATargetActor_AOEGroundTrace()
 {
     PrimaryActorTick.bCanEverTick = true;
     AOERadiusSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AOERadiusSphere"));
-    AOERadiusSphere->SetupAttachment(RootComponent);
+    SetRootComponent(AOERadiusSphere);
     AOERadiusSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     AOERadiusSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
     AOERadiusSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);

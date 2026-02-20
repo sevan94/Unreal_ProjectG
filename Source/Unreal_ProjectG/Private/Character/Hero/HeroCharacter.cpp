@@ -103,6 +103,21 @@ void AHeroCharacter::InitializeHero()
     }
 }
 
+void AHeroCharacter::BroadCastAttributeSet()
+{
+    if (ResourceAttribute)
+    {
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            ResourceAttribute->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
+    }
+}
+
 void AHeroCharacter::OnDie()
 {
     if (PGAbilitySystemComponent && GA_Die)
@@ -151,6 +166,8 @@ void AHeroCharacter::BeginPlay()
         AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
         UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
     }
+
+    BroadCastAttributeSet();
 }
 
 // Called every frame
@@ -167,24 +184,6 @@ void AHeroCharacter::Tick(float DeltaTime)
     {
         ActivateAttack();
     }
-
-    //// 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
-    //if (JoystickWidget)
-    //{
-    //    FVector2D JoyInput = JoystickWidget->GetJoystickVector();
-
-    //    if (!JoyInput.IsNearlyZero())
-    //    {
-    //        const FVector ForwardDirection = FVector::ForwardVector;
-    //        const FVector RightDirection = FVector::RightVector;
-
-    //        // 위젯 좌표계와 월드 좌표계 매칭 (상황에 따라 Y축 반전 필요할 수 있음)
-    //        AddMovementInput(ForwardDirection, JoyInput.X);
-    //        AddMovementInput(RightDirection, JoyInput.Y);
-
-    //        //UE_LOG(LogTemp, Log, TEXT("JoyInput: X=%.2f, Y=%.2f"), JoyInput.X, JoyInput.Y);
-    //    }
-    //}
 }
 
 // Called to bind functionality to input
@@ -198,6 +197,26 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
         enhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AHeroCharacter::OnMovementInput);
         enhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AHeroCharacter::OnAttackInput);
     }
+}
+
+void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroCostChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
 }
 
 void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)

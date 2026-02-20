@@ -36,6 +36,8 @@ protected:
     UFUNCTION()
     void OnActiveButtonClicked();
 
+    void UpdateSlot(bool bIsActivate);
+
 protected:
     // UI 바인딩
     UPROPERTY(meta = (BindWidget))
@@ -47,9 +49,16 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> CoolTimeText;
 
-    // 쿨타임용 태그
-    UPROPERTY(EditAnywhere, Category = "GAS")
-    FGameplayTag CoolDownTag;
+    UPROPERTY(EditAnywhere, Category = "Data")
+    TObjectPtr<UDataTable> SkillDataTable;
+
+    UPROPERTY()
+    TObjectPtr<UTexture2D> SkillIcon;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    TObjectPtr<UTexture2D> CancelIcon;
+
+    FGameplayTag CooldownTag;
 
 private:
     // 영웅 어빌리티 시스템

@@ -22,7 +22,10 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     FButtonStyle NewStyle = UnitButton->GetStyle();
 
     if (UnitData->UnitButtonNormalImage)
+    {
         NewStyle.Normal.SetResourceObject(UnitData->UnitButtonNormalImage);
+        NewStyle.Hovered.SetResourceObject(UnitData->UnitButtonNormalImage);
+    }
 
     if (UnitData->UnitButtonPressedImage)
         NewStyle.Pressed.SetResourceObject(UnitData->UnitButtonPressedImage);

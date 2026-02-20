@@ -37,6 +37,8 @@ protected:
 public:
     void SpawnRandomUnit();
 
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    void SetAttackTarget(AActor* InTargetActor);
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     TArray<FUnitSpawnInfo> SpawnList;
@@ -50,6 +52,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     int32 PoolSize = 10;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    TObjectPtr<AActor> AttackTarget;
 private:
     FTimerHandle SpawnTimerHandle;
 };

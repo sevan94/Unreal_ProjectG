@@ -61,8 +61,14 @@ void UUnitSpawnComponent::SpawnRandomUnit()
                 SelectedUnit.UnitClass,
                 SelectedUnit.UnitData,
                 GetComponentLocation(),
-                GetComponentRotation() 
+                GetComponentRotation(),
+                AttackTarget
             );
         }
     }
+}
+
+void UUnitSpawnComponent::SetAttackTarget(AActor* InTargetActor)
+{
+    AttackTarget = InTargetActor;
 }

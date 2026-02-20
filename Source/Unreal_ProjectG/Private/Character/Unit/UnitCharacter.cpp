@@ -98,11 +98,14 @@ void AUnitCharacter::InitUnitStartUpData()
                     LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
 
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
-                    StartUpData->SkeletalMesh;
-                    CharacterAttributeSet->InitHealth(StartUpData->Health);
-                    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
-                    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
-                    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+
+                    if (CharacterAttributeSet)
+                    {
+                        CharacterAttributeSet->InitHealth(StartUpData->Health);
+                        CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
+                        CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
+                        CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
+                    }
 
                     if (StartUpData->SkeletalMesh)
                     {
@@ -213,6 +216,7 @@ void AUnitCharacter::ActivateUnit()
         InitUnitStartUpData();
     }
     GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
     if (TargetActor)
     {
         SetAttackTarget(TargetActor);
@@ -221,31 +225,30 @@ void AUnitCharacter::ActivateUnit()
 
 void AUnitCharacter::DeactivateUnit()
 {
+
     OnUnitStartUpDataLoadedDelegate.Clear();
-    // 1. 동작 멈춤
-    if (GetController())
+
+    if (AController* OldController = GetController())
     {
-        GetController()->StopMovement();
-        GetController()->UnPossess();
+        OldController->StopMovement();
+        OldController->UnPossess(); 
+        OldController->Destroy();   
     }
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
-        //유닛 서브시스템에서 정한 팀을 해제함 
         Subsystem->UnregisterUnit(this, TeamTag);
     }
 
     // 2. 물리/이동 초기화
     GetCharacterMovement()->StopMovementImmediately();
-    GetCharacterMovement()->SetMovementMode(MOVE_None); // 물리 연산 최소화
+    GetCharacterMovement()->SetMovementMode(MOVE_None);
 
     // 3. 시각적 숨김
     SetActorEnableCollision(false);
     SetActorHiddenInGame(true);
-    SetActorTickEnabled(false); // 틱을 꺼서 성능 확보
+    SetActorTickEnabled(false);
 
-    // 4. 기타 정리 (타이머, 파티클 등)
-    GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 

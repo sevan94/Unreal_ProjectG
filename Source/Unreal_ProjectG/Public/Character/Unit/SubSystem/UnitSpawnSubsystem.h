@@ -32,7 +32,8 @@ public:
     UFUNCTION(BlueprintCallable)
     void SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
         TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData,
-        FVector Location, FRotator Rotation);
+        FVector Location, FRotator Rotation,
+        AActor* InTargetActor);
 
     // [수정] 반환할 때는 '클래스 정보'가 아니라 '유닛 인스턴스' 자체가 필요함
     UFUNCTION(BlueprintCallable)

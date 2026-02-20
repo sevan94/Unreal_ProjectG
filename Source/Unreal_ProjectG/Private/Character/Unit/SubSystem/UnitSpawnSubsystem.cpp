@@ -59,7 +59,8 @@ AUnitCharacter* UUnitSpawnSubsystem::GetUnitInstance(TSubclassOf<AUnitCharacter>
 
 void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
     TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData,
-    FVector Location, FRotator Rotation)
+    FVector Location, FRotator Rotation,
+    AActor* InTargetActor)
 {
     if (!UnitClass) return;
     AUnitCharacter* SpawnedUnit = GetUnitInstance(UnitClass);
@@ -67,6 +68,10 @@ void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass,
     {
         SpawnedUnit->SetActorLocationAndRotation(Location, Rotation);
         SpawnedUnit->SetCharacterStartupData(UnitData);
+        if (InTargetActor)
+        {
+            SpawnedUnit->SetAttackTarget(InTargetActor);
+        }
         ActiveUnits.Add(SpawnedUnit);
         SpawnedUnit->ActivateUnit();
     }

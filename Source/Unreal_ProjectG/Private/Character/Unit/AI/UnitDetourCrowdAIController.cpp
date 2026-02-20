@@ -79,7 +79,12 @@ void AUnitDetourCrowdAIController::InitializeAI()
             {
                 UE_LOG(LogTemp, Log, TEXT("메인 BT 실행 성공"));
                 SetUnitState(EUnitState::Move);
+                if (CrowdUnit->TargetActor)
+                {
+                    BlackboardComp->SetValueAsObject(TEXT("AttackTargetBase"), CrowdUnit->TargetActor);
+                    UE_LOG(LogTemp, Log, TEXT("AttackTargetBase설정완"));
 
+                }
                 UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
                 if (BTComp)
                 {

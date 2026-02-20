@@ -22,15 +22,7 @@ public:
 
     // 유닛 버튼 일반 이미지
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonNormalImage;
-
-    // 유닛 버튼 눌림 이미지
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonPressedImage;
-
-    // 유닛 버튼 비활성화 이미지
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonUnableImage;
+    TObjectPtr<UTexture2D> UnitImage;
 
     // 유닛 코스트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")

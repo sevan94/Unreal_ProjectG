@@ -4,6 +4,7 @@
 #include "UI/Battle/BattleUIWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 
 void UBattleUIWidget::NativeConstruct()
@@ -49,6 +50,15 @@ void UBattleUIWidget::OnSpeedButtonClicked()
     // 게임 배속 변경
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SpeedValues[CurrentSpeedIndex]);
 
+    if (CurrentSpeedIndex != 0)
+    {
+        SpeedActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
+    }
+    else
+    {
+        SpeedActiveEffect->SetVisibility(ESlateVisibility::Hidden);
+    }
+
     // UI 업데이트
     if (PlaySpeedText)
     {
@@ -65,9 +75,11 @@ void UBattleUIWidget::OnAutoButtonClicked()
     if (bIsAuto)
     {
         PlayAnimation(ControlPanelMoveAnim, 0.0f, 1, EUMGSequencePlayMode::Forward);
+        AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
         PlayAnimation(ControlPanelMoveAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+        AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
     }
 }

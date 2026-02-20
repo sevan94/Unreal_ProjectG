@@ -8,6 +8,7 @@
 
 class UTextBlock;
 class UButton;
+class UImage;
 class UControlPanelWidget;
 class UWidgetAnimation;
 
@@ -39,12 +40,16 @@ protected:
     // 자동 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> AutoButton;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> AutoActiveEffect;
 
     // 배속 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> PlaySpeedButton;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> PlaySpeedText;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> SpeedActiveEffect;
 
     // 일시 정지 버튼
     UPROPERTY(meta = (BindWidget))

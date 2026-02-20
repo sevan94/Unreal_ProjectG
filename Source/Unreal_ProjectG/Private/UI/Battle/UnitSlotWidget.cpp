@@ -20,7 +20,7 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     }
 
     // 버튼 이미지 설정
-    UnitImage->SetBrushFromTexture(UnitData->UnitButtonNormalImage);
+    UnitImage->SetBrushFromTexture(UnitData->UnitImage);
 }
 
 void UUnitSlotWidget::NativeConstruct()

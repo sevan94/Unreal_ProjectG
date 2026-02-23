@@ -15,6 +15,7 @@
 #include "DataAssets/Unit/UnitData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "DataAssets/Unit/BranchDataAsset.h"
+#include "AbilitySystem/PGAbilitySystemComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -68,6 +69,22 @@ void AUnitCharacter::PossessedBy(AController* NewController)
     InitUnitStartUpData();
 }
 
+void AUnitCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    if (!PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent = FindComponentByClass<UPGAbilitySystemComponent>();
+    }
+
+    if (!CharacterAttributeSet && PGAbilitySystemComponent)
+    {
+
+        CharacterAttributeSet = const_cast<UPGCharacterAttributeSet*>(PGAbilitySystemComponent->GetSet<UPGCharacterAttributeSet>());
+    }
+}
+
 void AUnitCharacter::InitUnitStartUpData()
 {
     if(CharacterStartupData.IsNull())
@@ -87,8 +104,10 @@ void AUnitCharacter::InitUnitStartUpData()
 
                 if (UDataAsset_StartupDataBase* LoadedData = CharacterStartupData.Get())
                 {
-                    LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
-
+                    if (PGAbilitySystemComponent)
+                    {
+                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+                    }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 
                     //if (CharacterAttributeSet)
@@ -125,8 +144,14 @@ void AUnitCharacter::InitUnitStartUpData()
                         AttackMarginKey = AttackRangeKey * 0.7f;
                     }
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
-                    UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
-
+                    if (CharacterAttributeSet)
+                    {
+                        UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
+                    }
                     TeamTag = StartUpData->TeamTag;
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정

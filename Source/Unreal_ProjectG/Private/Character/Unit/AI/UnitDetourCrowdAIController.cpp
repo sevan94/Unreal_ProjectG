@@ -85,11 +85,19 @@ void AUnitDetourCrowdAIController::InitializeAI()
                     UE_LOG(LogTemp, Log, TEXT("AttackTargetBase설정완"));
 
                 }
+
+
                 UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
                 if (BTComp)
                 {
                     //나중에 pggameplaytag 사용하게 수정하면 조음-
                     FGameplayTag CombatTag = FGameplayTag::RequestGameplayTag(TEXT("Unit.State.Combat"));
+
+                    if (UBehaviorTree* SubTree = CrowdUnit->GetSubBTAssetKey())
+                    {
+                        BTComp->SetDynamicSubtree(CombatTag, SubTree);
+                        UE_LOG(LogTemp, Log, TEXT("다이내믹 서브트리 주입 완료"));
+                    }
                 }
             }
             else

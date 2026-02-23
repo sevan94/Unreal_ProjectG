@@ -22,6 +22,8 @@ namespace PGGameplayTags
 
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_BasicAttack_Melee, "Unit.Ability.BasicAttack.Melee");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_ActivateSheild, "Unit.Ability.ActivateSheild");
 
     // 이벤트 태그
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_AttackTraceToggle, "Shared.Event.AttackTraceToggle");
@@ -60,6 +62,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Combat, "Unit.State.Combat");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
 
     // 게임 플레이 큐
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_AOEImpact, "GameplayCue.VFX.AOEImpact");

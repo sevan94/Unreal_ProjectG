@@ -35,6 +35,7 @@ class UNREAL_PROJECTG_API UMeleeAttackAbilityConfig : public UAbilityConfig
 {
     GENERATED_BODY()
 
+public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FGameplayTag HitImpactTag;
 };

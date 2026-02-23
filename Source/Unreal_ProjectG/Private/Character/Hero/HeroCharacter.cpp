@@ -131,6 +131,9 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
                 }
             }
         }
+
+        WeaponStaticMesh->SetStaticMesh(Weapon->GetHeroWeaponData().SoftWeaponMesh.Get());
+        //차후 에셋이 정해지면 소켓으로 붙일 예정
     }
     
 }
@@ -138,11 +141,19 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 {
     Armor = ArmorData;
+
+    if (Armor)
+    {
+    }
 }
 
 void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
 {
     Accessory = AccessoryData;
+    if (Accessory)
+    {
+
+    }
 }
 
 void AHeroCharacter::UnEquipWeapon()

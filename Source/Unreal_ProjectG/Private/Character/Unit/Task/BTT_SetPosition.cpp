@@ -63,6 +63,7 @@ EBTNodeResult::Type UBTT_SetPosition::ExecuteTask(UBehaviorTreeComponent& OwnerC
     if (NavSys && NavSys->ProjectPointToNavigation(DesiredLocation, ProjectedLocation, FVector(500.0f, 500.0f, 500.0f)))
     {
         AIController->MoveToLocation(ProjectedLocation.Location, 50.0f, false, true, true);
+        //BlackboardComp->SetValueAsVector(LocationKey.SelectedKeyName, ProjectedLocation.Location);
         return EBTNodeResult::Succeeded;
     }
 

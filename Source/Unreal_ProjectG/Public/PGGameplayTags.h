@@ -47,6 +47,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Combat);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Move);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Dead);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Guard);
 
 
     //유닛 등급 태그

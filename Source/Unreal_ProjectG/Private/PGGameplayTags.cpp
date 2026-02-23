@@ -62,6 +62,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Combat, "Unit.State.Combat");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
 
     // 게임 플레이 큐
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_AOEImpact, "GameplayCue.VFX.AOEImpact");

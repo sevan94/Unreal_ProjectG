@@ -57,31 +57,25 @@ void UControlPanelWidget::NativeConstruct()
     Super::NativeConstruct();
 
     // 영웅 캐릭터 초기화
-    AHeroController* Controller = Cast<AHeroController>(GetOwningPlayer());
-    if (Controller)
+    Controller = Cast<AHeroController>(GetOwningPlayer());
+
+    HeroCharacter = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+
+    if (HeroCharacter)
     {
-        // 조이스틱 설정
-        Controller->SetJoystickWidget(this);
+        HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHeroHP);
+        HeroCharacter->OnHeroMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxHeroHP);
+        HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
+        HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-        HeroCharacter = Cast<AHeroCharacter>(Controller->GetPawn());
-        if (HeroCharacter)
-        {
-            HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHeroHP);
-            HeroCharacter->OnHeroMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxHeroHP);
-            HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
-            HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
-
-            //// 영웅 무기 스킬 어빌리티 설정
-            //TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-            //if (!SpecHandleArray.IsEmpty())
-            //{
-            //    //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-            //    WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
-            //}
-        }
+        //// 영웅 무기 스킬 어빌리티 설정
+        //TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+        //if (!SpecHandleArray.IsEmpty())
+        //{
+        //    //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+        //    WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+        //}
     }
-
-    
 }
 
 FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -111,9 +105,9 @@ FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
             JoystickVector = Delta.GetSafeNormal(); // 이동 방향
             
             //인터페이스를 사용해 캐릭터 움직임
-            if(Hero)
+            if(Controller)
             {
-                IJoysticInput::Execute_MoveStart(Hero, JoystickVector);
+                IJoysticInput::Execute_MoveStart(Controller, JoystickVector);
             }
 
             return FReply::Handled().CaptureMouse(TakeWidget());
@@ -153,9 +147,9 @@ FReply UControlPanelWidget::NativeOnMouseMove(const FGeometry& InGeometry, const
         JoystickVector *= (Distance / JoystickRange);
 
         //인터페이스를 사용해 캐릭터 움직임
-        if (Hero)
+        if (Controller)
         {
-            IJoysticInput::Execute_ChangeDirection(Hero, JoystickVector);
+            IJoysticInput::Execute_ChangeDirection(Controller, JoystickVector);
         }
 
         return FReply::Handled();
@@ -177,9 +171,9 @@ FReply UControlPanelWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, c
         }
 
         //인터페이스를 사용해 캐릭터 정지
-        if (Hero)
+        if (Controller)
         {
-            IJoysticInput::Execute_EndMovement(Hero);
+            IJoysticInput::Execute_EndMovement(Controller);
         }
 
         // 마우스 캡처 해제

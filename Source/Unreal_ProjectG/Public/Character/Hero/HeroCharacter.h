@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
-#include "Interfaces/JoysticInput.h"
 #include "GameplayEffectTypes.h"
 #include "HeroCharacter.generated.h"
 
@@ -17,9 +16,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroMaxCostChanged, float, MaxCos
 
 class UHeroCombatComponent;
 class USphereComponent;
+class UDataAsset_WeaponData;
+class UDataAsset_ArmorData;
+class UDataAsset_AccessoryData;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IJoysticInput
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
 {
     GENERATED_BODY()
 
@@ -45,7 +47,28 @@ public:
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     void InitializeHero();
 
-    void SetJoystickWidget(class UControlPanelWidget* InWidget) { JoystickWidget = InWidget; }
+    //무기 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipWeapon(UDataAsset_WeaponData* WeaponData);
+    //방어구 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipArmor(UDataAsset_ArmorData* ArmorData);
+    //악세 장착
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
+
+    //스킬 사용
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void ActivateSkill();
+
+    //자동전투 상태로 만듦
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void OnAutoBattle() { bIsAuto = true; };
+
+    //자동전투 종료
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void OffAutoBattle() { bIsAuto = false; };
+
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
@@ -70,29 +93,25 @@ private:
     UFUNCTION()
     void OnAttackInput();
 
+    //공격 범위 안에 유닛이 들어옴
     UFUNCTION()
     void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+    //유닛이 공격 범위를 벗어남
     UFUNCTION()
     void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+    //공격 실행
     UFUNCTION()
     void ActivateAttack();
 
+    //자동전투 실행
+    UFUNCTION()
+    void AutoBattle();
+
+    //가장 가까운 적 산출(공격 대상 판별용)
     UFUNCTION()
     AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
-
-    UFUNCTION()
-    virtual void MoveStart_Implementation(FVector2D JoyInput) override;
-
-    UFUNCTION()
-    virtual void ChangeDirection_Implementation(FVector2D JoyInput) override;
-
-    UFUNCTION()
-    virtual void EndMovement_Implementation() override;
-
-    UFUNCTION()
-    void CharacterMove();
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -131,22 +150,11 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
     TObjectPtr<UInputAction> IA_Attack = nullptr;
 
-    //애님 몽타주
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<class UAnimMontage> Attack_Melee = nullptr;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<UAnimMontage> Attack_Bow = nullptr;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-    TObjectPtr<UAnimMontage> Attack_Magic = nullptr;
-
-    // 조이스틱
-    UPROPERTY()
-    TObjectPtr<class UControlPanelWidget> JoystickWidget = nullptr;
-
     //리소스를 관리하는 어트리뷰트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
 
+    //게임 시작시 실행할 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;
 
@@ -158,8 +166,19 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
 
+    //스킬
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TArray<TSubclassOf<UGameplayAbility>> GA_Skill;
+
+    //무기
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
-    TObjectPtr<class UDataAsset_WeaponData> Weapon = nullptr;
+    TObjectPtr<UDataAsset_WeaponData> Weapon = nullptr;
+    //방어구
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<UDataAsset_ArmorData> Armor = nullptr;
+    //악세
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
+    TObjectPtr<UDataAsset_AccessoryData> Accessory = nullptr;
 
 private:
     //ABP
@@ -170,9 +189,9 @@ private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
 
+    //자동전투 실행 여부
+    bool bIsAuto = false;
+
+    //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
-
-    bool bIsMoving = false;
-
-    FVector MoveDirection = FVector::ZeroVector;
 };

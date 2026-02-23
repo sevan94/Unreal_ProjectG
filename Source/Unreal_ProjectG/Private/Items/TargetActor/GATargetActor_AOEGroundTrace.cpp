@@ -60,7 +60,6 @@ void AGATargetActor_AOEGroundTrace::Tick(float DeltaSeconds)
         return;
     }
 
-
     FVector2D TouchLocation = FVector2D::ZeroVector;
     bool bIsCurrentlyTouching = false;
 
@@ -89,6 +88,12 @@ void AGATargetActor_AOEGroundTrace::Tick(float DeltaSeconds)
             FHitResult HitResult;
             FVector TraceEnd = WorldLocation + (WorldDirection * 10000.0f);
 
+            FCollisionQueryParams QueryParams;
+            QueryParams.AddIgnoredActor(OwnerActor);
+            if(PrimaryPC->GetPawn())
+            {
+                QueryParams.AddIgnoredActor(PrimaryPC->GetPawn());
+            }
             if (GetWorld()->LineTraceSingleByChannel(HitResult, WorldLocation, TraceEnd, ECC_Visibility))
             {
                 LastTouchLocation = HitResult.Location;

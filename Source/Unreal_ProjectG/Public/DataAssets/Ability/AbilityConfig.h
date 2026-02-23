@@ -74,3 +74,19 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TSubclassOf<APGProjectileBase> SpawnedProjectileClass;
 };
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UAOEAttackAbilityConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    FGameplayTag AOEImpactCueTag;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    int32 MaxHitTargets = 1;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    float AOEAttackRadius = 300.f;
+};

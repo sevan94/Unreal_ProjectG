@@ -11,6 +11,7 @@
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseProjectileAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
+#include "AbilitySystem/Abilities/Player/HeroAbility_AOEAttack.h"
 
 // 어빌리티 클래스 -> Config 클래스 매핑 테이블
 // 새 어빌리티 혹은 Config 추가 시 이곳에 추가
@@ -19,6 +20,7 @@ static TMap<UClass*, UClass*> GetAbilityToConfigMap()
     TMap<UClass*, UClass*> Map;
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), UMeleeAttackAbilityConfig::StaticClass());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), USpawnProjectileAbilityConfig::StaticClass());
+    Map.Add(UHeroAbility_AOEAttack::StaticClass(), UAOEAttackAbilityConfig::StaticClass());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), UUnitMeleeAttackAbilityConfig::StaticClass());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), UUnitSpawnProjectileAbilityConfig::StaticClass());
 

@@ -18,6 +18,13 @@
 #include "PGGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "DataAssets/Items/DataAsset_WeaponData.h"
+#include "DataAssets/Items/DataAsset_ArmorData.h"
+#include "DataAssets/Items/DataAsset_AccessoryData.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -103,6 +110,56 @@ void AHeroCharacter::InitializeHero()
     }
 }
 
+void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
+{
+    Weapon = WeaponData;
+
+    if(Weapon)
+    {
+        const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
+        if (PGAbilitySystemComponent)
+        {
+            if(Data.BaseAttackAbility)
+            {
+                GA_Attack = Data.BaseAttackAbility;
+                if (GA_Attack)
+                {
+                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
+                }
+            }
+            if (!(Data.WeaponSkillAbilities.IsEmpty()))
+            {
+                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
+                {
+                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
+                }
+            }
+        }
+    }
+    
+}
+
+void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
+{
+    Armor = ArmorData;
+}
+
+void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
+{
+    Accessory = AccessoryData;
+}
+
+void AHeroCharacter::ActivateSkill()
+{
+    if (PGAbilitySystemComponent)
+    {
+        FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
+        FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
+    }
+}
+
 void AHeroCharacter::BroadCastAttributeSet()
 {
     if (ResourceAttribute)
@@ -150,10 +207,10 @@ void AHeroCharacter::BeginPlay()
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
         }
-        if (GA_Attack)
-        {
-            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1, 1, this));
-        }
+        //if (Weapon)
+        //{
+        //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
+        //}
         if (GA_Initialize)
         {
             PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
@@ -175,14 +232,14 @@ void AHeroCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (bIsMoving)
-    {
-        CharacterMove();
-    }
-
     if (!(PotentialTargets.IsEmpty()))
     {
         ActivateAttack();
+    }
+
+    if (bIsAuto)
+    {
+        AutoBattle();
     }
 }
 
@@ -277,7 +334,23 @@ void AHeroCharacter::ActivateAttack()
     EventData.Target = AttackTarget;
 
     /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
-    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+    if(PGAbilitySystemComponent)
+    {
+        FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
+    }
+}
+
+void AHeroCharacter::AutoBattle()
+{
+    if (PotentialTargets.IsEmpty())
+    {
+        AddMovementInput(FVector::ForwardVector);
+    }
+    else
+    {
+        ActivateSkill();
+    }
 }
 
 AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
@@ -306,26 +379,4 @@ AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
     }
 
     return ClosestActor;
-}
-
-void AHeroCharacter::MoveStart_Implementation(FVector2D JoyInput)
-{
-    bIsMoving = true;
-
-    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
-}
-
-void AHeroCharacter::ChangeDirection_Implementation(FVector2D JoyInput)
-{
-    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
-}
-
-void AHeroCharacter::EndMovement_Implementation()
-{
-    bIsMoving = false;
-}
-
-void AHeroCharacter::CharacterMove()
-{
-    AddMovementInput(MoveDirection);
 }

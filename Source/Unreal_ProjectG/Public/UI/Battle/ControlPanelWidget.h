@@ -90,4 +90,7 @@ private:
 
     UPROPERTY()
     TObjectPtr<AHeroCharacter> Hero = nullptr;
+
+    UPROPERTY()
+    TObjectPtr<class AHeroController> Controller = nullptr;
 };

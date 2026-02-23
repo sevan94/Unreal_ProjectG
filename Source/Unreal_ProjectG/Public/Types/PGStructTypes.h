@@ -21,7 +21,7 @@ struct FAbilityEntry
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<UPGGameplayAbility> AbilityClass;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, meta = (AllowAbstract = false, ShowOnlyInnerProperties))
     TObjectPtr<UAbilityConfig> AbilityConfig;
 };
 
@@ -47,10 +47,10 @@ struct FPGHeroWeaponData
     //TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FAbilityEntry BaseAttackConfigMap;
+    FAbilityEntry WeaponBasicAttackAbilityEntry;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<FAbilityEntry> WeaponSkillConfigMapArray;
+    TArray<FAbilityEntry> WeaponSkillAbilityEntries;
 
     //// 무기 스킬 어빌리티들
     //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

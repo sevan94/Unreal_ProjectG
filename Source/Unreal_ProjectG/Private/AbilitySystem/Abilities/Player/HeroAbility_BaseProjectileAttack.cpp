@@ -8,10 +8,25 @@
 #include "PGGameplayTags.h"
 #include "Items/PGProjectileBase.h"
 
+#include "DataAssets/Ability/AbilityConfig.h"
+
 UHeroAbility_BaseProjectileAttack::UHeroAbility_BaseProjectileAttack()
 {
     // 기본 설정
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void UHeroAbility_BaseProjectileAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    USpawnProjectileAbilityConfig* Data = Cast<USpawnProjectileAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (Data)
+    {
+        ProjectileAttackMontage = Data->AbilityMontage;
+        ProjectileAttackSkillMultiplier = Data->DamageMultiplier;
+        SpawnedProjectileClass = Data->SpawnedProjectileClass;
+    }
 }
 
 void UHeroAbility_BaseProjectileAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -21,11 +36,11 @@ void UHeroAbility_BaseProjectileAttack::ActivateAbility(const FGameplayAbilitySp
         CachedWeaponStaticMesh = GetHeroCombatComponentFromActorInfo()->CachedWeaponMeshComponent.Get();
     }
 
-    checkf(!ProjectileAttackMontages.IsEmpty(), TEXT("ProjectileAttackMontages 배열이 비어있습니다!"));
+    checkf(ProjectileAttackMontage, TEXT("ProjectileAttackMontage가 비어있습니다!"));
 
     // 애니메이션 몽타주 재생
-    UAnimMontage* SelectedMontage = ProjectileAttackMontages[FMath::RandRange(0, ProjectileAttackMontages.Num() - 1)];
-    UAbilityTask_PlayMontageAndWait* ProjectileMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SelectedMontage);
+    //UAnimMontage* SelectedMontage = ProjectileAttackMontages[FMath::RandRange(0, ProjectileAttackMontages.Num() - 1)];
+    UAbilityTask_PlayMontageAndWait* ProjectileMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, ProjectileAttackMontage);
 
     // 몽타주 완료 이벤트 바인딩
     if (ProjectileMontageTask)

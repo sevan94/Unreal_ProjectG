@@ -21,9 +21,9 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Sword, "Player.Weapon.Sword");
 
     // 유닛 어빌리티 태그
-    UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_BasicAttack_Melee, "Unit.Ability.BasicAttack.Melee");
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_ActivateSheild, "Unit.Ability.ActivateSheild");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_BasicAttack, "Unit.Ability.BasicAttack");
 
     // 이벤트 태그
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_AttackTraceToggle, "Shared.Event.AttackTraceToggle");

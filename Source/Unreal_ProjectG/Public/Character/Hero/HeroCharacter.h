@@ -57,6 +57,18 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
 
+    //스킬 사용
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void ActivateSkill();
+
+    //자동전투 상태로 만듦
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void OnAutoBattle() { bIsAuto = true; };
+
+    //자동전투 종료
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void OffAutoBattle() { bIsAuto = false; };
+
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
@@ -81,15 +93,23 @@ private:
     UFUNCTION()
     void OnAttackInput();
 
+    //공격 범위 안에 유닛이 들어옴
     UFUNCTION()
     void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+    //유닛이 공격 범위를 벗어남
     UFUNCTION()
     void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+    //공격 실행
     UFUNCTION()
     void ActivateAttack();
 
+    //자동전투 실행
+    UFUNCTION()
+    void AutoBattle();
+
+    //가장 가까운 적 산출(공격 대상 판별용)
     UFUNCTION()
     AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
 
@@ -134,6 +154,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
 
+    //게임 시작시 실행할 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;
 
@@ -144,6 +165,10 @@ protected:
     //공격
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<UGameplayAbility> GA_Attack = nullptr;
+
+    //스킬
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
+    TArray<TSubclassOf<UGameplayAbility>> GA_Skill;
 
     //무기
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
@@ -164,5 +189,9 @@ private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
 
+    //자동전투 실행 여부
+    bool bIsAuto = false;
+
+    //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
 };

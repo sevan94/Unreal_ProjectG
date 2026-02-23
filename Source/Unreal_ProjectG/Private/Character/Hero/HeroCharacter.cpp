@@ -22,6 +22,10 @@
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+
 // Sets default values
 AHeroCharacter::AHeroCharacter()
 {
@@ -113,9 +117,23 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
     if(Weapon)
     {
         const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
-        if (Data.BaseAttackAbility && PGAbilitySystemComponent)
+        if (PGAbilitySystemComponent)
         {
-            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1, 1, this));
+            if(Data.BaseAttackAbility)
+            {
+                GA_Attack = Data.BaseAttackAbility;
+                if (GA_Attack)
+                {
+                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
+                }
+            }
+            if (!(Data.WeaponSkillAbilities.IsEmpty()))
+            {
+                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
+                {
+                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
+                }
+            }
         }
     }
     
@@ -129,6 +147,17 @@ void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
 {
     Accessory = AccessoryData;
+}
+
+void AHeroCharacter::ActivateSkill()
+{
+    if (PGAbilitySystemComponent)
+    {
+        FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
+        FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
+    }
 }
 
 void AHeroCharacter::BroadCastAttributeSet()
@@ -206,6 +235,11 @@ void AHeroCharacter::Tick(float DeltaTime)
     if (!(PotentialTargets.IsEmpty()))
     {
         ActivateAttack();
+    }
+
+    if (bIsAuto)
+    {
+        AutoBattle();
     }
 }
 
@@ -300,7 +334,23 @@ void AHeroCharacter::ActivateAttack()
     EventData.Target = AttackTarget;
 
     /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
-    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+    if(PGAbilitySystemComponent)
+    {
+        FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
+        PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
+    }
+}
+
+void AHeroCharacter::AutoBattle()
+{
+    if (PotentialTargets.IsEmpty())
+    {
+        AddMovementInput(FVector::ForwardVector);
+    }
+    else
+    {
+        ActivateSkill();
+    }
 }
 
 AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)

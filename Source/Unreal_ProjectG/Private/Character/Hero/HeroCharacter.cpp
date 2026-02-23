@@ -112,31 +112,30 @@ void AHeroCharacter::InitializeHero()
 
 void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
 {
-    Weapon = WeaponData;
+    //Weapon = WeaponData;
 
-    if(Weapon)
-    {
-        const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
-        if (PGAbilitySystemComponent)
-        {
-            if(Data.BaseAttackAbility)
-            {
-                GA_Attack = Data.BaseAttackAbility;
-                if (GA_Attack)
-                {
-                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
-                }
-            }
-            if (!(Data.WeaponSkillAbilities.IsEmpty()))
-            {
-                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
-                {
-                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
-                }
-            }
-        }
-    }
-    
+    //if(Weapon)
+    //{
+    //    const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
+    //    if (PGAbilitySystemComponent)
+    //    {
+    //        if(Data.BaseAttackAbility)
+    //        {
+    //            GA_Attack = Data.BaseAttackAbility;
+    //            if (GA_Attack)
+    //            {
+    //                PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
+    //            }
+    //        }
+    //        if (!(Data.WeaponSkillAbilities.IsEmpty()))
+    //        {
+    //            for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
+    //            {
+    //                PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)

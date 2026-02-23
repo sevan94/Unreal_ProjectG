@@ -55,14 +55,14 @@ void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> P
 
     UObject* AbilityClassObj = nullptr;
     AbilityClassHandle->GetValue(AbilityClassObj);
-    if (AbilityClassObj && PropertyUtilities.IsValid() && !bIsRefreshing)
+    if (AbilityClassObj && PropertyUtilities.IsValid()/* && !bIsRefreshing*/)
     {
-        bIsRefreshing = true; // 무한 루프 방지 플래그
+        //bIsRefreshing = true; // 무한 루프 방지 플래그
         PropertyUtilities->RequestRefresh();
     }
     else
     {
-        bIsRefreshing = false;
+        //bIsRefreshing = false;
     }
 
     // AbilityClass 변경 감지 -> Config 초기화

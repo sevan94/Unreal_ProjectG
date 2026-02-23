@@ -19,6 +19,7 @@ class UNREAL_PROJECTG_API UHeroAbility_BaseMeleeAttack : public UPGHeroGameplayA
 public:
     UHeroAbility_BaseMeleeAttack();
 
+    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
@@ -44,7 +45,7 @@ protected:
     TSubclassOf<UGameplayEffect> MeleeAttackDamageEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    TArray<TObjectPtr<UAnimMontage>> MeleeAttackMontages;
+    TObjectPtr<UAnimMontage> MeleeAttackMontage;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
     FGameplayTag MeleeAttackCueTag;
@@ -60,7 +61,7 @@ protected:
     float WeaponTraceSphereRadius = 50.f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Ability|Melee Attack")
-    float WeaponTraceInterval = 0.33f;
+    float WeaponTraceInterval = 0.1f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Ability|Debug")
     bool bEnableTraceDebug = false;

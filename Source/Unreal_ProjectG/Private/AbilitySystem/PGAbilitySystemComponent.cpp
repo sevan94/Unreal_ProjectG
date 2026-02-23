@@ -4,28 +4,42 @@
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 
-void UPGAbilitySystemComponent::GrantHeroWeaponBasicAttackAbility(TSubclassOf<UPGHeroGameplayAbility> InBasicAttackAbility, int32 ApplyLevel, FGameplayAbilitySpecHandle& OutBasicAttackAbilitySpecHandle)
+//void UPGAbilitySystemComponent::GrantHeroWeaponBasicAttackAbility(TSubclassOf<UPGHeroGameplayAbility> InBasicAttackAbility, int32 ApplyLevel, FGameplayAbilitySpecHandle& OutBasicAttackAbilitySpecHandle)
+//{
+//    if (!InBasicAttackAbility) return;
+//
+//    FGameplayAbilitySpec AbilitySpec(InBasicAttackAbility);
+//    AbilitySpec.SourceObject = GetAvatarActor();
+//    AbilitySpec.Level = ApplyLevel;
+//
+//    OutBasicAttackAbilitySpecHandle = GiveAbility(AbilitySpec);
+//}
+
+void UPGAbilitySystemComponent::GrantHeroWeaponBasicAttackAbility(FAbilityEntry InBasicAttackAbilityEntry, int32 ApplyLevel, FGameplayAbilitySpecHandle& OutBasicAttackAbilitySpecHandle)
 {
-    if (!InBasicAttackAbility) return;
-
-    FGameplayAbilitySpec AbilitySpec(InBasicAttackAbility);
-    AbilitySpec.SourceObject = GetAvatarActor();
-    AbilitySpec.Level = ApplyLevel;
-
-    OutBasicAttackAbilitySpecHandle = GiveAbility(AbilitySpec);
+    FGameplayAbilitySpec BasicAttackAbilitySpec(
+        InBasicAttackAbilityEntry.AbilityClass.Get(),
+        ApplyLevel,
+        INDEX_NONE,
+        InBasicAttackAbilityEntry.AbilityConfig.Get()
+    );
+    OutBasicAttackAbilitySpecHandle = GiveAbility(BasicAttackAbilitySpec);
 }
 
-void UPGAbilitySystemComponent::GrantHeroWeaponSkillAbilities(const TArray<TSubclassOf<UPGHeroGameplayAbility>>& InWeaponSkillAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles)
+void UPGAbilitySystemComponent::GrantHeroWeaponSkillAbilities(const TArray<FAbilityEntry>& InWeaponSkillAbilityEntries, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles)
 {
-    if (InWeaponSkillAbilities.IsEmpty()) return;
+    if (InWeaponSkillAbilityEntries.IsEmpty()) return;
 
-    for (const TSubclassOf<UPGHeroGameplayAbility>& AbilityClass : InWeaponSkillAbilities)
+    for (const FAbilityEntry& AbilityEntry : InWeaponSkillAbilityEntries)
     {
-        if(!AbilityClass) continue;
+        if(!AbilityEntry.AbilityClass) continue;
 
-        FGameplayAbilitySpec AbilitySpec(AbilityClass);
-        AbilitySpec.SourceObject = GetAvatarActor();
-        AbilitySpec.Level = ApplyLevel;
+        FGameplayAbilitySpec AbilitySpec(
+            AbilityEntry.AbilityClass.Get(),
+            ApplyLevel,
+            INDEX_NONE,
+            AbilityEntry.AbilityConfig.Get()
+        );
 
         // 부여한 어빌리티 삭제를 위해 핸들을 저장
         OutWeaponAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));

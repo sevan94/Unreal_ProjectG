@@ -12,11 +12,24 @@
 #include "TimerManager.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "PGFunctionLibrary.h"
+#include "DataAssets/Ability/AbilityConfig.h"
 
 UHeroAbility_BaseMeleeAttack::UHeroAbility_BaseMeleeAttack()
 {
     // 기본 설정
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void UHeroAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UMeleeAttackAbilityConfig* Data = Cast<UMeleeAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (Data)
+    {
+        MeleeAttackMontage = Data->AbilityMontage;
+        MeleeAttackSkillMultiplier = Data->DamageMultiplier;
+    }
 }
 
 void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -32,11 +45,10 @@ void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
         CachedWeaponStaticMesh = GetHeroCombatComponentFromActorInfo()->CachedWeaponMeshComponent.Get();
     }
 
-    checkf(!MeleeAttackMontages.IsEmpty(), TEXT("MeleeAttackMontages 배열이 비어있습니다!"));
+    checkf(MeleeAttackMontage, TEXT("MeleeAttackMontage가 비어있습니다!"));
 
     // 애니메이션 몽타주 재생
-    UAnimMontage* SelectedMontage = MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)];
-    UAbilityTask_PlayMontageAndWait* MeleeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SelectedMontage);
+    UAbilityTask_PlayMontageAndWait* MeleeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MeleeAttackMontage);
     
     // 몽타주 완료 이벤트 바인딩
     if (MeleeMontageTask)

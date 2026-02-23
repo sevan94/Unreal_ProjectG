@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "ScalableFloat.h"
+#include "GameplayTagContainer.h"
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
@@ -33,6 +34,9 @@ UCLASS(EditInlineNew, BlueprintType)
 class UNREAL_PROJECTG_API UMeleeAttackAbilityConfig : public UAbilityConfig
 {
     GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FGameplayTag HitImpactTag;
 };
 
 UCLASS(EditInlineNew, BlueprintType)
@@ -44,4 +48,17 @@ public:
     // 프로젝타일 스폰 어빌리티 데이터
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TSubclassOf<APGProjectileBase> SpawnedProjectileClass;
+};
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UUnitMeleeAttackAbilityConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    int32 MaxHitTargets = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FGameplayTag HitImpactTag;
 };

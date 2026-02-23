@@ -73,19 +73,20 @@ void AHeroTestCharacter::SetupWeaponToPawn()
                 WeaponStaticMesh->SetStaticMesh(WeaponDataAsset->GetHeroWeaponData().SoftWeaponMesh.Get());
                 GetMesh()->LinkAnimClassLayers(WeaponDataAsset->GetHeroWeaponData().WeaponAnimLayer);
 
-                //// 무기 기본 공격 어빌리티 부여
-                //PGAbilitySystemComponent->GrantHeroWeaponBasicAttackAbility(
-                //    WeaponDataAsset->GetHeroWeaponData().BaseAttackAbility,
-                //    TestAbilityLevel,
-                //    BasicAttackAbilitySpecHandle
-                //);
+                // 무기 기본 공격 어빌리티 부여
+                PGAbilitySystemComponent->GrantHeroWeaponBasicAttackAbility(
+                    WeaponDataAsset->GetHeroWeaponData().WeaponBasicAttackAbilityEntry,
+                    TestAbilityLevel,
+                    BasicAttackAbilitySpecHandle
+                );
 
-                //// 무기 스킬 어빌리티들 부여
-                //PGAbilitySystemComponent->GrantHeroWeaponSkillAbilities(
-                //    WeaponDataAsset->GetHeroWeaponData().WeaponSkillAbilities,
-                //    TestAbilityLevel,
-                //    SkillAbilitySpecHandles
-                //);
+                // 무기 스킬 어빌리티들 부여
+                PGAbilitySystemComponent->GrantHeroWeaponSkillAbilities(
+                    WeaponDataAsset->GetHeroWeaponData().WeaponSkillAbilityEntries,
+                    TestAbilityLevel,
+                    SkillAbilitySpecHandles
+                );
+
 
                 // 부여한 어빌리티 핸들을 컴뱃 컴포넌트에 설정
                 HeroCombatComponent->AssignBaseAttackAbilitySpecHandle(BasicAttackAbilitySpecHandle);

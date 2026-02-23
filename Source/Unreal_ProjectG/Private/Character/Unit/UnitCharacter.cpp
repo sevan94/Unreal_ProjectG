@@ -109,11 +109,6 @@ void AUnitCharacter::InitUnitStartUpData()
                         GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
                     }
 
-                    if (StartUpData->UnitBasicAttackMontage)
-                    {
-                        UnitAttackMontage = StartUpData->UnitBasicAttackMontage;
-                    }
-
                     if (StartUpData->BranchData)
                     {
                         DetectRangeKey = StartUpData->BranchData->DetectRange;

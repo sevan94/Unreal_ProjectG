@@ -18,6 +18,7 @@ class UNREAL_PROJECTG_API UHeroAbility_BaseProjectileAttack : public UPGHeroGame
 public:
     UHeroAbility_BaseProjectileAttack();
 
+    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
@@ -28,13 +29,13 @@ protected:
 
     UFUNCTION()
     void OnMontageFinished();
-    
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Projectile Attack")
     TSubclassOf<UGameplayEffect> ProjectileAttackDamageEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Projectile Attack")
-    TArray<TObjectPtr<UAnimMontage>> ProjectileAttackMontages;
+    TObjectPtr<UAnimMontage> ProjectileAttackMontage;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Projectile Attack")
     FScalableFloat ProjectileAttackSkillMultiplier;

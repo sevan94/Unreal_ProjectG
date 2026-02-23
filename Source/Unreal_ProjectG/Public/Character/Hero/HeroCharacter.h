@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
 #include "GameplayEffectTypes.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
@@ -56,6 +57,16 @@ public:
     //악세 장착
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
+
+    //무기 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipWeapon();
+    //방어구 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipArmor();
+    //악세 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipAccessory();
 
     //스킬 사용
     UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -194,4 +205,7 @@ private:
 
     //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
+
+    FGameplayAbilitySpecHandle AttackHandle;
+    TArray<FGameplayAbilitySpecHandle> SkillHandle;
 };

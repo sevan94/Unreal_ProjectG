@@ -121,17 +121,13 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
         {
             if(Data.BaseAttackAbility)
             {
-                GA_Attack = Data.BaseAttackAbility;
-                if (GA_Attack)
-                {
-                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
-                }
+                   AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
             }
             if (!(Data.WeaponSkillAbilities.IsEmpty()))
             {
                 for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
                 {
-                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
+                    SkillHandle.AddUnique(PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1)));
                 }
             }
         }
@@ -147,6 +143,37 @@ void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
 {
     Accessory = AccessoryData;
+}
+
+void AHeroCharacter::UnEquipWeapon()
+{
+    if (PGAbilitySystemComponent)
+    {
+        if (AttackHandle.IsValid())
+        {
+            PGAbilitySystemComponent->ClearAbility(AttackHandle);
+            AttackHandle = FGameplayAbilitySpecHandle();
+        }
+        if (!(SkillHandle.IsEmpty()))
+        {
+            for (FGameplayAbilitySpecHandle handle : SkillHandle)
+            {
+                PGAbilitySystemComponent->ClearAbility(handle);
+                SkillHandle.RemoveSwap(handle);
+            }
+        }
+    }
+    Weapon = nullptr;
+}
+
+void AHeroCharacter::UnEquipArmor()
+{
+    Armor = nullptr;
+}
+
+void AHeroCharacter::UnEquipAccessory()
+{
+    Accessory = nullptr;
 }
 
 void AHeroCharacter::ActivateSkill()

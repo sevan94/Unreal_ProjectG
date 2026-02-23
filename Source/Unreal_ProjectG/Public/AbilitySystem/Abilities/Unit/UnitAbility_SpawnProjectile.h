@@ -15,6 +15,7 @@ class UNREAL_PROJECTG_API UUnitAbility_SpawnProjectile : public UPGUnitGameplayA
 {
 	GENERATED_BODY()
 	
+    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
@@ -31,7 +32,7 @@ protected:
     TSubclassOf<UGameplayEffect> ProjectileAttackDamageEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Projectile Attack")
-    TArray<TObjectPtr<UAnimMontage>> ProjectileAttackMontages;
+    TObjectPtr<UAnimMontage> ProjectileAttackMontage;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Projectile Attack")
     FScalableFloat ProjectileAttackSkillMultiplier;

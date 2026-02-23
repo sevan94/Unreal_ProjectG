@@ -7,11 +7,37 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
+#include "DataAssets/Ability/AbilityConfig.h"
+
+void UUnitAbility_SpawnProjectile::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UUnitSpawnProjectileAbilityConfig* Data = Cast<UUnitSpawnProjectileAbilityConfig>(Spec.SourceObject.Get());
+    if (Data)
+    {
+        ProjectileAttackMontage = Data->AbilityMontage;
+        ProjectileAttackSkillMultiplier = Data->DamageMultiplier;
+        SpawnedProjectileClass = Data->SpawnedProjectileClass;
+    }
+}
+
 void UUnitAbility_SpawnProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+    if(!ProjectileAttackDamageEffectClass || !ProjectileAttackMontage || !SpawnedProjectileClass)
+    {
+        if(UUnitSpawnProjectileAbilityConfig* Data = Cast<UUnitSpawnProjectileAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get()))
+        {
+            ProjectileAttackMontage = Data->AbilityMontage;
+            ProjectileAttackSkillMultiplier = Data->DamageMultiplier;
+            SpawnedProjectileClass = Data->SpawnedProjectileClass;
+        }
+    }
+
+    checkf(ProjectileAttackMontage, TEXT("ProjectileAttackMontage가 비어있습니다!"));
+
     // 애니메이션 몽타주 재생
-    UAnimMontage* SelectedMontage = ProjectileAttackMontages[FMath::RandRange(0, ProjectileAttackMontages.Num() - 1)];
-    UAbilityTask_PlayMontageAndWait* ProjectileMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SelectedMontage);
+    UAbilityTask_PlayMontageAndWait* ProjectileMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, ProjectileAttackMontage);
 
     // 몽타주 완료 이벤트 바인딩
     if (ProjectileMontageTask)

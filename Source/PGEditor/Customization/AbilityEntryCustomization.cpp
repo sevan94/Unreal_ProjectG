@@ -20,7 +20,7 @@ static TMap<UClass*, UClass*> GetAbilityToConfigMap()
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), UMeleeAttackAbilityConfig::StaticClass());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), USpawnProjectileAbilityConfig::StaticClass());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), UUnitMeleeAttackAbilityConfig::StaticClass());
-    Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), USpawnProjectileAbilityConfig::StaticClass());
+    Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), UUnitSpawnProjectileAbilityConfig::StaticClass());
 
     return Map;
 }

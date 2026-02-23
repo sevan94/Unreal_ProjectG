@@ -63,3 +63,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FGameplayTag HitImpactTag;
 };
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UUnitSpawnProjectileAbilityConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    // 프로젝타일 스폰 어빌리티 데이터
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TSubclassOf<APGProjectileBase> SpawnedProjectileClass;
+};

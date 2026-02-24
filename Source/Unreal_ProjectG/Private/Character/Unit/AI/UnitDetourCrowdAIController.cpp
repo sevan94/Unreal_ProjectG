@@ -39,6 +39,8 @@ void AUnitDetourCrowdAIController::OnPossess(APawn* InPawn)
 
 void AUnitDetourCrowdAIController::OnUnPossess()
 {
+    SetUnitState(EUnitState::Move);
+
     if (UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent))
     {
         BTComp->StopTree(EBTStopMode::Safe);
@@ -120,10 +122,9 @@ void AUnitDetourCrowdAIController::SetUnitState(EUnitState NewState)
         UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
         if (CrowdComp)
         {
-            if (NewState == EUnitState::Combat)
+            if (NewState == EUnitState::Combat || NewState == EUnitState::Move)
             {
                 //CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::Low);
-
             }
             else if (NewState == EUnitState::Dead)
             {

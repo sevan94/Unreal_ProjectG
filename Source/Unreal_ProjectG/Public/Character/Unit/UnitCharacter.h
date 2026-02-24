@@ -76,7 +76,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Movement")
     TObjectPtr<AActor> TargetActor = nullptr;
             
-
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+    TObjectPtr<class UStaticMeshComponent> WeaponMesh;
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UUnitCombatComponent> UnitCombatComponent;

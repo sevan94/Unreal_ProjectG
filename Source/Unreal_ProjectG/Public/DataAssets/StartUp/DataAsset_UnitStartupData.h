@@ -32,13 +32,6 @@ public:
     UPROPERTY(EditAnywhere, Category = "Stats")
     UBranchDataAsset* BranchData;
 
-    // --- [2] 외형 ---
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    USkeletalMesh* SkeletalMesh;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    TSubclassOf<UAnimInstance> AnimBlueprint;
-
 private:
     UPROPERTY(EditDefaultsOnly, Category = "StartupData")
     TArray<FAbilityEntry> UnitCombatAbilityEntries;

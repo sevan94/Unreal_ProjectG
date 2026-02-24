@@ -5,6 +5,7 @@
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "Components/Combat/UnitCombatComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,9 +30,28 @@ AUnitCharacter::AUnitCharacter()
     UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
     if (MovementComponent)
     {
-        //크라우드 우회를 사용하기 때문에 RVO는 꺼야함, 기본적으로 꺼져있지만 혹시 몰라서 생성자에서 다시 끄기
         MovementComponent->bUseRVOAvoidance = false;
     }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+    }
+
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        CharacterMesh->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+
+        CharacterMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+        CharacterMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); 
+    }
+
+    WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+
+    WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+
+    WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const
@@ -117,16 +137,6 @@ void AUnitCharacter::InitUnitStartUpData()
                     //    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
                     //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
                     //}
-
-                    if (StartUpData->SkeletalMesh)
-                    {
-                        GetMesh()->SetSkeletalMesh(StartUpData->SkeletalMesh);
-                    }
-
-                    if (StartUpData->AnimBlueprint)
-                    {
-                        GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
-                    }
 
                     if (StartUpData->BranchData)
                     {

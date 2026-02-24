@@ -21,15 +21,15 @@ class UNREAL_PROJECTG_API AHeroTestCharacter : public AHeroCharacter
 public:
     AHeroTestCharacter();
 
-    void SetupEquipmentToPawn();
+    //void SetupEquipmentToPawn();
 
 protected:
     virtual void BeginPlay() override;
 
-private:
-    void SetupWeaponToPawn();
-    void SetupArmorToPawn();
-    void SetupAccessoryToPawn();  
+//private:
+    //void SetupWeaponToPawn();
+    //void SetupArmorToPawn();
+    //void SetupAccessoryToPawn();  
 private:
     UPROPERTY(EditDefaultsOnly, Category = "WeaponData")
     TSoftObjectPtr<UDataAsset_WeaponData> WeaponDataAsset;

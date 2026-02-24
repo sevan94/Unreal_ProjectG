@@ -33,7 +33,7 @@ protected:
     TSubclassOf<UGameplayEffect> MeleeAttackDamageEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    FGameplayTag MeleeAttackCueTag;
+    FGameplayTag HitImpactTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
     int32 MaxHitTargets = 1;

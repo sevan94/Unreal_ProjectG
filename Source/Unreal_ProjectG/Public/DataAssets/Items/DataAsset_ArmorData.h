@@ -23,6 +23,11 @@ public:
     void MakeOutgoingArmorEffectSpecHandle(UPGAbilitySystemComponent* InASC, int32 InLevel = 1) const;
 
 public:
+    // 세트 구분을 위한 태그
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
+    FGameplayTag SetTag;
+
+protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Data")
     TSoftClassPtr<UGameplayEffect> ArmorGameplayEffectClass;
 

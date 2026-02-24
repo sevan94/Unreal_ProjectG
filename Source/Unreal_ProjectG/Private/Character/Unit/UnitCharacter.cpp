@@ -99,16 +99,6 @@ void AUnitCharacter::InitUnitStartUpData()
                     //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
                     //}
 
-                    if (StartUpData->SkeletalMesh)
-                    {
-                        GetMesh()->SetSkeletalMesh(StartUpData->SkeletalMesh);
-                    }
-
-                    if (StartUpData->AnimBlueprint)
-                    {
-                        GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
-                    }
-
                     if (StartUpData->BranchData)
                     {
                         DetectRangeKey = StartUpData->BranchData->DetectRange;

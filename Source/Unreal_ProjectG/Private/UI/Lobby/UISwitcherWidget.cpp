@@ -3,19 +3,23 @@
 
 #include "UI/Lobby/UISwitcherWidget.h"
 #include "Components/WidgetSwitcher.h"
+#include "UI/Lobby/MainLobbyWidget.h"
+#include "UI/Lobby/LobbyUnitWidget.h"
+#include "UI/Lobby/LobbyEquipWidget.h"
+#include "UI/Lobby/LobbyStageWidget.h"
+#include "UI/Lobby/LobbyGachaWidget.h"
 
 void UUISwitcherWidget::NativeConstruct()
 {
     if (WidgetSwitcher)
     {
-        // 위젯 스위처에 위젯 추가
-        WidgetSwitcher->AddChild(LobbyWidget);
-        WidgetSwitcher->AddChild(UnitWidget);
-        WidgetSwitcher->AddChild(EquipWidget);
-        WidgetSwitcher->AddChild(GachaWidget);
-        WidgetSwitcher->AddChild(StageWidget);
+        LobbyWidget->WidgetSwitcher = WidgetSwitcher;
+        UnitWidget->WidgetSwitcher = WidgetSwitcher;
+        EquipWidget->WidgetSwitcher = WidgetSwitcher;
+        StageWidget->WidgetSwitcher = WidgetSwitcher;
+        GachaWidget->WidgetSwitcher = WidgetSwitcher;
 
         // 기본 페이지 설정
-        WidgetSwitcher->SetActiveWidget(LobbyWidget);
+        WidgetSwitcher->SetActiveWidgetIndex(0);
     }
 }

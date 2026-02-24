@@ -7,6 +7,11 @@
 #include "UISwitcherWidget.generated.h"
 
 class UWidgetSwitcher;
+class UMainLobbyWidget;
+class ULobbyUnitWidget;
+class ULobbyEquipWidget;
+class ULobbyStageWidget;
+class ULobbyGachaWidget;
 
 /**
  * 
@@ -23,17 +28,17 @@ protected:
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UUserWidget> LobbyWidget;
+    TObjectPtr<UMainLobbyWidget> LobbyWidget;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UUserWidget> UnitWidget;
+    TObjectPtr<ULobbyUnitWidget> UnitWidget;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UUserWidget> EquipWidget;
+    TObjectPtr<ULobbyEquipWidget> EquipWidget;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UUserWidget> GachaWidget;
+    TObjectPtr<ULobbyStageWidget> StageWidget;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UUserWidget> StageWidget;
+    TObjectPtr<ULobbyGachaWidget> GachaWidget;
 };

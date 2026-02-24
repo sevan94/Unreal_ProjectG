@@ -74,12 +74,12 @@ void UBattleUIWidget::OnAutoButtonClicked()
     bIsAuto = !bIsAuto;
     if (bIsAuto)
     {
-        PlayAnimation(ControlPanelMoveAnim, 0.0f, 1, EUMGSequencePlayMode::Forward);
+        PlayAnimation(ControlPanelMoveAnim2, 0.0f, 1, EUMGSequencePlayMode::Forward);
         AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
-        PlayAnimation(ControlPanelMoveAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+        PlayAnimation(ControlPanelMoveAnim2, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
     }
 }

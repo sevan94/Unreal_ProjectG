@@ -48,10 +48,12 @@ AUnitCharacter::AUnitCharacter()
 
     WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 
-    WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
-
-    WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
+    if (WeaponMesh)
+    {
+        WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
+    }
 }
 
 UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const

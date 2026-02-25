@@ -9,7 +9,7 @@
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
-
+class UNiagaraComponent;
 /**
  * 
  */
@@ -73,6 +73,28 @@ public:
     // 프로젝타일 스폰 어빌리티 데이터
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TSubclassOf<APGProjectileBase> SpawnedProjectileClass;
+};
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UUnitSpawnActorConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    // 프로젝타일 스폰 어빌리티 데이터
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TSubclassOf<AActor> SpawnedActorClass;
+};
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UUnitSpawnNiagaraConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    // 프로젝타일 스폰 어빌리티 데이터
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TSubclassOf<UNiagaraComponent> SpawnedActorClass;
 };
 
 UCLASS(EditInlineNew, BlueprintType)

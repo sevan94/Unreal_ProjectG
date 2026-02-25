@@ -22,6 +22,10 @@ protected:
 private:
     class AUnitCharacter* FindAlly(class AUnitCharacter* SelfUnit, FVector TargetLocation);
 
+public:
+    UPROPERTY(EditAnywhere, Category = "Blackboard")
+    FBlackboardKeySelector LocationKey;
+private:
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector AttackTargetKey;
 

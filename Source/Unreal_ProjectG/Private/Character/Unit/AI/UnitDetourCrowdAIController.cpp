@@ -39,6 +39,8 @@ void AUnitDetourCrowdAIController::OnPossess(APawn* InPawn)
 
 void AUnitDetourCrowdAIController::OnUnPossess()
 {
+    SetUnitState(EUnitState::Move);
+
     if (UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent))
     {
         BTComp->StopTree(EBTStopMode::Safe);
@@ -85,11 +87,19 @@ void AUnitDetourCrowdAIController::InitializeAI()
                     UE_LOG(LogTemp, Log, TEXT("AttackTargetBase설정완"));
 
                 }
+
+
                 UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
                 if (BTComp)
                 {
                     //나중에 pggameplaytag 사용하게 수정하면 조음-
                     FGameplayTag CombatTag = FGameplayTag::RequestGameplayTag(TEXT("Unit.State.Combat"));
+
+                    if (UBehaviorTree* SubTree = CrowdUnit->GetSubBTAssetKey())
+                    {
+                        BTComp->SetDynamicSubtree(CombatTag, SubTree);
+                        UE_LOG(LogTemp, Log, TEXT("다이내믹 서브트리 주입 완료"));
+                    }
                 }
             }
             else
@@ -112,10 +122,9 @@ void AUnitDetourCrowdAIController::SetUnitState(EUnitState NewState)
         UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
         if (CrowdComp)
         {
-            if (NewState == EUnitState::Combat)
+            if (NewState == EUnitState::Combat || NewState == EUnitState::Move)
             {
                 //CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::Low);
-
             }
             else if (NewState == EUnitState::Dead)
             {

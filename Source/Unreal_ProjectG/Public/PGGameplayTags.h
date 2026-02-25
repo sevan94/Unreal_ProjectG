@@ -18,6 +18,8 @@ namespace PGGameplayTags
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_Sword);
 
     // 유닛 어빌리티 태그
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_MagicCharge);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_ActivateSheild);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack);
 
     // 공유 이벤트 태그
@@ -37,6 +39,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Combat);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Move);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Dead);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Guard);
 
 
     //유닛 등급 태그

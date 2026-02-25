@@ -51,10 +51,6 @@ struct FPGHeroWeaponData
     // 무기 스킬 어빌리티 들
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillAbilities;
-
-    // 무기 아이콘 텍스처
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    TSoftObjectPtr<UTexture2D> SoftWeaponIconTexture;
 };
 
 //// 방어구 데이터 구조체

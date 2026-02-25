@@ -7,6 +7,8 @@
 #include "Interfaces/PawnCombatInterface.h"
 #include "Components/Combat/PawnCombatComponent.h"
 #include "Character/PGCharacterBase.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
+#include "PGGameplayTags.h"
 
 UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetWarriorASCFromActor(AActor* InActor)
 {
@@ -69,4 +71,43 @@ bool UPGFunctionLibrary::IsTargetCharacterIsHostile(AActor* InInstigator, AActor
     }
 
     return InstigatorCharacter->GetTeamTag() != TargetCharacter->GetTeamTag();
+}
+
+const TMap<FGameplayAttribute, FGameplayTag>& UPGFunctionLibrary::GetAttributeTagMap()
+{
+    // 람다를 이용한 정적 초기화
+    // Static이므로 호출 시에 전역에서 딱 한번만 초기화 되고, 이후에는 초기화된 맵을 반환
+    static TMap<FGameplayAttribute, FGameplayTag> Map = []()
+    {
+        // 임시 맵 생성
+        TMap<FGameplayAttribute, FGameplayTag> M;
+
+        // Map.Add를 래핑하여 간결하게 사용 가능하도록 람다 함수를 정의
+        // 이후 Add만으로 Map에 항목을 추가할 수 있음
+        auto Add = [&M](const FGameplayAttribute& Attribute, const FGameplayTag& TagName)
+        {
+            M.Add(Attribute, TagName);
+        };
+
+        // ==========================================================================
+        // 여기에 Attribute와 TagName을 추가
+        // ==========================================================================
+        Add(UPGCharacterAttributeSet::GetMaxHealthAttribute(), PGGameplayTags::Shared_SetByCaller_MaxHealthMultiplier);
+        Add(UPGCharacterAttributeSet::GetAttackPowerAttribute(), PGGameplayTags::Shared_SetByCaller_AttackPowerMultiplier);
+    
+        return M;
+    }();
+
+    // 초기화된 맵 반환
+    return Map;
+}
+
+FGameplayTag UPGFunctionLibrary::GetSetByCallerTagForAttribute(const FGameplayAttribute& Attribute)
+{
+    if (const FGameplayTag* FoundTag = GetAttributeTagMap().Find(Attribute))
+    {
+        return *FoundTag;
+    }
+    
+    return FGameplayTag();
 }

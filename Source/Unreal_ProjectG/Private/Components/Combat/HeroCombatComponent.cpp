@@ -21,12 +21,14 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
     USkeletalMeshComponent* HeroMesh = Cast<ACharacter>(GetOwner())->GetMesh();
     if (HeroMesh)
     {
+        // 무기에 메시를 히어로에 장착
         UStaticMeshComponent* WeaponStaticMesh = NewObject<UStaticMeshComponent>(GetOwner());
         WeaponStaticMesh->RegisterComponent();
         WeaponStaticMesh->AttachToComponent(HeroMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InWeaponData->GetHeroWeaponData().WeaponSocketName);
         InWeaponData->GetHeroWeaponData().SoftWeaponMesh.LoadSynchronous();
         WeaponStaticMesh->SetStaticMesh(InWeaponData->GetHeroWeaponData().SoftWeaponMesh.Get());
 
+        // 애니메이션 레이어 링크 세팅
         HeroMesh->LinkAnimClassLayers(InWeaponData->GetHeroWeaponData().WeaponAnimLayer);
 
         WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

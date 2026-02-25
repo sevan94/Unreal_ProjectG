@@ -6,16 +6,10 @@
 
 namespace PGGameplayTags
 {
-    // 인풋 태그
-    UE_DEFINE_GAMEPLAY_TAG(InputTag_BaseAttack, "Input.BaseAttack");
-    UE_DEFINE_GAMEPLAY_TAG(InputTag_Skill_1, "Input.Skill.1");
-    UE_DEFINE_GAMEPLAY_TAG(InputTag_Skill_2, "Input.Skill.2");
-
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack_Melee, "Player.Ability.BasicAttack.Melee");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack_Projectile, "Player.Ability.BasicAttack.Projectile");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill_1, "Player.Ability.Skill.1");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill_2, "Player.Ability.Skill.2");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill_1, "Player.Ability.Skill");
 
     // 플레이어 무기 게임 플레이 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Sword, "Player.Weapon.Sword");
@@ -60,8 +54,5 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Combat, "Unit.State.Combat");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
-
-    // 게임 플레이 큐
-    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_AOEImpact, "GameplayCue.VFX.AOEImpact");
 }
 

@@ -9,21 +9,13 @@
 //
 namespace PGGameplayTags
 {
-    // 인풋 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_BaseAttack);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Skill_1);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Skill_2);
-
     // 플레이어 어빌리티 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_BasicAttack_Melee);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_BasicAttack_Projectile);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill_1);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill_2);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill);
 
     // 플레이어 무기 게임 플레이 태그 
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_Sword);
-
-    // 플레이어 이벤트 태그
 
     // 유닛 어빌리티 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack);
@@ -66,8 +58,4 @@ namespace PGGameplayTags
     //아군 적군 구분 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
-
-    //게임 플레이 큐 태그
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_AOEImpact);
-
 }

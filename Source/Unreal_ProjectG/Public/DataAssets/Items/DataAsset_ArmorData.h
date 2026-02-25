@@ -10,6 +10,18 @@
 
 class UGameplayEffect;
 class UPGAbilitySystemComponent;
+
+USTRUCT(BlueprintType)
+struct FArmorModifierEntry
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    FGameplayAttribute Attribute;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    FScalableFloat ModifierValue;
+};
 /**
  * 
  */
@@ -27,10 +39,6 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
     FGameplayTag SetTag;
 
-protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Data")
-    TSoftClassPtr<UGameplayEffect> ArmorGameplayEffectClass;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Data")
-    TMap<FGameplayTag, FScalableFloat> AttributeModifiers;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<FArmorModifierEntry> AttributeModifiers;
 };

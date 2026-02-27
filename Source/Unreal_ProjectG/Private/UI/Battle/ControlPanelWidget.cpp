@@ -68,13 +68,13 @@ void UControlPanelWidget::NativeConstruct()
         HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
         HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-        //// 영웅 무기 스킬 어빌리티 설정
-        //TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-        //if (!SpecHandleArray.IsEmpty())
-        //{
-        //    //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-        //    WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
-        //}
+        // 영웅 무기 스킬 어빌리티 설정
+        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+        if (!SpecHandleArray.IsEmpty())
+        {
+            //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+            WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+        }
     }
 
     if (HPIcon && CostIcon)

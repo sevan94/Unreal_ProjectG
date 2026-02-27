@@ -9,6 +9,11 @@ void UDataAsset_StartupDataBase::GiveToAbilitySystemComponent(UPGAbilitySystemCo
 {
     check(InASCToGive);
 
+    if(!StartUpAbilities.IsEmpty())
+    {
+        GrantAbilities(StartUpAbilities, InASCToGive, InLevel);
+    }
+
     if (!StartUpGameplayEffects.IsEmpty())
     {
         for(const TSubclassOf<UGameplayEffect>& EffectClass : StartUpGameplayEffects)
@@ -22,21 +27,21 @@ void UDataAsset_StartupDataBase::GiveToAbilitySystemComponent(UPGAbilitySystemCo
     }
 }
 
-//void UDataAsset_StartupDataBase::GrantAbilities(const TArray<TSubclassOf<UPGGameplayAbility>>& InAbilitiesToGive, UPGAbilitySystemComponent* InASCToGive, int32 ApplyLevel)
-//{
-//    if(InAbilitiesToGive.IsEmpty())
-//    {
-//        return;
-//    }
-//
-//    for(const TSubclassOf<UPGGameplayAbility>& Ability : InAbilitiesToGive)
-//    {
-//        if (!Ability) continue;
-//
-//        FGameplayAbilitySpec AbilitySpec(Ability);
-//        AbilitySpec.SourceObject = this;
-//        AbilitySpec.Level = ApplyLevel;
-//
-//        InASCToGive->GiveAbility(AbilitySpec);
-//    }
-//}
+void UDataAsset_StartupDataBase::GrantAbilities(const TArray<TSubclassOf<UPGGameplayAbility>>& InAbilitiesToGive, UPGAbilitySystemComponent* InASCToGive, int32 ApplyLevel)
+{
+    if(InAbilitiesToGive.IsEmpty())
+    {
+        return;
+    }
+
+    for(const TSubclassOf<UPGGameplayAbility>& Ability : InAbilitiesToGive)
+    {
+        if (!Ability) continue;
+
+        FGameplayAbilitySpec AbilitySpec(Ability);
+        AbilitySpec.SourceObject = this;
+        AbilitySpec.Level = ApplyLevel;
+
+        InASCToGive->GiveAbility(AbilitySpec);
+    }
+}

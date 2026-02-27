@@ -3,13 +3,12 @@
 
 #include "AnimInstance/PGCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
-// TODO : 캐릭터 타입을 우리의 캐릭터 타입으로 변경 변경
-#include "GameFramework/Character.h"
+#include "Character/PGCharacterBase.h"
 
 void UPGCharacterAnimInstance::NativeInitializeAnimation()
 {
     // TODO : 캐릭터 타입을 우리의 캐릭터 타입으로 변경 변경
-    OwningCharacter = Cast<ACharacter>(TryGetPawnOwner());
+    OwningCharacter = Cast<APGCharacterBase>(TryGetPawnOwner());
 
     if (OwningCharacter.IsValid())
     {

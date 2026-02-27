@@ -43,6 +43,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle();
 
+    UFUNCTION(BlueprintCallable)
+    UActiveSkillWidget* GetActiveSkillWidget() { return WeaponSkill; }
+
 protected:
     // 블루프린트 이벤트를 C++에서 오버라이드
     virtual void NativeConstruct() override;

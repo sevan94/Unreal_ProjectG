@@ -167,10 +167,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
     TObjectPtr<UInputAction> IA_Attack = nullptr;
 
-    //리소스를 관리하는 어트리뷰트
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<class UPGCharacterAttributeSet> ResourceAttribute = nullptr;
-
     //게임 시작시 실행할 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;

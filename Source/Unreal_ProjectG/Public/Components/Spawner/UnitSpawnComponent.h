@@ -15,9 +15,6 @@ struct FUnitSpawnInfo
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     TSubclassOf<AUnitCharacter> UnitClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData;
 };
 
 

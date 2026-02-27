@@ -10,24 +10,17 @@
 #include "PGFunctionLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
 
-#include "DataAssets/Ability/AbilityConfig.h"
-
 UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    Super::OnGiveAbility(ActorInfo, Spec);
-    UAOEAttackAbilityConfig* Data = Cast<UAOEAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
-    if (Data)
+    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
     {
-        AOEAttackMontage = Data->AbilityMontage;
-        AOEAttackSkillMultiplier = Data->DamageMultiplier;
-        AOEImpactCueTag = Data->AOEImpactCueTag;
-        AOEAttackRadius = Data->AOEAttackRadius;
-        MaxHitTargets = Data->MaxHitTargets;
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+        return;
     }
 }
 

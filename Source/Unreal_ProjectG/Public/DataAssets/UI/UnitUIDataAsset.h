@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Character/Unit/UnitCharacter.h"
+#include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "UnitUIDataAsset.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class UNREAL_PROJECTG_API UUnitUIDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
@@ -20,17 +21,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     TSubclassOf<AUnitCharacter> UnitClass;
 
-    // 유닛 버튼 일반 이미지
+    // 유닛 스테이터스
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonNormalImage;
+    TSubclassOf<UDataAsset_UnitStartupData> UnitData;
 
-    // 유닛 버튼 눌림 이미지
+    // 유닛 버튼 이미지
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonPressedImage;
+    TObjectPtr<UTexture2D> UnitImage;
 
-    // 유닛 버튼 비활성화 이미지
+    // 유닛 이름
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TObjectPtr<UTexture2D> UnitButtonUnableImage;
+    FName UnitName;
 
     // 유닛 코스트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")

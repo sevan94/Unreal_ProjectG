@@ -49,8 +49,8 @@ public:
     void InitializeHero();
 
     ////무기 장착
-    //UFUNCTION(BlueprintCallable, Category = "Equipment")
-    //void EquipWeapon(UDataAsset_WeaponData* WeaponData);
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void EquipWeapon(UDataAsset_WeaponData* WeaponData);
     //방어구 장착
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void EquipArmor(UDataAsset_ArmorData* ArmorData);

@@ -52,7 +52,7 @@ struct FPGHeroWeaponData
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UDataAsset_SkillData> WeaponBasicAttackAbility;
 
-    // 무기 스킬 어빌리티 들
+    //// 무기 스킬 어빌리티 들
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<FAbilityEntry> WeaponSkillAbilityEntries;
 

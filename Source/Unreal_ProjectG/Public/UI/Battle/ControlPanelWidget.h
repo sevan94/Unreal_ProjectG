@@ -71,6 +71,12 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBarWidget> CostBar;
 
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TObjectPtr<UTexture2D> HPIcon;
+
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TObjectPtr<UTexture2D> CostIcon;
+
     // 기지 체력 바
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBaseHpWidget> PlayerHP;

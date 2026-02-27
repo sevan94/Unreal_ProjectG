@@ -151,7 +151,16 @@ void AUnitCharacter::InitUnitStartUpData()
                     {
                         UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
                     }
-                    TeamTag = StartUpData->TeamTag;
+
+                    if (StartUpData->BranchData->BranchTag.IsValid())
+                    {
+                        BranchTag = StartUpData->BranchData->BranchTag;
+                    }
+
+                    if (StartUpData->TeamTag.IsValid())
+                    {
+                        TeamTag = StartUpData->TeamTag;
+                    }
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())

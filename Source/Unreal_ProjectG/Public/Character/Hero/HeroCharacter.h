@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/PGCharacterBase.h"
 #include "GameplayEffectTypes.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
@@ -56,6 +57,16 @@ public:
     //악세 장착
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
+
+    //무기 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipWeapon();
+    //방어구 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipArmor();
+    //악세 해제
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    void UnEquipAccessory();
 
     //스킬 사용
     UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -133,6 +144,12 @@ protected:
     //무기 스태틱 메시 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UStaticMeshComponent> WeaponStaticMesh = nullptr;
+    //방어구 스태틱 메시 컴포넌트
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<class UStaticMeshComponent> ArmorStaticMesh = nullptr;
+    //악세 스태틱 메시 컴포넌트
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<class UStaticMeshComponent> AccessoryStaticMesh = nullptr;
 
     //움직임 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
@@ -194,4 +211,9 @@ private:
 
     //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
+
+    //공격 어빌리티 핸들
+    FGameplayAbilitySpecHandle AttackHandle;
+    //스킬 어빌리티 핸들이 들은 배열
+    TArray<FGameplayAbilitySpecHandle> SkillHandle;
 };

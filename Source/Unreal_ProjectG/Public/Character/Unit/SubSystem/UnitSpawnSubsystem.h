@@ -31,7 +31,6 @@ public:
     // [수정] UnitClass 인자 추가 (어떤 유닛을 소환할지 알아야 함)
     UFUNCTION(BlueprintCallable)
     void SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
-        TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData,
         FVector Location, FRotator Rotation,
         AActor* InTargetActor);
 

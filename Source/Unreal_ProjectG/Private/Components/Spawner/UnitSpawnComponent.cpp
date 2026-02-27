@@ -59,7 +59,6 @@ void UUnitSpawnComponent::SpawnRandomUnit()
         {
             SpawnSystem->SpawnUnit(
                 SelectedUnit.UnitClass,
-                SelectedUnit.UnitData,
                 GetComponentLocation(),
                 GetComponentRotation(),
                 AttackTarget

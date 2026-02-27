@@ -27,12 +27,12 @@ protected:
     virtual void BeginPlay() override;
 
 protected:
-    // --- [1] 기지 요소 ---
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
-    TObjectPtr<class UCapsuleComponent> CapsuleComp;
+    //// --- [1] 기지 요소 ---
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
+    //TObjectPtr<class UCapsuleComponent> CapsuleComp;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
-    TObjectPtr<class UStaticMeshComponent> MeshComp;
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+    //TObjectPtr<class UStaticMeshComponent> MeshComp;
 
 public:
     UPROPERTY(BlueprintAssignable)
@@ -45,9 +45,9 @@ public:
     TSubclassOf<class UGameplayEffect> InitStatEffect;
 
 protected:
-    // --- [4] 타워 공격 시스템 ---
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
-    TObjectPtr<class USphereComponent> AttackRangeSphere; // 사거리 감지용 구체
+    //// --- [4] 타워 공격 시스템 ---
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
+    //TObjectPtr<class USphereComponent> AttackRangeSphere; // 사거리 감지용 구체
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
     float AttackRate = 1.0f; // 공격 속도 (초당 1회)

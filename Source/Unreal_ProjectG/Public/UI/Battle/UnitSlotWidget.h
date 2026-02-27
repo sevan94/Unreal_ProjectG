@@ -8,6 +8,7 @@
 
 class UUnitUIDataAsset;
 class UButton;
+class UImage;
 class UTextBlock;
 
 /**
@@ -37,6 +38,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> UnitButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> UnitImage;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UnitCost;

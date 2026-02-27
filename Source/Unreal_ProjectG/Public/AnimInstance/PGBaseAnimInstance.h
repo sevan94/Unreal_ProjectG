@@ -16,7 +16,7 @@ class UNREAL_PROJECTG_API UPGBaseAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 	
 protected:
+    // 오너 액터가 특정 태그를 가지고 있는지 확인하는 헬퍼 함수
     UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
     bool DoesOwnerHaveTag(FGameplayTag TagToCheck) const;
-
 };

@@ -120,6 +120,10 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpec);
     if (!Spec) return;
 
+    //AbilitySystemComponent->TryActivateAbility(AbilitySpec);
+    //UE_LOG(LogTemp, Log, TEXT("어빌리티 발동 : %s"), *Spec->Ability->GetName());
+    //UpdateSlot(true);
+
     if (Spec->IsActive())
     {
         // 이미 실행 중이라면 취소

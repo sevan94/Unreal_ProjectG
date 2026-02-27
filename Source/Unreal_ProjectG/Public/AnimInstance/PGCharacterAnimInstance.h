@@ -7,6 +7,7 @@
 #include "PGCharacterAnimInstance.generated.h"
 
 class UCharacterMovementComponent;
+class APGCharacterBase;
 /**
  *   유닛과 캐릭터가 공통으로 사용할 변수를 여기서 정의
  */
@@ -21,13 +22,15 @@ public:
     virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
-    // TODO : 캐릭터 타입을 우리의 캐릭터 타입으로 변경 변경
+    // 오너 캐릭터 캐싱
     UPROPERTY()
-    TWeakObjectPtr<ACharacter> OwningCharacter;
+    TWeakObjectPtr<APGCharacterBase> OwningCharacter;
 
+    // 오너 캐릭터의 무브먼트 컴포넌트 캐싱
     UPROPERTY()
     TObjectPtr<UCharacterMovementComponent> OwningCharacterMovement;
 
+    // 캐릭터의 지상 이동 속도
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimData|LocomotionData")
     float GroundSpeed;
 };

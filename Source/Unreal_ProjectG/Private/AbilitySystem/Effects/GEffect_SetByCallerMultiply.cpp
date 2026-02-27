@@ -1,9 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AbilitySystem/Effects/GEffect_MasterArmorStatus.h"
+
+#include "AbilitySystem/Effects/GEffect_SetByCallerMultiply.h"
 #include "PGFunctionLibrary.h"
 
-UGEffect_MasterArmorStatus::UGEffect_MasterArmorStatus()
+UGEffect_SetByCallerMultiply::UGEffect_SetByCallerMultiply()
 {
     DurationPolicy = EGameplayEffectDurationType::Infinite;
 
@@ -12,14 +13,10 @@ UGEffect_MasterArmorStatus::UGEffect_MasterArmorStatus()
     {
         FGameplayModifierInfo ModInfo;
         ModInfo.Attribute = Pair.Key;
-        ModInfo.ModifierOp = EGameplayModOp::Additive;
-
+        ModInfo.ModifierOp = EGameplayModOp::MultiplyAdditive;
         FSetByCallerFloat SetByCaller;
         SetByCaller.DataTag = Pair.Value;
         ModInfo.ModifierMagnitude = FGameplayEffectModifierMagnitude(SetByCaller);
-
         Modifiers.Add(ModInfo);
     }
 }
-    
-

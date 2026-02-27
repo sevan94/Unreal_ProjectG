@@ -13,7 +13,6 @@ class UDataAsset_SkillData;
 /**
  * 
  */
-
 USTRUCT(BlueprintType)
 struct FAbilityEntry
 {
@@ -52,6 +51,8 @@ struct FPGHeroWeaponData
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillAbilities;
 };
+
+
 
 //// 방어구 데이터 구조체
 //USTRUCT(BlueprintType)

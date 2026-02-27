@@ -25,6 +25,7 @@
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -343,20 +344,26 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 
     if (Unit)
     {
-        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
         {
             PotentialTargets.AddUnique(Unit);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
+            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
         }
     }
 }
 
 void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
     AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
 
     if (Unit)
     {
-        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
         {
             PotentialTargets.RemoveSwap(Unit);
         }
@@ -387,6 +394,7 @@ void AHeroCharacter::AutoBattle()
     }
     else
     {
+        AddMovementInput(FVector::ZeroVector);
         ActivateSkill();
     }
 }

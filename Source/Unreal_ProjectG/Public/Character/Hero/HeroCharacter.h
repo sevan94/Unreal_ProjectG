@@ -212,6 +212,8 @@ private:
     //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
 
+    //공격 어빌리티 핸들
     FGameplayAbilitySpecHandle AttackHandle;
+    //스킬 어빌리티 핸들이 들은 배열
     TArray<FGameplayAbilitySpecHandle> SkillHandle;
 };

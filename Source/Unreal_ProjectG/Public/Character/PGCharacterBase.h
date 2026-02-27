@@ -58,6 +58,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     FGameplayTag TeamTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    FGameplayTag BranchTag;
 };
 
 

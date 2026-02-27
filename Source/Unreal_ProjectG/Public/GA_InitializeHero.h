@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "GA_InitializeHero.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API UGA_InitializeHero : public UGameplayAbility
+class UNREAL_PROJECTG_API UGA_InitializeHero : public UPGHeroGameplayAbility
 {
 	GENERATED_BODY()
 	

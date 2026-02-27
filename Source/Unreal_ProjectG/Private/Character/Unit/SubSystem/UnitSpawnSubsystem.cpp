@@ -58,16 +58,15 @@ AUnitCharacter* UUnitSpawnSubsystem::GetUnitInstance(TSubclassOf<AUnitCharacter>
 }
 
 void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
-    TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData,
     FVector Location, FRotator Rotation,
     AActor* InTargetActor)
 {
     if (!UnitClass) return;
     AUnitCharacter* SpawnedUnit = GetUnitInstance(UnitClass);
+
     if (SpawnedUnit)
     {
         SpawnedUnit->SetActorLocationAndRotation(Location, Rotation);
-        SpawnedUnit->SetCharacterStartupData(UnitData);
         if (InTargetActor)
         {
             SpawnedUnit->SetAttackTarget(InTargetActor);
@@ -75,19 +74,6 @@ void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass,
         ActiveUnits.Add(SpawnedUnit);
         SpawnedUnit->ActivateUnit();
     }
-
-    if (!UnitClass || !GetWorld()) return;
-
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    //AUnitCharacter* NewUnit = GetWorld()->SpawnActor<AUnitCharacter>(UnitClass, Location, Rotation, SpawnParams);
-    //if (NewUnit)
-    //{
-    //    // 데이터 설정
-    //    NewUnit->SetCharacterStartupData(UnitData);
-    //    // 목록 관리가 필요하다면 추가 (선택사항)
-    //    ActiveUnits.Add(NewUnit);
-    //}
 }
 
 void UUnitSpawnSubsystem::ReturnToPool(AUnitCharacter* Unit)

@@ -68,7 +68,7 @@ void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     MeleeHitEventTask->EventReceived.AddUniqueDynamic(this, &UHeroAbility_BaseMeleeAttack::ToggleWeaponTrace);
     MeleeHitEventTask->ReadyForActivation();
 
-    UE_LOG(LogTemp, Log, TEXT("Hero Attack"));
+    UE_LOG(LogTemp, Log, TEXT("Hero Melee Attack"));
 }
 
 void UHeroAbility_BaseMeleeAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

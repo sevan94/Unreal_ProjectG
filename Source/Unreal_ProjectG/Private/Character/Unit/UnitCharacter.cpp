@@ -48,10 +48,12 @@ AUnitCharacter::AUnitCharacter()
 
     WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 
-    WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
-
-    WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
+    if (WeaponMesh)
+    {
+        WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
+    }
 }
 
 UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const
@@ -130,14 +132,6 @@ void AUnitCharacter::InitUnitStartUpData()
                     }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 
-                    //if (CharacterAttributeSet)
-                    //{
-                    //    CharacterAttributeSet->InitHealth(StartUpData->Health);
-                    //    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
-                    //    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
-                    //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
-                    //}
-
                     if (StartUpData->BranchData)
                     {
                         DetectRangeKey = StartUpData->BranchData->DetectRange;
@@ -157,7 +151,16 @@ void AUnitCharacter::InitUnitStartUpData()
                     {
                         UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
                     }
-                    TeamTag = StartUpData->TeamTag;
+
+                    if (StartUpData->BranchData->BranchTag.IsValid())
+                    {
+                        BranchTag = StartUpData->BranchData->BranchTag;
+                    }
+
+                    if (StartUpData->TeamTag.IsValid())
+                    {
+                        TeamTag = StartUpData->TeamTag;
+                    }
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())

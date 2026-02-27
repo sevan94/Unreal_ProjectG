@@ -25,6 +25,7 @@
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -48,7 +49,6 @@ AHeroCharacter::AHeroCharacter()
     WeaponStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponStaticMesh"));
     WeaponStaticMesh->SetupAttachment(GetMesh());
     WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    ResourceAttribute = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("ResourceAttribute"));
     
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
@@ -79,6 +79,8 @@ void AHeroCharacter::SpawnHero()
     MovementComponent->SetComponentTickEnabled(true);
     MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
     MovementComponent->Activate();
+
+
 }
 
 void AHeroCharacter::MakeHeroDead()
@@ -121,20 +123,19 @@ void AHeroCharacter::InitializeHero()
 //        {
 //            if(Data.BaseAttackAbility)
 //            {
-//                GA_Attack = Data.BaseAttackAbility;
-//                if (GA_Attack)
-//                {
-//                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Attack, 1));
-//                }
+//                   AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
 //            }
 //            if (!(Data.WeaponSkillAbilities.IsEmpty()))
 //            {
 //                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
 //                {
-//                    PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1));
+//                    SkillHandle.AddUnique(PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1)));
 //                }
 //            }
 //        }
+//
+//        WeaponStaticMesh->SetStaticMesh(Weapon->GetHeroWeaponData().SoftWeaponMesh.Get());
+//        //차후 에셋이 정해지면 소켓으로 붙일 예정
 //    }
 //    
 //}
@@ -142,11 +143,50 @@ void AHeroCharacter::InitializeHero()
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 {
     Armor = ArmorData;
+
+    if (Armor)
+    {
+    }
 }
 
 void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
 {
     Accessory = AccessoryData;
+    if (Accessory)
+    {
+
+    }
+}
+
+void AHeroCharacter::UnEquipWeapon()
+{
+    if (PGAbilitySystemComponent)
+    {
+        if (AttackHandle.IsValid())
+        {
+            PGAbilitySystemComponent->ClearAbility(AttackHandle);
+            AttackHandle = FGameplayAbilitySpecHandle();
+        }
+        if (!(SkillHandle.IsEmpty()))
+        {
+            for (FGameplayAbilitySpecHandle handle : SkillHandle)
+            {
+                PGAbilitySystemComponent->ClearAbility(handle);
+                SkillHandle.RemoveSwap(handle);
+            }
+        }
+    }
+    Weapon = nullptr;
+}
+
+void AHeroCharacter::UnEquipArmor()
+{
+    Armor = nullptr;
+}
+
+void AHeroCharacter::UnEquipAccessory()
+{
+    Accessory = nullptr;
 }
 
 void AHeroCharacter::ActivateSkill()
@@ -162,16 +202,17 @@ void AHeroCharacter::ActivateSkill()
 
 void AHeroCharacter::BroadCastAttributeSet()
 {
-    if (ResourceAttribute)
+    if (CharacterAttributeSet)
     {
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+            CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+            CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+            CharacterAttributeSet->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
+            CharacterAttributeSet->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
     }
 }
 
@@ -192,6 +233,8 @@ void AHeroCharacter::BeginPlay()
 
     //ABP 가져오기
     AnimInstance = GetMesh()->GetAnimInstance();
+
+    BroadCastAttributeSet();
 
     if (!CharacterStartupData.IsNull())
     {
@@ -223,8 +266,6 @@ void AHeroCharacter::BeginPlay()
         AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
         UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
     }
-
-    BroadCastAttributeSet();
 }
 
 // Called every frame
@@ -299,26 +340,32 @@ void AHeroCharacter::OnAttackInput()
 
 void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    //UE_LOG(LogTemp, Log, TEXT("Overlap With %s"), *OtherActor->GetName());
+    UE_LOG(LogTemp, Log, TEXT("Overlap"));
 
     AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
 
     if (Unit)
     {
-        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
         {
             PotentialTargets.AddUnique(Unit);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
+            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
         }
     }
 }
 
 void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
     AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
 
     if (Unit)
     {
-        if (Unit->GetTeamTag() == PGGameplayTags::Unit_Side_Foe)
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
         {
             PotentialTargets.RemoveSwap(Unit);
         }
@@ -349,6 +396,7 @@ void AHeroCharacter::AutoBattle()
     }
     else
     {
+        AddMovementInput(FVector::ZeroVector);
         ActivateSkill();
     }
 }

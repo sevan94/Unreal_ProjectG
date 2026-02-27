@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "GA_Die.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API UGA_Die : public UGameplayAbility
+class UNREAL_PROJECTG_API UGA_Die : public UPGHeroGameplayAbility
 {
 	GENERATED_BODY()
 	

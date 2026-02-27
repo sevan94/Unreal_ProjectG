@@ -23,7 +23,6 @@ void AHeroTestCharacter::BeginPlay()
     HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
     HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
     HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
-
 }
 
 //void AHeroTestCharacter::SetupAccessoryToPawn()

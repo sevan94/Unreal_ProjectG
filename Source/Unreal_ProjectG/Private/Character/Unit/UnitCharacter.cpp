@@ -5,6 +5,7 @@
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "Components/Combat/UnitCombatComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,6 +16,7 @@
 #include "DataAssets/Unit/UnitData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "DataAssets/Unit/BranchDataAsset.h"
+#include "AbilitySystem/PGAbilitySystemComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -28,8 +30,29 @@ AUnitCharacter::AUnitCharacter()
     UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
     if (MovementComponent)
     {
-        //크라우드 우회를 사용하기 때문에 RVO는 꺼야함, 기본적으로 꺼져있지만 혹시 몰라서 생성자에서 다시 끄기
         MovementComponent->bUseRVOAvoidance = false;
+    }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+    }
+
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        CharacterMesh->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+
+        CharacterMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+        CharacterMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); 
+    }
+
+    WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+
+    if (WeaponMesh)
+    {
+        WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
     }
 }
 
@@ -68,6 +91,22 @@ void AUnitCharacter::PossessedBy(AController* NewController)
     InitUnitStartUpData();
 }
 
+void AUnitCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    if (!PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent = FindComponentByClass<UPGAbilitySystemComponent>();
+    }
+
+    if (!CharacterAttributeSet && PGAbilitySystemComponent)
+    {
+
+        CharacterAttributeSet = const_cast<UPGCharacterAttributeSet*>(PGAbilitySystemComponent->GetSet<UPGCharacterAttributeSet>());
+    }
+}
+
 void AUnitCharacter::InitUnitStartUpData()
 {
     if(CharacterStartupData.IsNull())
@@ -87,32 +126,11 @@ void AUnitCharacter::InitUnitStartUpData()
 
                 if (UDataAsset_StartupDataBase* LoadedData = CharacterStartupData.Get())
                 {
-                    LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
-
+                    if (PGAbilitySystemComponent)
+                    {
+                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+                    }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
-
-                    //if (CharacterAttributeSet)
-                    //{
-                    //    CharacterAttributeSet->InitHealth(StartUpData->Health);
-                    //    CharacterAttributeSet->InitMaxHealth(StartUpData->Health);
-                    //    CharacterAttributeSet->InitAttackPower(StartUpData->AttackDamage);
-                    //    CharacterAttributeSet->InitAttackSpeed(StartUpData->AttackSpeed);
-                    //}
-
-                    if (StartUpData->SkeletalMesh)
-                    {
-                        GetMesh()->SetSkeletalMesh(StartUpData->SkeletalMesh);
-                    }
-
-                    if (StartUpData->AnimBlueprint)
-                    {
-                        GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
-                    }
-
-                    if (StartUpData->UnitBasicAttackMontage)
-                    {
-                        UnitAttackMontage = StartUpData->UnitBasicAttackMontage;
-                    }
 
                     if (StartUpData->BranchData)
                     {
@@ -125,9 +143,24 @@ void AUnitCharacter::InitUnitStartUpData()
                         AttackMarginKey = AttackRangeKey * 0.7f;
                     }
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
-                    UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
+                    if (CharacterAttributeSet)
+                    {
+                        UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
+                    }
 
-                    TeamTag = StartUpData->TeamTag;
+                    if (StartUpData->BranchData->BranchTag.IsValid())
+                    {
+                        BranchTag = StartUpData->BranchData->BranchTag;
+                    }
+
+                    if (StartUpData->TeamTag.IsValid())
+                    {
+                        TeamTag = StartUpData->TeamTag;
+                    }
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())

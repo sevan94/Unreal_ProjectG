@@ -75,17 +75,18 @@ void AHeroTestCharacter::SetupWeaponToPawn()
 
                 // 무기 기본 공격 어빌리티 부여
                 PGAbilitySystemComponent->GrantHeroWeaponBasicAttackAbility(
-                    WeaponDataAsset->GetHeroWeaponData().BaseAttackAbility,
+                    WeaponDataAsset->GetHeroWeaponData().WeaponBasicAttackAbilityEntry,
                     TestAbilityLevel,
                     BasicAttackAbilitySpecHandle
                 );
 
                 // 무기 스킬 어빌리티들 부여
                 PGAbilitySystemComponent->GrantHeroWeaponSkillAbilities(
-                    WeaponDataAsset->GetHeroWeaponData().WeaponSkillAbilities,
+                    WeaponDataAsset->GetHeroWeaponData().WeaponSkillAbilityEntries,
                     TestAbilityLevel,
                     SkillAbilitySpecHandles
                 );
+
 
                 // 부여한 어빌리티 핸들을 컴뱃 컴포넌트에 설정
                 HeroCombatComponent->AssignBaseAttackAbilitySpecHandle(BasicAttackAbilitySpecHandle);

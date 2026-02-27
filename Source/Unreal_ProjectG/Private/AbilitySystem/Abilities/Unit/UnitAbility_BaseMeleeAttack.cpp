@@ -7,19 +7,35 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "PGFunctionLibrary.h"
 
+#include "DataAssets/Ability/AbilityConfig.h"
+
 UUnitAbility_BaseMeleeAttack::UUnitAbility_BaseMeleeAttack()
 {
     // 기본 설정
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+void UUnitAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UUnitMeleeAttackAbilityConfig* Data = Cast<UUnitMeleeAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (Data)
+    {
+        MeleeAttackMontage = Data->AbilityMontage;
+        MeleeAttackSkillMultiplier = Data->DamageMultiplier;
+        MaxHitTargets = Data->MaxHitTargets;
+    }
+}
+
 void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    checkf(!MeleeAttackMontages.IsEmpty(), TEXT("MeleeAttackMontages 배열이 비어있습니다!"));
+    checkf(MeleeAttackMontage, TEXT("MeleeAttackMontage이 비어있습니다!"));
 
     // 전방에 박스 트레이스를 발사하여 가장 가까운 타겟 액터를 찾음
-    FVector StartLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
-    FVector EndLocation = StartLocation + GetAvatarActorFromActorInfo()->GetActorForwardVector() * 500.0f;
+    FVector StartLocation = GetAvatarActorFromActorInfo()->GetActorLocation()
+        + GetAvatarActorFromActorInfo()->GetActorForwardVector() * 75.f;
+    FVector EndLocation = StartLocation + GetAvatarActorFromActorInfo()->GetActorForwardVector() * 250.0f;
     TArray<FHitResult> HitResults;
 
     // 가장 가까운 폰 액터 찾기
@@ -27,7 +43,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     
     // 적대적인 타겟 필터링
     int32 CurrentHitTargets = 0;
-    for (FHitResult HitResult : HitResults)
+    for (const FHitResult& HitResult : HitResults)
     {
         if (MaxHitTargets <= CurrentHitTargets)
         {
@@ -48,8 +64,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     }
 
     // 애니메이션 몽타주 재생
-    UAnimMontage* SelectedMontage = MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)];
-    UAbilityTask_PlayMontageAndWait* MeleeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SelectedMontage);
+    UAbilityTask_PlayMontageAndWait* MeleeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MeleeAttackMontage);
 
     // 몽타주 완료 이벤트 바인딩
     if (MeleeMontageTask)

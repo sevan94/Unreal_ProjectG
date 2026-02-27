@@ -10,6 +10,6 @@ public class Unreal_ProjectGEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
-		ExtraModuleNames.Add("Unreal_ProjectG");
+		ExtraModuleNames.AddRange(new string[] { "Unreal_ProjectG", "PGEditor" });
 	}
 }

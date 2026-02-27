@@ -31,6 +31,8 @@ public:
     void SetProjectileDamageEffectSpecHandle(const FGameplayEffectSpecHandle& InEffectSpecHandle);
 
 protected:
+    virtual void Tick(float DeltaTime) override;
+
 	virtual void BeginPlay() override;
 
     UFUNCTION()

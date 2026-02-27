@@ -5,21 +5,46 @@
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/PGUnitGameplayAbility.h"
 
+#include "DataAssets/Ability/AbilityConfig.h"
+
 void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemComponent* InASCToGive, int32 InLevel)
 {
     Super::GiveToAbilitySystemComponent(InASCToGive, InLevel);
 
-    if (!UnitCombatAbilities.IsEmpty())
+    if (!UnitCombatAbilityEntries.IsEmpty())
     {
-        for (const TSubclassOf<UPGUnitGameplayAbility>& AbilityClass : UnitCombatAbilities)
+        for (const FAbilityEntry& AbilityEntry : UnitCombatAbilityEntries)
         {
-            if (!AbilityClass) continue;
+            if (!AbilityEntry.AbilityClass) continue;
 
-            FGameplayAbilitySpec AbilitySpec(AbilityClass);
-            AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
-            AbilitySpec.Level = InLevel;
+            FGameplayAbilitySpec AbilitySpec(
+                AbilityEntry.AbilityClass.Get(),
+                InLevel,
+                INDEX_NONE,
+                AbilityEntry.AbilityConfig.Get()
+            );
 
             InASCToGive->GiveAbility(AbilitySpec);
         }
     }
 }
+
+
+//void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemComponent* InASCToGive, int32 InLevel)
+//{
+//    Super::GiveToAbilitySystemComponent(InASCToGive, InLevel);
+//
+//    if (!UnitCombatAbilities.IsEmpty())
+//    {
+//        for (const TSubclassOf<UPGUnitGameplayAbility>& AbilityClass : UnitCombatAbilities)
+//        {
+//            if (!AbilityClass) continue;
+//
+//            FGameplayAbilitySpec AbilitySpec(AbilityClass);
+//            AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
+//            AbilitySpec.Level = InLevel;
+//
+//            InASCToGive->GiveAbility(AbilitySpec);
+//        }
+//    }
+//}

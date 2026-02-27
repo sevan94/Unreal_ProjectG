@@ -26,11 +26,14 @@ namespace PGGameplayTags
     // 플레이어 이벤트 태그
 
     // 유닛 어빌리티 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack_Melee);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_MagicCharge);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_ActivateSheild);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack);
 
     // 공유 이벤트 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_AttackTraceToggle); // 몽타주에서 공격 트레이스 온오프 토글용
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_ProjectileSpawn);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_ActorSpawn);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_MeleeHit);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_AOEExecute);
 
@@ -45,6 +48,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Combat);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Move);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Dead);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Guard);
 
 
     //유닛 등급 태그

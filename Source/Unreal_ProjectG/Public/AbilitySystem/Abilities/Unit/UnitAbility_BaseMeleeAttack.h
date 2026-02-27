@@ -17,6 +17,7 @@ class UNREAL_PROJECTG_API UUnitAbility_BaseMeleeAttack : public UPGUnitGameplayA
 public:
     UUnitAbility_BaseMeleeAttack();
 
+    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
@@ -38,7 +39,7 @@ protected:
     int32 MaxHitTargets = 1;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    TArray<TObjectPtr<UAnimMontage>> MeleeAttackMontages;
+    TObjectPtr<UAnimMontage> MeleeAttackMontage;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
     FScalableFloat MeleeAttackSkillMultiplier;

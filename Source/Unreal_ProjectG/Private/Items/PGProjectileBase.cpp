@@ -30,6 +30,14 @@ APGProjectileBase::APGProjectileBase()
     InitialLifeSpan = 4.0f;
 }
 
+void APGProjectileBase::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    FVector BoxExtent = ProjectileCollisionComponent->GetScaledBoxExtent();
+    DrawDebugBox(GetWorld(), GetActorLocation(), BoxExtent, FColor::Red, false, -1.f, 0, 1.f);
+}
+
 void APGProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -81,6 +89,8 @@ void APGProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overlapped
     //{
     //    return;
     //}
+
+     UE_LOG(LogTemp, Log, TEXT("Overlap With %s"), *OtherActor->GetName());
 
     APawn* OverlappedPawn = Cast<APawn>(OtherActor);
     if (OverlappedPawn)

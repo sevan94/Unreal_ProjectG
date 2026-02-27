@@ -19,6 +19,19 @@ public:
     virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
-    UPROPERTY(EditAnywhere, Category = "Search")
+
+    UPROPERTY(EditAnywhere, Category = "Blackboard")
+    FBlackboardKeySelector bIsAllyInFrontKey;
+
+    UPROPERTY(EditAnywhere, Category = "Blackboard")
+    FBlackboardKeySelector TargetLocationKey;
+
+    UPROPERTY(EditAnywhere, Category = "Settings")
     float SearchRadius = 1500.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Settings")
+    float InFrontCheckDistance = 500.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Settings")
+    float DistanceBehindAlly = 200.0f; 
 };

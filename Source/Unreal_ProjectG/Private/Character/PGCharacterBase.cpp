@@ -33,6 +33,11 @@ void APGCharacterBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer)
     {
         TagContainer.AddTag(TeamTag);
     }
+
+    if (BranchTag.IsValid())
+    {
+        TagContainer.AddTag(BranchTag);
+    }
 }
 
 void APGCharacterBase::PossessedBy(AController* NewController)

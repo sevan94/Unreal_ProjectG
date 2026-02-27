@@ -30,15 +30,15 @@ public:
 
     // 컴뱂 인터페이스 구현
     virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
-
+    
     // 게임 태그 에셋 인터페이스 구현
     virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
-    
+
     virtual void OnDie() {};
 
+    FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
     FORCEINLINE UPGCharacterAttributeSet* GetPGCharacterAttributeSet() const { return CharacterAttributeSet; }
-    FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
 protected:
     virtual void PossessedBy(AController* NewController) override;
 
@@ -49,6 +49,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
     TObjectPtr<UPGCharacterAttributeSet> CharacterAttributeSet;
 
+    // 캐릭터 초기화 데이터 에셋
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
     TSoftObjectPtr<UDataAsset_StartupDataBase> CharacterStartupData;
 
@@ -61,3 +62,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     FGameplayTag BranchTag;
 };
+
+
+
+
+
+

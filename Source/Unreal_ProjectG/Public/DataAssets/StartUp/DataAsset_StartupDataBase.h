@@ -33,7 +33,7 @@ protected:
     TArray<TSubclassOf<UPGGameplayAbility>> ReactedAbilities;
 
     // 게임 시작 시 캐릭터에 적용할 게임 플레이 이펙트들(스탯 초기화 등)
-    UPROPERTY(EditDefaultsOnly, Category = "StartupData")
+    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StartupData")
     TArray<TSubclassOf<UGameplayEffect>> StartUpGameplayEffects;
 
 };

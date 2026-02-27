@@ -43,6 +43,8 @@ public:
     float GetAttackMarginKey() { return AttackMarginKey; }
     UBehaviorTree* GetSubBTAssetKey() { return SubBTAssetKey; }
 
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE TSoftObjectPtr<UDataAsset_StartupDataBase> GetUnitStartupData() const { return CharacterStartupData; }
     FORCEINLINE UUnitCombatComponent* GetUnitCombatComponent() const { return UnitCombatComponent; }
 public:
     //공격 대상 정하는 함수

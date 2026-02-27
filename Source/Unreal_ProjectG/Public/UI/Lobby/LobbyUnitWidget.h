@@ -8,6 +8,9 @@
 
 class UButton;
 class UWidgetSwitcher;
+class UUnitListWidget;
+class UUnitDescriptionWidget; 
+class UUnitUIDataAsset;
 
 /**
  * 
@@ -24,9 +27,18 @@ private:
     UFUNCTION()
     void OnExitButtonClick();
 
+    UFUNCTION()
+    void HandleUnitSelected(UUnitUIDataAsset* SelectedData);
+
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UUnitListWidget> UnitList;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UUnitDescriptionWidget> UnitDescription;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;

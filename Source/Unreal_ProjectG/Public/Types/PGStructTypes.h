@@ -43,8 +43,8 @@ struct FPGHeroWeaponData
     TSubclassOf<UPGHeroLinkedAnimLayer> WeaponAnimLayer;    
     
     // 무기 기본 경격 어빌리티
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
-    //TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+    TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FAbilityEntry WeaponBasicAttackAbilityEntry;
@@ -52,9 +52,9 @@ struct FPGHeroWeaponData
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<FAbilityEntry> WeaponSkillAbilityEntries;
 
-    //// 무기 스킬 어빌리티들
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    //TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
+    // 무기 스킬 어빌리티들
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
 
     // 무기 아이콘 텍스처
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

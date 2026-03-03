@@ -36,7 +36,7 @@ protected:
 
 protected:
     UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Unit")
-    TSoftObjectPtr<UDataTable> UnitDataTable;
+    TObjectPtr<UDataTable> UnitDataTable;
 
     UPROPERTY(meta = (BindWidget))
     TSoftObjectPtr<UTileView> UnitTileView;

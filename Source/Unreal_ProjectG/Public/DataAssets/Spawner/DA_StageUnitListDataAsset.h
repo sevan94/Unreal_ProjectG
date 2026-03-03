@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "DA_StageUnitListDataAsset.generated.h"
 class AUnitCharacter;
+class UUnitUIDataAsset;
 
 USTRUCT(BlueprintType)
 struct FUnitSpawnDataInfo
@@ -13,7 +14,7 @@ struct FUnitSpawnDataInfo
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TSubclassOf<AUnitCharacter> UnitClass;
+    TObjectPtr<UUnitUIDataAsset> UnitData;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     int32 Spawnweight;

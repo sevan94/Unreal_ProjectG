@@ -10,6 +10,7 @@ class UUnitUIDataAsset;
 class UButton;
 class UImage;
 class UTextBlock;
+class ABaseStructure;
 
 /**
  * 
@@ -25,6 +26,8 @@ public:
     void InitializeSlot(UUnitUIDataAsset* InDataAsset);
 
     void UpdateSlot(float InCost);
+
+    void SetSpawnBase(ABaseStructure* InSpawnBase) {SpawnBase = InSpawnBase;}
 
 protected:
     // 초기화 및 버튼 이벤트 바인딩
@@ -46,4 +49,8 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UnitCost;
+
+private:
+    TObjectPtr<ABaseStructure> SpawnBase;
+    FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
 };

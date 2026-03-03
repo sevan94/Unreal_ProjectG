@@ -3,6 +3,7 @@
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DataAssets/Spawner/DA_StageUnitListDataAsset.h"
+#include "DataAssets/UI/UnitUIDataAsset.h"
 
 UUnitSpawnComponent::UUnitSpawnComponent()
 {
@@ -30,9 +31,9 @@ void UUnitSpawnComponent::BeginPlay()
             {
                 for (const FUnitSpawnDataInfo& UnitInfo : StageInfo.UnitSpawnList)
                 {
-                    if (UnitInfo.UnitClass)
+                    if (UnitInfo.UnitData)
                     {
-                        UniqueUnitClasses.Add(UnitInfo.UnitClass);
+                        UniqueUnitClasses.Add(UnitInfo.UnitData->UnitClass);
                     }
                 }
             }
@@ -81,7 +82,11 @@ void UUnitSpawnComponent::SpawnRandomUnit()
     const TArray<FUnitSpawnDataInfo>& UnitSpawnList = CurrentStageInfo->UnitSpawnList;
 
     int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
-    TSubclassOf<AUnitCharacter> SelectedUnitClass = UnitSpawnList[RandomIndex].UnitClass;
+    TSubclassOf<AUnitCharacter> SelectedUnitClass;
+    if (UnitSpawnList[RandomIndex].UnitData)
+    {
+        SelectedUnitClass = UnitSpawnList[RandomIndex].UnitData->UnitClass;
+    }
 
     if (SelectedUnitClass)
     {

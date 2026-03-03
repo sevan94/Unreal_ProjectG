@@ -2,6 +2,7 @@
 
 
 #include "UI/Battle/BattleUIWidget.h"
+#include "UI/Battle/ResultVictoryWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -13,6 +14,8 @@ void UBattleUIWidget::NativeConstruct()
     Super::NativeConstruct();
 
     PGGameMode = Cast<APGBaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+    ResultVictory->SetVisibility(ESlateVisibility::Hidden);
+    ResultFail->SetVisibility(ESlateVisibility::Hidden);
 
     if (PlaySpeedButton)
     {
@@ -69,6 +72,19 @@ void UBattleUIWidget::OnSpeedButtonClicked()
     }
 
     UE_LOG(LogTemp, Log, TEXT("Current Game Speed: %.1fx"), SpeedValues[CurrentSpeedIndex]);
+}
+
+void UBattleUIWidget::ShowGameResult(FBattleResultData& ResultData)
+{
+    if (ResultData.bIsVictory)
+    {
+        ResultVictory->ShowResult(ResultData);
+        ResultVictory->SetVisibility(ESlateVisibility::Visible);
+    }
+    else
+    {
+        ResultFail->SetVisibility(ESlateVisibility::Visible);
+    }
 }
 
 //void UBattleUIWidget::OnAutoButtonClicked()

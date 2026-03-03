@@ -10,8 +10,10 @@ class UTextBlock;
 class UButton;
 class UImage;
 class UControlPanelWidget;
+class UResultVictoryWidget;
 class UWidgetAnimation;
 class APGBaseGameMode;
+struct FBattleResultData;
 
 /**
  * 
@@ -32,6 +34,9 @@ protected:
 
     //UFUNCTION()
     //void OnAutoButtonClicked();
+
+    UFUNCTION(BlueprintCallable)
+    void ShowGameResult(FBattleResultData& ResultData);
 	
 protected:
     // 플레이타임 텍스트
@@ -59,6 +64,14 @@ protected:
     // 컨트롤 패널 위젯
     UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (BindWidget))
     TObjectPtr<UControlPanelWidget> ControlPanel;
+
+    // 전투 승리 위젯
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (BindWidget))
+    TObjectPtr<UResultVictoryWidget> ResultVictory;
+
+    // 전투 패배 위젯
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (BindWidget))
+    TObjectPtr<UUserWidget> ResultFail;
 
     // 게임 모드
     TWeakObjectPtr<APGBaseGameMode> PGGameMode;

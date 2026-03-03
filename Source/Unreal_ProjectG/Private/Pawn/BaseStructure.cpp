@@ -13,26 +13,12 @@ ABaseStructure::ABaseStructure()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    //// 1. 캡슐 컴포넌트 설정 (루트)
-    //CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-    //SetRootComponent(CapsuleComp);
-    //CapsuleComp->SetCollisionProfileName(TEXT("Pawn")); 
-
-    //// 2. 메쉬 설정
-    //MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-    //MeshComp->SetupAttachment(RootComponent);
-    //MeshComp->SetCollisionProfileName(TEXT("NoCollision")); 
 
     // 3. GAS 컴포넌트 생성
     if (PGAbilitySystemComponent)
     {
         PGAbilitySystemComponent->SetIsReplicated(true);
     }
-    //// 4. 공격 사거리 스피어 생성
-    //AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
-    //AttackRangeSphere->SetupAttachment(RootComponent);
-    //AttackRangeSphere->SetSphereRadius(800.0f); // 기본 사거리
-    //AttackRangeSphere->SetCollisionProfileName(TEXT("Trigger")); // 감지 전용
 }
 
 

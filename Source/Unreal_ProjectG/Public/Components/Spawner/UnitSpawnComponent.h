@@ -8,16 +8,6 @@ class AUnitCharacter;
 class UDataAsset_UnitStartupData;
 class UDA_StageUnitListDataAsset;
 
-USTRUCT(BlueprintType)
-struct FUnitSpawnInfo
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TSubclassOf<AUnitCharacter> UnitClass;
-};
-
-
 // [변경] UCLASS 설정에 ClassGroup, meta 추가 (에디터 컴포넌트 목록에 뜨게 함)
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UNREAL_PROJECTG_API UUnitSpawnComponent : public USceneComponent

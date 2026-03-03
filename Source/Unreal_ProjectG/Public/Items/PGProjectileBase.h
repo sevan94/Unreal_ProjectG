@@ -59,4 +59,7 @@ protected:
 
     UPROPERTY(BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = "true"))
     FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
+    float ProjectileSpan = 2.0f;
 };

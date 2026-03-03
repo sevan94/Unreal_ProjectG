@@ -23,6 +23,7 @@ class UNREAL_PROJECTG_API ABaseStructure : public APGCharacterBase
 public:
     ABaseStructure();
 
+   
 protected:
     virtual void BeginPlay() override;
 
@@ -77,6 +78,8 @@ protected:
 public:
    
     virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+    virtual void OnDie() override;
 
     // 블루프린트에서 투사체를 쏘거나 포탄 이펙트를 띄우기 위한 이벤트
     UFUNCTION(BlueprintImplementableEvent, Category = "Attack")

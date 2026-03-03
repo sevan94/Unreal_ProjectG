@@ -22,6 +22,7 @@ ABaseStructure::ABaseStructure()
 }
 
 
+
 void ABaseStructure::BeginPlay()
 {
     Super::BeginPlay();
@@ -141,6 +142,12 @@ void ABaseStructure::DestroyBase()
     Destroy();
 }
 
+void ABaseStructure::OnDie()
+{
+    DestroyBase();
+}
+
+
 void ABaseStructure::CurrentHealthChange(const FOnAttributeChangeData& Data) const
 {
     OnBaseHpChanged.Broadcast(TeamTag, Data.NewValue);
@@ -149,3 +156,4 @@ void ABaseStructure::MaxHealthChange(const FOnAttributeChangeData& Data) const
 {
     OnBaseMaxHpChanged.Broadcast(TeamTag, Data.NewValue);
 }
+

@@ -1,9 +1,13 @@
 
 #include "Components/Spawner/UnitSpawnComponent.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "Character/Unit/UnitCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DataAssets/Spawner/DA_StageUnitListDataAsset.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "Pawn/BaseStructure.h"
+#include "Kismet/GameplayStatics.h"
+#include "Mode/Save/PGGameInstance.h"
 
 UUnitSpawnComponent::UUnitSpawnComponent()
 {
@@ -23,6 +27,13 @@ void UUnitSpawnComponent::BeginPlay()
 
     if (UWorld* World = GetWorld())
     {
+        if (UPGGameInstance* GameInst = Cast<UPGGameInstance>(World->GetGameInstance()))
+        {
+            CurrentStageIndex = GameInst->CurrentStageIndex;
+            UE_LOG(LogTemp, Log, TEXT("stage : %d"), CurrentStageIndex);
+
+        }
+
         if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
         {
             TSet<TSubclassOf<AUnitCharacter>> UniqueUnitClasses;
@@ -107,7 +118,7 @@ void UUnitSpawnComponent::SpawnRandomUnit()
 
 void UUnitSpawnComponent::StartWave()
 {
-    SpawnInterval = 2.0f;
+    SpawnInterval = 4.0f;
 
     if (GetWorld())
     {
@@ -124,4 +135,37 @@ void UUnitSpawnComponent::StartWave()
 void UUnitSpawnComponent::SetAttackTarget(AActor* InTargetActor)
 {
     AttackTarget = InTargetActor;
+
+    if (ABaseStructure* TargetBase = Cast<ABaseStructure>(AttackTarget))
+    {
+        TargetBase->OnBaseDestroyed.AddUniqueDynamic(this, &UUnitSpawnComponent::OnTargetBaseDestroyed);
+    }
+}
+
+void UUnitSpawnComponent::StopWave()
+{
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(SpawnTimerHandle);
+    }
+}
+
+void UUnitSpawnComponent::OnTargetBaseDestroyed(ETeamType DestroyedTeam)
+{
+    StopWave();
+
+    if (UWorld* World = GetWorld())
+    {
+        TArray<AActor*> FoundUnits;
+
+        UGameplayStatics::GetAllActorsOfClass(World, AUnitCharacter::StaticClass(), FoundUnits);
+
+        for (AActor* Actor : FoundUnits)
+        {
+            if (AUnitCharacter* Unit = Cast<AUnitCharacter>(Actor))
+            {
+                Unit->DeactivateUnit();
+            }
+        }
+    }
 }

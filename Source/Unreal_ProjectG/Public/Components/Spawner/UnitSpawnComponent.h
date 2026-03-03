@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h" 
+#include "Types/PGEnumTypes.h"
 #include "UnitSpawnComponent.generated.h"
 
 class AUnitCharacter;
@@ -29,12 +30,19 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void SetAttackTarget(AActor* InTargetActor);
+
+    UFUNCTION(BlueprintCallable, Category = "Spawner")
+    void StopWave();
+
+protected:
+    UFUNCTION()
+    void OnTargetBaseDestroyed(ETeamType DestroyedTeam);
 protected:
     //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     //TArray<FUnitSpawnInfo> SpawnList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    float SpawnInterval = 3.0f;
+    float SpawnInterval = 0.0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     bool bLoopSpawning = true;

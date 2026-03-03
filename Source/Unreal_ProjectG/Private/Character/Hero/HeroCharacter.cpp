@@ -191,12 +191,15 @@ void AHeroCharacter::UnEquipAccessory()
 
 bool AHeroCharacter::ConsumeCost(float InCost)
 {
-    float CurrentCost = CharacterAttributeSet->GetCost();
-
-    if (CurrentCost >= InCost)
+    if (CharacterAttributeSet)
     {
-        CharacterAttributeSet->SetCost(CurrentCost - InCost);
-        return true;
+        float CurrentCost = CharacterAttributeSet->GetCost();
+
+        if (CurrentCost >= InCost)
+        {
+            CharacterAttributeSet->SetCost(CurrentCost - InCost);
+            return true;
+        }
     }
 
     return false;

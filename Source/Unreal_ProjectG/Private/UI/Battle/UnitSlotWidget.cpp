@@ -7,6 +7,8 @@
 #include "Components/Image.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "Pawn/BaseStructure.h"
+#include "Kismet/GameplayStatics.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -50,7 +52,21 @@ void UUnitSlotWidget::OnUnitButtonClicked()
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
     if (Hero->ConsumeCost(UnitData->UnitCost))
     {
-        FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
+        if (SpawnBase.IsNull())
+        {
+            TArray<AActor*> FoundBases;
+            UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
+
+            for (AActor* BaseActor : FoundBases)
+            {
+                SpawnBase = Cast<ABaseStructure>(BaseActor);
+                if (SpawnBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                {
+                    float RandomRange = FMath::RandRange(-100.0f, 100.0f);
+                    SpawnLocation = FVector(SpawnBase->GetActorLocation().X + 100.0f, SpawnBase->GetActorLocation().Y + RandomRange, 100.0f);
+                }
+            }
+        }
         FRotator SpawnRotation = FRotator::ZeroRotator;
         FActorSpawnParameters SpawnParams;
 

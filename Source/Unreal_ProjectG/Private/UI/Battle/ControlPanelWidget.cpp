@@ -82,8 +82,8 @@ void UControlPanelWidget::NativeConstruct()
     HeroCharacter = Cast<AHeroCharacter>(GetOwningPlayerPawn());
 
     // 영웅 및 기지 바인딩
-    BindHero();
     BindBase();
+    BindHero();
 
     if (HPIcon && CostIcon)
     {

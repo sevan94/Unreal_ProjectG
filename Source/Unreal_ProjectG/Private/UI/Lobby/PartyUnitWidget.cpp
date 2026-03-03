@@ -40,6 +40,8 @@ void UPartyUnitWidget::NativeConstruct()
         UnitButton->OnClicked.AddDynamic(this, &UPartyUnitWidget::OnInternalButtonClicked);
     }
 
+    UpdateSlot(CurrentUnitData);
+
     // 초기 상태에서는 교체 오버레이를 숨김
     ShowReplaceOverlay(false);
 }

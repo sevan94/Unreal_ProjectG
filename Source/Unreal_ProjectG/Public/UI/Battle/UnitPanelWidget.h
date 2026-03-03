@@ -8,6 +8,7 @@
 
 class UUnitUIDataAsset;
 class UUnitSlotWidget;
+class ABaseStructure;
 
 /**
  * 

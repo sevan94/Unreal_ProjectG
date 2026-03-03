@@ -52,6 +52,9 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerPiece;
 
+    //스테이지
+    UPROPERTY(BlueprintReadWrite, Category = "Player Info")
+    int32 CurrentStageIndex = 0;
 private:
     UPROPERTY()
     TObjectPtr<UPGSaveGame> CachedSaveData;

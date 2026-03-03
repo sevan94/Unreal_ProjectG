@@ -52,7 +52,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
     if (Hero->ConsumeCost(UnitData->UnitCost))
     {
-        if (SpawnBase.IsNull())
+        if (!SpawnBase)
         {
             TArray<AActor*> FoundBases;
             UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);

@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
 #include "GameFramework/PlayerController.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {   
@@ -29,6 +30,10 @@ void APGBaseGameMode::BeginPlay()
         ABaseStructure* Base = Cast<ABaseStructure>(Actor);
         if (Base)
         {
+            if (Base->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+            {
+                AllyBase = Base;
+            }
             // 기지가 파괴되면 OnGameOver 함수가 실행되도록 연결
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
@@ -76,40 +81,26 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
     if (bIsGameOver) return; // 이미 종료된 게임이면 무시
     bIsGameOver = true;
 
-    bool bIsPlayerVictory = false;
-    int32 FinalStarCount = 0;
+    FBattleResultData Result;
+    Result.bIsVictory = (DefeatedTeam == ETeamType::Enemy);
+    Result.TotalPlayTime = GetCurrentPlayTime();
+    Result.TotalSpentCost = SpentCost;
+    UPGCharacterAttributeSet* BaseAttribute = AllyBase->GetPGCharacterAttributeSet();
 
-    // 파괴된 팀이 'Enemy'라면 -> 플레이어 승리
-    if (DefeatedTeam == ETeamType::Enemy)
+    if (Result.bIsVictory)
     {
-        bIsPlayerVictory = true;
+        // 1. 별 개수 계산
+        if (Result.TotalPlayTime <= ClearTimeLimit_3Stars) Result.StarCount = 3;
+        else if (Result.TotalPlayTime <= ClearTimeLimit_2Stars) Result.StarCount = 2;
+        else Result.StarCount = 1;
 
-        // 클리어 시간 체크
-        float PlayTime = GetCurrentPlayTime();
-        UE_LOG(LogTemp, Warning, TEXT("Game Clear! PlayTime: %.2f sec"), PlayTime);
-
-        if (PlayTime <= ClearTimeLimit_3Stars)
-        {
-            FinalStarCount = 3; // 3성 (빠른 클리어)
-        }
-        else if (PlayTime <= ClearTimeLimit_2Stars)
-        {
-            FinalStarCount = 2; // 2성 (보통)
-        }
-        else
-        {
-            FinalStarCount = 1; // 1성 (턱걸이)
-        }
-    }
-    else // 플레이어 기지 파괴 -> 패배
-    {
-        bIsPlayerVictory = false;
-        FinalStarCount = 0; // 패배 시 별 없음
-        UE_LOG(LogTemp, Warning, TEXT("Game Over: Player Defeat"));
+        // 아군 기지 체력 계산
+        if (AllyBase) Result.RemainingHealthPercent = BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth();
     }
 
-    // 1. 결과 UI 호출 (BP_GameMode에서 위젯 생성)
-    BP_ShowResultUI(bIsPlayerVictory, FinalStarCount);
+    // 결과 UI 호출 (BP_GameMode에서 위젯 생성)
+    BP_ShowResultUI(Result);
+       
 
     // 2. 플레이어 조작 비활성화 (선택 사항)
     APlayerController* PC = GetWorld()->GetFirstPlayerController();

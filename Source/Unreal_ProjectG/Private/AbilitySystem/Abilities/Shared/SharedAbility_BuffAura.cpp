@@ -15,6 +15,7 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
     BuffAuraSphere->SetSphereRadius(BuffAuraRadius);
     BuffAuraSphere->RegisterComponent(); // 컴포넌트 등록
     BuffAuraSphere->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
+    BuffAuraSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 
     // 오버랩 이벤트 바인딩
     BuffAuraSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraBeginOverlap);

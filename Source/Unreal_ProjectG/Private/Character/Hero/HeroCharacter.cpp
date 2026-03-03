@@ -189,6 +189,19 @@ void AHeroCharacter::UnEquipAccessory()
     Accessory = nullptr;
 }
 
+bool AHeroCharacter::ConsumeCost(float InCost)
+{
+    float CurrentCost = CharacterAttributeSet->GetCost();
+
+    if (CurrentCost >= InCost)
+    {
+        CharacterAttributeSet->SetCost(CurrentCost - InCost);
+        return true;
+    }
+
+    return false;
+}
+
 void AHeroCharacter::ActivateSkill()
 {
     if (PGAbilitySystemComponent)

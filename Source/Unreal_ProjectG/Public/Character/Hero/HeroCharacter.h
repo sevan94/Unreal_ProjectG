@@ -68,6 +68,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void UnEquipAccessory();
 
+
+    // 유닛 소환용 코스트 차감 함수
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    bool ConsumeCost(float InCost);
     //스킬 사용
     UFUNCTION(BlueprintCallable, Category = "Battle")
     void ActivateSkill();

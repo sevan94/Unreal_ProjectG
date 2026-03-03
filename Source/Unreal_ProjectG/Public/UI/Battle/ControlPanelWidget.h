@@ -10,6 +10,7 @@
 class UImage;
 class UBarWidget;
 class UBaseHpWidget;
+class UUnitPanelWidget;
 class UActiveSkillWidget;
 class AHeroCharacter;
 
@@ -90,6 +91,9 @@ protected:
     // 액티브 스킬
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UActiveSkillWidget> WeaponSkill;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UUnitPanelWidget> UnitPanel;
     
 private:
     // 내부 변수

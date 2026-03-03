@@ -4,6 +4,14 @@
 #include "UI/Battle/UnitPanelWidget.h"
 #include "UI/Battle/UnitSlotWidget.h"
 
+void UUnitPanelWidget::UpdateAllSlots(float InCost)
+{
+    for (UUnitSlotWidget* UnitSlot : SlotArray)
+    {
+        UnitSlot->UpdateSlot(InCost);
+    }
+}
+
 void UUnitPanelWidget::NativeConstruct()
 {
     Super::NativeConstruct();

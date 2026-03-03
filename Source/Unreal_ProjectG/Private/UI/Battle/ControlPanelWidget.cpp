@@ -7,6 +7,7 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
 #include "UI/Battle/BarWidget.h"
+#include "UI/Battle/UnitPanelWidget.h"
 #include "UI/Battle/ActiveSkillWidget.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "Interfaces/JoysticInput.h"
@@ -25,6 +26,7 @@ void UControlPanelWidget::UpdateMaxHeroHP(float InValue)
 void UControlPanelWidget::UpdateCost(float InValue)
 {
     CostBar->UpdateCurrent(InValue);
+    UnitPanel->UpdateAllSlots(InValue);
 }
 
 void UControlPanelWidget::UpdateMaxCost(float InValue)

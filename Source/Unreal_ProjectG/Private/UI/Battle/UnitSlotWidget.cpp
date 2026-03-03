@@ -6,6 +6,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "Character/Hero/HeroCharacter.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -23,6 +24,11 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     UnitImage->SetBrushFromTexture(UnitData->UnitImage);
 }
 
+void UUnitSlotWidget::UpdateSlot(float InCost)
+{
+    UnitButton->SetIsEnabled(InCost >= UnitData->UnitCost);
+}
+
 void UUnitSlotWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -37,17 +43,21 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 {
     if (!UnitData || !UnitData->UnitClass)
     {
-        UE_LOG(LogTemp, Warning, TEXT("UnitData or UnitClass is null!"));
+        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없습니다."));
         return;
     }
 
-    FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
-    FRotator SpawnRotation = FRotator::ZeroRotator;
-    FActorSpawnParameters SpawnParams;
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    if (Hero->ConsumeCost(UnitData->UnitCost))
+    {
+        FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
+        FRotator SpawnRotation = FRotator::ZeroRotator;
+        FActorSpawnParameters SpawnParams;
 
-    // 유닛 스폰
-    GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, SpawnLocation, SpawnRotation, SpawnParams);
+        // 유닛 스폰
+        GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, SpawnLocation, SpawnRotation, SpawnParams);
 
-    UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %s"), *UnitData->UnitClass->GetName());
+        UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %s"), *UnitData->UnitClass->GetName());
+    }
 }
 

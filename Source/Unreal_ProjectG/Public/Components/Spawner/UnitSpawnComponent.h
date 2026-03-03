@@ -34,7 +34,7 @@ protected:
     //TArray<FUnitSpawnInfo> SpawnList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    float SpawnInterval = 3.0f;
+    float SpawnInterval = 0.0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     bool bLoopSpawning = true;

@@ -107,7 +107,7 @@ void UUnitSpawnComponent::SpawnRandomUnit()
 
 void UUnitSpawnComponent::StartWave()
 {
-    SpawnInterval = 2.0f;
+    SpawnInterval = 4.0f;
 
     if (GetWorld())
     {

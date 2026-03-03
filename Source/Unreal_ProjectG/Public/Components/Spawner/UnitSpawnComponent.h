@@ -6,7 +6,7 @@
 
 class AUnitCharacter;
 class UDataAsset_UnitStartupData;
-
+class UDA_StageUnitListDataAsset;
 
 USTRUCT(BlueprintType)
 struct FUnitSpawnInfo
@@ -34,11 +34,14 @@ protected:
 public:
     void SpawnRandomUnit();
 
+    UFUNCTION(BlueprintCallable, Category = "Wave")
+    void StartWave();
+
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void SetAttackTarget(AActor* InTargetActor);
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    TArray<FUnitSpawnInfo> SpawnList;
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
+    //TArray<FUnitSpawnInfo> SpawnList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     float SpawnInterval = 3.0f;
@@ -47,10 +50,18 @@ protected:
     bool bLoopSpawning = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    int32 PoolSize = 10;
+    int32 PoolSize = 5;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     TObjectPtr<AActor> AttackTarget;
-private:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    UDA_StageUnitListDataAsset* StageUnitDataAsset;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    int32 CurrentStageIndex = 0;
+
     FTimerHandle SpawnTimerHandle;
+
+
 };

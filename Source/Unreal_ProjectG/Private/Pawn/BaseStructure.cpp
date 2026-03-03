@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameplayEffectTypes.h"
+#include "Character/Unit/SubSystem/UnitSubsystem.h"
 
 
 ABaseStructure::ABaseStructure()
@@ -23,8 +24,10 @@ ABaseStructure::ABaseStructure()
     //MeshComp->SetCollisionProfileName(TEXT("NoCollision")); 
 
     // 3. GAS 컴포넌트 생성
-    PGAbilitySystemComponent->SetIsReplicated(true);
-    
+    if (PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent->SetIsReplicated(true);
+    }
     //// 4. 공격 사거리 스피어 생성
     //AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
     //AttackRangeSphere->SetupAttachment(RootComponent);
@@ -36,6 +39,12 @@ ABaseStructure::ABaseStructure()
 void ABaseStructure::BeginPlay()
 {
     Super::BeginPlay();
+
+
+    if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+    {
+        Subsystem->RegisterUnit(this, TeamTag);
+    }
 
     if (PGAbilitySystemComponent)
     {
@@ -59,12 +68,14 @@ void ABaseStructure::BeginPlay()
     PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
         CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
 
+
+
     //// 오버랩 이벤트
     //AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeBeginOverlap);
     //AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeEndOverlap);
 
     // 공격 타이머 시작 (AttackRate 초마다 ProcessAttack 실행)
-    GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseStructure::ProcessAttack, AttackRate, true);
+    //GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseStructure::ProcessAttack, AttackRate, true);
 }
 
 // 사거리에 누군가 들어왔을 때

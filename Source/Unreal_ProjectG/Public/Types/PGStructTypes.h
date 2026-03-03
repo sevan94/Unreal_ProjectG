@@ -13,7 +13,6 @@ class UDataAsset_SkillData;
 /**
  * 
  */
-
 USTRUCT(BlueprintType)
 struct FAbilityEntry
 {
@@ -54,17 +53,14 @@ struct FPGHeroWeaponData
 
     //// 무기 스킬 어빌리티 들
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<FAbilityEntry> WeaponSkillAbilityEntries;
+    TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillAbilityList;
 
     // // 무기 스킬 어빌리티들
     // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     // TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
-
-    // 무기 아이콘 텍스처
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    TSoftObjectPtr<UTexture2D> SoftWeaponIconTexture;
-    TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillAbilities;
 };
+
+
 
 //// 방어구 데이터 구조체
 //USTRUCT(BlueprintType)

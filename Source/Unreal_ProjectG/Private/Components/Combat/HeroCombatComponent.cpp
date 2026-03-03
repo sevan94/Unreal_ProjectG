@@ -48,8 +48,17 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
             ASC->GrantHeroWeaponBasicAttackAbility(BasicAttackData->AbilityEntry, 1, GrantedBaseAttackAbilitySpecHandle);
         }
         
-        // 스킬 어빌리티 핸들 반환
-        TArray<FAbilityEntry> SkillAbilityEntries = InWeaponData->GetHeroWeaponData().WeaponSkillAbilityEntries;
+        TArray<FAbilityEntry> SkillAbilityEntries;
+        SkillAbilityEntries.Empty();
+        for (const TSoftObjectPtr<UDataAsset_SkillData>& SkillAbilityDataPtr : InWeaponData->GetHeroWeaponData().WeaponSkillAbilityList)
+        {
+            SkillAbilityDataPtr.LoadSynchronous();
+            if (SkillAbilityDataPtr.IsValid())
+            {
+                UDataAsset_SkillData* SkillAbilityData = SkillAbilityDataPtr.Get();
+                SkillAbilityEntries.Add(SkillAbilityData->AbilityEntry);
+            }
+        }
         ASC->GrantHeroWeaponSkillAbilities(SkillAbilityEntries, 1, GrantedSkillAbilitySpecHandles);
     }
 }

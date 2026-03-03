@@ -15,7 +15,7 @@ UCLASS()
 class UNREAL_PROJECTG_API UDataAsset_SkillData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-	
+
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FAbilityEntry AbilityEntry;

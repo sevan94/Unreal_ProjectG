@@ -5,23 +5,11 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayEffectTypes.h"
-#include "ScalableFloat.h"
+#include "Types/PGGasTypes.h"
 #include "DataAsset_ArmorData.generated.h"
 
 class UGameplayEffect;
 class UPGAbilitySystemComponent;
-
-USTRUCT(BlueprintType)
-struct FArmorModifierEntry
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FGameplayAttribute Attribute;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FScalableFloat ModifierValue;
-};
 /**
  * 
  */
@@ -40,5 +28,5 @@ public:
     FGameplayTag SetTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    TArray<FArmorModifierEntry> AttributeModifiers;
+    TArray<FPGAttributeModifierEntry> AttributeModifiers;
 };

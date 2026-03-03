@@ -6,6 +6,11 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Components/Combat/PawnCombatComponent.h"
 
+UPGGameplayAbility::UPGGameplayAbility()
+{
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
 void UPGGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnGiveAbility(ActorInfo, Spec);

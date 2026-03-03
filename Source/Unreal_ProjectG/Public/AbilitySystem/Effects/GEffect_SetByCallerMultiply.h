@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
-#include "GEffect_MasterArmorStatus.generated.h"
+#include "GEffect_SetByCallerMultiply.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API UGEffect_MasterArmorStatus : public UGameplayEffect
+class UNREAL_PROJECTG_API UGEffect_SetByCallerMultiply : public UGameplayEffect
 {
 	GENERATED_BODY()
-	
+
 public:
-    UGEffect_MasterArmorStatus();
+    UGEffect_SetByCallerMultiply();
 };

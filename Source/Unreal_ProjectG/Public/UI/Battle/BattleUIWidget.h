@@ -11,6 +11,7 @@ class UButton;
 class UImage;
 class UControlPanelWidget;
 class UWidgetAnimation;
+class APGBaseGameMode;
 
 /**
  * 
@@ -58,6 +59,9 @@ protected:
     // 컨트롤 패널 위젯
     UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (BindWidget))
     TObjectPtr<UControlPanelWidget> ControlPanel;
+
+    // 게임 모드
+    TObjectPtr<APGBaseGameMode> PGGameMode;
 
     // 자동 모드 확인 변수
     UPROPERTY(BlueprintReadWrite)

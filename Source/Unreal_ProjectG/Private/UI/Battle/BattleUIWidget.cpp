@@ -6,10 +6,13 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
+#include "Mode/PGBaseGameMode.h"
 
 void UBattleUIWidget::NativeConstruct()
 {
     Super::NativeConstruct();
+
+    PGGameMode = Cast<APGBaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
     if (PlaySpeedButton)
     {
@@ -25,20 +28,19 @@ void UBattleUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    // 배속 수치를 가져옴
-    float CurrentDilatedTime = UGameplayStatics::GetGlobalTimeDilation(GetWorld());
-
-    // 플레이 타임 누적
-    ElapsedPlayTime += InDeltaTime * CurrentDilatedTime;
-
-    int32 TotalSeconds = FMath::FloorToInt(ElapsedPlayTime);
-    int32 Minutes = TotalSeconds / 60;
-    int32 Seconds = TotalSeconds % 60;
-
-    if (PlayTimeText)
+    if (PGGameMode)
     {
-        FString TimeString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
-        PlayTimeText->SetText(FText::FromString(TimeString));
+        float CurrentPlayTime = PGGameMode->GetCurrentPlayTime();
+
+        int32 TotalSeconds = FMath::FloorToInt(CurrentPlayTime);
+        int32 Minutes = TotalSeconds / 60;
+        int32 Seconds = TotalSeconds % 60;
+
+        if (PlayTimeText)
+        {
+            FString TimeString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+            PlayTimeText->SetText(FText::FromString(TimeString));
+        }
     }
 }
 

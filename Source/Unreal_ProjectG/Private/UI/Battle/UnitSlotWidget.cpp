@@ -62,16 +62,17 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                 SpawnBase = Cast<ABaseStructure>(BaseActor);
                 if (SpawnBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
                 {
-                    float RandomRange = FMath::RandRange(-100.0f, 100.0f);
-                    SpawnLocation = FVector(SpawnBase->GetActorLocation().X + 100.0f, SpawnBase->GetActorLocation().Y + RandomRange, 100.0f);
+                    SpawnLocation = SpawnBase->GetActorLocation();
                 }
             }
         }
+        float RandomRange = FMath::RandRange(-100.0f, 100.0f);
+        FVector RandomLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
         FActorSpawnParameters SpawnParams;
 
         // 유닛 스폰
-        GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, SpawnLocation, SpawnRotation, SpawnParams);
+        GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, RandomLocation, SpawnRotation, SpawnParams);
 
         UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %s"), *UnitData->UnitClass->GetName());
     }

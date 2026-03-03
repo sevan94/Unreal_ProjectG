@@ -28,7 +28,7 @@ void UBattleUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    if (PGGameMode)
+    if (PGGameMode.IsValid())
     {
         float CurrentPlayTime = PGGameMode->GetCurrentPlayTime();
 

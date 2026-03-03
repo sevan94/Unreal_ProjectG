@@ -61,7 +61,7 @@ protected:
     TObjectPtr<UControlPanelWidget> ControlPanel;
 
     // 게임 모드
-    TObjectPtr<APGBaseGameMode> PGGameMode;
+    TWeakObjectPtr<APGBaseGameMode> PGGameMode;
 
     // 자동 모드 확인 변수
     UPROPERTY(BlueprintReadWrite)

@@ -21,10 +21,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     TSubclassOf<AUnitCharacter> UnitClass;
 
-    // 유닛 스테이터스
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    TSubclassOf<UDataAsset_UnitStartupData> UnitData;
-
     // 유닛 버튼 이미지
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     TObjectPtr<UTexture2D> UnitImage;
@@ -32,6 +28,10 @@ public:
     // 유닛 이름
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     FName UnitName;
+
+    // 유닛 스테이터스 식별용 이름
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
+    FString UnitStatus;
 
     // 유닛 코스트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")

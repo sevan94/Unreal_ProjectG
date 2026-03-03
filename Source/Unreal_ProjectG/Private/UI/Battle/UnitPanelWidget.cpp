@@ -3,6 +3,7 @@
 
 #include "UI/Battle/UnitPanelWidget.h"
 #include "UI/Battle/UnitSlotWidget.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UUnitPanelWidget::UpdateAllSlots(float InCost)
 {
@@ -23,6 +24,20 @@ void UUnitPanelWidget::NativeConstruct()
     if (UnitSlot3) SlotArray.Add(UnitSlot3);
     if (UnitSlot4) SlotArray.Add(UnitSlot4);
     if (UnitSlot5) SlotArray.Add(UnitSlot5);
+
+    // --- [저장된 유닛 데이터 로드] ---
+    if (UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()))
+    {
+        UnitDataList.Empty();
+        for (const TSoftObjectPtr<UUnitUIDataAsset>& UnitSoftPtr : GI->CurrentUnits)
+        {
+            // SoftObjectPtr을 실제 에셋 포인터로 로드
+            if (UUnitUIDataAsset* LoadedData = UnitSoftPtr.LoadSynchronous())
+            {
+                UnitDataList.Add(LoadedData);
+            }
+        }
+    }
 
     SetUnitSlot();
 }

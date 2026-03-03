@@ -54,11 +54,10 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
 
 void UActiveSkillWidget::OnCoolDownTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-    float CoolTimeRemaining = AbilityObject->GetCooldownTimeRemaining();
     bool bIsTimerActive = GetWorld()->GetTimerManager().IsTimerActive(CoolTimeTimerHandle);
 
     // 쿨타임이 0보다 크고 타이머가 가동중이지 않을 때
-    if (CoolTimeRemaining > 0 && !bIsTimerActive)
+    if (NewCount > 0 && !bIsTimerActive)
     {
         // 쿨타임 오버레이 표시 및 타이머 시작
         if (CoolTimeOverlay) CoolTimeOverlay->SetVisibility(ESlateVisibility::Visible);
@@ -66,7 +65,7 @@ void UActiveSkillWidget::OnCoolDownTagChanged(const FGameplayTag CallbackTag, in
 
         GetWorld()->GetTimerManager().SetTimer(CoolTimeTimerHandle, this, &UActiveSkillWidget::UpdateCoolTimeProgress, 0.1f, true);
     }
-    else
+    else if(NewCount == 0)
     {
         // 쿨타임 종료 시 오버레이 숨김 및 타이머 정지
         if (CoolTimeOverlay) CoolTimeOverlay->SetVisibility(ESlateVisibility::Collapsed);

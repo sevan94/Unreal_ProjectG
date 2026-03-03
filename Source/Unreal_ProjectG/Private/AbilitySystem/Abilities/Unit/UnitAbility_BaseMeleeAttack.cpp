@@ -6,6 +6,7 @@
 #include "GameplayCueFunctionLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PGFunctionLibrary.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "DataAssets/Ability/AbilityConfig.h"
 
@@ -110,6 +111,7 @@ void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventD
             }
 
             NativeApplyEffectSpecHandleToTarget(TargetActor.Get(), EffectSpecHandle);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor.Get(), PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
         }
     }
 }

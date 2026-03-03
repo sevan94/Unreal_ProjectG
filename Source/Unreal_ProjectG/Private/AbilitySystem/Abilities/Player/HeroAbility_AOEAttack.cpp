@@ -9,10 +9,27 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGFunctionLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
+#include "DataAssets/Ability/AbilityConfig.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UAOEAttackAbilityConfig* Data = Cast<UAOEAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (Data)
+    {
+        AOEAttackMontage = Data->AbilityMontage;
+        AOEAttackSkillMultiplier = Data->DamageMultiplier;
+        AOEImpactCueTag = Data->AOEImpactCueTag;
+        AOEAttackRadius = Data->AOEAttackRadius;
+        MaxHitTargets = Data->MaxHitTargets;
+    }
 }
 
 //void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -88,6 +105,7 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
         if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
             NativeApplyEffectSpecHandleToTarget(HitActor, EffectSpecHandle);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
         }
     }
 }

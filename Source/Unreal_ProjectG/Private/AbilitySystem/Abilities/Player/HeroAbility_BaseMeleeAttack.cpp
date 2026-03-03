@@ -12,6 +12,8 @@
 #include "TimerManager.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "PGFunctionLibrary.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
 #include "DataAssets/Ability/AbilityConfig.h"
 
 UHeroAbility_BaseMeleeAttack::UHeroAbility_BaseMeleeAttack()
@@ -177,6 +179,9 @@ void UHeroAbility_BaseMeleeAttack::HandleApplyDamage(AActor* InTargetActor)
     NativeApplyEffectSpecHandleToTarget(InTargetActor, EffectSpecHandle);
     CurrentHitTargets++;
     HitActors.Add(InTargetActor);
+
+    // 히트된 액터에게 히트 반응 이벤트 전송
+    UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(InTargetActor, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
 }
 
 void UHeroAbility_BaseMeleeAttack::OnMontageFinished()

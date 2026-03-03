@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
 #include "AbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
+#include "PGFunctionLibrary.h"
 
 void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -43,8 +44,9 @@ void USharedAbility_BuffAura::EndAbility(const FGameplayAbilitySpecHandle Handle
 
 void USharedAbility_BuffAura::OnAuraBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    // 전방 검사
+    // 이미 버프가 적용된 액터이거나, 적대적인 대상이 아니라면 무시
     if (ActiveBuffsOnTargets.Contains(OtherActor)) return;
+    if (!UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), OtherActor)) return;
 
     ApplyBuffAuraEffectToTarget(OtherActor);
 }

@@ -13,5 +13,8 @@ UCLASS()
 class UNREAL_PROJECTG_API UUnitCombatComponent : public UPawnCombatComponent
 {
 	GENERATED_BODY()
-	
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<UAnimMontage*> BasicAttackMontages;
 };

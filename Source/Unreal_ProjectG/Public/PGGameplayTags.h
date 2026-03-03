@@ -28,6 +28,7 @@ namespace PGGameplayTags
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_ActorSpawn);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_MeleeHit);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_AOEExecute);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_HitReact); // 히트 리액트 이벤트 태그
 
     // 공유 SetByCaller 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_DamageMultiplier);

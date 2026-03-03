@@ -36,7 +36,7 @@ void FAttributeModEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHand
     if (ModifierOpHandle.IsValid())
     {
         ChildBuilder.AddProperty(ModifierOpHandle.ToSharedRef())
-            .DisplayName(FText::FromString(TEXT("모딮파이어 작동")));
+            .DisplayName(FText::FromString(TEXT("모디파이어 작동")));
     }
 
     if (ModifierValueHandle.IsValid())

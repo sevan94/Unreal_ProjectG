@@ -57,6 +57,12 @@ protected:
     // 마우스 버튼 클릭 해제 시
     virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+private:
+    // 영웅 바인딩 함수
+    void BindHero();
+
+    // 기지 바인딩 함수
+    void BindBase();
 
 protected:
     TObjectPtr<AHeroCharacter> HeroCharacter = nullptr;

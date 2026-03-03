@@ -11,10 +11,10 @@ void UBattleUIWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    if (PlaySpeedButton && AutoButton)
+    if (PlaySpeedButton)
     {
         PlaySpeedButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnSpeedButtonClicked);
-        AutoButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnAutoButtonClicked);
+        //AutoButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnAutoButtonClicked);
     }
 
     // 초기 텍스트 설정
@@ -69,17 +69,15 @@ void UBattleUIWidget::OnSpeedButtonClicked()
     UE_LOG(LogTemp, Log, TEXT("Current Game Speed: %.1fx"), SpeedValues[CurrentSpeedIndex]);
 }
 
-void UBattleUIWidget::OnAutoButtonClicked()
-{
-    bIsAuto = !bIsAuto;
-    if (bIsAuto)
-    {
-        PlayAnimation(ControlPanelMoveAnim2, 0.0f, 1, EUMGSequencePlayMode::Forward);
-        AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
-    }
-    else
-    {
-        PlayAnimation(ControlPanelMoveAnim2, 0.0f, 1, EUMGSequencePlayMode::Reverse);
-        AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
-    }
-}
+//void UBattleUIWidget::OnAutoButtonClicked()
+//{
+//    bIsAuto = !bIsAuto;
+//    if (bIsAuto)
+//    {
+//        AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
+//    }
+//    else
+//    {
+//        AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
+//    }
+//}

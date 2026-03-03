@@ -45,7 +45,7 @@ public:
     int32 SlotIndex;
 
     // 현재 슬롯에 담긴 데이터
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Data")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
     TObjectPtr<UUnitUIDataAsset> CurrentUnitData;
 
 

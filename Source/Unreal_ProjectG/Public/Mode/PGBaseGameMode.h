@@ -18,23 +18,23 @@ class UNREAL_PROJECTG_API APGBaseGameMode : public AGameModeBase
 public:
     APGBaseGameMode();
 
-    // --- [1] 인구수 제한  ---
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UnitCount")
-    int32 MAX_ALLY_COUNT = 15; //아군
+    //// --- [1] 인구수 제한  ---
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UnitCount")
+    //int32 MAX_ALLY_COUNT = 15; //아군
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UnitCount")
-    int32 MAX_ENEMY_COUNT = 15; //적군
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UnitCount")
+    //int32 MAX_ENEMY_COUNT = 15; //적군
 
-    //현재 유닛 수 확인
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GameRule")
-    int32 CurrentAllyCount = 0;
+    ////현재 유닛 수 확인
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GameRule")
+    //int32 CurrentAllyCount = 0;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GameRule")
-    int32 CurrentEnemyCount = 0;
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GameRule")
+    //int32 CurrentEnemyCount = 0;
 
-    bool CanSpawnUnit(ETeamType Team);
+   /* bool CanSpawnUnit(ETeamType Team);
     void RegisterUnit(ETeamType Team);
-    void UnregisterUnit(ETeamType Team);
+    void UnregisterUnit(ETeamType Team);*/
 
     // ---  클리어 등급 설정 (시간 제한) ---
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule|Grade")

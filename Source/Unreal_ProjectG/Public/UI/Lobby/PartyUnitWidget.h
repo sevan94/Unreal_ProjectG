@@ -27,6 +27,7 @@ public:
     // 교체 유도 오버레이 제어
     void ShowReplaceOverlay(bool bVisible);
 
+    UUnitUIDataAsset* GetUnitData() const { return CurrentUnitData; }
 protected:
     virtual void NativeConstruct() override;
 

@@ -35,33 +35,33 @@ void APGBaseGameMode::BeginPlay()
     }
 }
 
-// --- 인구수 제한 로직 ---
-bool APGBaseGameMode::CanSpawnUnit(ETeamType Team)
-{
-    if (Team == ETeamType::Ally)
-    {
-        // 아군 유닛이 MAX 미만일 때만 스폰 가능
-        return CurrentAllyCount < MAX_ALLY_COUNT;
-    }
-    else if (Team == ETeamType::Enemy)
-    {
-        // 적군 유닛이 MAX 미만일 때만 스폰 가능
-        return CurrentEnemyCount < MAX_ENEMY_COUNT;
-    }
-    return true;
-}
-
-void APGBaseGameMode::RegisterUnit(ETeamType Team)
-{
-    if (Team == ETeamType::Ally) CurrentAllyCount++;
-    else if (Team == ETeamType::Enemy) CurrentEnemyCount++;
-}
-
-void APGBaseGameMode::UnregisterUnit(ETeamType Team)
-{
-    if (Team == ETeamType::Ally) CurrentAllyCount = FMath::Max(0, CurrentAllyCount - 1);
-    else if (Team == ETeamType::Enemy) CurrentEnemyCount = FMath::Max(0, CurrentEnemyCount - 1);
-}
+//// --- 인구수 제한 로직 ---
+//bool APGBaseGameMode::CanSpawnUnit(ETeamType Team)
+//{
+//    if (Team == ETeamType::Ally)
+//    {
+//        // 아군 유닛이 MAX 미만일 때만 스폰 가능
+//        return CurrentAllyCount < MAX_ALLY_COUNT;
+//    }
+//    else if (Team == ETeamType::Enemy)
+//    {
+//        // 적군 유닛이 MAX 미만일 때만 스폰 가능
+//        return CurrentEnemyCount < MAX_ENEMY_COUNT;
+//    }
+//    return true;
+//}
+//
+//void APGBaseGameMode::RegisterUnit(ETeamType Team)
+//{
+//    if (Team == ETeamType::Ally) CurrentAllyCount++;
+//    else if (Team == ETeamType::Enemy) CurrentEnemyCount++;
+//}
+//
+//void APGBaseGameMode::UnregisterUnit(ETeamType Team)
+//{
+//    if (Team == ETeamType::Ally) CurrentAllyCount = FMath::Max(0, CurrentAllyCount - 1);
+//    else if (Team == ETeamType::Enemy) CurrentEnemyCount = FMath::Max(0, CurrentEnemyCount - 1);
+//}
 
 // --- 시간 및 등급 관리 ---
 float APGBaseGameMode::GetCurrentPlayTime() const

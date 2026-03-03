@@ -88,7 +88,4 @@ public:
     // UI 연동 함수
     void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
     void MaxHealthChange(const FOnAttributeChangeData& Data) const;
-
-    // UI 테스트용 함수
-    void ChangeHP();
 };

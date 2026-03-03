@@ -24,6 +24,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "BattelUI")
     void InitializeSlot(UUnitUIDataAsset* InDataAsset);
 
+    void UpdateSlot(float InCost);
+
 protected:
     // 초기화 및 버튼 이벤트 바인딩
     virtual void NativeConstruct() override;

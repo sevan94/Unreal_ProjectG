@@ -18,9 +18,7 @@ class UNREAL_PROJECTG_API UBaseHpWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable)
-    void InitHPBar(float InCurrent, float InMax);
-
+    void UpdateMaxHP(float InMax);
     void UpdateCurrentHP(float InCurrent);
 	
 protected:
@@ -35,5 +33,4 @@ protected:
 
 private:
     float MaxValue = 1.0f;
-    float CurrentValue = 1.0f;
 };

@@ -104,7 +104,6 @@ void UUnitSpawnComponent::StartWave()
 {
     SpawnInterval = 2.0f;
 
-    // 2. 타이머를 사용해 SpawnRandomUnit 함수를 지정된 간격으로 무한 반복(true) 실행
     if (GetWorld())
     {
         GetWorld()->GetTimerManager().SetTimer(

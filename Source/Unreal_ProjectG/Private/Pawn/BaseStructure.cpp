@@ -139,10 +139,11 @@ UAbilitySystemComponent* ABaseStructure::GetAbilitySystemComponent() const
 
 void ABaseStructure::DestroyBase()
 {
+    //UE_LOG(LogTemp, error, TEXT("Base Destroyed!");
+
     // 이미 파괴된 상태라면 무시
     if (!this->IsValidLowLevel() || IsActorBeingDestroyed()) return;
 
-    UE_LOG(LogTemp, Warning, TEXT("Base Destroyed! Team: %d"), (int32)TeamID);
 
     // 1. 게임 모드에 알림 (승패 판정)
     if (OnBaseDestroyed.IsBound())

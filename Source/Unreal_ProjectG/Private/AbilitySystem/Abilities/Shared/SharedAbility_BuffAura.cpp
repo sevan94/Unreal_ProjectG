@@ -9,6 +9,8 @@
 
 void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+    BuildCachedBuffEffectSpecs();
+
     BuffAuraSphere = NewObject<USphereComponent>(GetAvatarActorFromActorInfo());
     BuffAuraSphere->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
     BuffAuraSphere->SetSphereRadius(BuffAuraRadius);
@@ -17,11 +19,6 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
     // 오버랩 이벤트 바인딩
     BuffAuraSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraBeginOverlap);
     BuffAuraSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraEndOverlap);
-
-    if (bShowDebugSphere)
-    {
-        BuffAuraSphere->ShapeColor = FColor::Green;
-    }
 
     // 오라 범위를 시각적으로 보여주는 데칼 생성
     if (AuraRadiusDecalMaterial)
@@ -79,21 +76,37 @@ void USharedAbility_BuffAura::OnAuraEndOverlap(UPrimitiveComponent* OverlappedCo
 {
     if (ActiveBuffsOnTargets.Contains(OtherActor))
     {
+        // ActiveBuffsOnTargets에 해당 액터가 존재하면 모두 제거
         FActiveGameplayEffectHandle& EffectHandle = ActiveBuffsOnTargets[OtherActor];
         NativeRemoveActiveGameplayEffectFromTarget(OtherActor, EffectHandle);
         ActiveBuffsOnTargets.Remove(OtherActor);
     }
 }
 
+void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
+{
+    CachedBuffEffectSpecs.Empty();
+    for (const TSubclassOf<UGameplayEffect>& EffectClass : BuffAuraEffectClasses)
+    {
+        if (EffectClass)
+        {
+            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, GetAbilityLevel());
+            CachedBuffEffectSpecs.Add(SpecHandle);
+        }
+    }
+}
+
 void USharedAbility_BuffAura::ApplyBuffAuraEffectToTarget(AActor* TargetActor)
 {
-    if (TargetActor && BuffAuraEffectClass)
+    if (TargetActor && CachedBuffEffectSpecs.Num() > 0)
     {
-        FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(BuffAuraEffectClass, GetAbilityLevel());
-        FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
-        if (ActiveEffectHandle.IsValid())
+        for (const FGameplayEffectSpecHandle& SpecHandle : CachedBuffEffectSpecs)
         {
-            ActiveBuffsOnTargets.Add(TargetActor, ActiveEffectHandle);
+            FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
+            if (ActiveEffectHandle.IsValid())
+            {
+                ActiveBuffsOnTargets.Add(TargetActor, ActiveEffectHandle);
+            }
         }
     }
 }

@@ -7,6 +7,8 @@
 #include "Types/PGGasTypes.h"
 #include "SharedAbility_BuffAura.generated.h"
 
+
+
 /**
  * 
  */
@@ -28,18 +30,19 @@ private:
     void OnAuraBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
     UFUNCTION()
     void OnAuraEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+private:
+    void BuildCachedBuffEffectSpecs();
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
-    TSubclassOf<UGameplayEffect> BuffAuraEffectClass;
+    TArray<TSubclassOf<UGameplayEffect>> BuffAuraEffectClasses;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
     float BuffAuraRadius;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
     TObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Debug")
-    bool bShowDebugSphere = false;
 
 private:
     UPROPERTY()
@@ -50,4 +53,7 @@ private:
 
     UPROPERTY()
     TMap<AActor*, FActiveGameplayEffectHandle> ActiveBuffsOnTargets;
+
+    // 적용할 이펙트 스펙핸들 캐싱
+    TArray<FGameplayEffectSpecHandle> CachedBuffEffectSpecs;
 };

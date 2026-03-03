@@ -41,7 +41,7 @@ public:
 
     // 타겟 액터가 적대적인지 확인하는 함수
     UFUNCTION(BlueprintCallable, Category = "ProjectG|FunctionLibrary")
-    static bool IsTargetCharacterIsHostile(AActor* InInstigator, AActor* InTargetActor);
+    static bool IsTargetCharacterHostile(AActor* InInstigator, AActor* InTargetActor);
 
     // Map<Attribute, FGameplayTag>로 등록된 전체 매핑 반환 (Effect 초기화용)
     static const TMap<FGameplayAttribute, FGameplayTag>& GetAttributeTagMap();

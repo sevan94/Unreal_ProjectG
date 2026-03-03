@@ -51,7 +51,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
         {
             break;
         }
-        if(UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitResult.GetActor()))
+        if(UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitResult.GetActor()))
         {
             CachedTargetActors.AddUnique(HitResult.GetActor());
             CurrentHitTargets++;

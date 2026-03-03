@@ -83,7 +83,7 @@ void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
 void APGProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     // 오버랩한 액터가 같은 팀이면 무시
-    if(!UPGFunctionLibrary::IsTargetCharacterIsHostile(GetInstigator(), OtherActor))
+    if(!UPGFunctionLibrary::IsTargetCharacterHostile(GetInstigator(), OtherActor))
     {
         return;
     }

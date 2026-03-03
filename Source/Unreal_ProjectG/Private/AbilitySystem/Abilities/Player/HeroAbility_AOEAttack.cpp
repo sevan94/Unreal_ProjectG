@@ -102,7 +102,7 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
 
     for (AActor* HitActor : HitActors)
     {
-        if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
+        if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
             NativeApplyEffectSpecHandleToTarget(HitActor, EffectSpecHandle);
             UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());

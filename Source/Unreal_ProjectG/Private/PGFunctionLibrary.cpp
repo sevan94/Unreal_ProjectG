@@ -59,9 +59,9 @@ bool UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InIn
     return ActivateGameplayEffectHandle.WasSuccessfullyApplied();
 }
 
-bool UPGFunctionLibrary::IsTargetCharacterIsHostile(AActor* InInstigator, AActor* InTargetActor)
+bool UPGFunctionLibrary::IsTargetCharacterHostile(AActor* InInstigator, AActor* InTargetActor)
 {
-    // 일단은 두 태그가 다르면 적대 관계로 간주
+    // 두 태그가 다르면 적대 관계로 간주
     APGCharacterBase* InstigatorCharacter = Cast<APGCharacterBase>(InInstigator);
     APGCharacterBase* TargetCharacter = Cast<APGCharacterBase>(InTargetActor);
 

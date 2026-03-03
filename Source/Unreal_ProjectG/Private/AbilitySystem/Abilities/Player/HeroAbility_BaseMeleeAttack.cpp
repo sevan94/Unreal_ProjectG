@@ -140,7 +140,7 @@ void UHeroAbility_BaseMeleeAttack::PerformWeaponTrace()
     {
         AActor* HitActor = OutHit.GetActor();
         
-        if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
+        if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
             if (HitActor && HitActor != GetAvatarActorFromActorInfo())
             {

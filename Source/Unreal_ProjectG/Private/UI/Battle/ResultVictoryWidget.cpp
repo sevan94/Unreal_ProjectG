@@ -8,7 +8,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-void UResultVictoryWidget::ShowResult(FBattleResultData& ResultData)
+void UResultVictoryWidget::ShowResult(const FBattleResultData& ResultData)
 {
     // 플레이 타임 표시
     int32 Minutes = FMath::FloorToInt(ResultData.TotalPlayTime / 60.0f);

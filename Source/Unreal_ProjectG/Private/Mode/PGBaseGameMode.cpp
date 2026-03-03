@@ -95,7 +95,7 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         else Result.StarCount = 1;
 
         // 아군 기지 체력 계산
-        if (AllyBase) Result.RemainingHealthPercent = BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth();
+        if (AllyBase) Result.RemainingHealthPercent = (BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth()) * 100.0f;
     }
 
     // 결과 UI 호출 (BP_GameMode에서 위젯 생성)

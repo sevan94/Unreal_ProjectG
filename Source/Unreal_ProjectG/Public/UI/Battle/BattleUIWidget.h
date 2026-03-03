@@ -36,7 +36,7 @@ protected:
     //void OnAutoButtonClicked();
 
     UFUNCTION(BlueprintCallable)
-    void ShowGameResult(FBattleResultData& ResultData);
+    void ShowGameResult(const FBattleResultData& ResultData);
 	
 protected:
     // 플레이타임 텍스트

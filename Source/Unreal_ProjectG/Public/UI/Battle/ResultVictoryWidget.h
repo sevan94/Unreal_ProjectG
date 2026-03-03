@@ -20,7 +20,7 @@ class UNREAL_PROJECTG_API UResultVictoryWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void ShowResult(FBattleResultData& ResultData);
+    void ShowResult(const FBattleResultData& ResultData);
 
 protected:
     virtual void NativeConstruct() override;

@@ -194,6 +194,7 @@ bool AHeroCharacter::ConsumeCost(float InCost)
 {
     if (CharacterAttributeSet)
     {
+        float CurrentCost = CharacterAttributeSet->GetCost();
         CharacterAttributeSet->SetCost(CurrentCost - InCost);
         if (UWorld* World = GetWorld())
         {

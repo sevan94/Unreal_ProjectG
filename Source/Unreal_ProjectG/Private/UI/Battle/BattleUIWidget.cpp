@@ -74,7 +74,7 @@ void UBattleUIWidget::OnSpeedButtonClicked()
     UE_LOG(LogTemp, Log, TEXT("Current Game Speed: %.1fx"), SpeedValues[CurrentSpeedIndex]);
 }
 
-void UBattleUIWidget::ShowGameResult(FBattleResultData& ResultData)
+void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
 {
     if (ResultData.bIsVictory)
     {

@@ -10,6 +10,7 @@
 class UImage;
 class UBarWidget;
 class UBaseHpWidget;
+class UUnitPanelWidget;
 class UActiveSkillWidget;
 class AHeroCharacter;
 
@@ -56,6 +57,12 @@ protected:
     // 마우스 버튼 클릭 해제 시
     virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+private:
+    // 영웅 바인딩 함수
+    void BindHero();
+
+    // 기지 바인딩 함수
+    void BindBase();
 
 protected:
     TObjectPtr<AHeroCharacter> HeroCharacter = nullptr;
@@ -90,6 +97,9 @@ protected:
     // 액티브 스킬
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UActiveSkillWidget> WeaponSkill;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UUnitPanelWidget> UnitPanel;
     
 private:
     // 내부 변수

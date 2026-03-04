@@ -6,36 +6,32 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameplayEffectTypes.h"
+#include "Character/Unit/SubSystem/UnitSubsystem.h"
 
 
 ABaseStructure::ABaseStructure()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    //// 1. 캡슐 컴포넌트 설정 (루트)
-    //CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-    //SetRootComponent(CapsuleComp);
-    //CapsuleComp->SetCollisionProfileName(TEXT("Pawn")); 
-
-    //// 2. 메쉬 설정
-    //MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-    //MeshComp->SetupAttachment(RootComponent);
-    //MeshComp->SetCollisionProfileName(TEXT("NoCollision")); 
 
     // 3. GAS 컴포넌트 생성
-    PGAbilitySystemComponent->SetIsReplicated(true);
-    
-    //// 4. 공격 사거리 스피어 생성
-    //AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
-    //AttackRangeSphere->SetupAttachment(RootComponent);
-    //AttackRangeSphere->SetSphereRadius(800.0f); // 기본 사거리
-    //AttackRangeSphere->SetCollisionProfileName(TEXT("Trigger")); // 감지 전용
+    if (PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent->SetIsReplicated(true);
+    }
 }
+
 
 
 void ABaseStructure::BeginPlay()
 {
     Super::BeginPlay();
+
+
+    if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+    {
+        Subsystem->RegisterUnit(this, TeamTag);
+    }
 
     if (PGAbilitySystemComponent)
     {
@@ -59,12 +55,14 @@ void ABaseStructure::BeginPlay()
     PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
         CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
 
+
+
     //// 오버랩 이벤트
     //AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeBeginOverlap);
     //AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeEndOverlap);
 
     // 공격 타이머 시작 (AttackRate 초마다 ProcessAttack 실행)
-    GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseStructure::ProcessAttack, AttackRate, true);
+    //GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABaseStructure::ProcessAttack, AttackRate, true);
 }
 
 // 사거리에 누군가 들어왔을 때
@@ -128,10 +126,11 @@ UAbilitySystemComponent* ABaseStructure::GetAbilitySystemComponent() const
 
 void ABaseStructure::DestroyBase()
 {
+    //UE_LOG(LogTemp, error, TEXT("Base Destroyed!");
+
     // 이미 파괴된 상태라면 무시
     if (!this->IsValidLowLevel() || IsActorBeingDestroyed()) return;
 
-    UE_LOG(LogTemp, Warning, TEXT("Base Destroyed! Team: %d"), (int32)TeamID);
 
     // 1. 게임 모드에 알림 (승패 판정)
     if (OnBaseDestroyed.IsBound())
@@ -143,6 +142,12 @@ void ABaseStructure::DestroyBase()
     Destroy();
 }
 
+void ABaseStructure::OnDie()
+{
+    DestroyBase();
+}
+
+
 void ABaseStructure::CurrentHealthChange(const FOnAttributeChangeData& Data) const
 {
     OnBaseHpChanged.Broadcast(TeamTag, Data.NewValue);
@@ -151,3 +156,4 @@ void ABaseStructure::MaxHealthChange(const FOnAttributeChangeData& Data) const
 {
     OnBaseMaxHpChanged.Broadcast(TeamTag, Data.NewValue);
 }
+

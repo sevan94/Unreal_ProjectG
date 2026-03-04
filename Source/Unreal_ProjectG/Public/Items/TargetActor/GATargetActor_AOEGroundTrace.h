@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 #include "GATargetActor_AOEGroundTrace.generated.h"
-
 class USphereComponent;
 /**
  * 

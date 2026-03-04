@@ -7,10 +7,14 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
 #include "UI/Battle/BarWidget.h"
+#include "UI/Battle/BaseHpWidget.h"
+#include "UI/Battle/UnitPanelWidget.h"
 #include "UI/Battle/ActiveSkillWidget.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "Interfaces/JoysticInput.h"
 #include "Components/Combat/PawnCombatComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Pawn/BaseStructure.h"
 
 void UControlPanelWidget::UpdateHeroHP(float InValue)
 {
@@ -25,6 +29,7 @@ void UControlPanelWidget::UpdateMaxHeroHP(float InValue)
 void UControlPanelWidget::UpdateCost(float InValue)
 {
     CostBar->UpdateCurrent(InValue);
+    UnitPanel->UpdateAllSlots(InValue);
 }
 
 void UControlPanelWidget::UpdateMaxCost(float InValue)
@@ -34,11 +39,26 @@ void UControlPanelWidget::UpdateMaxCost(float InValue)
 
 void UControlPanelWidget::UpdateBaseHP(FGameplayTag TeamTag, float InValue)
 {
-    
+    if (TeamTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+    {
+        PlayerHP->UpdateCurrentHP(InValue);
+    }
+    else if (TeamTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
+    {
+        EnemyHP->UpdateCurrentHP(InValue);
+    }
 }
 
 void UControlPanelWidget::UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue)
 {
+    if (TeamTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+    {
+        PlayerHP->UpdateMaxHP(InValue);
+    }
+    else if (TeamTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
+    {
+        EnemyHP->UpdateMaxHP(InValue);
+    }
 }
 
 void UControlPanelWidget::SetAbilitySpecHandle()
@@ -61,21 +81,9 @@ void UControlPanelWidget::NativeConstruct()
 
     HeroCharacter = Cast<AHeroCharacter>(GetOwningPlayerPawn());
 
-    if (HeroCharacter)
-    {
-        HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHeroHP);
-        HeroCharacter->OnHeroMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxHeroHP);
-        HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
-        HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
-
-        // 영웅 무기 스킬 어빌리티 설정
-        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-        if (!SpecHandleArray.IsEmpty())
-        {
-            //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-            WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
-        }
-    }
+    // 영웅 및 기지 바인딩
+    BindBase();
+    BindHero();
 
     if (HPIcon && CostIcon)
     {
@@ -190,4 +198,44 @@ FReply UControlPanelWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, c
         return FReply::Handled().ReleaseMouseCapture();
     }
     return FReply::Unhandled();
+}
+
+void UControlPanelWidget::BindHero()
+{
+    if (HeroCharacter)
+    {
+        HeroCharacter->OnHeroHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateHeroHP);
+        HeroCharacter->OnHeroMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxHeroHP);
+        HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
+        HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
+
+        // 영웅 무기 스킬 어빌리티 설정
+        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+        if (!SpecHandleArray.IsEmpty())
+        {
+            //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+            WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+        }
+    }
+}
+
+void UControlPanelWidget::BindBase()
+{
+    TArray<AActor*> FoundBases;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
+
+    for (AActor* BaseActor : FoundBases)
+    {
+        ABaseStructure* Base = Cast<ABaseStructure>(BaseActor);
+        if (Base)
+        {
+            // 기지의 델리게이트에 UI 업데이트 함수 연결
+            Base->OnBaseHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateBaseHP);
+            Base->OnBaseMaxHpChanged.AddDynamic(this, &UControlPanelWidget::UpdateBaseMaxHP);
+
+            // 초기 값 설정을 위해 수동으로 한 번 호출
+            UpdateBaseHP(Base->GetTeamTag(), Base->GetPGCharacterAttributeSet()->GetHealth());
+            UpdateBaseMaxHP(Base->GetTeamTag(), Base->GetPGCharacterAttributeSet()->GetMaxHealth());
+        }
+    }
 }

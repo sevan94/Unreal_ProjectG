@@ -42,7 +42,19 @@ protected:
 
     // 유닛 공격력
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> UnitAttackPower;
+    TObjectPtr<UTextBlock> UnitAttackDamage;
+
+    // 유닛 공격 속도
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitAttackSpeed;
+
+    // 유닛 이동속도
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitMoveSpeed;
+
+    // 유닛 코스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitCost;
 
     // GE 수치를 읽기 위한 커브 테이블 (에디터에서 할당)
     UPROPERTY(EditDefaultsOnly, Category = "Data")

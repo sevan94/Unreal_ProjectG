@@ -6,6 +6,9 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "Character/Hero/HeroCharacter.h"
+#include "Pawn/BaseStructure.h"
+#include "Kismet/GameplayStatics.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -23,6 +26,11 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     UnitImage->SetBrushFromTexture(UnitData->UnitImage);
 }
 
+void UUnitSlotWidget::UpdateSlot(float InCost)
+{
+    UnitButton->SetIsEnabled(InCost >= UnitData->UnitCost);
+}
+
 void UUnitSlotWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -37,17 +45,36 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 {
     if (!UnitData || !UnitData->UnitClass)
     {
-        UE_LOG(LogTemp, Warning, TEXT("UnitData or UnitClass is null!"));
+        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없습니다."));
         return;
     }
 
-    FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
-    FRotator SpawnRotation = FRotator::ZeroRotator;
-    FActorSpawnParameters SpawnParams;
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    if (Hero->ConsumeCost(UnitData->UnitCost))
+    {
+        if (!SpawnBase)
+        {
+            TArray<AActor*> FoundBases;
+            UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
 
-    // 유닛 스폰
-    GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, SpawnLocation, SpawnRotation, SpawnParams);
+            for (AActor* BaseActor : FoundBases)
+            {
+                SpawnBase = Cast<ABaseStructure>(BaseActor);
+                if (SpawnBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                {
+                    SpawnLocation = SpawnBase->GetActorLocation();
+                }
+            }
+        }
+        float RandomRange = FMath::RandRange(-100.0f, 100.0f);
+        FVector RandomLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
+        FRotator SpawnRotation = FRotator::ZeroRotator;
+        FActorSpawnParameters SpawnParams;
 
-    UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %s"), *UnitData->UnitClass->GetName());
+        // 유닛 스폰
+        GetWorld()->SpawnActor<AUnitCharacter>(UnitData->UnitClass, RandomLocation, SpawnRotation, SpawnParams);
+
+        UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %s"), *UnitData->UnitClass->GetName());
+    }
 }
 

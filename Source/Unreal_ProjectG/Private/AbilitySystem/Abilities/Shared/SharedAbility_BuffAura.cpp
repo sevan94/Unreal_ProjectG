@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/DecalComponent.h"
 #include "PGFunctionLibrary.h"
+#include "Character/PGCharacterBase.h"
 
 void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -15,6 +16,8 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
     BuffAuraSphere->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
     BuffAuraSphere->SetSphereRadius(BuffAuraRadius);
     BuffAuraSphere->RegisterComponent(); // 컴포넌트 등록
+    BuffAuraSphere->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
+    BuffAuraSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 
     // 오버랩 이벤트 바인딩
     BuffAuraSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraBeginOverlap);
@@ -67,6 +70,7 @@ void USharedAbility_BuffAura::OnAuraBeginOverlap(UPrimitiveComponent* Overlapped
 {
     // 이미 버프가 적용된 액터이거나, 적대적인 대상이 아니라면 무시
     if (ActiveBuffsOnTargets.Contains(OtherActor)) return;
+    //if(OtherActor<APGCharacterBase>(OtherActor))
     if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), OtherActor)) return;
     
     ApplyBuffAuraEffectToTarget(OtherActor);

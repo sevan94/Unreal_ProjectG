@@ -27,6 +27,7 @@ public:
     // 교체 유도 오버레이 제어
     void ShowReplaceOverlay(bool bVisible);
 
+    UUnitUIDataAsset* GetUnitData() const { return CurrentUnitData; }
 protected:
     virtual void NativeConstruct() override;
 
@@ -44,7 +45,7 @@ public:
     int32 SlotIndex;
 
     // 현재 슬롯에 담긴 데이터
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Data")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
     TObjectPtr<UUnitUIDataAsset> CurrentUnitData;
 
 

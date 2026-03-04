@@ -23,6 +23,7 @@ class UNREAL_PROJECTG_API ABaseStructure : public APGCharacterBase
 public:
     ABaseStructure();
 
+   
 protected:
     virtual void BeginPlay() override;
 
@@ -78,6 +79,8 @@ public:
    
     virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+    virtual void OnDie() override;
+
     // 블루프린트에서 투사체를 쏘거나 포탄 이펙트를 띄우기 위한 이벤트
     UFUNCTION(BlueprintImplementableEvent, Category = "Attack")
     void BP_OnBaseAttack(AActor* TargetActor);
@@ -88,7 +91,4 @@ public:
     // UI 연동 함수
     void CurrentHealthChange(const FOnAttributeChangeData& Data) const;
     void MaxHealthChange(const FOnAttributeChangeData& Data) const;
-
-    // UI 테스트용 함수
-    void ChangeHP();
 };

@@ -21,6 +21,7 @@
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "Mode/PGBaseGameMode.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
@@ -187,6 +188,28 @@ void AHeroCharacter::UnEquipArmor()
 void AHeroCharacter::UnEquipAccessory()
 {
     Accessory = nullptr;
+}
+
+bool AHeroCharacter::ConsumeCost(float InCost)
+{
+    if (CharacterAttributeSet)
+    {
+        float CurrentCost = CharacterAttributeSet->GetCost();
+        CharacterAttributeSet->SetCost(CurrentCost - InCost);
+        if (UWorld* World = GetWorld())
+        {
+            // 서버 측에서 실행되는 GameMode를 가져옴
+            APGBaseGameMode* GM = Cast<APGBaseGameMode>(World->GetAuthGameMode());
+            if (GM)
+            {
+                // 소모한 코스트만큼 누적 (정수형일 경우 형변환)
+                GM->SpentCost += FMath::RoundToInt(InCost);
+            }
+        }
+        return true;
+    }
+
+    return false;
 }
 
 void AHeroCharacter::ActivateSkill()

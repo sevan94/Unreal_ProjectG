@@ -29,7 +29,7 @@ APGProjectileBase::APGProjectileBase()
     ProjectileMovementComponent->Velocity = FVector(1.f, 0.f, 0.f);
     ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 
-    InitialLifeSpan = 4.0f;
+    InitialLifeSpan = ProjectileSpan;
 }
 
 void APGProjectileBase::Tick(float DeltaTime)

@@ -8,6 +8,7 @@
 
 class UUnitUIDataAsset;
 class UUnitSlotWidget;
+class ABaseStructure;
 
 /**
  * 
@@ -17,6 +18,9 @@ class UNREAL_PROJECTG_API UUnitPanelWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+    void UpdateAllSlots(float InCost);
+
 protected:
     virtual void NativeConstruct() override;
 

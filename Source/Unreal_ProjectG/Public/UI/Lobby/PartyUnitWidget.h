@@ -33,7 +33,7 @@ protected:
 
     // 버튼 클릭 시 내부 처리 함수
     UFUNCTION()
-    void OnInternalButtonClicked();
+    void OnCurrentButtonClicked();
 
 public:
     // 부모 위젯에서 구독할 클릭 이벤트

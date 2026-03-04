@@ -20,7 +20,7 @@ class UNREAL_PROJECTG_API UUnitListWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintAssignable, Category = "Events")
+    UPROPERTY(BlueprintAssignable, Category = "Unit")
     FOnUnitSelected OnUnitSelected;
 	
 protected:

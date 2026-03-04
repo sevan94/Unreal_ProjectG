@@ -37,7 +37,7 @@ void UPartyUnitWidget::NativeConstruct()
 
     if (UnitButton)
     {
-        UnitButton->OnClicked.AddDynamic(this, &UPartyUnitWidget::OnInternalButtonClicked);
+        UnitButton->OnClicked.AddDynamic(this, &UPartyUnitWidget::OnCurrentButtonClicked);
     }
 
     UpdateSlot(CurrentUnitData);
@@ -46,7 +46,7 @@ void UPartyUnitWidget::NativeConstruct()
     ShowReplaceOverlay(false);
 }
 
-void UPartyUnitWidget::OnInternalButtonClicked()
+void UPartyUnitWidget::OnCurrentButtonClicked()
 {
     if (OnSlotClicked.IsBound())
     {

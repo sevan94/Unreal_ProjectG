@@ -4,6 +4,12 @@
 #include "UI/Lobby/LobbyEquipWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
+#include "UI/Lobby/EquipListWidget.h"
+
+void ULobbyEquipWidget::SetEquipList(EEquipCategory InType)
+{
+    EquipList->UpdateList(InType);
+}
 
 void ULobbyEquipWidget::NativeConstruct()
 {
@@ -14,4 +20,3 @@ void ULobbyEquipWidget::OnExitButtonClick()
 {
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 }
-

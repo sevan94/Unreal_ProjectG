@@ -224,7 +224,7 @@ void AUnitCharacter::OnDie()
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (AnimInstance && UnitDeadMontage)
         {
-            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)-0.2f;
+            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)+1.0f;
 
             FTimerHandle TimerHandle;
             GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()

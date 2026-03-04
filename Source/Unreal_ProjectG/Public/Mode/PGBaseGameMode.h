@@ -7,19 +7,30 @@
 #include "Types/PGEnumTypes.h"
 #include "PGBaseGameMode.generated.h"
 
-//각 스테이지마다 달라질 설정들을 묶어둔 구조체
+class ABaseStructure;
+
+/**
+ *
+ */
 USTRUCT(BlueprintType)
-struct FPGStageInfo
+struct FBattleResultData
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage Data")
-    float ClearTimeLimit_3Stars = 60.0f;
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
+    bool bIsVictory = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage Data")
-    float ClearTimeLimit_2Stars = 180.0f;
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
+    int32 StarCount = 0;
 
-    // 나중에 여기에 '적군 스폰 속도', '적군 본진 MaxHP' 같은 것도 추가가능
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
+    float TotalPlayTime = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
+    float RemainingHealthPercent = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
+    float TotalSpentCost = 0;
 };
 
 UCLASS()
@@ -48,20 +59,15 @@ public:
     void RegisterUnit(ETeamType Team);
     void UnregisterUnit(ETeamType Team);*/
 
-    //현재 플레이 중인 스테이지 번호
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stage")
-    int32 CurrentStageNum;
-
-    //언리얼 에디터(블루프린트)에서 1~5 스테이지의 정보를 표처럼 세팅할 수 있는 맵
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stage")
-    TMap<int32, FPGStageInfo> StageDataMap;
-
     // ---  클리어 등급 설정 (시간 제한) ---
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule|Grade")
     float ClearTimeLimit_3Stars = 60.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule|Grade")
     float ClearTimeLimit_2Stars = 180.0f;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Battle")
+    int32 SpentCost = 0;
 
     // 현재 플레이 시간(초)을 반환하는 함수 (UI 표시용)
     UFUNCTION(BlueprintPure, Category = "GameRule|Time")

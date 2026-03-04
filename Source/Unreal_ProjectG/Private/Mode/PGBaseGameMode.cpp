@@ -15,29 +15,6 @@ void APGBaseGameMode::BeginPlay()
 {
     Super::BeginPlay();
 
-    // --- [1] 스테이지 정보 읽어오기 및 난이도 세팅 ---
-    if (UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()))
-    {
-        // 로비에서 선택하여 저장해둔 스테이지 번호를 가져옴. (없으면 기본값 1)
-        CurrentStageNum = GI->SelectedStageNum;
-
-        // 에디터에서 해당 스테이지 번호에 대한 데이터를 맵에 입력해 뒀다면 적용!
-        if (StageDataMap.Contains(CurrentStageNum))
-        {
-            FPGStageInfo CurrentStageInfo = StageDataMap[CurrentStageNum];
-
-            // 게임 모드의 클리어 시간 제한을 해당 스테이지 난이도에 맞게 덮어쓰기
-            ClearTimeLimit_3Stars = CurrentStageInfo.ClearTimeLimit_3Stars;
-            ClearTimeLimit_2Stars = CurrentStageInfo.ClearTimeLimit_2Stars;
-
-            UE_LOG(LogTemp, Warning, TEXT("=== 현재 스테이지: %d ==="), CurrentStageNum);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("스테이지 %d에 대한 데이터가 StageDataMap에 없습니다. 기본값을 사용합니다."), CurrentStageNum);
-        }
-    }
-
     // --- [2] 게임 시작 시간 기록 ---
     GameStartTime = GetWorld()->GetTimeSeconds();
 

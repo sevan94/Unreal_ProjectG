@@ -10,7 +10,7 @@
 class UBehaviorTree;
 class UUnitData;
 class UUnitCombatComponent;
-
+class UAnimMontage;
 /*데이터 동기화가 끝났을때 호출하는 델리게이트,
 * 데이터 적용이 너무 빨라가지고 onpoesses랑 beginplay 시점에 데이터가 안들어가서 델리게이트로 해결함
 */
@@ -88,7 +88,9 @@ private:
     // AI 컨트롤러 캐싱
     class AAIController* AIController = nullptr;
 
-    class UAnimMontage* UnitAttackMontage = nullptr;
+    UAnimMontage* UnitAttackMontage = nullptr;
+
+    UAnimMontage* UnitDeadMontage = nullptr;
 
     float DetectRangeKey = 0.0f;
 

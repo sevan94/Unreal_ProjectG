@@ -5,14 +5,13 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Character/Unit/UnitCharacter.h"
-#include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "UnitUIDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS(BlueprintType)
-class UNREAL_PROJECTG_API UUnitUIDataAsset : public UDataAsset
+class UNREAL_PROJECTG_API UUnitUIDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 	

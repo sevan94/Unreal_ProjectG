@@ -8,6 +8,7 @@
 #include "PGFunctionLibrary.h"
 #include "Character/PGCharacterBase.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "PGGameplayTags.h"
 
 void USharedAbility_BuffAura::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -28,9 +29,13 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
     //==============================================
     // FSharedBuffAuraAbilityConfig의 SoftPtr 로드
-    for (TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.DamageEffectClasses)
+    for(FNumericBuffEffectConfig& NumericBuffConig : BuffAuraConfig.NumericBuffs)
     {
-        EffectClass.LoadSynchronous();
+        NumericBuffConig.EffectClass.LoadSynchronous();
+    }
+    for (TSoftClassPtr<UGameplayEffect>& StatusEffectClass : BuffAuraConfig.StatusEffectClasses)
+    {
+        StatusEffectClass.LoadSynchronous();
     }
     BuffAuraConfig.AuraRadiusDecalMaterial.LoadSynchronous();
     //==============================================
@@ -65,11 +70,17 @@ void USharedAbility_BuffAura::EndAbility(const FGameplayAbilitySpecHandle Handle
     // 버프 오라가 적용된 액터들에게 버프 제거 후 정리
     if (ActiveBuffsOnTargets.Num() > 0)
     {
-        for(const auto& Elem : ActiveBuffsOnTargets)
+        for (const auto& Elem : ActiveBuffsOnTargets)
         {
-            AActor* TargetActor = Elem.Key;
-            FActiveGameplayEffectHandle EffectHandle = Elem.Value;
-            NativeRemoveActiveGameplayEffectFromTarget(TargetActor, EffectHandle);
+            const TArray<FActiveGameplayEffectHandle>& Handles = Elem.Value;
+            for (const FActiveGameplayEffectHandle& EffectHandle : Handles)
+            {
+                if (Elem.Key.IsValid())
+                {
+                    NativeRemoveActiveGameplayEffectFromTarget(Elem.Key.Get(), EffectHandle);
+
+                }
+            }
         }
         ActiveBuffsOnTargets.Empty();
     }
@@ -102,41 +113,90 @@ void USharedAbility_BuffAura::OnAuraBeginOverlap(UPrimitiveComponent* Overlapped
 
 void USharedAbility_BuffAura::OnAuraEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    if (ActiveBuffsOnTargets.Contains(OtherActor))
+    TWeakObjectPtr<AActor> Key = OtherActor;
+
+    if (ActiveBuffsOnTargets.Contains(Key.Get()))
     {
-        // ActiveBuffsOnTargets에 해당 액터가 존재하면 모두 제거
-        FActiveGameplayEffectHandle& EffectHandle = ActiveBuffsOnTargets[OtherActor];
-        NativeRemoveActiveGameplayEffectFromTarget(OtherActor, EffectHandle);
-        ActiveBuffsOnTargets.Remove(OtherActor);
+        if (TArray<FActiveGameplayEffectHandle>* Handles = ActiveBuffsOnTargets.Find(Key))
+        {
+            for(const FActiveGameplayEffectHandle& EffectHandle : *Handles)
+            {
+                NativeRemoveActiveGameplayEffectFromTarget(OtherActor, EffectHandle);
+            }
+            ActiveBuffsOnTargets.Remove(Key);
+        }
     }
 }
 
 void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
 {
-    CachedBuffEffectSpecs.Empty();
+    CachedNumericBuffSpecs.Empty();
+    CachedStatusBuffSpecs.Empty();
 
-    for (const TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.DamageEffectClasses)
+    //수치형 버프
+    for (const FNumericBuffEffectConfig& Buff : BuffAuraConfig.NumericBuffs)
+    {
+        if (Buff.EffectClass.IsValid())
+        {
+            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Buff.EffectClass.Get(), GetAbilityLevel());
+            
+            // 버프 효과의 magnitude를 설정
+            if (SpecHandle.IsValid())
+            {
+                const float Multiplier = Buff.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+                const float BaseAmount = Buff.BaseBuffAmount.GetValueAtLevel(GetAbilityLevel());
+
+                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_DamageMultiplier, Multiplier);
+                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, BaseAmount);
+            
+                //분기용 태그 추가
+                SpecHandle.Data->AddDynamicAssetTag(Buff.BuffTypeTag);
+            }
+            CachedNumericBuffSpecs.Add(SpecHandle);
+        }
+    }
+
+    // 상태형 버프
+    for (const TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.StatusEffectClasses)
     {
         if (EffectClass.IsValid())
         {
             FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass.Get(), GetAbilityLevel());
-            CachedBuffEffectSpecs.Add(SpecHandle);
+            CachedStatusBuffSpecs.Add(SpecHandle);
         }
     }
 }
 
 void USharedAbility_BuffAura::ApplyBuffAuraEffectToTarget(AActor* TargetActor)
 {
-    if (TargetActor && CachedBuffEffectSpecs.Num() > 0)
+    if (!TargetActor) return;
+
+    TArray<FActiveGameplayEffectHandle> AppliedHandles;
+
+    // 수치형 버프 적용
+    for(const FGameplayEffectSpecHandle& SpecHandle : CachedNumericBuffSpecs)
     {
-        for (const FGameplayEffectSpecHandle& SpecHandle : CachedBuffEffectSpecs)
+        FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
+        if (ActiveEffectHandle.IsValid())
         {
-            FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
-            if (ActiveEffectHandle.IsValid())
-            {
-                ActiveBuffsOnTargets.Add(TargetActor, ActiveEffectHandle);
-            }
+            AppliedHandles.Add(ActiveEffectHandle);
         }
+    }
+
+    // 상태형 버프 적용
+    for (const FGameplayEffectSpecHandle& SpecHandle : CachedStatusBuffSpecs)
+    {
+        FActiveGameplayEffectHandle Handle = NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
+        if(Handle.IsValid())
+        {
+            AppliedHandles.Add(Handle);
+        }
+    }
+
+    if(AppliedHandles.Num() > 0)
+    {
+        // 적용된 버프 핸들을 ActiveBuffsOnTargets에 저장
+        ActiveBuffsOnTargets.Add(TargetActor, AppliedHandles);
     }
 }
 

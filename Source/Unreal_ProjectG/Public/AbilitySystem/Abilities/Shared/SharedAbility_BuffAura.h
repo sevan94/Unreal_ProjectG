@@ -46,9 +46,9 @@ private:
     UPROPERTY()
     TObjectPtr<class UDecalComponent> BuffAuraDecal;
 
-    UPROPERTY()
-    TMap<AActor*, FActiveGameplayEffectHandle> ActiveBuffsOnTargets;
+    TMap<TWeakObjectPtr<AActor>, TArray<FActiveGameplayEffectHandle>> ActiveBuffsOnTargets;
 
     // 적용할 이펙트 스펙핸들 캐싱
-    TArray<FGameplayEffectSpecHandle> CachedBuffEffectSpecs;
+    TArray<FGameplayEffectSpecHandle> CachedNumericBuffSpecs;
+    TArray<FGameplayEffectSpecHandle> CachedStatusBuffSpecs;
 };

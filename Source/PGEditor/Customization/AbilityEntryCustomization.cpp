@@ -12,6 +12,7 @@
 #include "AbilitySystem/Abilities/Player/HeroAbility_AOEAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
+#include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnActor.h"
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
 
 // 어빌리티 클래스 -> Config 클래스 매핑 테이블
@@ -19,11 +20,15 @@
 static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
 {
     TMap<UClass*, UScriptStruct*> Map;
+
+    // UClass*는 StaticClass()로, UScriptStruct*는 StaticStruct()로 매핑
+    // 스킬 클래스 추가 시 이곳에 매핑 추가
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), FHeroMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), FHeroSpawnProjectileAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_AOEAttack::StaticClass(), FHeroCastingAOEAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());
+    Map.Add(UUnitAbility_SpawnActor::StaticClass(), FUnitSpawnActorAbilityConfig::StaticStruct());
     Map.Add(USharedAbility_BuffAura::StaticClass(), FSharedBuffAuraAbilityConfig::StaticStruct());
 
     return Map;

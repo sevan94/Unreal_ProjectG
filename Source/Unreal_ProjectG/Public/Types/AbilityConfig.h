@@ -29,6 +29,25 @@ struct FAbilityEntry
 };
 
 USTRUCT(BlueprintType)
+struct FNumericBuffEffectConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSoftClassPtr<UGameplayEffect> EffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FScalableFloat SkillMultiplier;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FScalableFloat BaseBuffAmount;
+
+    // 어떤 Attribute를 올릴지 태그로 분기 (예: Buff.AttackPower, Buff.MaxHealth)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Buff"))
+    FGameplayTag BuffTypeTag;
+};
+
+USTRUCT(BlueprintType)
 struct FAbilityConfig
 {
 	GENERATED_BODY()
@@ -177,10 +196,10 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftClassPtr<UGameplayEffect>> DamageEffectClasses; // 버프량 계산 클래스
+    TArray<FNumericBuffEffectConfig> NumericBuffs; // 수치 버프량 계산을 위한 데이터 배열
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
+    TArray<TSoftClassPtr<UGameplayEffect>> StatusEffectClasses; // 상태형 버프
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float BuffAuraRadius; // 버프 오라의 반경

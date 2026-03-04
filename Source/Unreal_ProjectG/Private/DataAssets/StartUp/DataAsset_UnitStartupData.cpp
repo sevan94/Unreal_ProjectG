@@ -12,12 +12,14 @@ void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemCo
 
     if (!UnitCombatAbilityEntries.IsEmpty())
     {
-        for (const UDataAsset_SkillData* SkillData : UnitCombatAbilityEntries)
+        for (UDataAsset_SkillData* SkillData : UnitCombatAbilityEntries)
         {
             if (!SkillData) continue;
 
+            TSubclassOf<UGameplayAbility> AbilityClass = SkillData->AbilityEntry.AbilityClass.LoadSynchronous();
+
             FGameplayAbilitySpec AbilitySpec(
-                SkillData->AbilityEntry.AbilityClass.Get(),
+                AbilityClass,
                 InLevel,
                 INDEX_NONE,
                 SkillData

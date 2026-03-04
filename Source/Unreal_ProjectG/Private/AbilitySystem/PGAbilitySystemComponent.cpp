@@ -24,6 +24,8 @@ void UPGAbilitySystemComponent::GrantHeroWeaponBasicAttackAbility(FAbilityEntry 
         InBasicAttackAbilityEntry.AbilityConfig.Get()
     );
     OutBasicAttackAbilitySpecHandle = GiveAbility(BasicAttackAbilitySpec);
+
+    UE_LOG(LogTemp, Warning, TEXT("SourceName : %s"), *BasicAttackAbilitySpec.SourceObject->GetName());
 }
 
 void UPGAbilitySystemComponent::GrantHeroWeaponSkillAbilities(const TArray<FAbilityEntry>& InWeaponSkillAbilityEntries, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles)

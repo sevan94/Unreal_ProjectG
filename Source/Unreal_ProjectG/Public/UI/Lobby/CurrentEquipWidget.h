@@ -11,6 +11,7 @@ class UButton;
 class UImage;
 class UEquipUIDataAsset;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCurrentEquipSelected, EEquipCategory, Category);
 /**
  * 
  */
@@ -21,7 +22,7 @@ class UNREAL_PROJECTG_API UCurrentEquipWidget : public UUserWidget
 
 public:
     // 아이템 데이터를 위젯에 세팅하는 함수
-    UFUNCTION(BlueprintCallable, Category = "Equip Settings")
+    UFUNCTION(BlueprintCallable, Category = "Equip")
     void UpdateEquipSlot(UEquipUIDataAsset* InData);
 
 protected:
@@ -33,9 +34,11 @@ protected:
 
 public:
     // 에디터에서 각 위젯 인스턴스마다 어떤 카테고리인지 지정합니다.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equip Settings")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equip")
     EEquipCategory SlotCategory;
 
+    UPROPERTY(BlueprintAssignable, Category = "Equip")
+    FOnCurrentEquipSelected OnSelected;
 	
 protected:
     UPROPERTY(meta = (BindWidget))

@@ -34,6 +34,8 @@ void UCurrentEquipWidget::NativeConstruct()
 
 void UCurrentEquipWidget::OnEquipButtonClicked()
 {
-    ULobbyEquipWidget* LobbyWidget = Cast<ULobbyEquipWidget>(GetParent());
-    LobbyWidget->SetEquipList(SlotCategory);
+    if (OnSelected.IsBound())
+    {
+        OnSelected.Broadcast(SlotCategory);
+    }
 }

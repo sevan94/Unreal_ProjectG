@@ -22,6 +22,7 @@ class UNREAL_PROJECTG_API ULobbyEquipWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+    UFUNCTION()
     void SetEquipList(EEquipCategory InType);
 	
 protected:

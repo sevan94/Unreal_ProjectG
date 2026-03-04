@@ -72,11 +72,15 @@ void UHeroCombatComponent::EquipHeroArmor(UDataAsset_ArmorData* InArmorData)
 void UHeroCombatComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData)
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetWarriorASCFromActor(GetOwner());
+    UDataAsset_SkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
 
-    FGameplayAbilitySpec AbilitySpec(InAccessoryData->GetGrantedAbility());
-    AbilitySpec.SourceObject = this;
+    FGameplayAbilitySpec AbilitySpec(
+        AccessoryAbilityAsset->AbilityEntry.AbilityClass.Get(),
+        1,
+        INDEX_NONE,
+        AccessoryAbilityAsset->AbilityEntry.AbilityConfig.Get()
+    );
     ASC->GiveAbility(AbilitySpec);
-
     ASC->TryActivateAbility(AbilitySpec.Handle);
 }
 

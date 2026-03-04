@@ -48,6 +48,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     void InitializeHero();
 
+    // =============================================================================
+    // 컴포넌트로 분리할 예정, 캐릭터는 가볍게 유지
+    // =============================================================================
     ////무기 장착
     //UFUNCTION(BlueprintCallable, Category = "Equipment")
     //void EquipWeapon(UDataAsset_WeaponData* WeaponData);
@@ -58,6 +61,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
 
+    //==============================================================================
+    // 배틀에서만 사용할 캐릭터이기 때문에 장비 해제는 필요 없어 보임.
+    // =============================================================================
     //무기 해제
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void UnEquipWeapon();
@@ -67,7 +73,7 @@ public:
     //악세 해제
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void UnEquipAccessory();
-
+    //==============================================================================
 
     // 유닛 소환용 코스트 차감 함수
     UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -148,12 +154,17 @@ protected:
     //무기 스태틱 메시 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UStaticMeshComponent> WeaponStaticMesh = nullptr;
+
+    // =================================================================================
+    // 나중에 삭제 예정, 방어구와 악세서리는 스태틱 메시가 없음
+    // =================================================================================
     //방어구 스태틱 메시 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UStaticMeshComponent> ArmorStaticMesh = nullptr;
     //악세 스태틱 메시 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UStaticMeshComponent> AccessoryStaticMesh = nullptr;
+    // =================================================================================
 
     //움직임 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
@@ -171,6 +182,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")
     TObjectPtr<UInputAction> IA_Attack = nullptr;
 
+    // =================================================================================
+    // 나중에 삭제 예정
+    // =================================================================================
     //게임 시작시 실행할 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
     TSubclassOf<class UGameplayAbility> GA_Initialize = nullptr;
@@ -196,24 +210,37 @@ protected:
     //악세
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
     TObjectPtr<UDataAsset_AccessoryData> Accessory = nullptr;
+    // =================================================================================
 
 private:
-    //ABP
-    UPROPERTY()
-    TObjectPtr<class UAnimInstance> AnimInstance = nullptr;
-
-    //리소스 컴포넌트
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
-
     //자동전투 실행 여부
     bool bIsAuto = false;
 
     //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
 
+    // =================================================================================
+    // UnEquip은 배틀에서는 필요가 없어 보임
+    // =================================================================================
     //공격 어빌리티 핸들
     FGameplayAbilitySpecHandle AttackHandle;
     //스킬 어빌리티 핸들이 들은 배열
     TArray<FGameplayAbilitySpecHandle> SkillHandle;
+    // =================================================================================
+
+    // =================================================================================
+    // 나중에 삭제 예정
+    // =================================================================================
+    //ABP
+    UPROPERTY()
+    TObjectPtr<class UAnimInstance> AnimInstance = nullptr;
+    // =================================================================================
+
+    // =================================================================================
+    // 스탯 초기화 이외에 하는 일이 없다면 삭제 예정
+    // =================================================================================
+    //리소스 컴포넌트
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<class UHeroResourceComponent> ResourceManager = nullptr;
+    // =================================================================================
 };

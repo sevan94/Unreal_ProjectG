@@ -10,8 +10,9 @@
 
 class APGProjectileBase;
 class UNiagaraComponent;
+class UGameplayEffect;
 /**
- * 
+ * 유닛과 캐릭터의 어빌리티의 변수들을 담는 오브젝트
  */
 UCLASS(Abstract, EditInlineNew, BlueprintType)
 class UNREAL_PROJECTG_API UAbilityConfig : public UObject
@@ -111,4 +112,20 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     float AOEAttackRadius = 300.f;
+};
+
+UCLASS(EditInlineNew, BlueprintType)
+class UNREAL_PROJECTG_API UBuffAuraAbilityConfig : public UAbilityConfig
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<TSubclassOf<UGameplayEffect>> BuffAuraEffectClasses;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    float BuffAuraRadius = 300.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial;
 };

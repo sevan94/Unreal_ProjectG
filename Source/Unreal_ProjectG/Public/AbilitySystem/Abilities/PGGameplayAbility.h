@@ -48,6 +48,10 @@ protected:
 
     // 타깃 액터에게 게임플레이 이펙트를 제거하는 네이티브 함수
     void NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle);
+
+    // 버프 이펙트 스펙 핸들을 만드는 함수
+
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "PGGameplayAbility")
     EPGAbilityActivationPolicy AbilityActivationPolicy = EPGAbilityActivationPolicy::OnTriggered;

@@ -25,4 +25,8 @@ public:
     // 무기 스킬 어빌리티 부여(핸들 반환)
     UFUNCTION(BlueprintCallable, Category = "Abilities", meta = (ApplyLevel = "1"))
     void GrantHeroWeaponSkillAbilities(const TArray<FAbilityEntry>& InWeaponSkillAbilityEntries, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles);
+
+    // 태그로 어빌리티 활성화 시도
+    UFUNCTION(BlueprintCallable, Category = "Abilities")
+    bool TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate);
 };

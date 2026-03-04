@@ -7,28 +7,39 @@
 #include "Components/DecalComponent.h"
 #include "PGFunctionLibrary.h"
 #include "Character/PGCharacterBase.h"
-#include "DataAssets/Ability/AbilityConfig.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 void USharedAbility_BuffAura::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
-    UBuffAuraAbilityConfig* Data = Cast<UBuffAuraAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
-    if (Data)
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
     {
-        BuffAuraEffectClasses = Data->BuffAuraEffectClasses;
-        BuffAuraRadius = Data->BuffAuraRadius;
-        AuraRadiusDecalMaterial = Data->AuraRadiusDecalMaterial;
+        const FSharedBuffAuraAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FSharedBuffAuraAbilityConfig>();
+        if (Config)
+        {
+            BuffAuraConfig = *Config;
+        }
     }
 }
 
 void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+    //==============================================
+    // FSharedBuffAuraAbilityConfig의 SoftPtr 로드
+    for (TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.DamageEffectClasses)
+    {
+        EffectClass.LoadSynchronous();
+    }
+    BuffAuraConfig.AuraRadiusDecalMaterial.LoadSynchronous();
+    //==============================================
+
     BuildCachedBuffEffectSpecs();
 
     BuffAuraSphere = NewObject<USphereComponent>(GetAvatarActorFromActorInfo());
     BuffAuraSphere->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
-    BuffAuraSphere->SetSphereRadius(BuffAuraRadius);
+    BuffAuraSphere->SetSphereRadius(BuffAuraConfig.BuffAuraRadius);
     BuffAuraSphere->RegisterComponent(); // 컴포넌트 등록
     BuffAuraSphere->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
     BuffAuraSphere->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
@@ -38,12 +49,12 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
     BuffAuraSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraEndOverlap);
 
     // 오라 범위를 시각적으로 보여주는 데칼 생성
-    if (AuraRadiusDecalMaterial)
+    if (BuffAuraConfig.AuraRadiusDecalMaterial.IsValid())
     {
         BuffAuraDecal = NewObject<UDecalComponent>(GetAvatarActorFromActorInfo());
         BuffAuraDecal->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
-        BuffAuraDecal->SetDecalMaterial(AuraRadiusDecalMaterial);
-        BuffAuraDecal->DecalSize = FVector(200.f, BuffAuraRadius, BuffAuraRadius);
+        BuffAuraDecal->SetDecalMaterial(BuffAuraConfig.AuraRadiusDecalMaterial.Get());
+        BuffAuraDecal->DecalSize = FVector(200.f, BuffAuraConfig.BuffAuraRadius, BuffAuraConfig.BuffAuraRadius);
         BuffAuraDecal->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
         BuffAuraDecal->RegisterComponent();
     }
@@ -103,11 +114,12 @@ void USharedAbility_BuffAura::OnAuraEndOverlap(UPrimitiveComponent* OverlappedCo
 void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
 {
     CachedBuffEffectSpecs.Empty();
-    for (const TSubclassOf<UGameplayEffect>& EffectClass : BuffAuraEffectClasses)
+
+    for (const TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.DamageEffectClasses)
     {
-        if (EffectClass)
+        if (EffectClass.IsValid())
         {
-            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, GetAbilityLevel());
+            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass.Get(), GetAbilityLevel());
             CachedBuffEffectSpecs.Add(SpecHandle);
         }
     }

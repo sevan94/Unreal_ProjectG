@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/PGGameplayAbility.h"
-#include "Types/PGGasTypes.h"
+#include "Types/AbilityConfig.h"
 #include "SharedAbility_BuffAura.generated.h"
 
 
@@ -36,14 +36,8 @@ private:
     void BuildCachedBuffEffectSpecs();
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
-    TArray<TSubclassOf<UGameplayEffect>> BuffAuraEffectClasses;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
-    float BuffAuraRadius;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
-    TObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Buff Aura")
+    FSharedBuffAuraAbilityConfig BuffAuraConfig;
 
 private:
     UPROPERTY()

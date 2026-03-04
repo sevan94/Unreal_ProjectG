@@ -17,9 +17,6 @@ class UNREAL_PROJECTG_API UPawnCombatComponent : public UPawnExtensionComponentB
 	
 public:
     UPawnCombatComponent();
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    const FGameplayAbilitySpecHandle& GetBaseAttackAbilitySpecHandle() const { return GrantedBaseAttackAbilitySpecHandle; }
     
     UFUNCTION(BlueprintCallable, Category = "Combat")
     TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedSkillAbilitySpecHandles; }
@@ -30,11 +27,7 @@ public:
     bool bWeaponEquipped = false;
 
 protected:
-    // 스킬 어빌리티를 위한 어빌리티 스펙 핸들들
+    // 어빌리티 스펙 핸들 저장 배열
     UPROPERTY(VisibleAnywhere, Category = "Combat|Data")
     TArray<FGameplayAbilitySpecHandle> GrantedSkillAbilitySpecHandles;
-
-    // 기본 공격 어빌리티를 위한 어빌리티 스펙 핸들
-    UPROPERTY(VisibleAnywhere, Category = "Combat|Data")
-    FGameplayAbilitySpecHandle GrantedBaseAttackAbilitySpecHandle;
 };

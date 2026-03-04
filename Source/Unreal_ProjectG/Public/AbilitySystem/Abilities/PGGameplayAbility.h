@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "Types/PGEnumTypes.h"
+#include "Types/AbilityConfig.h"
 #include "PGGameplayAbility.generated.h"
 
 class UPGAbilitySystemComponent;

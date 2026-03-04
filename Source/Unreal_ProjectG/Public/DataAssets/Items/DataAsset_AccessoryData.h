@@ -27,8 +27,4 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TSoftObjectPtr<UDataAsset_SkillData> AccessoryAbilityData;
-
-protected:
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    //TSubclassOf<UPGGameplayAbility> AbilityToGrant;
 };

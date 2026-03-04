@@ -4,8 +4,7 @@
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/PGUnitGameplayAbility.h"
-
-#include "DataAssets/Ability/AbilityConfig.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemComponent* InASCToGive, int32 InLevel)
 {
@@ -13,15 +12,15 @@ void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemCo
 
     if (!UnitCombatAbilityEntries.IsEmpty())
     {
-        for (const FAbilityEntry& AbilityEntry : UnitCombatAbilityEntries)
+        for (const UDataAsset_SkillData* SkillData : UnitCombatAbilityEntries)
         {
-            if (!AbilityEntry.AbilityClass) continue;
+            if (!SkillData) continue;
 
             FGameplayAbilitySpec AbilitySpec(
-                AbilityEntry.AbilityClass.Get(),
+                SkillData->AbilityEntry.AbilityClass.Get(),
                 InLevel,
                 INDEX_NONE,
-                AbilityEntry.AbilityConfig.Get()
+                SkillData
             );
 
             InASCToGive->GiveAbility(AbilitySpec);

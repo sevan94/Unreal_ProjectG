@@ -4,33 +4,39 @@
 #include "PGGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "DataAssets/Ability/AbilityConfig.h" 
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 void UUnitAbility_SpawnActor::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
-    if (UUnitSpawnActorConfig* Data = Cast<UUnitSpawnActorConfig>(Spec.SourceObject.Get()))
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
     {
-        SpawnMontage = Data->AbilityMontage;
-        SpawnSkillMultiplier = Data->DamageMultiplier;
-        SpawnedActorClass = Data->SpawnedActorClass;
+        const FUnitSpawnActorAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FUnitSpawnActorAbilityConfig>();
+        if (Config)
+        {
+            UnitSpawnActorConfig = *Config;
+        }
     }
 }
 
 void UUnitAbility_SpawnActor::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    if (!SpawnEffectClass || !SpawnMontage || !SpawnedActorClass)
+    //==============================================
+    // FUnitSpawnActorConfig의 SoftPtr 로드
+    UnitSpawnActorConfig.DamageEffectClass.LoadSynchronous();
+    UnitSpawnActorConfig.SpawnedActorClass.LoadSynchronous();
+    for (TSoftObjectPtr<UAnimMontage>& Montage : UnitSpawnActorConfig.SpawnActorMontages)
     {
-        if (UUnitSpawnActorConfig* Data = Cast<UUnitSpawnActorConfig>(GetCurrentAbilitySpec()->SourceObject.Get()))
-        {
-            SpawnMontage = Data->AbilityMontage;
-            SpawnSkillMultiplier = Data->DamageMultiplier;
-            SpawnedActorClass = Data->SpawnedActorClass;
-        }
+        Montage.LoadSynchronous();
     }
+    //==============================================
 
-    checkf(SpawnMontage, TEXT("SpawnMontage가 비어있습니다!"));
+    checkf(UnitSpawnActorConfig.SpawnActorMontages.Num() > 0, TEXT("SpawnMontage가 비어있습니다!"));
+
+    // 램덤하게 하나의 몽타주 선택
+    UAnimMontage* SpawnMontage = UnitSpawnActorConfig.SpawnActorMontages[FMath::RandRange(0, UnitSpawnActorConfig.SpawnActorMontages.Num() - 1)].Get();
 
     // 애니메이션 몽타주 재생 태스크
     UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SpawnMontage);
@@ -62,7 +68,7 @@ void UUnitAbility_SpawnActor::EndAbility(const FGameplayAbilitySpecHandle Handle
 
 void UUnitAbility_SpawnActor::SpawnActorEvent(FGameplayEventData InEventData)
 {
-    if (!SpawnedActorClass) return;
+    if (!UnitSpawnActorConfig.SpawnedActorClass.IsValid()) return;
 
     AActor* AvatarActor = GetAvatarActorFromActorInfo();
     if (!AvatarActor) return;
@@ -76,7 +82,7 @@ void UUnitAbility_SpawnActor::SpawnActorEvent(FGameplayEventData InEventData)
 
 
     AActor* SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(
-        SpawnedActorClass,
+        UnitSpawnActorConfig.SpawnedActorClass.Get(),
         FTransform(SpawnRotation, SpawnLocation),
         AvatarActor,
         Cast<APawn>(AvatarActor),
@@ -85,10 +91,10 @@ void UUnitAbility_SpawnActor::SpawnActorEvent(FGameplayEventData InEventData)
 
     if (SpawnedActor)
     {
-        if (SpawnEffectClass)
+        if (UnitSpawnActorConfig.DamageEffectClass.IsValid())
         {
-            float MultiplierValue = SpawnSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-            FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(SpawnEffectClass, MultiplierValue);
+            float MultiplierValue = UnitSpawnActorConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+            FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(UnitSpawnActorConfig.DamageEffectClass.Get(), MultiplierValue);
         }
 
         // 1. 스폰을 무조건 완료합니다.

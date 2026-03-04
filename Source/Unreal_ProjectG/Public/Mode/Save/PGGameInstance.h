@@ -12,6 +12,7 @@ class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
 class UUnitUIDataAsset;
+class AHeroCharacter;
 
 UCLASS()
 class UNREAL_PROJECTG_API UPGGameInstance : public UGameInstance
@@ -27,6 +28,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void LoadGameData();
+
+    void InitBattleUI(AHeroCharacter* Hero, APlayerController* PC);
 
     // --- [런타임 장착 데이터] ---
     // 로비 UI에서 이 변수들을 수정하고, 전투 맵에서 이 변수들을 읽어 적용

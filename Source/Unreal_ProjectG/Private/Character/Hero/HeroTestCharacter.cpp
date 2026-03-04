@@ -10,6 +10,7 @@
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void AHeroTestCharacter::BeginPlay()
 {
@@ -23,6 +24,14 @@ void AHeroTestCharacter::BeginPlay()
     HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
     HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
     HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+
+    GetGameInstance<UPGGameInstance>()->InitBattleUI(this, Cast<APlayerController>(GetController()));
+}
+
+void AHeroTestCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
 }
 
 //void AHeroTestCharacter::SetupAccessoryToPawn()

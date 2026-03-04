@@ -18,7 +18,6 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
     if (AbilitySystemComponent && AbilitySpec.IsValid())
     {
         FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpec);
-
         if (Spec)
         {
             AbilityObject = Spec->GetPrimaryInstance();

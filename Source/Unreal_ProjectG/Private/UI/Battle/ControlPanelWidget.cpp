@@ -16,6 +16,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
 
+void UControlPanelWidget::SetAbilitySpecHandle()
+{
+    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+    if (!SpecHandleArray.IsEmpty())
+    {
+        //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
+        WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+    }
+}
+
 void UControlPanelWidget::UpdateHeroHP(float InValue)
 {
     HPBar->UpdateCurrent(InValue);
@@ -58,17 +68,6 @@ void UControlPanelWidget::UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue)
     else if (TeamTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
     {
         EnemyHP->UpdateMaxHP(InValue);
-    }
-}
-
-void UControlPanelWidget::SetAbilitySpecHandle()
-{
-    // 영웅 무기 스킬 어빌리티 설정
-    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-    if (!SpecHandleArray.IsEmpty())
-    {
-        UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-        WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
     }
 }
 

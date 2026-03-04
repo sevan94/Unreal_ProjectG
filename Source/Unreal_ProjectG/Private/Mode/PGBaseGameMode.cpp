@@ -6,11 +6,11 @@
 #include "Pawn/BaseStructure.h"
 #include "GameFramework/PlayerController.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
+#include "UI/Battle/BattleHUD.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {   
     PrimaryActorTick.bCanEverTick = true;
-    
 }
 
 
@@ -38,6 +38,12 @@ void APGBaseGameMode::BeginPlay()
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
+}
+
+void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)
+{
+    ABattleHUD* HUD = Cast<ABattleHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    HUD->OnGameOver(ResultData);
 }
 
 //// --- 인구수 제한 로직 ---
@@ -99,7 +105,7 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
     }
 
     // 결과 UI 호출 (BP_GameMode에서 위젯 생성)
-    BP_ShowResultUI(Result);
+    ShowStageResult(Result);
        
 
     // 2. 플레이어 조작 비활성화 (선택 사항)

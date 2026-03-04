@@ -5,6 +5,7 @@
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "UI/Battle/BattleHUD.h"
 
 
 //------- 구현 방식 ----------
@@ -59,6 +60,18 @@ void UPGGameInstance::LoadGameData()
     for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
     {
         CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Path));
+    }
+}
+
+void UPGGameInstance::InitBattleUI(AHeroCharacter* Hero, APlayerController* PC)
+{
+    if (ABattleHUD* HUD = Cast<ABattleHUD>(PC->GetHUD()))
+    {
+        if (HUD)
+        {
+            // 스펙 핸들 전달
+            HUD->SetAbilitySpec();
+        }
     }
 }
 

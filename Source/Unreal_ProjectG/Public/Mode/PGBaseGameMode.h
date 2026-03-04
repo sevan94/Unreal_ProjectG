@@ -71,8 +71,8 @@ protected:
     virtual void BeginPlay() override;
 
     //  UI 출력 이벤트
-    UFUNCTION(BlueprintImplementableEvent, Category = "GameRule")
-    void BP_ShowResultUI(const FBattleResultData& ResultData);
+    UFUNCTION(BlueprintCallable, Category = "GameRule")
+    void ShowStageResult(const FBattleResultData& ResultData);
 
 public:
     UPROPERTY(BlueprintReadWrite, Category = "Battle")

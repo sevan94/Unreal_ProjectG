@@ -26,6 +26,10 @@ public:
     // 외부(캐릭터)에서 조이스틱 값을 가져갈 함수
     FVector2D GetJoystickVector() const { return JoystickVector; }
 
+    // 무기 어빌리티 핸들 초기화 함수
+    UFUNCTION(BlueprintCallable)
+    void SetAbilitySpecHandle();
+
     // 
     UFUNCTION()
     void UpdateHeroHP(float InValue);
@@ -39,10 +43,6 @@ public:
     void UpdateBaseHP(FGameplayTag TeamTag, float InValue);
     UFUNCTION()
     void UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue);
-
-    // 스킬 테스트용 함수
-    UFUNCTION(BlueprintCallable)
-    void SetAbilitySpecHandle();
 
     UFUNCTION(BlueprintCallable)
     UActiveSkillWidget* GetActiveSkillWidget() { return WeaponSkill; }

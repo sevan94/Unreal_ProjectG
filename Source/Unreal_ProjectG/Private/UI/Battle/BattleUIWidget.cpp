@@ -14,8 +14,6 @@ void UBattleUIWidget::NativeConstruct()
     Super::NativeConstruct();
 
     PGGameMode = Cast<APGBaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    ResultVictory->SetVisibility(ESlateVisibility::Hidden);
-    ResultFail->SetVisibility(ESlateVisibility::Hidden);
 
     if (PlaySpeedButton)
     {
@@ -76,6 +74,7 @@ void UBattleUIWidget::OnSpeedButtonClicked()
 
 void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
 {
+    PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
     if (ResultData.bIsVictory)
     {
         ResultVictory->ShowResult(ResultData);
@@ -89,15 +88,17 @@ void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
     }
 }
 
-//void UBattleUIWidget::OnAutoButtonClicked()
-//{
-//    bIsAuto = !bIsAuto;
-//    if (bIsAuto)
-//    {
-//        AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
-//    }
-//    else
-//    {
-//        AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
-//    }
-//}
+void UBattleUIWidget::OnAutoButtonClicked()
+{
+    bIsAuto = !bIsAuto;
+    if (bIsAuto)
+    {
+        PlayAnimation(ControlPanelSlide,0.0f,1,EUMGSequencePlayMode::Reverse);
+        AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
+    }
+    else
+    {
+        PlayAnimation(ControlPanelSlide, 0.0f, 1);
+        AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
+    }
+}

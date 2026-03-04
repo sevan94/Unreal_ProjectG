@@ -5,7 +5,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
 #include "GameFramework/PlayerController.h"
+<<<<<<< Updated upstream
 #include "AbilitySystem/PGCharacterAttributeSet.h"
+=======
+#include "Mode/Save/PGGameInstance.h"
+>>>>>>> Stashed changes
 
 APGBaseGameMode::APGBaseGameMode()
 {   
@@ -17,6 +21,25 @@ APGBaseGameMode::APGBaseGameMode()
 void APGBaseGameMode::BeginPlay()
 {
     Super::BeginPlay(); 
+
+    // --- 스테이지 정보 세팅 시작 ---
+    if (UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()))
+    {
+        CurrentStageNum = GI->SelectedStageNum; // 로비에서 선택한 번호 가져오기
+
+        // 만약 에디터에서 해당 스테이지 번호(예: 1~5)에 대한 데이터를 입력해 뒀다면?
+        if (StageDataMap.Contains(CurrentStageNum))
+        {
+            FPGStageInfo CurrentStageInfo = StageDataMap[CurrentStageNum];
+
+            // 게임 모드의 클리어 시간 제한을 해당 스테이지 난이도에 맞게 덮어쓰기
+            ClearTimeLimit_3Stars = CurrentStageInfo.ClearTimeLimit_3Stars;
+            ClearTimeLimit_2Stars = CurrentStageInfo.ClearTimeLimit_2Stars;
+
+            UE_LOG(LogTemp, Warning, TEXT("=== 현재 스테이지: %d ==="), CurrentStageNum);
+        }
+    }
+    // --- 스테이지 정보 세팅 끝 ---
 
     // 1. 게임 시작 시간 기록
     GameStartTime = GetWorld()->GetTimeSeconds();

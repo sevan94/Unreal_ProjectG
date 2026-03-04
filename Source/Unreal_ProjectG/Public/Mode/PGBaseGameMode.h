@@ -7,6 +7,7 @@
 #include "Types/PGEnumTypes.h"
 #include "PGBaseGameMode.generated.h"
 
+<<<<<<< Updated upstream
 class ABaseStructure;
 
 /**
@@ -31,6 +32,21 @@ struct FBattleResultData
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
     float TotalSpentCost = 0;
+=======
+//각 스테이지마다 달라질 설정들을 묶어둔 구조체
+USTRUCT(BlueprintType)
+struct FPGStageInfo
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage Data")
+    float ClearTimeLimit_3Stars = 60.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage Data")
+    float ClearTimeLimit_2Stars = 180.0f;
+
+    // 나중에 여기에 '적군 스폰 속도', '적군 본진 MaxHP' 같은 것도 추가 가능
+>>>>>>> Stashed changes
 };
 
 UCLASS()
@@ -40,6 +56,14 @@ class UNREAL_PROJECTG_API APGBaseGameMode : public AGameModeBase
 
 public:
     APGBaseGameMode();
+
+    //현재 플레이 중인 스테이지 번호
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stage")
+    int32 CurrentStageNum;
+
+    //언리얼 에디터(블루프린트)에서 1~5 스테이지의 정보를 표처럼 세팅할 수 있는 맵
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stage")
+    TMap<int32, FPGStageInfo> StageDataMap;
 
     //// --- [1] 인구수 제한  ---
     //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UnitCount")

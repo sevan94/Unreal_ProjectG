@@ -80,6 +80,13 @@ protected:
     UPROPERTY(BlueprintReadWrite)
     bool bIsAuto = false;
 
+    // 위젯 애니메이션
+    UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+    UWidgetAnimation* ResultVictoryScale;
+
+    UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+    UWidgetAnimation* ResultFailScale;
+
 private:
     // 현재 배속 단계 (0: 1배, 1: 1.5배, 2: 2배)
     int32 CurrentSpeedIndex = 0;

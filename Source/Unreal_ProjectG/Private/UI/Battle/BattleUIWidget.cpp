@@ -80,10 +80,12 @@ void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
     {
         ResultVictory->ShowResult(ResultData);
         ResultVictory->SetVisibility(ESlateVisibility::Visible);
+        PlayAnimation(ResultVictoryScale);
     }
     else
     {
         ResultFail->SetVisibility(ESlateVisibility::Visible);
+        PlayAnimation(ResultFailScale);
     }
 }
 

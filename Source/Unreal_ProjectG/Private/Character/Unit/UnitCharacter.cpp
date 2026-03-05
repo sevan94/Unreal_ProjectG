@@ -141,6 +141,11 @@ void AUnitCharacter::InitUnitStartUpData()
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
                         AttackMarginKey = AttackRangeKey * 0.7f;
+
+                        if (StartUpData->BranchData->BranchTag.IsValid())
+                        {
+                            BranchTag = StartUpData->BranchData->BranchTag;
+                        }
                     }
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
                     if (CharacterAttributeSet)
@@ -150,11 +155,6 @@ void AUnitCharacter::InitUnitStartUpData()
                     else
                     {
                         UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
-                    }
-
-                    if (StartUpData->BranchData->BranchTag.IsValid())
-                    {
-                        BranchTag = StartUpData->BranchData->BranchTag;
                     }
 
                     if (StartUpData->TeamTag.IsValid())

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Types/PGStructTypes.h"
+#include "Types/AbilityConfig.h"
 #include "DataAsset_SkillData.generated.h"
 
 class UPGGameplayAbility;

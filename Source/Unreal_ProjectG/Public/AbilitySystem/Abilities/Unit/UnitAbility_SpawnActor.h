@@ -26,18 +26,6 @@ protected:
     void OnMontageFinished();
 
 protected:
-    // 장판(AOE)에 전달할 데미지/디버프 이펙트 클래스
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Spawn Actor")
-    TSubclassOf<UGameplayEffect> SpawnEffectClass;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Spawn Actor")
-    TObjectPtr<UAnimMontage> SpawnMontage;
-
-    // 스킬 위력
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Spawn Actor")
-    FScalableFloat SpawnSkillMultiplier;
-
-    // 스폰할 액터
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Spawn Actor")
-    TSubclassOf<AActor> SpawnedActorClass;
+    FUnitSpawnActorAbilityConfig UnitSpawnActorConfig;
 };

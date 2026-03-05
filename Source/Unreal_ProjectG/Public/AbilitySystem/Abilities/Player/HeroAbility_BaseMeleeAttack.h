@@ -17,8 +17,6 @@ class UNREAL_PROJECTG_API UHeroAbility_BaseMeleeAttack : public UPGHeroGameplayA
 	GENERATED_BODY()
 	
 public:
-    UHeroAbility_BaseMeleeAttack();
-
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -41,25 +39,12 @@ protected:
 private:
     void ResetHitData();
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    TSubclassOf<UGameplayEffect> MeleeAttackDamageEffectClass;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    TObjectPtr<UAnimMontage> MeleeAttackMontage;
+    FHeroMeleeAttackAbilityConfig MeleeAttackConfig;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    FGameplayTag MeleeAttackCueTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    FScalableFloat MeleeAttackSkillMultiplier;
-
-    // 최대 공격 가능한 적의 수
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Melee Attack")
-    int32 MaxHitTargets = 1;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Ability|Melee Attack")
-    float WeaponTraceSphereRadius = 50.f;
-
+    // ========================================================================
+    // 디버그 
     UPROPERTY(EditDefaultsOnly, Category = "Ability|Melee Attack")
     float WeaponTraceInterval = 0.1f;
 
@@ -68,7 +53,7 @@ protected:
     
     UPROPERTY(EditDefaultsOnly, Category = "Ability|Debug")
     float TraceDebugDuration = 1.f;
-
+    // ========================================================================
 private:
     TArray<AActor*> HitActors;
 

@@ -5,8 +5,8 @@
 #include "PropertyEditorModule.h"
 #include "Customization/AbilityEntryCustomization.h"
 #include "Customization/AttributeModEntryCustomization.h"
-#include "Types/PGStructTypes.h"
 #include "Types/PGGasTypes.h"
+#include "Types/AbilityConfig.h"
 
 #include "Customization/SetBonusDataCustomization.h"
 #include "DataAssets/Items/DataAsset_SetBonusData.h"

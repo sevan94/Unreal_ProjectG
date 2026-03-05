@@ -9,8 +9,8 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGFunctionLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
-#include "DataAssets/Ability/AbilityConfig.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
 {
@@ -21,15 +21,21 @@ void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
-    UAOEAttackAbilityConfig* Data = Cast<UAOEAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
-    if (Data)
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
     {
-        AOEAttackMontage = Data->AbilityMontage;
-        AOEAttackSkillMultiplier = Data->DamageMultiplier;
-        AOEImpactCueTag = Data->AOEImpactCueTag;
-        AOEAttackRadius = Data->AOEAttackRadius;
-        MaxHitTargets = Data->MaxHitTargets;
+        const FHeroCastingAOEAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroCastingAOEAbilityConfig>();
+        if (Config)
+        {
+            AOEAttackConfig = *Config;
+        }
     }
+
+    //==============================================
+    // FHeroCastingAOEAbilityConfig의 SoftPtr 로드
+    AOEAttackConfig.DamageEffectClass.LoadSynchronous();
+    AOEAttackConfig.CastingMontage.LoadSynchronous();
+    //==============================================
 }
 
 //void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -51,6 +57,8 @@ void UHeroAbility_AOEAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
 void UHeroAbility_AOEAttack::OnHitLocationReady(FVector InHitLocation)
 {
     CachedHitLocation = InHitLocation;
+
+    UAnimMontage* AOEAttackMontage = AOEAttackConfig.CastingMontage.Get();
 
     // 애니메이션 몽타주 재생
     UAbilityTask_PlayMontageAndWait* AOEMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, AOEAttackMontage);
@@ -80,7 +88,7 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
 {
     FGameplayCueParameters GameplayCueParameters;
     GameplayCueParameters.Location = CachedHitLocation;
-    UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(GetAvatarActorFromActorInfo(), AOEImpactCueTag, GameplayCueParameters);
+    UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(GetAvatarActorFromActorInfo(), AOEAttackConfig.ImpactCueTag, GameplayCueParameters);
 
 
     // 무시할 액터 설정
@@ -90,15 +98,15 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
     UKismetSystemLibrary::SphereOverlapActors(
         this,
         CachedHitLocation,
-        AOEAttackRadius,
+        AOEAttackConfig.AOEAttackRadius,
         TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 }, // Pawn 객체 타입
         AUnitCharacter::StaticClass(),
         IgnoredActors,
         HitActors
     );
 
-    float SkillMultiplierValue = AOEAttackSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(AOEAttackDamageEffectClass, SkillMultiplierValue);
+    float SkillMultiplierValue = AOEAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(AOEAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
 
     for (AActor* HitActor : HitActors)
     {

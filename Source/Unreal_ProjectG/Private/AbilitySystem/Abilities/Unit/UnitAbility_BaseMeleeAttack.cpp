@@ -7,32 +7,34 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
-#include "DataAssets/Ability/AbilityConfig.h"
-
-UUnitAbility_BaseMeleeAttack::UUnitAbility_BaseMeleeAttack()
-{
-    // 기본 설정
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 void UUnitAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
-    UUnitMeleeAttackAbilityConfig* Data = Cast<UUnitMeleeAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
-    if (Data)
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
     {
-        MeleeAttackMontage = Data->AbilityMontage;
-        MeleeAttackSkillMultiplier = Data->DamageMultiplier;
-        MaxHitTargets = Data->MaxHitTargets;
-        HitImpactTag = Data->HitImpactTag;
+        const FUnitBaseMeleeAttackAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FUnitBaseMeleeAttackAbilityConfig>();
+        if (Config)
+        {
+            MeleeAttackConfig = *Config;
+        }
     }
 }
 
 void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    checkf(MeleeAttackMontage, TEXT("MeleeAttackMontage이 비어있습니다!"));
+    //==============================================
+    // FUnitBaseMeleeAttackAbilityConfig의 SoftPtr 로드
+    MeleeAttackConfig.DamageEffectClass.LoadSynchronous();
+    for (TSoftObjectPtr<UAnimMontage>& AttackMontage : MeleeAttackConfig.MeleeAttackMontages)
+    {
+        AttackMontage.LoadSynchronous();
+    }
+    //==============================================
+    checkf(MeleeAttackConfig.MeleeAttackMontages.Num() > 0, TEXT("MeleeAttackMontage 배열이 비어있습니다!"));
 
     // 전방에 박스 트레이스를 발사하여 가장 가까운 타겟 액터를 찾음
     FVector StartLocation = GetAvatarActorFromActorInfo()->GetActorLocation()
@@ -41,13 +43,13 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
     TArray<FHitResult> HitResults;
 
     // 가장 가까운 폰 액터 찾기
-    UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, MeleeAttackDamageRadius, TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 /* Pawn */ }, false, TArray<AActor*>(), bEnableTraceDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true, FLinearColor::Red, FLinearColor::Green, TraceDebugDuration);
+    UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, MeleeAttackConfig.MeleeAttackDamageRadius, TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 /* Pawn */ }, false, TArray<AActor*>(), bEnableTraceDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true, FLinearColor::Red, FLinearColor::Green, TraceDebugDuration);
     
     // 적대적인 타겟 필터링
     int32 CurrentHitTargets = 0;
     for (const FHitResult& HitResult : HitResults)
     {
-        if (MaxHitTargets <= CurrentHitTargets)
+        if (MeleeAttackConfig.MaxHitTargets <= CurrentHitTargets)
         {
             break;
         }
@@ -64,6 +66,10 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
+
+    // 랜덤하게 하나의 몽타주 선택
+    int MontageIndex = FMath::RandRange(0, MeleeAttackConfig.MeleeAttackMontages.Num() - 1);
+    UAnimMontage* MeleeAttackMontage = MeleeAttackConfig.MeleeAttackMontages[MontageIndex].Get();
 
     // 애니메이션 몽타주 재생
     UAbilityTask_PlayMontageAndWait* MeleeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MeleeAttackMontage);
@@ -97,17 +103,17 @@ void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventD
 {
     // 데미지 적용
     // TODO : 스킬의 데미지 Multiflier를 변수화
-    float SkillMultiplierValue = MeleeAttackSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(MeleeAttackDamageEffectClass, SkillMultiplierValue);
+    float SkillMultiplierValue = MeleeAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
     for( TWeakObjectPtr<AActor> TargetActor : CachedTargetActors)
     {
         if (TargetActor.IsValid())
         {
             // TargetActor에게 게임플레이 큐 실행
-            if (HitImpactTag.IsValid())
+            if (MeleeAttackConfig.HitImpactCueTag.IsValid())
             {
-                UE_LOG(LogTemp, Log, TEXT("Executing GameplayCue %s on Actor %s"), *HitImpactTag.ToString(), *TargetActor->GetName());
-                UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(TargetActor.Get(), HitImpactTag, FGameplayCueParameters());
+                UE_LOG(LogTemp, Log, TEXT("Executing GameplayCue %s on Actor %s"), *MeleeAttackConfig.HitImpactCueTag.ToString(), *TargetActor->GetName());
+                UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(TargetActor.Get(), MeleeAttackConfig.HitImpactCueTag, FGameplayCueParameters());
             }
 
             NativeApplyEffectSpecHandleToTarget(TargetActor.Get(), EffectSpecHandle);

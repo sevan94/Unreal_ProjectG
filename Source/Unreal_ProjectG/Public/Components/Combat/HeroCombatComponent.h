@@ -20,6 +20,12 @@ class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnCombatComponent
 	GENERATED_BODY()
 	
 public:
+    // 전투 관련 함수들
+
+
+    // ==============================================================
+    // 장비 장착 함수들
+    // ==============================================================
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData);
 

@@ -23,17 +23,11 @@
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Mode/PGBaseGameMode.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
-
 // Sets default values
 AHeroCharacter::AHeroCharacter()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-
     MovementComponent = GetCharacterMovement();
 
     //화면이 회전하지 않도록 고정
@@ -216,10 +210,13 @@ void AHeroCharacter::ActivateSkill()
 {
     if (PGAbilitySystemComponent)
     {
-        FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
-        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
-        FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
-        PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
+        //FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
+        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
+        //FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
+        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
+
+        // 현재 스킬 1개로 예정
+        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Skill);
     }
 }
 
@@ -241,9 +238,11 @@ void AHeroCharacter::BroadCastAttributeSet()
 
 void AHeroCharacter::OnDie()
 {
+    PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Die);
+
     if (PGAbilitySystemComponent && GA_Die)
     {
-        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Die);
+        //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Die);
     }
     else
         UE_LOG(LogTemp, Warning, TEXT("AbilitySystem Unavailable"));
@@ -267,6 +266,9 @@ void AHeroCharacter::BeginPlay()
         }
     }
 
+    // =============================================================================
+    // StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
+    // =============================================================================
     if (PGAbilitySystemComponent)
     {
         if (GA_Die)
@@ -307,6 +309,7 @@ void AHeroCharacter::Tick(float DeltaTime)
     }
 }
 
+#pragma region Input
 // Called to bind functionality to input
 void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -318,26 +321,6 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
         enhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AHeroCharacter::OnMovementInput);
         enhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AHeroCharacter::OnAttackInput);
     }
-}
-
-void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroHpChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroCostChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
 }
 
 void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
@@ -357,9 +340,33 @@ void AHeroCharacter::OnAttackInput()
 {
     if (PGAbilitySystemComponent)
     {
-        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+        //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
     }
 }
+#pragma endregion
+
+#pragma region AttributeChangeBroadCast
+void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroCostChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
+}
+#pragma endregion
 
 void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -369,7 +376,7 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.AddUnique(Unit);
         }
@@ -388,7 +395,7 @@ void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.RemoveSwap(Unit);
         }
@@ -406,8 +413,9 @@ void AHeroCharacter::ActivateAttack()
     /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
     if(PGAbilitySystemComponent)
     {
-        FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
-        PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
+        //FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
+        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
+        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
     }
 }
 

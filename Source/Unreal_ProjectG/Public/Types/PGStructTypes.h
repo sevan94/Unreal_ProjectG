@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
-#include "DataAssets/Ability/AbilityConfig.h"
+#include "Types/AbilityConfig.h"
 #include "PGStructTypes.generated.h"
 
 class UPGHeroGameplayAbility;
@@ -13,17 +13,6 @@ class UDataAsset_SkillData;
 /**
  * 
  */
-USTRUCT(BlueprintType)
-struct FAbilityEntry
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UPGGameplayAbility> AbilityClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, meta = (AllowAbstract = false, ShowOnlyInnerProperties))
-    TObjectPtr<UAbilityConfig> AbilityConfig;
-};
 
 // 무기 데이터 구조체
 USTRUCT(BlueprintType)
@@ -43,21 +32,13 @@ struct FPGHeroWeaponData
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TSubclassOf<UPGHeroLinkedAnimLayer> WeaponAnimLayer;    
     
-    // // 무기 기본 경격 어빌리티
-    // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
-    // TSubclassOf<UPGHeroGameplayAbility> BaseAttackAbility;
-
     // 무기 기본 공격 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UDataAsset_SkillData> WeaponBasicAttackAbility;
 
-    //// 무기 스킬 어빌리티 들
+    // 무기 스킬 어빌리티 들
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillAbilityList;
-
-    // // 무기 스킬 어빌리티들
-    // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    // TArray<TSubclassOf<UPGHeroGameplayAbility>> WeaponSkillAbilities;
+    TSoftObjectPtr<UDataAsset_SkillData> WeaponSkillAbility;
 };
 
 

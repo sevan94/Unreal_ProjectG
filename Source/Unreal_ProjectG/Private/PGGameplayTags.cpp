@@ -3,13 +3,12 @@
 
 #include "PGGameplayTags.h"
 
-
 namespace PGGameplayTags
 {
     // 플레이어 어빌리티 태그
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack_Melee, "Player.Ability.BasicAttack.Melee");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack_Projectile, "Player.Ability.BasicAttack.Projectile");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill_1, "Player.Ability.Skill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill, "Player.Ability.Skill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
 
     // 플레이어 무기 게임 플레이 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Sword, "Player.Weapon.Sword");
@@ -31,6 +30,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_DamageMultiplier, "Shared.SetByCaller.DamageMultiplier");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_MaxHealthMultiplier, "Shared.SetByCaller.MaxHealthMultiplier");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_AttackPowerMultiplier, "Shared.SetByCaller.AttackPowerMultiplier");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseBuffAmount, "Shared.SetByCaller.BaseBuffAmount");
 
 
     //유닛 등급 태그
@@ -59,5 +59,9 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
+
+    //버프 태그
+    UE_DEFINE_GAMEPLAY_TAG(Buff_AttackPower, "Buff.AttackPower");
+    UE_DEFINE_GAMEPLAY_TAG(Buff_MaxHealth, "Buff.MaxHealth");
 }
 

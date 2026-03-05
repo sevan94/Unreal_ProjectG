@@ -69,10 +69,10 @@ private:
     void OnAbilityClassChanged();
 
     // 어빌리티 클래스에 맞는 Config만 나오도록 하는 필터 함수
-    void UpdateConfigClassFilter();
+    void UpdateConfigStructFilter();
 
     // 현재 선택된 어빌리티 클래스에 맞는 Config만 나오도록 하는 함수
-    UClass* GetRequiredConfigClass() const;
+    UScriptStruct* GetRequiredConfigStruct() const;
 
     // Config 가시성 반환
     EVisibility GetConfigVisibility() const;

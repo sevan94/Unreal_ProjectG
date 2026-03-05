@@ -1,7 +1,6 @@
 #include "AbilityEntryCustomization.h"
 #include "DetailWidgetRow.h"
 #include "IDetailChildrenBuilder.h"
-#include "Types/PGStructTypes.h"
 #include "Types/AbilityConfig.h"
 #include "ClassViewerModule.h"
 #include "PropertyCustomizationHelpers.h"
@@ -50,6 +49,9 @@ void FAbilityEntryCustomization::CustomizeHeader(TSharedRef<IPropertyHandle> Pro
 // 자식 부분 커스터마이징
 void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyHandle, IDetailChildrenBuilder& ChildBuilder, IPropertyTypeCustomizationUtils& Utils)
 {
+    // 초기화 플래그 On
+    bIsInitializing = true;
+
     // 패널 업데이트용 Utils 저장
     PropertyUtilities = Utils.GetPropertyUtilities();
 
@@ -59,15 +61,11 @@ void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> P
     AbilityConfigHandle = PropertyHandle->GetChildHandle(
         GET_MEMBER_NAME_CHECKED(FAbilityEntry, AbilityConfig));
 
+    // 현재 AbilityClass를 캐싱
+    CachedAbilityClass = GetCurrentAbilityClass();
+
     // 진입점에서 현재 AbilityClass에 맞는 Config 클래스 필터링
     UpdateConfigStructFilter();
-
-    UObject* AbilityClassObj = nullptr;
-    AbilityClassHandle->GetValue(AbilityClassObj);
-    if (AbilityClassObj && PropertyUtilities.IsValid())
-    {
-        PropertyUtilities->RequestRefresh();
-    }
 
     // AbilityClass 변경 감지 -> Config 초기화
      AbilityClassHandle->SetOnPropertyValueChanged(
@@ -111,6 +109,9 @@ void FAbilityEntryCustomization::CustomizeChildren(TSharedRef<IPropertyHandle> P
         .Visibility(TAttribute<EVisibility>::Create(
             TAttribute<EVisibility>::FGetter::CreateSP(
                 this, &FAbilityEntryCustomization::GetConfigVisibility))); // AbilityClass에 맞는 Config가 있을 때만 표시
+
+    // 초기화 플래그 Off
+    bIsInitializing = false;
 }
 
 void FAbilityEntryCustomization::UpdateConfigStructFilter()
@@ -133,6 +134,15 @@ void FAbilityEntryCustomization::OnAbilityClassChanged()
     // IsValid()는 포인터가 NUllL이 아닌지만 체크, IsValidHandle()은 핸들이 유효한지 체크
     if (!AbilityConfigHandle.IsValid() || !AbilityConfigHandle->IsValidHandle()) return;
     if (!AbilityClassHandle.IsValid() || !AbilityClassHandle->IsValidHandle()) return;
+
+    // 초기화 중이면 로직 실행하지 않음
+    if (bIsInitializing) return;
+
+    // 실제 클래스가 변경 되었는지를 확인
+    const UClass* NewClass = GetCurrentAbilityClass();
+    if (NewClass == CachedAbilityClass) return;
+    // 실제 클래스가 변경되었으므로 캐싱된 클래스 업데이트
+    CachedAbilityClass = NewClass;
 
     UpdateConfigStructFilter();
 
@@ -219,3 +229,4 @@ void FAbilityEntryCustomization::OnAbilityClassSelected(const UClass* NewClass)
     AbilityClassHandle->SetValueFromFormattedString(
         NewClass ? NewClass->GetPathName() : TEXT("None"));
 }
+

@@ -11,6 +11,8 @@ class UBoxComponent;
 class UNiagaraComponent;
 class UProjectileMovementComponent;
 struct FGameplayEventData;
+class UNiagaraSystem;
+class USoundBase;
 
 // 히트 또는 오버랩 시 데미지 적용 정책
 UENUM(BlueprintType)
@@ -59,6 +61,12 @@ protected:
 
     UPROPERTY(BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = "true"))
     FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
+    TWeakObjectPtr<UNiagaraSystem> ProjectileImpactVFX;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
+    TWeakObjectPtr<USoundBase> ProjectileImpactSFX;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
     float ProjectileSpan = 2.0f;

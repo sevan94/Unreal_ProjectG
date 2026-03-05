@@ -10,7 +10,7 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGGameplayTags.h"
 
-UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetWarriorASCFromActor(AActor* InActor)
+UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetPGASCFromActor(AActor* InActor)
 {
     check(InActor);
 
@@ -19,7 +19,7 @@ UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetWarriorASCFromActor(AAct
 
 bool UPGFunctionLibrary::NativeDoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck)
 {
-    UPGAbilitySystemComponent* ASC = NativeGetWarriorASCFromActor(InActor);
+    UPGAbilitySystemComponent* ASC = NativeGetPGASCFromActor(InActor);
 
     return ASC->HasMatchingGameplayTag(TagToCheck);
 }
@@ -51,8 +51,8 @@ UPawnCombatComponent* UPGFunctionLibrary::BP_GetCombatComponentFromActor(AActor*
 
 bool UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
 {
-    UPGAbilitySystemComponent* TargetASC = NativeGetWarriorASCFromActor(InTargetActor);
-    UPGAbilitySystemComponent* SourceASC = NativeGetWarriorASCFromActor(InInstigator);
+    UPGAbilitySystemComponent* TargetASC = NativeGetPGASCFromActor(InTargetActor);
+    UPGAbilitySystemComponent* SourceASC = NativeGetPGASCFromActor(InInstigator);
 
     FActiveGameplayEffectHandle ActivateGameplayEffectHandle = SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data, TargetASC);
 

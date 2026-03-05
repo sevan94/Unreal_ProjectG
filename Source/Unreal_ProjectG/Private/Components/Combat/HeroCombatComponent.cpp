@@ -15,7 +15,7 @@
 
 void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
 {
-    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetWarriorASCFromActor(GetOwner());
+    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
 
     // 무기 메시 장착 및 캐싱 로직
     AHeroCharacter* HeroCharacter = Cast<AHeroCharacter>(GetOwner());
@@ -57,18 +57,18 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
 
 void UHeroCombatComponent::EquipHeroArmor(UDataAsset_ArmorData* InArmorData)
 {
-    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetWarriorASCFromActor(GetOwner());
+    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
     InArmorData->MakeOutgoingArmorEffectSpecHandle(ASC, 1);
 }
 
 void UHeroCombatComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData)
 {
-    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetWarriorASCFromActor(GetOwner());
+    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
     UDataAsset_SkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
-    AccessoryAbilityAsset->AbilityEntry.AbilityClass.LoadSynchronous();
+    AccessoryAbilityAsset->AbilityEntry.AbilityClass;
 
     FGameplayAbilitySpec AbilitySpec(
-        AccessoryAbilityAsset->AbilityEntry.AbilityClass.Get(),
+        AccessoryAbilityAsset->AbilityEntry.AbilityClass,
         1,
         INDEX_NONE,
         AccessoryAbilityAsset

@@ -22,7 +22,7 @@ struct FAbilityEntry
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UPGGameplayAbility> AbilityClass;
+    TSubclassOf<UPGGameplayAbility> AbilityClass;
 
     UPROPERTY(EditAnywhere, meta=(BaseStruct="/Script/Unreal_ProjectG.AbilityConfig"))
     FInstancedStruct AbilityConfig;
@@ -41,10 +41,6 @@ struct FNumericBuffEffectConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat BaseBuffAmount;
-
-    // 어떤 Attribute를 올릴지 태그로 분기 (예: Buff.AttackPower, Buff.MaxHealth)
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Buff"))
-    FGameplayTag BuffTypeTag;
 };
 
 USTRUCT(BlueprintType)
@@ -75,7 +71,7 @@ struct FHeroMeleeAttackAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> MeleeAttackMontages; // 공격 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag HitImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
 };
 
@@ -96,7 +92,7 @@ struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> SpawnProjectileMontages; // 공격 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; // 스폰할때, 재생할 이펙트 태그
 };
 
@@ -120,7 +116,7 @@ struct FHeroCastingAOEAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UAnimMontage> CastingMontage; // 캐스팅 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag ImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
 };
 
@@ -144,7 +140,7 @@ struct FUnitBaseMeleeAttackAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> MeleeAttackMontages; // 공격 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag HitImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
 };
 
@@ -165,7 +161,7 @@ struct FUnitSpawnProjectileAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> SpawnProjectileMontages; // 공격 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
 };
 
@@ -186,7 +182,7 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages; // 공격 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
 };
 
@@ -207,7 +203,7 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
 };
 

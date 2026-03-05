@@ -6,6 +6,8 @@
 #include "AnimInstance/PGBaseAnimInstance.h"
 #include "PGPawnAnimInstance.generated.h"
 
+class UPawnMovementComponent;
+class APGPetBase;
 /**
  * 
  */
@@ -14,4 +16,17 @@ class UNREAL_PROJECTG_API UPGPawnAnimInstance : public UPGBaseAnimInstance
 {
 	GENERATED_BODY()
 	
+public:
+    virtual void NativeInitializeAnimation() override;
+    virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+
+protected:
+    UPROPERTY()
+    TWeakObjectPtr<APGPetBase> OwningPet;
+
+    UPROPERTY()
+    TObjectPtr<UPawnMovementComponent> OwningPetMovement;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimData|LocomotionData")
+    float Speed;
 };

@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "DataAssets/StartUp/DataAsset_StartupDataBase.h"
 #include "GameplayTagContainer.h"
-#include "Types/PGStructTypes.h"
 #include "DataAsset_UnitStartupData.generated.h"
 
 class UBranchDataAsset;
 class UPGUnitGameplayAbility;
+class UDataAsset_SkillData;
 class UAnimMontage;
+
 /**
  * 
  */

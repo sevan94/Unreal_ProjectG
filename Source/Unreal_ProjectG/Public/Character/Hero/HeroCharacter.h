@@ -143,6 +143,7 @@ public:
     FOnHeroCostChanged OnHeroCostChanged;
     FOnHeroMaxCostChanged OnHeroMaxCostChanged;
 
+    TWeakObjectPtr<AActor> CurrentTarget;
 protected:
     //컴포넌트
     //스프링 암
@@ -218,9 +219,6 @@ private:
 
     //공격 범위 내 적들
     TArray<AActor*> PotentialTargets;
-
-    TWeakObjectPtr<AActor> CurrentTarget;
-
     // =================================================================================
     // UnEquip은 배틀에서는 필요가 없어 보임
     // =================================================================================

@@ -125,12 +125,12 @@ void UHeroAbility_BaseMeleeAttack::PerformWeaponTrace()
     ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1); //DefaultEngine.ini에서 선언된 AttackTrace 채널
     TArray<FHitResult> OutHits;
 
-    UKismetSystemLibrary::SphereTraceMulti(
+    UKismetSystemLibrary::SphereTraceMultiForObjects(
         this,
         StartLocation,
         EndLocation,
         MeleeAttackConfig.WeaponTraceRadius,
-        TraceChannel,
+        TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 /* Pawn */ },
         false,
         TArray<AActor*>(),
         bEnableTraceDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
@@ -138,7 +138,6 @@ void UHeroAbility_BaseMeleeAttack::PerformWeaponTrace()
         true,
         FLinearColor::Red, FLinearColor::Green, TraceDebugDuration
     );
-
 
     if (OutHits.Num() <= 0)
         return;
@@ -162,11 +161,8 @@ void UHeroAbility_BaseMeleeAttack::PerformWeaponTrace()
 void UHeroAbility_BaseMeleeAttack::HandleApplyDamage(AActor* InTargetActor)
 {   
     //// 이미 히트된 액터는 무시
-    if (HitActors.Contains(InTargetActor))
-    {
-        return;
-    }
-    
+    if (HitActors.Contains(InTargetActor)) return;
+
     if(CurrentHitTargets >= MeleeAttackConfig.MaxHitTargets)
     {
         // 최대 타겟 수에 도달했으므로 트레이스 타이머 종료

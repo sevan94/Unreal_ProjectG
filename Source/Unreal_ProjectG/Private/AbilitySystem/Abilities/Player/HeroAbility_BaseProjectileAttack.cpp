@@ -8,6 +8,7 @@
 #include "PGGameplayTags.h"
 #include "Items/PGProjectileBase.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "Character/Hero/HeroCharacter.h"
 
 void UHeroAbility_BaseProjectileAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -75,8 +76,15 @@ void UHeroAbility_BaseProjectileAttack::EndAbility(const FGameplayAbilitySpecHan
 
 void UHeroAbility_BaseProjectileAttack::SpawnProjectile(FGameplayEventData InEventData)
 {
+    // 스폰 위치는 무기 메시의 SpanwProjectileSocket 소켓 위치
     FVector SpawnLocation = CachedWeaponStaticMesh->GetSocketLocation(FName("SpawnProjectileSocket"));
+
+    // 히어로 캐릭터의 TargetActor가 유효하다면 그쪽으로 발사, 아니라면 캐릭터가 바라보는 방향으로 발사
     FRotator SpawnRotation = GetAvatarActorFromActorInfo()->GetActorForwardVector().Rotation();
+    if (AActor* TargetActor = GetHeroCharacterFromActorInfo()->CurrentTarget.Get())
+    {
+        SpawnRotation = (TargetActor->GetActorLocation() - SpawnLocation).Rotation();
+    }
 
     APGProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<APGProjectileBase>(HeroSpawnProjectileConfig.SpawnedProjectileClass.Get(), FTransform(SpawnRotation, SpawnLocation),
         GetAvatarActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);

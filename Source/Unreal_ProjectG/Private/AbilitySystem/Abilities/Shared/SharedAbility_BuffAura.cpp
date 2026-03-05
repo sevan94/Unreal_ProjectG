@@ -148,9 +148,6 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
 
                 SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_DamageMultiplier, Multiplier);
                 SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, BaseAmount);
-            
-                //분기용 태그 추가
-                SpecHandle.Data->AddDynamicAssetTag(Buff.BuffTypeTag);
             }
             CachedNumericBuffSpecs.Add(SpecHandle);
         }

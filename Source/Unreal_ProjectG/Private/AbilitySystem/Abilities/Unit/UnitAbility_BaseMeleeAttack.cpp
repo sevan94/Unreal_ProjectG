@@ -104,7 +104,11 @@ void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventD
     // 데미지 적용
     // TODO : 스킬의 데미지 Multiflier를 변수화
     float SkillMultiplierValue = MeleeAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
+    FGameplayEffectSpecHandle EffectSpecHandle;
+    if (MeleeAttackConfig.DamageEffectClass.Get())
+    {
+        EffectSpecHandle = MakeOutgoingEffectSpecToTarget(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
+    }
     for( TWeakObjectPtr<AActor> TargetActor : CachedTargetActors)
     {
         if (TargetActor.IsValid())

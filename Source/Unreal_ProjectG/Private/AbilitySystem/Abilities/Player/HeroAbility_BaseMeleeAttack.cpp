@@ -34,7 +34,7 @@ void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 {
     //==============================================
     // FHeroMeleeAttackAbilityConfig의 SoftPtr 로드
-    MeleeAttackConfig.DamageEffectClass.LoadSynchronous();
+    //MeleeAttackConfig.DamageEffectClass.LoadSynchronous();
     for (TSoftObjectPtr<UAnimMontage>& Montage : MeleeAttackConfig.MeleeAttackMontages)
     {
         Montage.LoadSynchronous();

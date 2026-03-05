@@ -57,7 +57,7 @@ struct FHeroMeleeAttackAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier; // 스킬 계수

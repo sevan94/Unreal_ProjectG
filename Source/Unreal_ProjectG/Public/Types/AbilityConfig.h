@@ -22,7 +22,7 @@ struct FAbilityEntry
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UPGGameplayAbility> AbilityClass;
+    TSubclassOf<UPGGameplayAbility> AbilityClass;
 
     UPROPERTY(EditAnywhere, meta=(BaseStruct="/Script/Unreal_ProjectG.AbilityConfig"))
     FInstancedStruct AbilityConfig;

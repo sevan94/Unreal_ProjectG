@@ -107,7 +107,8 @@ void USharedAbility_BuffAura::OnAuraBeginOverlap(UPrimitiveComponent* Overlapped
     // 이미 버프가 적용된 액터이거나, 적대적인 대상이 아니라면 무시
     if (ActiveBuffsOnTargets.Contains(OtherActor)) return;
     if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), OtherActor)) return;
-    
+    if (!Cast<APGCharacterBase>(OtherActor)) return;
+
     ApplyBuffAuraEffectToTarget(OtherActor);
 }
 

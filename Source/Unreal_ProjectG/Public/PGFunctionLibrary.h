@@ -22,7 +22,7 @@ class UNREAL_PROJECTG_API UPGFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-    static UPGAbilitySystemComponent* NativeGetWarriorASCFromActor(AActor* InActor);
+    static UPGAbilitySystemComponent* NativeGetPGASCFromActor(AActor* InActor);
 
     // 타겟 액터가 특정 태그를 가지고 있는지 확인하는 네이티브 함수
     static bool NativeDoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck);

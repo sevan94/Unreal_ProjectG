@@ -16,10 +16,8 @@ void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemCo
         {
             if (!SkillData) continue;
 
-            TSubclassOf<UGameplayAbility> AbilityClass = SkillData->AbilityEntry.AbilityClass.LoadSynchronous();
-
             FGameplayAbilitySpec AbilitySpec(
-                AbilityClass,
+                SkillData->AbilityEntry.AbilityClass,
                 InLevel,
                 INDEX_NONE,
                 SkillData

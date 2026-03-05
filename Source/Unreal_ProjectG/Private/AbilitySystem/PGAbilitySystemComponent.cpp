@@ -8,13 +8,12 @@
 void UPGAbilitySystemComponent::GrantHeroAbilityByAbilityData(const TSoftObjectPtr<UDataAsset_SkillData>& InAbilityData, int32 ApplyLevel)
 {
     UDataAsset_SkillData* LoadedData = InAbilityData.LoadSynchronous();
-    LoadedData->AbilityEntry.AbilityClass.LoadSynchronous();
     
-    if (LoadedData->AbilityEntry.AbilityClass.IsValid())
+    if (LoadedData->AbilityEntry.AbilityClass)
     {
         // 이 어빌리티 스킬 데이터 에셋을 소스로 하는 어빌리티 스펙 생성
         FGameplayAbilitySpec BasicAttackAbilitySpec(
-            LoadedData->AbilityEntry.AbilityClass.Get(),
+            LoadedData->AbilityEntry.AbilityClass,
             ApplyLevel,
             INDEX_NONE,
             LoadedData
@@ -30,9 +29,8 @@ void UPGAbilitySystemComponent::GrantHeroAbilitiesByAbilityData(const TArray<TSo
         if (AbilityData)
         {
             UDataAsset_SkillData* LoadedData = AbilityData.LoadSynchronous();
-            LoadedData->AbilityEntry.AbilityClass.LoadSynchronous();
             FGameplayAbilitySpec AbilitySpec(
-                LoadedData->AbilityEntry.AbilityClass.Get(),
+                LoadedData->AbilityEntry.AbilityClass,
                 ApplyLevel,
                 INDEX_NONE,
                 LoadedData

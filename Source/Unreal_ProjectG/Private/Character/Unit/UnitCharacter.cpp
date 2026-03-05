@@ -162,6 +162,11 @@ void AUnitCharacter::InitUnitStartUpData()
                         TeamTag = StartUpData->TeamTag;
                     }
 
+                    if (StartUpData->DeadMontage)
+                    {
+                        UnitDeadMontage = StartUpData->DeadMontage;
+                    }
+
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
                     {
@@ -216,7 +221,21 @@ void AUnitCharacter::OnDie()
 {
     if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
     {
-        SpawnSubsystem->OnUnitDied(this);
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        if (AnimInstance && UnitDeadMontage)
+        {
+            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)-0.2f;
+
+            FTimerHandle TimerHandle;
+            GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
+                {
+                    SpawnSubsystem->OnUnitDied(this);
+                }, Duration, false);
+        }
+        else
+        {
+            SpawnSubsystem->OnUnitDied(this);
+        }
     }
     else
     {

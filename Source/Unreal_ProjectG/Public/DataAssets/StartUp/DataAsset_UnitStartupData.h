@@ -10,6 +10,7 @@
 class UBranchDataAsset;
 class UPGUnitGameplayAbility;
 class UDataAsset_SkillData;
+class UAnimMontage;
 
 /**
  * 
@@ -32,6 +33,8 @@ public:
     UPROPERTY(EditAnywhere, Category = "Stats")
     UBranchDataAsset* BranchData;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+    UAnimMontage* DeadMontage;
 private:
     // 유닛만이 가지고 있는 어빌리티
     UPROPERTY(EditDefaultsOnly, Category = "StartupData")

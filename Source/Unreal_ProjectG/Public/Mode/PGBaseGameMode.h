@@ -10,7 +10,7 @@
 class ABaseStructure;
 
 /**
- * 
+ *
  */
 USTRUCT(BlueprintType)
 struct FBattleResultData
@@ -59,27 +59,6 @@ public:
     void RegisterUnit(ETeamType Team);
     void UnregisterUnit(ETeamType Team);*/
 
-    // 현재 플레이 시간(초)을 반환하는 함수 (UI 표시용)
-    UFUNCTION(BlueprintPure, Category = "GameRule|Time")
-    float GetCurrentPlayTime() const;
-
-    //기지 파괴 시 호출될 게임오버 함수
-    UFUNCTION()
-    void OnGameOver(ETeamType DefeatedTeam);
-
-protected:
-    virtual void BeginPlay() override;
-
-    //  UI 출력 이벤트
-    UFUNCTION(BlueprintImplementableEvent, Category = "GameRule")
-    void BP_ShowResultUI(const FBattleResultData& ResultData);
-
-public:
-    UPROPERTY(BlueprintReadWrite, Category = "Battle")
-    int32 SpentCost = 0;
-
-protected:
-
     // ---  클리어 등급 설정 (시간 제한) ---
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule|Grade")
     float ClearTimeLimit_3Stars = 60.0f;
@@ -87,13 +66,27 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule|Grade")
     float ClearTimeLimit_2Stars = 180.0f;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Battle")
+    int32 SpentCost = 0;
+
+    // 현재 플레이 시간(초)을 반환하는 함수 (UI 표시용)
+    UFUNCTION(BlueprintPure, Category = "GameRule|Time")
+    float GetCurrentPlayTime() const;
+
+protected:
+    virtual void BeginPlay() override;
+
+public:
+    //기지 파괴 시 호출될 게임오버 함수
+    UFUNCTION()
+    void OnGameOver(ETeamType DefeatedTeam);
+
+protected:
     // 상태 및 시간 저장용 변수
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
 
-    UPROPERTY(BlueprintReadWrite, Category = "Battle")
-    float TotalSpentCost = 0;
-
-private:
-    TObjectPtr<ABaseStructure> AllyBase;
+    //  UI 출력 이벤트
+    UFUNCTION(BlueprintImplementableEvent, Category = "GameRule")
+    void BP_ShowResultUI(bool bIsVictory, int32 StarCount);
 };

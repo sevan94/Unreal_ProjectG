@@ -5,8 +5,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "EnhancedInputComponent.h"
-#include "Components/Resource/HeroResourceComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "UI/Battle/ControlPanelWidget.h"
 #include "Components/Combat/HeroCombatComponent.h"
@@ -14,14 +12,18 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
-#include "Character/Unit/UnitCharacter.h"
 #include "PGGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "EnhancedInputComponent.h"
+#include "Mode/PGBaseGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
+
 #include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
-#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
-#include "Mode/PGBaseGameMode.h"
+//#include "Character/Unit/UnitCharacter.h"
+#include "Components/Resource/HeroResourceComponent.h"
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -210,6 +212,7 @@ void AHeroCharacter::ActivateSkill()
 {
     if (PGAbilitySystemComponent)
     {
+        // 주석
         //FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
         //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
         //FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
@@ -240,6 +243,7 @@ void AHeroCharacter::OnDie()
 {
     PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Die);
 
+    // 주석
     if (PGAbilitySystemComponent && GA_Die)
     {
         //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Die);
@@ -266,6 +270,7 @@ void AHeroCharacter::BeginPlay()
         }
     }
 
+    // 주석
     // =============================================================================
     // StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
     // =============================================================================
@@ -300,6 +305,16 @@ void AHeroCharacter::Tick(float DeltaTime)
 
     if (!(PotentialTargets.IsEmpty()))
     {
+        CurrentTarget = GetClosestTarget(PotentialTargets);
+
+        if (CurrentTarget.IsValid())
+        {
+            //CurrentTarget을 바라보도록 회전
+            FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
+            LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
+            SetActorRotation(LookAtRotation);
+        }
+
         ActivateAttack();
     }
 
@@ -372,7 +387,9 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 {
     UE_LOG(LogTemp, Log, TEXT("Overlap"));
 
-    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
 
     if (Unit)
     {
@@ -391,7 +408,9 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
     UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
-    AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+
+    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
 
     if (Unit)
     {

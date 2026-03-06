@@ -9,35 +9,32 @@
 //
 namespace PGGameplayTags
 {
-    // 인풋 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_BaseAttack);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Skill_1);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Skill_2);
-
     // 플레이어 어빌리티 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_BasicAttack_Melee);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_BasicAttack_Projectile);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill_1);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill_2);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_BasicAttack);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Skill);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Die);
 
     // 플레이어 무기 게임 플레이 태그 
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_Sword);
 
-    // 플레이어 이벤트 태그
-
     // 유닛 어빌리티 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack_Melee);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_MagicCharge);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_ActivateSheild);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_BasicAttack);
 
     // 공유 이벤트 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_AttackTraceToggle); // 몽타주에서 공격 트레이스 온오프 토글용
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_ProjectileSpawn);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_ActorSpawn);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_MeleeHit);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_AOEExecute);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_HitReact); // 히트 리액트 이벤트 태그
 
     // 공유 SetByCaller 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_DamageMultiplier);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_MaxHealthMultiplier);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_AttackPowerMultiplier);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseBuffAmount);
 
 
     //유닛 상태(State) 태그
@@ -45,6 +42,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Combat);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Move);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Dead);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Guard);
 
 
     //유닛 등급 태그
@@ -67,7 +65,8 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
 
-    //게임 플레이 큐 태그
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_AOEImpact);
+    //버프 태그
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Buff_AttackPower);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Buff_MaxHealth);
 
 }

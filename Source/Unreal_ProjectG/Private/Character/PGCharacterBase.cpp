@@ -5,6 +5,7 @@
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 
+
 APGCharacterBase::APGCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -14,6 +15,10 @@ APGCharacterBase::APGCharacterBase()
 
     PGAbilitySystemComponent = CreateDefaultSubobject<UPGAbilitySystemComponent>(TEXT("PGAbilitySystemComponent"));
     CharacterAttributeSet = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("CharacterAttributeSet"));
+
+    GetMesh()->SetRenderCustomDepth(true);
+
+    GetMesh()->SetCustomDepthStencilValue(1);
 }
 
 UAbilitySystemComponent* APGCharacterBase::GetAbilitySystemComponent() const
@@ -22,16 +27,16 @@ UAbilitySystemComponent* APGCharacterBase::GetAbilitySystemComponent() const
     return GetPGAbilitySystemComponent();
 }
 
-UPawnCombatComponent* APGCharacterBase::GetPawnCombatComponent() const
-{
-    return nullptr;
-}
-
 void APGCharacterBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
     if(TeamTag.IsValid())
     {
         TagContainer.AddTag(TeamTag);
+    }
+
+    if (BranchTag.IsValid())
+    {
+        TagContainer.AddTag(BranchTag);
     }
 }
 

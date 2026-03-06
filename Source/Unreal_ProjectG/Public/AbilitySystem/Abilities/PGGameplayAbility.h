@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "Types/PGEnumTypes.h"
+#include "Types/AbilityConfig.h"
 #include "PGGameplayAbility.generated.h"
 
 class UPGAbilitySystemComponent;
@@ -25,13 +26,14 @@ class UNREAL_PROJECTG_API UPGGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
+public:
+    UPGGameplayAbility();
+
 protected:
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-    UFUNCTION(BlueprintPure, Category = "PGGameplayAbility")
-    UPawnCombatComponent* GetPawnCombatComponent() const;
-
+    // ActorInfo에서 PGAbilitySystemComponent을 가져오는 헬퍼 함수
     UFUNCTION(BlueprintPure, Category = "PGGameplayAbility")
     UPGAbilitySystemComponent* GetPGAbilitySystemComponentFromActorInfo() const;
 
@@ -43,6 +45,7 @@ protected:
 
     // 타깃 액터에게 게임플레이 이펙트를 제거하는 네이티브 함수
     void NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle);
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "PGGameplayAbility")
     EPGAbilityActivationPolicy AbilityActivationPolicy = EPGAbilityActivationPolicy::OnTriggered;

@@ -18,18 +18,9 @@ class UNREAL_PROJECTG_API AHeroTestCharacter : public AHeroCharacter
 {
 	GENERATED_BODY()
 
-public:
-    AHeroTestCharacter();
-
-    void SetupEquipmentToPawn();
-
 protected:
     virtual void BeginPlay() override;
 
-private:
-    void SetupWeaponToPawn();
-    void SetupArmorToPawn();
-    void SetupAccessoryToPawn();  
 private:
     UPROPERTY(EditDefaultsOnly, Category = "WeaponData")
     TSoftObjectPtr<UDataAsset_WeaponData> WeaponDataAsset;

@@ -3,6 +3,7 @@
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "Character/Unit/UnitCharacter.h"
 #include "Engine/World.h"
+#include "Interfaces/VisualEffectTargetInterface.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 
 void UUnitSpawnSubsystem::PrewarmPool(TSubclassOf<AUnitCharacter> UnitClass, int32 Count)
@@ -57,19 +58,20 @@ AUnitCharacter* UUnitSpawnSubsystem::GetUnitInstance(TSubclassOf<AUnitCharacter>
     return UnitToReturn;
 }
 
-void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData, FVector Location, FRotator Rotation)
+void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass, 
+    FVector Location, FRotator Rotation,
+    AActor* InTargetActor)
 {
     if (!UnitClass) return;
-
     AUnitCharacter* SpawnedUnit = GetUnitInstance(UnitClass);
 
     if (SpawnedUnit)
     {
         SpawnedUnit->SetActorLocationAndRotation(Location, Rotation);
-
-        // [수정] 직접 접근 대신 Setter 사용 (Error C2248 해결)
-        SpawnedUnit->SetCharacterStartupData(UnitData);
-
+        if (InTargetActor)
+        {
+            SpawnedUnit->SetAttackTarget(InTargetActor);
+        }
         ActiveUnits.Add(SpawnedUnit);
         SpawnedUnit->ActivateUnit();
     }
@@ -80,6 +82,12 @@ void UUnitSpawnSubsystem::ReturnToPool(AUnitCharacter* Unit)
     if (!IsValid(Unit)) return;
 
     Unit->DeactivateUnit();
+    
+    // 유닛의 모든 시각 효과를 초기화
+    if(Unit->GetClass()->ImplementsInterface(UVisualEffectTargetInterface::StaticClass()))
+    {
+        IVisualEffectTargetInterface::Execute_ResetVisualEffectState(Unit);
+    }
 
     // 유닛의 클래스를 키값으로 사용하여 풀에 저장
     TSubclassOf<AUnitCharacter> UnitClass = Unit->GetClass();
@@ -112,7 +120,6 @@ void UUnitSpawnSubsystem::GetAllActiveUnits(TArray<AUnitCharacter*>& OutUnits)
 
 void UUnitSpawnSubsystem::DespawnAllActiveUnits()
 {
-    // 복사본을 만들어 순회 (ReturnToPool 내부에서 ActiveUnits를 수정하므로)
     TArray<TWeakObjectPtr<AUnitCharacter>> TempUnits = ActiveUnits;
 
     for (const auto& WeakUnit : TempUnits)
@@ -131,5 +138,10 @@ void UUnitSpawnSubsystem::OnUnitDied(AUnitCharacter* Victim)
     {
         // Destroy 대신 풀 반환 호출
         ReturnToPool(Victim);
+        ActiveUnits.Remove(Victim);
+
+        // [변경점] ReturnToPool 대신 그냥 Destroy
+        //Victim->Destroy();
+
     }
 }

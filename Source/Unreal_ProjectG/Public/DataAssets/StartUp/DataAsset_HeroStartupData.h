@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "DataAssets/StartUp/DataAsset_StartupDataBase.h"
-#include "Types/PGStructTypes.h"
 #include "DataAsset_HeroStartupData.generated.h"
 
+class UPGHeroGameplayAbility;
 /**
  * 
  */

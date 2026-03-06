@@ -9,11 +9,43 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGFunctionLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
 UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
+
+void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
+    {
+        const FHeroCastingAOEAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroCastingAOEAbilityConfig>();
+        if (Config)
+        {
+            AOEAttackConfig = *Config;
+        }
+    }
+
+    //==============================================
+    // FHeroCastingAOEAbilityConfig의 SoftPtr 로드
+    AOEAttackConfig.DamageEffectClass.LoadSynchronous();
+    AOEAttackConfig.CastingMontage.LoadSynchronous();
+    //==============================================
+}
+
+//void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+//{
+//    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+//    {
+//        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+//        return;
+//    }
+//}
 
 void UHeroAbility_AOEAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -25,6 +57,8 @@ void UHeroAbility_AOEAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
 void UHeroAbility_AOEAttack::OnHitLocationReady(FVector InHitLocation)
 {
     CachedHitLocation = InHitLocation;
+
+    UAnimMontage* AOEAttackMontage = AOEAttackConfig.CastingMontage.Get();
 
     // 애니메이션 몽타주 재생
     UAbilityTask_PlayMontageAndWait* AOEMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, AOEAttackMontage);
@@ -54,7 +88,7 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
 {
     FGameplayCueParameters GameplayCueParameters;
     GameplayCueParameters.Location = CachedHitLocation;
-    UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(GetAvatarActorFromActorInfo(), AOEImpactCueTag, GameplayCueParameters);
+    UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(GetAvatarActorFromActorInfo(), AOEAttackConfig.ImpactCueTag, GameplayCueParameters);
 
 
     // 무시할 액터 설정
@@ -64,21 +98,22 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
     UKismetSystemLibrary::SphereOverlapActors(
         this,
         CachedHitLocation,
-        AOEAttackRadius,
+        AOEAttackConfig.AOEAttackRadius,
         TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 }, // Pawn 객체 타입
         AUnitCharacter::StaticClass(),
         IgnoredActors,
         HitActors
     );
 
-    float SkillMultiplierValue = AOEAttackSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(AOEAttackDamageEffectClass, SkillMultiplierValue);
+    float SkillMultiplierValue = AOEAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(AOEAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
 
     for (AActor* HitActor : HitActors)
     {
-        if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
+        if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
             NativeApplyEffectSpecHandleToTarget(HitActor, EffectSpecHandle);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
         }
     }
 }

@@ -3,22 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/Combat/PawnCombatComponent.h"
+#include "Components/PawnExtensionComponentBase.h"
 #include "HeroCombatComponent.generated.h"
 
-
-class APGHeroWeapon;
 /**
  * 
  */
-UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnCombatComponent
+UCLASS()
+class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
 	
-protected:
-    virtual void BeginPlay() override;
-
-public:
-    TWeakObjectPtr<UStaticMeshComponent> CachedWeaponMeshComponent;
 };

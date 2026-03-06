@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Types/PGStructTypes.h"
 #include "PGAbilitySystemComponent.generated.h"
 
 class UPGHeroGameplayAbility;
+class UDataAsset_SkillData;
 /**
  * 
  */
@@ -18,11 +18,15 @@ class UNREAL_PROJECTG_API UPGAbilitySystemComponent : public UAbilitySystemCompo
 	
 
 public:
-    // 무기 기본 공격 어빌리티 부여
+    // 어빌리티 데이터 에셋로부터 단일 어빌리티 부여(핸들 반환)
     UFUNCTION(BlueprintCallable, Category = "Abilities", meta = (ApplyLevel = "1"))
-    void GrantHeroWeaponBasicAttackAbility(TSubclassOf<UPGHeroGameplayAbility> InBasicAttackAbility, int32 ApplyLevel, FGameplayAbilitySpecHandle& OutBasicAttackAbilitySpecHandle);
+    void GrantHeroAbilityByAbilityData(const TSoftObjectPtr<UDataAsset_SkillData>& InAbilityData, int32 ApplyLevel);
 
-    // 무기 스킬 어빌리티 부여
+    // 어빌리티 데이터 에셋 배열로부터 어빌리티 부여(핸들 반환)
     UFUNCTION(BlueprintCallable, Category = "Abilities", meta = (ApplyLevel = "1"))
-    void GrantHeroWeaponSkillAbilities(const TArray<TSubclassOf<UPGHeroGameplayAbility>>& InWeaponSkillAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles);
+    void GrantHeroAbilitiesByAbilityData(const TArray<TSoftObjectPtr<UDataAsset_SkillData>>& InAbilityDataArray, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles);
+
+    // 태그로 어빌리티 활성화 시도
+    UFUNCTION(BlueprintCallable, Category = "Abilities")
+    bool TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate);
 };

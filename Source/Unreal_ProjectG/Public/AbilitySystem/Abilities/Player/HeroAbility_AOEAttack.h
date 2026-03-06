@@ -17,6 +17,9 @@ class UNREAL_PROJECTG_API UHeroAbility_AOEAttack : public UPGHeroGameplayAbility
 public:
     UHeroAbility_AOEAttack();
 
+    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
+    //virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 protected:
@@ -29,24 +32,8 @@ protected:
     UFUNCTION()
     void OnAOEMontageFinished();
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    TSubclassOf<UGameplayEffect> AOEAttackDamageEffectClass;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    TObjectPtr<UAnimMontage> AOEAttackMontage;
-
-    // 데미지가 들어갈 때 호출될 게임 플레이 큐
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    FGameplayTag AOEImpactCueTag;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    int32 MaxHitTargets = 3;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    float AOEAttackRadius = 300.f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    FScalableFloat AOEAttackSkillMultiplier;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|AOE Attack")
+    FHeroCastingAOEAbilityConfig AOEAttackConfig;
 
 private:
     FVector CachedHitLocation;

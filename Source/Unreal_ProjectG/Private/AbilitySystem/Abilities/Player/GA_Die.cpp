@@ -46,7 +46,7 @@ void UGA_Die::RespawnHero()
     AHeroCharacter* Hero = Cast<AHeroCharacter>(CurrentActorInfo->AvatarActor.Get());
     if (Hero)
     {
-        Hero->SpawnCharacter();
+        Hero->SpawnHero();
         
         UPGAbilitySystemComponent* HeroAbility = Hero->GetPGAbilitySystemComponent();
         if (FullHealth && HeroAbility)

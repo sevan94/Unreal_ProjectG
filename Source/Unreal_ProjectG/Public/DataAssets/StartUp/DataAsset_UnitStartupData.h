@@ -6,8 +6,11 @@
 #include "DataAssets/StartUp/DataAsset_StartupDataBase.h"
 #include "GameplayTagContainer.h"
 #include "DataAsset_UnitStartupData.generated.h"
+
 class UBranchDataAsset;
 class UPGUnitGameplayAbility;
+class UDataAsset_SkillData;
+class UAnimMontage;
 
 /**
  * 
@@ -30,32 +33,10 @@ public:
     UPROPERTY(EditAnywhere, Category = "Stats")
     UBranchDataAsset* BranchData;
 
-    // --- [2] 외형 ---
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    USkeletalMesh* SkeletalMesh;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    TSubclassOf<UAnimInstance> AnimBlueprint;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    UAnimMontage* UnitBasicAttackMontage;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    UAnimMontage* UnitSkillMontage;
-
-    //// --- [3] 능력치 (GAS 초기화용) ---
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    //float Health = 100.0f;
-
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    //float AttackDamage = 10.0f;
-
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    //float AttackSpeed = 1.0f;
-
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    //float MoveSpeed = 300.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+    UAnimMontage* DeadMontage;
 private:
+    // 유닛만이 가지고 있는 어빌리티
     UPROPERTY(EditDefaultsOnly, Category = "StartupData")
-    TArray<TSubclassOf<UPGUnitGameplayAbility>> UnitCombatAbilities;
+    TArray<UDataAsset_SkillData*> UnitCombatAbilityEntries;
 };

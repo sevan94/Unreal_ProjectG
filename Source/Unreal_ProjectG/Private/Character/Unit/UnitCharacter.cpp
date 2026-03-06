@@ -4,7 +4,7 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "Components/Combat/UnitCombatComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,6 +15,8 @@
 #include "DataAssets/Unit/UnitData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "DataAssets/Unit/BranchDataAsset.h"
+#include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "Components/Visual/CharacterVisualEffectComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -23,22 +25,36 @@ AUnitCharacter::AUnitCharacter()
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-    UnitCombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("UnitCombatComponent"));
-
     UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
     if (MovementComponent)
     {
-        //크라우드 우회를 사용하기 때문에 RVO는 꺼야함, 기본적으로 꺼져있지만 혹시 몰라서 생성자에서 다시 끄기
         MovementComponent->bUseRVOAvoidance = false;
     }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+    }
+
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        CharacterMesh->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+
+        CharacterMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+        CharacterMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); 
+    }
+
+    WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+
+    if (WeaponMesh)
+    {
+        WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
+    }
+
+    UnitVisualEffectComponent = CreateDefaultSubobject<UCharacterVisualEffectComponent>(TEXT("UnitVisualEffectComponent"));
 }
-
-UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const
-{
-    return UnitCombatComponent;
-}
-
-
 
 void AUnitCharacter::BeginPlay()
 {
@@ -47,6 +63,8 @@ void AUnitCharacter::BeginPlay()
     AIController = Cast<AAIController>(GetController());
 
     UE_LOG(LogTemp, Log, TEXT("BeginPlay"));
+
+
 }
 
 void AUnitCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -59,11 +77,51 @@ void AUnitCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AUnitCharacter::SetAOEHighlightEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetAOEHighlightEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::SetHitReactEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetHitReactEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::ResetVisualEffectState_Implementation()
+{
+    if (UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->ResetVisualEffectState();
+    }
+}
+
 void AUnitCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
     InitUnitStartUpData();
+}
+
+void AUnitCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    if (!PGAbilitySystemComponent)
+    {
+        PGAbilitySystemComponent = FindComponentByClass<UPGAbilitySystemComponent>();
+    }
+
+    if (!CharacterAttributeSet && PGAbilitySystemComponent)
+    {
+
+        CharacterAttributeSet = const_cast<UPGCharacterAttributeSet*>(PGAbilitySystemComponent->GetSet<UPGCharacterAttributeSet>());
+    }
 }
 
 void AUnitCharacter::InitUnitStartUpData()
@@ -72,34 +130,24 @@ void AUnitCharacter::InitUnitStartUpData()
     {
         return;
     }
-
     // 비동기로 스타트업 데이터 로드 및 적용
     UAssetManager::GetStreamableManager().RequestAsyncLoad(
         CharacterStartupData.ToSoftObjectPath(),
         FStreamableDelegate::CreateLambda(
             [this]()
             {
+                if (IsHidden() || !IsValid(this))
+                {
+                    return;
+                }
+
                 if (UDataAsset_StartupDataBase* LoadedData = CharacterStartupData.Get())
                 {
-                    LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
-
+                    if (PGAbilitySystemComponent)
+                    {
+                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+                    }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
-                    StartUpData->SkeletalMesh;
-
-                    if (StartUpData->SkeletalMesh)
-                    {
-                        GetMesh()->SetSkeletalMesh(StartUpData->SkeletalMesh);
-                    }
-
-                    if (StartUpData->AnimBlueprint)
-                    {
-                        GetMesh()->SetAnimInstanceClass(StartUpData->AnimBlueprint);
-                    }
-
-                    if (StartUpData->UnitBasicAttackMontage)
-                    {
-                        UnitAttackMontage = StartUpData->UnitBasicAttackMontage;
-                    }
 
                     if (StartUpData->BranchData)
                     {
@@ -110,11 +158,31 @@ void AUnitCharacter::InitUnitStartUpData()
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
                         AttackMarginKey = AttackRangeKey * 0.7f;
+
+                        if (StartUpData->BranchData->BranchTag.IsValid())
+                        {
+                            BranchTag = StartUpData->BranchData->BranchTag;
+                        }
                     }
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
-                    UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
+                    if (CharacterAttributeSet)
+                    {
+                        UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
+                    }
 
-                    TeamTag = StartUpData->TeamTag;
+                    if (StartUpData->TeamTag.IsValid())
+                    {
+                        TeamTag = StartUpData->TeamTag;
+                    }
+
+                    if (StartUpData->DeadMontage)
+                    {
+                        UnitDeadMontage = StartUpData->DeadMontage;
+                    }
 
                     //유닛 서브시스템을 이용한 태그별 팀 설정
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
@@ -132,6 +200,7 @@ void AUnitCharacter::InitUnitStartUpData()
         )
     );
 }
+
 
 void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 {
@@ -169,7 +238,21 @@ void AUnitCharacter::OnDie()
 {
     if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
     {
-        SpawnSubsystem->OnUnitDied(this);
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        if (AnimInstance && UnitDeadMontage)
+        {
+            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)-0.2f;
+
+            FTimerHandle TimerHandle;
+            GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
+                {
+                    SpawnSubsystem->OnUnitDied(this);
+                }, Duration, false);
+        }
+        else
+        {
+            SpawnSubsystem->OnUnitDied(this);
+        }
     }
     else
     {
@@ -181,30 +264,36 @@ void AUnitCharacter::OnDie()
 
 void AUnitCharacter::ActivateUnit()
 {
-    // 1. 시각적 처리
     SetActorHiddenInGame(false); // 보이게 하기
     SetActorEnableCollision(true); // 충돌 켜기
     SetActorTickEnabled(true); // 로직 다시 돌리기
 
-    InitUnitStartUpData();
-
-    // 3. 움직임 초기화
-    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-
-    // 4. (필요 시) AI 컨트롤러 재빙의
     if (Controller == nullptr && AIControllerClass)
     {
         SpawnDefaultController();
+    }
+    else
+    {
+        InitUnitStartUpData();
+    }
+    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+    if (TargetActor)
+    {
+        SetAttackTarget(TargetActor);
     }
 }
 
 void AUnitCharacter::DeactivateUnit()
 {
-    // 1. 동작 멈춤
-    if (GetController())
+
+    OnUnitStartUpDataLoadedDelegate.Clear();
+
+    if (AController* OldController = GetController())
     {
-        GetController()->StopMovement();
-        GetController()->UnPossess(); // 컨트롤러 연결 해제 (선택사항, 성능상 재사용 추천)
+        OldController->StopMovement();
+        OldController->UnPossess(); 
+        OldController->Destroy();   
     }
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
@@ -215,15 +304,13 @@ void AUnitCharacter::DeactivateUnit()
 
     // 2. 물리/이동 초기화
     GetCharacterMovement()->StopMovementImmediately();
-    GetCharacterMovement()->SetMovementMode(MOVE_None); // 물리 연산 최소화
+    GetCharacterMovement()->SetMovementMode(MOVE_None);
 
     // 3. 시각적 숨김
     SetActorEnableCollision(false);
     SetActorHiddenInGame(true);
-    SetActorTickEnabled(false); // 틱을 꺼서 성능 확보
+    SetActorTickEnabled(false);
 
-    // 4. 기타 정리 (타이머, 파티클 등)
-    GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 

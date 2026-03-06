@@ -9,8 +9,10 @@ void UDataAsset_StartupDataBase::GiveToAbilitySystemComponent(UPGAbilitySystemCo
 {
     check(InASCToGive);
 
-    GrantAbilities(ActivateOnGivenAbilities, InASCToGive, InLevel);
-    GrantAbilities(ReactedAbilities, InASCToGive, InLevel);
+    if(!StartUpAbilities.IsEmpty())
+    {
+        GrantAbilities(StartUpAbilities, InASCToGive, InLevel);
+    }
 
     if (!StartUpGameplayEffects.IsEmpty())
     {

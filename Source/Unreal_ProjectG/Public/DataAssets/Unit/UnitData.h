@@ -30,18 +30,5 @@ public:
     USkeletalMesh* SkeletalMesh;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
-    UAnimMontage* AttackMontage;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
     TSubclassOf<UAnimInstance> AnimBlueprint;
-
-    // --- [3] 능력치 (GAS 초기화용) ---
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float Health = 100.0f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float AttackDamage = 10.0f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats")
-    float MoveSpeed = 300.0f;
 };

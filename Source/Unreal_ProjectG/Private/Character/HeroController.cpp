@@ -2,8 +2,12 @@
 
 
 #include "Character/HeroController.h"
+#include "UI/Battle/ControlPanelWidget.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubSystems.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/CameraActor.h"
+#include "Character/Hero/HeroCharacter.h"
 
 void AHeroController::OnPossess(APawn* InPawn)
 {
@@ -13,6 +17,26 @@ void AHeroController::OnPossess(APawn* InPawn)
 void AHeroController::BeginPlay()
 {
     Super::BeginPlay();
+
+    AActor* Camera = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass());
+
+    if (Camera)
+    {
+        this->SetViewTargetWithBlend(Camera, 0.0f);
+    }
+
+    Hero = Cast<AHeroCharacter>(GetPawn());
+}
+
+void AHeroController::PlayerTick(float DeltaTime)
+{
+    Super::PlayerTick(DeltaTime);
+
+    // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
+    if (Hero && bIsMoving)
+    {
+        MoveCharacter();
+    }
 }
 
 void AHeroController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -31,4 +55,26 @@ void AHeroController::SetupInputComponent()
         UE_LOG(LogTemp, Log, TEXT("Player Controller Subsystem Available"));
         Subsystem->AddMappingContext(InputMappingContext, 1);
     }
+}
+
+void AHeroController::MoveStart_Implementation(FVector2D JoyInput)
+{
+    bIsMoving = true;
+
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
+}
+
+void AHeroController::ChangeDirection_Implementation(FVector2D JoyInput)
+{
+    MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
+}
+
+void AHeroController::EndMovement_Implementation()
+{
+    bIsMoving = false;
+}
+
+void AHeroController::MoveCharacter()
+{
+    Hero->AddMovementInput(MoveDirection);
 }

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 #include "GATargetActor_AOEGroundTrace.generated.h"
-
 class USphereComponent;
 /**
  * 
@@ -65,6 +64,4 @@ protected:
 
     bool bIsTouching = false;
     FVector LastTouchLocation;
-
-    TMap<TObjectPtr<AActor>, TObjectPtr<UMaterialInstanceDynamic>> HighlightedActorMap;
 };

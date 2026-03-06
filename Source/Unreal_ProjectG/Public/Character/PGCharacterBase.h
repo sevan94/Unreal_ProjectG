@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-#include "Interfaces/PawnCombatInterface.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
 #include "GameplayTagAssetInterface.h"
 #include "PGCharacterBase.generated.h"
+
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterDiedDelegate, ABaseCharacter*, DeadCharacter);
 
 class UPGCharacterAttributeSet;
@@ -18,7 +18,7 @@ class UDataAsset_StartupDataBase;
 
 
 UCLASS()
-class UNREAL_PROJECTG_API APGCharacterBase : public ACharacter, public IAbilitySystemInterface, public IPawnCombatInterface, public IGameplayTagAssetInterface
+class UNREAL_PROJECTG_API APGCharacterBase : public ACharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
@@ -28,19 +28,17 @@ public:
     // 어빌리티 시스템 인터페이스 구현
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    // 컴뱂 인터페이스 구현
-    virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
-
     // 게임 태그 에셋 인터페이스 구현
     virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
+    virtual void OnDie() {};
+
+    FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
     FORCEINLINE UPGCharacterAttributeSet* GetPGCharacterAttributeSet() const { return CharacterAttributeSet; }
-    FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
 protected:
     virtual void PossessedBy(AController* NewController) override;
 
-    virtual void OnDie() {};
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
     TObjectPtr<UPGAbilitySystemComponent> PGAbilitySystemComponent;
@@ -48,6 +46,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
     TObjectPtr<UPGCharacterAttributeSet> CharacterAttributeSet;
 
+    // 캐릭터 초기화 데이터 에셋
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
     TSoftObjectPtr<UDataAsset_StartupDataBase> CharacterStartupData;
 
@@ -56,4 +55,13 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     FGameplayTag TeamTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    FGameplayTag BranchTag;
 };
+
+
+
+
+
+

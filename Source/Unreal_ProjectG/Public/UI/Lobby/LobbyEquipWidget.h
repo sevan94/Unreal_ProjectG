@@ -13,6 +13,7 @@ class UWidgetSwitcher;
 class UCurrentEquipWidget;
 class UEquipListWidget;
 class UEquipUIDataAsset;
+class UEquipDescriptionWidget;
 
 /**
  * 
@@ -73,6 +74,10 @@ protected:
     // 장비 리스트 위젯
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UEquipListWidget> EquipList;
+
+    // 장비 정보 위젯
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UEquipDescriptionWidget> EquipDescription;
 
 private:
     // 현재 선택된 카테고리

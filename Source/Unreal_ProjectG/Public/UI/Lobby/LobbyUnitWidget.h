@@ -35,7 +35,7 @@ private:
 
     // 유닛 선택 시 데이터 저장
     UFUNCTION()
-    void HandleUnitSelected(UUnitUIDataAsset* SelectedData);
+    void HandleUnitSelected(UUnitUIDataAsset* InData);
 
 public:
     // 위젯 스위처

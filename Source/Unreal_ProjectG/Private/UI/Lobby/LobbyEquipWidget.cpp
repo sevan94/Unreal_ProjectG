@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "UI/Lobby/CurrentEquipWidget.h"
 #include "UI/Lobby/EquipListWidget.h"
+#include "UI/Lobby/EquipDescriptionWidget.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 #include "Mode/Save/PGGameInstance.h"
 
@@ -34,6 +35,8 @@ void ULobbyEquipWidget::NativeConstruct()
         EquipButton->SetIsEnabled(false);
         EquipButton->OnClicked.AddDynamic(this, &ULobbyEquipWidget::OnEquipButtonClicked);
     }
+
+    EquipDescription->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ULobbyEquipWidget::OnExitButtonClick()
@@ -41,6 +44,7 @@ void ULobbyEquipWidget::OnExitButtonClick()
     EquipList->ClearTileView();
     SelectedEquip = nullptr;
     EquipButton->SetIsEnabled(false);
+    EquipDescription->SetVisibility(ESlateVisibility::Hidden);
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 }
 
@@ -67,19 +71,27 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
         break;
     }
 
-    // 장착 후 버튼 다시 비활성화
+    // 장착 후 처리
      EquipButton->SetIsEnabled(false);
      SelectedEquip = nullptr;
+     EquipDescription->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ULobbyEquipWidget::HandleEquipSelected(UEquipUIDataAsset* InData)
 {
     if(!InData) return;
 
+    if (EquipDescription && InData)
+    {
+        // 정보 창 표시
+        EquipDescription->SetVisibility(ESlateVisibility::Visible);
+        EquipDescription->UpdateDescription(InData);
+    }
+
     // 선택된 데이터 저장
     SelectedEquip = InData;
 
-    // 2. 장착 버튼 활성화
+    // 장착 버튼 활성화
     if (EquipButton)
     {
         EquipButton->SetIsEnabled(true);

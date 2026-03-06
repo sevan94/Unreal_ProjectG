@@ -80,6 +80,9 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
 
         // 대기 유닛 초기화
         SelectedUnit = nullptr;
+
+        // 설명 창 숨기기
+        UnitDescription->SetVisibility(ESlateVisibility::Hidden);
     }
 }
 
@@ -90,17 +93,17 @@ void ULobbyUnitWidget::OnExitButtonClick()
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 }
 
-void ULobbyUnitWidget::HandleUnitSelected(UUnitUIDataAsset* SelectedData)
+void ULobbyUnitWidget::HandleUnitSelected(UUnitUIDataAsset* InData)
 {
-    if (UnitDescription && SelectedData)
+    if (UnitDescription && InData)
     {
         // 정보 창 표시
         UnitDescription->SetVisibility(ESlateVisibility::Visible);
-        UnitDescription->UpdateDescription(SelectedData);
+        UnitDescription->UpdateDescription(InData);
     }
 
     // 교체 대기 유닛 저장
-    SelectedUnit = SelectedData;
+    SelectedUnit = InData;
     //UE_LOG(LogTemp, Log, TEXT("교체 유닛 저장"));
 
     // 모든 파티 슬롯에 교체 오버레이 켜기

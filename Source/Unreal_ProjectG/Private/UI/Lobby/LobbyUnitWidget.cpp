@@ -14,6 +14,7 @@ void ULobbyUnitWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     PartySlots.Empty();
+    UnitDescription->SetVisibility(ESlateVisibility::Hidden);
 
     if (PartyBox)
     {
@@ -84,6 +85,8 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
 
 void ULobbyUnitWidget::OnExitButtonClick()
 {
+    SelectedUnit = nullptr;
+    UnitDescription->SetVisibility(ESlateVisibility::Hidden);
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 }
 
@@ -92,6 +95,7 @@ void ULobbyUnitWidget::HandleUnitSelected(UUnitUIDataAsset* SelectedData)
     if (UnitDescription && SelectedData)
     {
         // 정보 창 표시
+        UnitDescription->SetVisibility(ESlateVisibility::Visible);
         UnitDescription->UpdateDescription(SelectedData);
     }
 

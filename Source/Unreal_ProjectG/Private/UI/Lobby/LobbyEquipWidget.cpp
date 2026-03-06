@@ -7,6 +7,7 @@
 #include "UI/Lobby/CurrentEquipWidget.h"
 #include "UI/Lobby/EquipListWidget.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void ULobbyEquipWidget::SetEquipList(EEquipCategory InType)
 {
@@ -47,18 +48,22 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
 {
     if (!SelectedEquip) return;
 
-    // 데이터 에셋의 카테고리에 따라 해당 부위 위젯 업데이트
-    // (UEquipUIDataAsset 내부에 Category 변수가 있다고 가정)
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+
+    // 현재 선택 카테고리에 따라 해당 부위 위젯 업데이트 및 인스턴스 저장
     switch (CurrentActiveCategory)
     {
     case EEquipCategory::Weapon:
         if (WeaponEquip) WeaponEquip->UpdateEquipSlot(SelectedEquip);
+        GI->CurrentWeapon = SelectedEquip->EquipDataAsset;
         break;
     case EEquipCategory::Armor:
         if (ArmorEquip) ArmorEquip->UpdateEquipSlot(SelectedEquip);
+        GI->CurrentArmor = SelectedEquip->EquipDataAsset;
         break;
     case EEquipCategory::Accessory:
         if (AccesoryEquip) AccesoryEquip->UpdateEquipSlot(SelectedEquip);
+        GI->CurrentAccessory = SelectedEquip->EquipDataAsset;
         break;
     }
 

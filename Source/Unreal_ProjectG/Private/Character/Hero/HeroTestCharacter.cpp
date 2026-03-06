@@ -16,6 +16,13 @@ void AHeroTestCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+
+    if (GI)
+    {
+        if(GI->CurrentWeapon) WeaponDataAsset = GI->CurrentWeapon;
+    }
+
     // 데이터 에셋 로드
     WeaponDataAsset.LoadSynchronous();
     ArmorDataAsset.LoadSynchronous();

@@ -63,18 +63,6 @@ void UPGGameInstance::LoadGameData()
     }
 }
 
-void UPGGameInstance::InitBattleUI(AHeroCharacter* Hero, APlayerController* PC)
-{
-    if (ABattleHUD* HUD = Cast<ABattleHUD>(PC->GetHUD()))
-    {
-        if (HUD)
-        {
-            // 스펙 핸들 전달
-            HUD->SetAbilitySpec();
-        }
-    }
-}
-
 void UPGGameInstance::SaveGameData()
 {
     if (!CachedSaveData) return;

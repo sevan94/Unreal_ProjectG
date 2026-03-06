@@ -7,23 +7,32 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
 #include "Components/Combat/HeroCombatComponent.h"
+#include "Components/Combat/PawnCombatComponent.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BarWidget.h"
 #include "UI/Battle/BaseHpWidget.h"
 #include "UI/Battle/UnitPanelWidget.h"
 #include "UI/Battle/ActiveSkillWidget.h"
-#include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "Interfaces/JoysticInput.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
+#include "Mode/Save/PGGameInstance.h"
+#include "DataAssets/UI/EquipUIDataAsset.h"
 
 void UControlPanelWidget::SetAbilitySpecHandle()
 {
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
     TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
     if (!SpecHandleArray.IsEmpty())
     {
         //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-        WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+        if(SpecHandleArray[0].IsValid())WeaponSkill1->SetAbilitySpecHandle(SpecHandleArray[0]);
+        // if(SpecHandleArray[1].IsValid())WeaponSkill2->SetAbilitySpecHandle(SpecHandleArray[1]);
+        if (GI->CurrentWeapon)
+        {
+            WeaponSkill1->SetSkillIcon(GI->CurrentWeapon->SkillImage1);
+            WeaponSkill2->SetSkillIcon(GI->CurrentWeapon->SkillImage2);
+        }
     }
 }
 

@@ -47,7 +47,7 @@ void UPGGameInstance::LoadGameData()
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
     //장비
-    CurrentWeapon = TSoftObjectPtr<UDataAsset_WeaponData>(CachedSaveData->EquippedWeaponPath);
+    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
     CurrentArmor = TSoftObjectPtr<UDataAsset_ArmorData>(CachedSaveData->EquippedArmorPath);
     CurrentAccessory = TSoftObjectPtr<UDataAsset_AccessoryData>(CachedSaveData->EquippedAccessoryPath);
 

@@ -44,9 +44,6 @@ public:
     UFUNCTION()
     void UpdateBaseMaxHP(FGameplayTag TeamTag, float InValue);
 
-    UFUNCTION(BlueprintCallable)
-    UActiveSkillWidget* GetActiveSkillWidget() { return WeaponSkill; }
-
 protected:
     // 블루프린트 이벤트를 C++에서 오버라이드
     virtual void NativeConstruct() override;
@@ -96,7 +93,10 @@ protected:
 
     // 액티브 스킬
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UActiveSkillWidget> WeaponSkill;
+    TObjectPtr<UActiveSkillWidget> WeaponSkill1;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UActiveSkillWidget> WeaponSkill2;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UUnitPanelWidget> UnitPanel;

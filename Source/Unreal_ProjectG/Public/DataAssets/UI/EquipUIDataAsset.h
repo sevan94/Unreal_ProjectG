@@ -26,4 +26,16 @@ public:
     // 장비 이름
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
     FName EquipName;
+
+    // 스킬 1
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
+    TObjectPtr<UTexture2D> SkillImage1;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
+    FString SkillDescription1;
+
+    // 스킬 2
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
+    TObjectPtr<UTexture2D> SkillImage2;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
+    FString SkillDescription2;
 };

@@ -11,6 +11,7 @@
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "DataAssets/UI/EquipUIDataAsset.h"
 
 void AHeroTestCharacter::BeginPlay()
 {
@@ -20,7 +21,7 @@ void AHeroTestCharacter::BeginPlay()
 
     if (GI)
     {
-        if(GI->CurrentWeapon) WeaponDataAsset = GI->CurrentWeapon;
+        if(GI->CurrentWeapon) WeaponDataAsset = GI->CurrentWeapon->EquipDataAsset;
     }
 
     // 데이터 에셋 로드

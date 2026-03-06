@@ -55,7 +55,7 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
     {
     case EEquipCategory::Weapon:
         if (WeaponEquip) WeaponEquip->UpdateEquipSlot(SelectedEquip);
-        GI->CurrentWeapon = SelectedEquip->EquipDataAsset;
+        GI->CurrentWeapon = SelectedEquip;
         break;
     case EEquipCategory::Armor:
         if (ArmorEquip) ArmorEquip->UpdateEquipSlot(SelectedEquip);

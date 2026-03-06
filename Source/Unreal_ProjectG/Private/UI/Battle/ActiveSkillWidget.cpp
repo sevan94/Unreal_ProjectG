@@ -5,9 +5,10 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Overlay.h"
+#include "Components/Image.h"
+#include "Components/Combat/PawnCombatComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Character/Hero/HeroCharacter.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "TimerManager.h"
 #include "UI/DataTable/SkillUIDataTable.h"
 
@@ -28,19 +29,6 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
             UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
 
-            FString AbilityName = AbilityObject->GetClass()->GetName();
-            if (SkillDataTable)
-            {
-                FSkillUIDataTable* FoundRow = SkillDataTable->FindRow<FSkillUIDataTable>(FName(*AbilityName), TEXT("Skill Lookup"));
-                if (FoundRow)
-                {
-                    SkillIcon = FoundRow->SkillIcon;
-
-                    // 초기 이미지 설정
-                    UpdateSlot(true);
-                }
-            }
-
             if (AbilitySystemComponent && CooldownTag.IsValid())
             {
                 // 태그 변경 이벤트 등록
@@ -49,6 +37,14 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             }
         }
     }
+}
+
+void UActiveSkillWidget::SetSkillIcon(UTexture2D* InIcon)
+{
+    SkillIcon = InIcon;
+    
+    // 초기 이미지 설정
+    UpdateSlot(true);
 }
 
 void UActiveSkillWidget::OnCoolDownTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
@@ -107,10 +103,8 @@ void UActiveSkillWidget::NativeConstruct()
         AbilitySystemComponent = OwningPawn->FindComponentByClass<UAbilitySystemComponent>();
     }
 
-    if (ActiveButton)
-    {
-        ActiveButton->OnClicked.AddDynamic(this, &UActiveSkillWidget::OnActiveButtonClicked);
-    }
+    if (ActiveButton) ActiveButton->OnClicked.AddDynamic(this, &UActiveSkillWidget::OnActiveButtonClicked);
+    if (SkillBackground) SkillBackground->SetBrushFromTexture(SkillBackgroundImage);
 }
 
 void UActiveSkillWidget::OnActiveButtonClicked()

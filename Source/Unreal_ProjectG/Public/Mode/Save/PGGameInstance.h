@@ -12,6 +12,7 @@ class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
 class UUnitUIDataAsset;
+class UEquipUIDataAsset;
 class AHeroCharacter;
 
 UCLASS()
@@ -32,7 +33,7 @@ public:
     // --- [런타임 장착 데이터] ---
     // 로비 UI에서 이 변수들을 수정하고, 전투 맵에서 이 변수들을 읽어 적용
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
-    TSoftObjectPtr<UDataAsset_WeaponData> CurrentWeapon;
+    TSoftObjectPtr<UEquipUIDataAsset> CurrentWeapon;
 
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
     TSoftObjectPtr<UDataAsset_ArmorData> CurrentArmor;

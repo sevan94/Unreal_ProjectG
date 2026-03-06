@@ -4,7 +4,6 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
-#include "Interfaces/PawnCombatInterface.h"
 #include "Character/PGCharacterBase.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGGameplayTags.h"

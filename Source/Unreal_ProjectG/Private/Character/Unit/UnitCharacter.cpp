@@ -16,6 +16,7 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "DataAssets/Unit/BranchDataAsset.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "Components/Visual/CharacterVisualEffectComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -51,6 +52,8 @@ AUnitCharacter::AUnitCharacter()
         WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
     }
+
+    UnitVisualEffectComponent = CreateDefaultSubobject<UCharacterVisualEffectComponent>(TEXT("UnitVisualEffectComponent"));
 }
 
 void AUnitCharacter::BeginPlay()
@@ -72,6 +75,30 @@ void AUnitCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AUnitCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AUnitCharacter::SetAOEHighlightEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetAOEHighlightEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::SetHitReactEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetHitReactEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::ResetVisualEffectState_Implementation()
+{
+    if (UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->ResetVisualEffectState();
+    }
 }
 
 void AUnitCharacter::PossessedBy(AController* NewController)

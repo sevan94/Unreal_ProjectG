@@ -185,7 +185,8 @@ void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)
         if(UMaterialInstanceDynamic* DynamicMat = MeshComp->CreateAndSetMaterialInstanceDynamic(0))
         {
             DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 1.f);
-            HighlightedActorMap.Add(InActor, DynamicMat);
+            HighlightedActorMap.Add(InActor, MeshComp);
+            MeshComp->SetRenderCustomDepth(false); // Custom Depth 비활성화
         }
     }
 }
@@ -193,9 +194,13 @@ void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)
 void AGATargetActor_AOEGroundTrace::OnUnhighlightActorOutAOE(AActor* InActor)
 {
     // 머티리얼 원래대로 복원
-    if(UMaterialInstanceDynamic* DynamicMat = *HighlightedActorMap.Find(InActor))
+    if(UMeshComponent* MeshComp = *HighlightedActorMap.Find(InActor))
     {
-        DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 0.f);
+        if(UMaterialInstanceDynamic* DynamicMat = MeshComp->CreateAndSetMaterialInstanceDynamic(0))
+        {
+            MeshComp->SetRenderCustomDepth(true); // Custom Depth 다시 활성화
+            DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 0.f);
+        }
         HighlightedActorMap.Remove(InActor);
     }
 }

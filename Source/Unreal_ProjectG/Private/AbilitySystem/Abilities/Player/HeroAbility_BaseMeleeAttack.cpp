@@ -4,7 +4,6 @@
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseMeleeAttack.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Components/Combat/HeroCombatComponent.h"
 #include "PGGameplayTags.h"
 #include "GameplayCueFunctionLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,6 +13,7 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "Character/Hero/HeroCharacter.h"
 
 void UHeroAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -49,7 +49,7 @@ void UHeroAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 
     if (CachedWeaponStaticMesh == nullptr)
     {
-        CachedWeaponStaticMesh = GetHeroCombatComponentFromActorInfo()->CachedWeaponMeshComponent.Get();
+        CachedWeaponStaticMesh = GetHeroCharacterFromActorInfo()->GetWeaponStaticMesh();
     }
 
     checkf(MeleeAttackConfig.MeleeAttackMontages.Num() > 0, TEXT("MeleeAttackMontages 배열이 비어있습니다!"));

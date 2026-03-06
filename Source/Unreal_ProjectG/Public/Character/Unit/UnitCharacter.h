@@ -30,8 +30,6 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-    // 컴뱂 인터페이스 구현
-    virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 
     FOnUnitStartUpDataLoaded OnUnitStartUpDataLoadedDelegate;
 
@@ -45,7 +43,6 @@ public:
 
     UFUNCTION(BlueprintCallable)
     FORCEINLINE TSoftObjectPtr<UDataAsset_StartupDataBase> GetUnitStartupData() const { return CharacterStartupData; }
-    FORCEINLINE UUnitCombatComponent* GetUnitCombatComponent() const { return UnitCombatComponent; }
 public:
     //공격 대상 정하는 함수
     UFUNCTION(BlueprintCallable, Category = "RVO")
@@ -80,9 +77,6 @@ public:
             
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<class UStaticMeshComponent> WeaponMesh;
-protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<UUnitCombatComponent> UnitCombatComponent;
 
 private:
     // AI 컨트롤러 캐싱

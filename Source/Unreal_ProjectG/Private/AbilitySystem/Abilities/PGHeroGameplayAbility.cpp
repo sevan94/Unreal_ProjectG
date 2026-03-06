@@ -6,7 +6,6 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
 #include "PGGameplayTags.h"
-#include "Components/Combat/HeroCombatComponent.h"
 
 UPGHeroGameplayAbility::UPGHeroGameplayAbility()
 {
@@ -31,11 +30,6 @@ AHeroController* UPGHeroGameplayAbility::GetHeroControllerFromActorInfo()
         CachedHeroController = Cast<AHeroController>(CurrentActorInfo->PlayerController);
     }
     return CachedHeroController.IsValid() ? CachedHeroController.Get() : nullptr;
-}
-
-UHeroCombatComponent* UPGHeroGameplayAbility::GetHeroCombatComponentFromActorInfo()
-{
-    return GetHeroCharacterFromActorInfo()->GetHeroCombatComponent();
 }
 
 FGameplayEffectSpecHandle UPGHeroGameplayAbility::MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier)

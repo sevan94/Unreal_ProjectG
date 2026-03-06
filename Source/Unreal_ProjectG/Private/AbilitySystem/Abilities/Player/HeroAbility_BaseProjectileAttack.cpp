@@ -2,7 +2,6 @@
 
 
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseProjectileAttack.h"
-#include "Components/Combat/HeroCombatComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "PGGameplayTags.h"
@@ -39,7 +38,7 @@ void UHeroAbility_BaseProjectileAttack::ActivateAbility(const FGameplayAbilitySp
 
     if (CachedWeaponStaticMesh == nullptr)
     {
-        CachedWeaponStaticMesh = GetHeroCombatComponentFromActorInfo()->CachedWeaponMeshComponent.Get();
+        CachedWeaponStaticMesh = GetHeroCharacterFromActorInfo()->GetWeaponStaticMesh();
     }
 
     checkf(HeroSpawnProjectileConfig.SpawnProjectileMontages.Num() > 0, TEXT("SpawnProjectileMontages 배열이 비어있습니다!"));

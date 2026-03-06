@@ -9,6 +9,18 @@
 * 해당 액터의 메시를 가져와서 메시->SetRenderCustomDepth(ture(셀 세이딩 켜짐)/false(셀 세이딩 꺼짐)); 쓰면 됨
 */
 
+USTRUCT()
+struct FMaterialData
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TArray<TObjectPtr<UMaterialInterface>> OriginalMaterials;
+
+    UPROPERTY()
+    TArray<TObjectPtr<UMaterialInstanceDynamic>> DynamicMaterials;
+};
+
 /**
  * 
  */
@@ -21,11 +33,20 @@ public:
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+private:
+    UFUNCTION(BlueprintCallable)
+    void ApplyHitReactEffect(UMeshComponent* InTargetMesh);
+
+    UFUNCTION(BlueprintCallable)
+    void RestoreOriginalMaterial(UMeshComponent* InTargetMesh);
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitReact")
     float HitFXDuration = 0.2f;
 
 private:
-    UPROPERTY()
     TWeakObjectPtr<UMeshComponent> OwnerMesh;
+
+    UPROPERTY()
+    FMaterialData CachedMaterialData;
 };

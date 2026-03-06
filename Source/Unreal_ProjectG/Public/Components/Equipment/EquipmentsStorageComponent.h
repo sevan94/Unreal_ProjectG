@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/Combat/PawnCombatComponent.h"
-#include "HeroCombatComponent.generated.h"
+#include "Components/PawnExtensionComponentBase.h"
+#include "EquipmentsStorageComponent.generated.h"
 
 class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
@@ -15,13 +15,13 @@ class UDataAsset_SetBonusData;
  * 
  */
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnCombatComponent
+class UNREAL_PROJECTG_API UEquipmentsStorageComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
 	
 public:
-    // 전투 관련 함수들
-
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedSkillAbilitySpecHandles; }
 
     // ==============================================================
     // 장비 장착 함수들
@@ -40,4 +40,13 @@ public:
 
 public:
     TWeakObjectPtr<UStaticMeshComponent> CachedWeaponMeshComponent;
+    
+    // 나중에 태그나 다른 타입도 고려
+    UPROPERTY(BlueprintReadWrite, Category = "Combat|Property")
+    bool bWeaponEquipped = false;
+
+protected:
+    // 어빌리티 스펙 핸들 저장 배열
+    UPROPERTY(VisibleAnywhere, Category = "Combat|Data")
+    TArray<FGameplayAbilitySpecHandle> GrantedSkillAbilitySpecHandles;
 };

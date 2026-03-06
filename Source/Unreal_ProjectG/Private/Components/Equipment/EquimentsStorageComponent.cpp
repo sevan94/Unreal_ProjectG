@@ -1,19 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/Combat/HeroCombatComponent.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "DataAssets/Items/DataAsset_SetBonusData.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "AnimInstance/Hero/PGHeroLinkedAnimLayer.h"
-#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
-#include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "PGFunctionLibrary.h"
 
-void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
+void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
 
@@ -55,13 +55,13 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
     }
 }
 
-void UHeroCombatComponent::EquipHeroArmor(UDataAsset_ArmorData* InArmorData)
+void UEquipmentsStorageComponent::EquipHeroArmor(UDataAsset_ArmorData* InArmorData)
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
     InArmorData->MakeOutgoingArmorEffectSpecHandle(ASC, 1);
 }
 
-void UHeroCombatComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData)
+void UEquipmentsStorageComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData)
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
     UDataAsset_SkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
@@ -77,7 +77,7 @@ void UHeroCombatComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccess
     ASC->TryActivateAbility(AbilitySpec.Handle);
 }
 
-void UHeroCombatComponent::ApplySetBonus(UDataAsset_SetBonusData* InSetBonusData)
+void UEquipmentsStorageComponent::ApplySetBonus(UDataAsset_SetBonusData* InSetBonusData)
 {
 
 }

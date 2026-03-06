@@ -7,7 +7,7 @@
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AnimInstance/Hero/PGHeroLinkedAnimLayer.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
-#include "Components/Combat/HeroCombatComponent.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 
@@ -20,18 +20,7 @@ void AHeroTestCharacter::BeginPlay()
     ArmorDataAsset.LoadSynchronous();
     AccessoryDataAsset.LoadSynchronous();
 
-    HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
-    HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
-    HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+    EquipmentsStorageComponent->EquipHeroWeapon(WeaponDataAsset.Get());
+    EquipmentsStorageComponent->EquipHeroArmor(ArmorDataAsset.Get());
+    EquipmentsStorageComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 }
-
-//void AHeroTestCharacter::SetupAccessoryToPawn()
-//{
-//    FGameplayAbilitySpec AbilitySpec(AccessoryDataAsset.Get()->GetGrantedAbility());
-//    AbilitySpec.SourceObject = this;
-//    AbilitySpec.Level = TestAbilityLevel;
-//    PGAbilitySystemComponent->GiveAbility(AbilitySpec);
-//
-//    PGAbilitySystemComponent->TryActivateAbility(AbilitySpec.Handle);
-//}
-//

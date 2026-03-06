@@ -6,8 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "UI/Battle/ControlPanelWidget.h"
-#include "Components/Combat/HeroCombatComponent.h"
 #include "DataAssets/StartUp/DataAsset_HeroStartupData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
@@ -47,18 +47,13 @@ AHeroCharacter::AHeroCharacter()
     WeaponStaticMesh->SetupAttachment(GetMesh());
     WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     
-    HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
+    EquipmentsStorageComponent = CreateDefaultSubobject<UEquipmentsStorageComponent>(TEXT("EquipmentsStorageComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
 
     AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
     AggroCollision->SetupAttachment(RootComponent);
     AggroCollision->SetSphereRadius(500.f);
     AggroCollision->SetGenerateOverlapEvents(true);
-}
-
-UPawnCombatComponent* AHeroCharacter::GetPawnCombatComponent() const
-{
-    return HeroCombatComponent;
 }
 
 void AHeroCharacter::SpawnHero()
@@ -76,8 +71,6 @@ void AHeroCharacter::SpawnHero()
     MovementComponent->SetComponentTickEnabled(true);
     MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
     MovementComponent->Activate();
-
-
 }
 
 void AHeroCharacter::MakeHeroDead()

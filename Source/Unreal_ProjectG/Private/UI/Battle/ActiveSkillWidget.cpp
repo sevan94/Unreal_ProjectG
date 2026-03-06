@@ -7,7 +7,6 @@
 #include "Components/Overlay.h"
 #include "AbilitySystemComponent.h"
 #include "Character/Hero/HeroCharacter.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "TimerManager.h"
 #include "UI/DataTable/SkillUIDataTable.h"
 

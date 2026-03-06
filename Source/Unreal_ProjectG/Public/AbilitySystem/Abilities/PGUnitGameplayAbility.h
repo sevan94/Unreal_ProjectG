@@ -21,9 +21,6 @@ public:
     AUnitCharacter* GetUnitCharacterFromActorInfo();
 
     UFUNCTION(BlueprintPure, Category = "PG|Ability")
-    UUnitCombatComponent* GetUnitCombatComponent();
-
-    UFUNCTION(BlueprintPure, Category = "PG|Ability")
     FGameplayEffectSpecHandle MakeOutgoingEffectSpecToTarget(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier);
 
 private:

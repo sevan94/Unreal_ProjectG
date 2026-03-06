@@ -7,7 +7,6 @@
 
 class AHeroController;
 class AHeroCharacter;
-class UHeroCombatComponent;
 /**
  * 
  */
@@ -24,9 +23,6 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "PG|Ability")
     AHeroController* GetHeroControllerFromActorInfo();
-
-    UFUNCTION(BlueprintPure, Category = "PG|Ability")
-    UHeroCombatComponent* GetHeroCombatComponentFromActorInfo();
 
     // TODO : 공격의 속성이나 다른 효과가 추가된다면 매개변수를 확장
     UFUNCTION(BlueprintPure, Category = "PG|Ability")

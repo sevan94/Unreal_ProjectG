@@ -4,7 +4,6 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "Components/Combat/UnitCombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
@@ -24,8 +23,6 @@ AUnitCharacter::AUnitCharacter()
     PrimaryActorTick.bCanEverTick = false;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-    UnitCombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("UnitCombatComponent"));
 
     UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
     if (MovementComponent)
@@ -55,13 +52,6 @@ AUnitCharacter::AUnitCharacter()
         WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
     }
 }
-
-UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const
-{
-    return UnitCombatComponent;
-}
-
-
 
 void AUnitCharacter::BeginPlay()
 {

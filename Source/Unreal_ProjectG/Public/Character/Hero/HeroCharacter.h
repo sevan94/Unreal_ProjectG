@@ -6,6 +6,7 @@
 #include "Character/PGCharacterBase.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayAbilitySpecHandle.h"
+#include "Interfaces/EquipmentsStorageInterface.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
@@ -20,17 +21,19 @@ class USphereComponent;
 class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
+class UStorageEquipmentsComponent;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IEquipmentsStorageInterface
 {
     GENERATED_BODY()
 
 public:
     // Sets default values for this character's properties
     AHeroCharacter();
-
-    virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
+    
+    // 인페이스 구현
+    UEquipmentsStorageComponent* GetEquipmentsStorageComponent() const override { return EquipmentsStorageComponent; }
 
     //캐릭터 스폰(시작 혹은 부활 시)
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
@@ -93,7 +96,6 @@ public:
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
-    FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
     virtual void BeginPlay() override;
@@ -143,8 +145,10 @@ public:
     FOnHeroCostChanged OnHeroCostChanged;
     FOnHeroMaxCostChanged OnHeroMaxCostChanged;
 
+    // 현재 타겟팅된 적. 플레이어 회전 및 펫의 행동에 사용
     UPROPERTY(BlueprintReadOnly)
     TWeakObjectPtr<AActor> CurrentTarget;
+
 protected:
     //컴포넌트
     //스프링 암
@@ -171,12 +175,12 @@ protected:
     //움직임 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UCharacterMovementComponent> MovementComponent = nullptr;
-    // 컴뱃 컴포넌트
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-    TObjectPtr<UHeroCombatComponent> HeroCombatComponent = nullptr;
     //공격 판정용 콜리전. 공격 범위 처리용
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class USphereComponent> AggroCollision = nullptr;
+    // 아이템 장착 상태 저장용 컴포넌트
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<UEquipmentsStorageComponent> EquipmentsStorageComponent = nullptr;
 
     //input action
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InputAction")

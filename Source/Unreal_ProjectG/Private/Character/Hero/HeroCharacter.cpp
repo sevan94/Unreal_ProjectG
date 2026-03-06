@@ -7,23 +7,23 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Equipment/EquipmentsStorageComponent.h"
+#include "Components/Combat/HeroCombatComponent.h"
 #include "UI/Battle/ControlPanelWidget.h"
 #include "DataAssets/StartUp/DataAsset_HeroStartupData.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
-#include "Components/SphereComponent.h"
 #include "PGGameplayTags.h"
-#include "AbilitySystemBlueprintLibrary.h"
-#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "EnhancedInputComponent.h"
 #include "Mode/PGBaseGameMode.h"
-#include "Kismet/KismetMathLibrary.h"
 
-#include "DataAssets/Items/DataAsset_WeaponData.h"
-#include "DataAssets/Items/DataAsset_ArmorData.h"
-#include "DataAssets/Items/DataAsset_AccessoryData.h"
-//#include "Character/Unit/UnitCharacter.h"
-#include "Components/Resource/HeroResourceComponent.h"
+//#include "DataAssets/Items/DataAsset_WeaponData.h"
+//#include "DataAssets/Items/DataAsset_ArmorData.h"
+//#include "DataAssets/Items/DataAsset_AccessoryData.h"
+//#include "Components/Resource/HeroResourceComponent.h"
+//#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+//#include "Kismet/KismetMathLibrary.h"
+//#include "Components/SphereComponent.h"
+//#include "AbilitySystemBlueprintLibrary.h"
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -48,12 +48,56 @@ AHeroCharacter::AHeroCharacter()
     WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     
     EquipmentsStorageComponent = CreateDefaultSubobject<UEquipmentsStorageComponent>(TEXT("EquipmentsStorageComponent"));
-    ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
+    HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
+    
+    //ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
+    //AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
+    //AggroCollision->SetupAttachment(RootComponent);
+    //AggroCollision->SetSphereRadius(500.f);
+    //AggroCollision->SetGenerateOverlapEvents(true);
+}
 
-    AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
-    AggroCollision->SetupAttachment(RootComponent);
-    AggroCollision->SetSphereRadius(500.f);
-    AggroCollision->SetGenerateOverlapEvents(true);
+float AHeroCharacter::GetBasicAttackSpeed_Implementation() const
+{
+    if (CharacterAttributeSet)
+    {
+        return CharacterAttributeSet->GetAttackSpeed();
+    }
+    return 1.f; // 기본 공격 속도 반환, 어트리뷰트셋이 없는 경우 기본값으로 1.0f 반환
+}
+
+float AHeroCharacter::GetBasicAttackRange_Implementation() const
+{
+    if (CharacterAttributeSet)
+    {
+        return CharacterAttributeSet->GetAttackRange();
+    }
+    return 0.0f; // 기본 공격 범위 반환, 어트리뷰트셋이 없는 경우 기본값으로 0.0f 반환
+}
+
+bool AHeroCharacter::TryExecuteBasicAttack_Implementation()
+{
+    if (PGAbilitySystemComponent)
+    {
+        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
+    }
+    return false;
+}
+
+bool AHeroCharacter::TryExecuteActiveSkill_Implementation()
+{
+    if (PGAbilitySystemComponent)
+    {
+        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Skill);
+    }
+    return false;
+}
+
+void AHeroCharacter::ChangeCombatMode(EHeroCombatMode NewMode)
+{
+    if (!HeroCombatComponent) return;
+
+    HeroCombatComponent->SetCombatMode(NewMode);
 }
 
 void AHeroCharacter::SpawnHero()
@@ -96,11 +140,162 @@ void AHeroCharacter::MakeHeroDead()
 
 void AHeroCharacter::InitializeHero()
 {
-    if (PGAbilitySystemComponent && GA_Initialize)
+    if (PGAbilitySystemComponent)
     {
-        PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Initialize);
+        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Initialize);
+    }
+
+    //if (PGAbilitySystemComponent && GA_Initialize)
+    //{
+    //    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Initialize);
+    //}
+}
+
+bool AHeroCharacter::ConsumeCost(float InCost)
+{
+    if (CharacterAttributeSet)
+    {
+        float CurrentCost = CharacterAttributeSet->GetCost();
+        CharacterAttributeSet->SetCost(CurrentCost - InCost);
+        if (UWorld* World = GetWorld())
+        {
+            // 서버 측에서 실행되는 GameMode를 가져옴
+            APGBaseGameMode* GM = Cast<APGBaseGameMode>(World->GetAuthGameMode());
+            if (GM)
+            {
+                // 소모한 코스트만큼 누적 (정수형일 경우 형변환)
+                GM->SpentCost += FMath::RoundToInt(InCost);
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+void AHeroCharacter::BroadCastAttributeSet()
+{
+    if (CharacterAttributeSet)
+    {
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
     }
 }
+
+void AHeroCharacter::OnDie()
+{
+    PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Die);
+
+    //// 주석
+    //if (PGAbilitySystemComponent && GA_Die)
+    //{
+    //    //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Die);
+    //}
+    //else
+    //    UE_LOG(LogTemp, Warning, TEXT("AbilitySystem Unavailable"));
+}
+
+// Called when the game starts or when spawned
+void AHeroCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+
+    BroadCastAttributeSet();
+
+    if (!CharacterStartupData.IsNull())
+    {
+        if (UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
+        {
+            LoadData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+        }
+    }
+
+    //// 주석
+    //// =============================================================================
+    //// StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
+    //// =============================================================================
+    //if (PGAbilitySystemComponent)
+    //{
+    //    if (GA_Die)
+    //    {
+    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
+    //    }
+    //    //if (Weapon)
+    //    //{
+    //    //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
+    //    //}
+    //    if (GA_Initialize)
+    //    {
+    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
+    //    }
+    //}
+
+    //if (AggroCollision)
+    //{
+    //    AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
+    //    AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
+    //    UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
+    //}
+
+    //ABP 가져오기
+    //AnimInstance = GetMesh()->GetAnimInstance();
+}
+
+#pragma region Input
+// Called to bind functionality to input
+void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    //UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+    //if (enhancedInputComponent)
+    //{
+    //    enhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AHeroCharacter::OnMovementInput);
+    //    enhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AHeroCharacter::OnAttackInput);
+    //}
+}
+
+//void AHeroCharacter::OnAttackInput()
+//{
+//    if (PGAbilitySystemComponent)
+//    {
+//        //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
+//        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
+//    }
+//}
+#pragma endregion
+
+#pragma region AttributeChangeBroadCast
+void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroCostChanged.Broadcast(Data.NewValue);
+}
+
+void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
+{
+    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
+}
+#pragma endregion
+
+
+#pragma region MyRegion
 
 //void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
 //{
@@ -130,348 +325,206 @@ void AHeroCharacter::InitializeHero()
 //    
 //}
 
-void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
-{
-    Armor = ArmorData;
+//void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
+//{
+//    Armor = ArmorData;
+//
+//    if (Armor)
+//    {
+//    }
+//}
+//
+//void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
+//{
+//    Accessory = AccessoryData;
+//    if (Accessory)
+//    {
+//
+//    }
+//}
+//
+//void AHeroCharacter::UnEquipWeapon()
+//{
+//    if (PGAbilitySystemComponent)
+//    {
+//        if (AttackHandle.IsValid())
+//        {
+//            PGAbilitySystemComponent->ClearAbility(AttackHandle);
+//            AttackHandle = FGameplayAbilitySpecHandle();
+//        }
+//        if (!(SkillHandle.IsEmpty()))
+//        {
+//            for (FGameplayAbilitySpecHandle handle : SkillHandle)
+//            {
+//                PGAbilitySystemComponent->ClearAbility(handle);
+//                SkillHandle.RemoveSwap(handle);
+//            }
+//        }
+//    }
+//    Weapon = nullptr;
+//}
+//
+//void AHeroCharacter::UnEquipArmor()
+//{
+//    Armor = nullptr;
+//}
+//
+//void AHeroCharacter::UnEquipAccessory()
+//{
+//    Accessory = nullptr;
+//}
 
-    if (Armor)
-    {
-    }
-}
+//void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//    UE_LOG(LogTemp, Log, TEXT("Overlap"));
+//
+//    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+//
+//    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
+//
+//    if (Unit)
+//    {
+//        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
+//        {
+//            PotentialTargets.AddUnique(Unit);
+//        }
+//        else
+//        {
+//            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
+//            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
+//        }
+//    }
+//}
+//
+//void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+//{
+//    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
+//    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
+//
+//    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
+//
+//    if (Unit)
+//    {
+//        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
+//        {
+//            PotentialTargets.RemoveSwap(Unit);
+//        }
+//    }
+//}
+//
+//void AHeroCharacter::ActivateAttack()
+//{
+//    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
+//
+//    FGameplayEventData EventData;
+//    EventData.Instigator = this;
+//    EventData.Target = AttackTarget;
+//
+//    /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
+//    if (PGAbilitySystemComponent)
+//    {
+//        //FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
+//        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
+//        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
+//    }
+//}
+//
+//void AHeroCharacter::AutoBattle()
+//{
+//    if (PotentialTargets.IsEmpty())
+//    {
+//        AddMovementInput(FVector::ForwardVector);
+//    }
+//    else
+//    {
+//        AddMovementInput(FVector::ZeroVector);
+//        ActivateSkill();
+//    }
+//}
+//
+//AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
+//{
+//    if (TargetArray.IsEmpty())
+//    {
+//        return nullptr;
+//    }
+//
+//    AActor* ClosestActor = nullptr;
+//
+//    float MinDistanceSq = MAX_flt;
+//
+//    for (AActor* Target : TargetArray)
+//    {
+//        if (IsValid(Target))
+//        {
+//            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
+//
+//            if (CurrentDistanceSq < MinDistanceSq)
+//            {
+//                MinDistanceSq = CurrentDistanceSq;
+//                ClosestActor = Target;
+//            }
+//        }
+//    }
+//
+//    return ClosestActor;
+//}
 
-void AHeroCharacter::EquipAccessory(UDataAsset_AccessoryData* AccessoryData)
-{
-    Accessory = AccessoryData;
-    if (Accessory)
-    {
+//void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
+//{
+//    //if (Controller)
+//    //{
+//    //    FVector2D InputDirection = InValue.Get<FVector2D>();
+//    //    FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
+//    //    //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
+//    //    AddMovementInput(MoveDirection);
+//    //}
+//    //else
+//    //    UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
+//}
 
-    }
-}
+//// Called every frame
+//void AHeroCharacter::Tick(float DeltaTime)
+//{
+//    Super::Tick(DeltaTime);
+//
+//    if (!(PotentialTargets.IsEmpty()))
+//    {
+//        CurrentTarget = GetClosestTarget(PotentialTargets);
+//
+//        if (CurrentTarget.IsValid())
+//        {
+//            //CurrentTarget을 바라보도록 회전
+//            FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
+//            LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
+//            SetActorRotation(LookAtRotation);
+//        }
+//
+//        ActivateAttack();
+//    }
+//    else
+//    {
+//        CurrentTarget = nullptr;
+//    }
+//
+//    if (bIsAuto)
+//    {
+//        AutoBattle();
+//    }
+//}
 
-void AHeroCharacter::UnEquipWeapon()
-{
-    if (PGAbilitySystemComponent)
-    {
-        if (AttackHandle.IsValid())
-        {
-            PGAbilitySystemComponent->ClearAbility(AttackHandle);
-            AttackHandle = FGameplayAbilitySpecHandle();
-        }
-        if (!(SkillHandle.IsEmpty()))
-        {
-            for (FGameplayAbilitySpecHandle handle : SkillHandle)
-            {
-                PGAbilitySystemComponent->ClearAbility(handle);
-                SkillHandle.RemoveSwap(handle);
-            }
-        }
-    }
-    Weapon = nullptr;
-}
-
-void AHeroCharacter::UnEquipArmor()
-{
-    Armor = nullptr;
-}
-
-void AHeroCharacter::UnEquipAccessory()
-{
-    Accessory = nullptr;
-}
-
-bool AHeroCharacter::ConsumeCost(float InCost)
-{
-    if (CharacterAttributeSet)
-    {
-        float CurrentCost = CharacterAttributeSet->GetCost();
-        CharacterAttributeSet->SetCost(CurrentCost - InCost);
-        if (UWorld* World = GetWorld())
-        {
-            // 서버 측에서 실행되는 GameMode를 가져옴
-            APGBaseGameMode* GM = Cast<APGBaseGameMode>(World->GetAuthGameMode());
-            if (GM)
-            {
-                // 소모한 코스트만큼 누적 (정수형일 경우 형변환)
-                GM->SpentCost += FMath::RoundToInt(InCost);
-            }
-        }
-        return true;
-    }
-
-    return false;
-}
-
-void AHeroCharacter::ActivateSkill()
-{
-    if (PGAbilitySystemComponent)
-    {
-        // 주석
-        //FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
-        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
-        //FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
-        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
-
-        // 현재 스킬 1개로 예정
-        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Skill);
-    }
-}
-
-void AHeroCharacter::BroadCastAttributeSet()
-{
-    if (CharacterAttributeSet)
-    {
-        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
-        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
-
-        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            CharacterAttributeSet->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
-        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            CharacterAttributeSet->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
-    }
-}
-
-void AHeroCharacter::OnDie()
-{
-    PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Die);
-
-    // 주석
-    if (PGAbilitySystemComponent && GA_Die)
-    {
-        //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Die);
-    }
-    else
-        UE_LOG(LogTemp, Warning, TEXT("AbilitySystem Unavailable"));
-}
-
-// Called when the game starts or when spawned
-void AHeroCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-
-    //ABP 가져오기
-    AnimInstance = GetMesh()->GetAnimInstance();
-
-    BroadCastAttributeSet();
-
-    if (!CharacterStartupData.IsNull())
-    {
-        if (UDataAsset_StartupDataBase* LoadData = CharacterStartupData.LoadSynchronous())
-        {
-            LoadData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
-        }
-    }
-
-    // 주석
-    // =============================================================================
-    // StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
-    // =============================================================================
-    if (PGAbilitySystemComponent)
-    {
-        if (GA_Die)
-        {
-            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
-        }
-        //if (Weapon)
-        //{
-        //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
-        //}
-        if (GA_Initialize)
-        {
-            PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
-        }
-    }
-
-    if (AggroCollision)
-    {
-        AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
-        AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
-        UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
-    }
-}
-
-// Called every frame
-void AHeroCharacter::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
-    if (!(PotentialTargets.IsEmpty()))
-    {
-        CurrentTarget = GetClosestTarget(PotentialTargets);
-
-        if (CurrentTarget.IsValid())
-        {
-            //CurrentTarget을 바라보도록 회전
-            FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
-            LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
-            SetActorRotation(LookAtRotation);
-        }
-
-        ActivateAttack();
-    }
-    else
-    {
-        CurrentTarget = nullptr;
-    }
-
-    if (bIsAuto)
-    {
-        AutoBattle();
-    }
-}
-
-#pragma region Input
-// Called to bind functionality to input
-void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-    if (enhancedInputComponent)
-    {
-        enhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AHeroCharacter::OnMovementInput);
-        enhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AHeroCharacter::OnAttackInput);
-    }
-}
-
-void AHeroCharacter::OnMovementInput(const FInputActionValue& InValue)
-{
-    //if (Controller)
-    //{
-    //    FVector2D InputDirection = InValue.Get<FVector2D>();
-    //    FVector MoveDirection = FVector(InputDirection.X, InputDirection.Y, 0.0f);
-    //    //UE_LOG(LogTemp, Log, TEXT("%.1f, %.1f, %.1f"), MoveDirection.X, MoveDirection.Y, MoveDirection.Z);
-    //    AddMovementInput(MoveDirection);
-    //}
-    //else
-    //    UE_LOG(LogTemp, Log, TEXT("Controller Unavailable"));
-}
-
-void AHeroCharacter::OnAttackInput()
-{
-    if (PGAbilitySystemComponent)
-    {
-        //PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Attack);
-        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
-    }
-}
+//void AHeroCharacter::ActivateSkill()
+//{
+//    if (PGAbilitySystemComponent)
+//    {
+//        // 주석
+//        //FGameplayTagContainer Skill1(TAG_Player_Ability_Skill_1);
+//        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill1);
+//        //FGameplayTagContainer Skill2(TAG_Player_Ability_Skill_2);
+//        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(Skill2);
+//
+//        // 현재 스킬 1개로 예정
+//        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Skill);
+//    }
+//}
 #pragma endregion
-
-#pragma region AttributeChangeBroadCast
-void AHeroCharacter::CurrentHealthChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroHpChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::MaxHealthChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroMaxHpChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::CurrentCostChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroCostChanged.Broadcast(Data.NewValue);
-}
-
-void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
-{
-    OnHeroMaxCostChanged.Broadcast(Data.NewValue);
-}
-#pragma endregion
-
-void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    UE_LOG(LogTemp, Log, TEXT("Overlap"));
-
-    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
-
-    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
-
-    if (Unit)
-    {
-        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
-        {
-            PotentialTargets.AddUnique(Unit);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
-            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
-        }
-    }
-}
-
-void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
-    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
-
-    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
-
-    if (Unit)
-    {
-        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
-        {
-            PotentialTargets.RemoveSwap(Unit);
-        }
-    }
-}
-
-void AHeroCharacter::ActivateAttack()
-{
-    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
-
-    FGameplayEventData EventData;
-    EventData.Instigator = this;
-    EventData.Target = AttackTarget;
-
-    /*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Player_Ability_BasicAttack_Melee")), EventData);*/
-    if(PGAbilitySystemComponent)
-    {
-        //FGameplayTagContainer attack(TAG_Player_Ability_BasicAttack);
-        //PGAbilitySystemComponent->TryActivateAbilitiesByTag(attack);
-        PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_BasicAttack);
-    }
-}
-
-void AHeroCharacter::AutoBattle()
-{
-    if (PotentialTargets.IsEmpty())
-    {
-        AddMovementInput(FVector::ForwardVector);
-    }
-    else
-    {
-        AddMovementInput(FVector::ZeroVector);
-        ActivateSkill();
-    }
-}
-
-AActor* AHeroCharacter::GetClosestTarget(const TArray<AActor*>& TargetArray)
-{
-    if (TargetArray.IsEmpty())
-    {
-        return nullptr;
-    }
-
-    AActor* ClosestActor = nullptr;
-
-    float MinDistanceSq = MAX_flt;
-
-    for (AActor* Target : TargetArray)
-    {
-        if (IsValid(Target))
-        {
-            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
-
-            if (CurrentDistanceSq < MinDistanceSq)
-            {
-                MinDistanceSq = CurrentDistanceSq;
-                ClosestActor = Target;
-            }
-        }
-    }
-
-    return ClosestActor;
-}

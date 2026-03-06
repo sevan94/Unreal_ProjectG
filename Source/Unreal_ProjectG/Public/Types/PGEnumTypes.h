@@ -46,3 +46,12 @@ enum class EUnitState : uint8
     Move        UMETA(DisplayName = "Move"),
     Dead        UMETA(DisplayName = "Dead")
 };
+
+// 영웅의 전투 모드를 나타내는 열거형
+UENUM(BlueprintType)
+enum class EHeroCombatMode : uint8
+{
+    None UMETA(DisplayName = "None"),
+    Manual UMETA(DisplayName = "Manual"),
+    Auto UMETA(DisplayName = "Auto"),
+};

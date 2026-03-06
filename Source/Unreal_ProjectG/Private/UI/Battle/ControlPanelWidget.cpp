@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
+#include "Components/Combat/HeroCombatComponent.h"
 #include "UI/Battle/BarWidget.h"
 #include "UI/Battle/BaseHpWidget.h"
 #include "UI/Battle/UnitPanelWidget.h"
@@ -208,12 +209,10 @@ void UControlPanelWidget::BindHero()
         HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
         HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-        // 영웅 무기 스킬 어빌리티 설정
-        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
-        if (!SpecHandleArray.IsEmpty())
+        // 영웅 무기 스킬 어빌리티 바인딩
+        if (UHeroCombatComponent* CombatComp = HeroCharacter->FindComponentByClass<UHeroCombatComponent>())
         {
-            //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-            WeaponSkill->SetAbilitySpecHandle(SpecHandleArray[0]);
+            CombatComp->OnWeaponAbilitiesActivate.AddDynamic(this, &UControlPanelWidget::SetAbilitySpecHandle);
         }
     }
 }

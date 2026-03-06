@@ -60,6 +60,11 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
             }
         }
         ASC->GrantHeroWeaponSkillAbilities(SkillAbilityEntries, 1, GrantedSkillAbilitySpecHandles);
+
+        if (OnWeaponAbilitiesActivate.IsBound())
+        {
+            OnWeaponAbilitiesActivate.Broadcast();
+        }
     }
 }
 

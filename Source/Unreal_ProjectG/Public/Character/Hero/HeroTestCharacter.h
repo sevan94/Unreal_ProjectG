@@ -21,8 +21,6 @@ class UNREAL_PROJECTG_API AHeroTestCharacter : public AHeroCharacter
 protected:
     virtual void BeginPlay() override;
 
-    virtual void PossessedBy(AController* NewController) override;
-
 private:
     UPROPERTY(EditDefaultsOnly, Category = "WeaponData")
     TSoftObjectPtr<UDataAsset_WeaponData> WeaponDataAsset;

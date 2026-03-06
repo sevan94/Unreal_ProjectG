@@ -30,7 +30,7 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle();
 
-    // 
+    // 델리게이트 바인딩 함수
     UFUNCTION()
     void UpdateHeroHP(float InValue);
     UFUNCTION()

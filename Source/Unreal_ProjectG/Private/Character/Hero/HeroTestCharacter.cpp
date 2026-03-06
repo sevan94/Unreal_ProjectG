@@ -25,13 +25,6 @@ void AHeroTestCharacter::BeginPlay()
     HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
     HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 
-    GetGameInstance<UPGGameInstance>()->InitBattleUI(this, Cast<APlayerController>(GetController()));
-}
-
-void AHeroTestCharacter::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
-
 }
 
 //void AHeroTestCharacter::SetupAccessoryToPawn()

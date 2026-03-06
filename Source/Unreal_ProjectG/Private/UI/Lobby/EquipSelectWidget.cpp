@@ -8,6 +8,16 @@
 #include "Components/Overlay.h"
 #include "Components/Button.h"
 
+void UEquipSelectWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    if (EquipButton)
+    {
+        EquipButton->OnClicked.AddDynamic(this, &UEquipSelectWidget::OnEquipClicked);
+    }
+}
+
 void UEquipSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
     UEquipEntryObject* EntryObject = Cast<UEquipEntryObject>(ListItemObject);
@@ -15,7 +25,6 @@ void UEquipSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
     if (EntryObject)
     {
         UpdateWidget(EntryObject);
-        EquipButton->OnClicked.AddDynamic(this, &UEquipSelectWidget::OnEquipClicked);
     }
 }
 

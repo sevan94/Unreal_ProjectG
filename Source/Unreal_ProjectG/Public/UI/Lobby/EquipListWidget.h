@@ -25,6 +25,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Equip")
     void UpdateList(EEquipCategory InCategory);
 
+    void ClearTileView();
+
 protected:
     virtual void NativeConstruct() override;
 	

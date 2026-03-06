@@ -33,6 +33,7 @@ private:
     UFUNCTION()
     void OnExitButtonClick();
 
+    // 유닛 선택 시 데이터 저장
     UFUNCTION()
     void HandleUnitSelected(UUnitUIDataAsset* SelectedData);
 
@@ -58,7 +59,7 @@ public:
     TObjectPtr<UHorizontalBox> PartyBox;
 
 private:
-    // 선택한 유닛
+    // 현재 리스트에서 선택된 유닛
     UPROPERTY()
     TObjectPtr<UUnitUIDataAsset> SelectedUnit;
 

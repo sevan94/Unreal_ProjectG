@@ -12,6 +12,7 @@ class UImage;
 class UWidgetSwitcher;
 class UCurrentEquipWidget;
 class UEquipListWidget;
+class UEquipUIDataAsset;
 
 /**
  * 
@@ -32,6 +33,13 @@ private:
     UFUNCTION()
     void OnExitButtonClick();
 
+    UFUNCTION()
+    void OnEquipButtonClicked();
+
+    // 장비 선택 시 데이터 저장
+    UFUNCTION()
+    void HandleEquipSelected(UEquipUIDataAsset* InData);
+
 public:
     // 위젯 스위처
     UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -41,6 +49,10 @@ protected:
     // 나가기 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;
+
+    // 장비 장착 버튼
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> EquipButton;
 
     // 영웅 패널
     // 영웅 렌더 타깃
@@ -61,4 +73,12 @@ protected:
     // 장비 리스트 위젯
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UEquipListWidget> EquipList;
+
+private:
+    // 현재 선택된 카테고리
+    EEquipCategory CurrentActiveCategory;
+
+    // 현재 리스트에서 선택된 장비
+    UPROPERTY()
+    TObjectPtr<UEquipUIDataAsset> SelectedEquip;
 };

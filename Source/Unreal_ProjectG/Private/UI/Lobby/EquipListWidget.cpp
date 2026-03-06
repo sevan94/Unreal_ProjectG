@@ -43,6 +43,11 @@ void UEquipListWidget::UpdateList(EEquipCategory InCategory)
     }
 }
 
+void UEquipListWidget::ClearTileView()
+{
+    EquipTileView->ClearListItems();
+}
+
 void UEquipListWidget::NativeConstruct()
 {
     Super::NativeConstruct();

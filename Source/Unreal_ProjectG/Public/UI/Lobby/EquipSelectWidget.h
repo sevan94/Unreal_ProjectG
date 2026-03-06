@@ -20,6 +20,9 @@ class UNREAL_PROJECTG_API UEquipSelectWidget : public UUserWidget, public IUserO
 	GENERATED_BODY()
 
 protected:
+
+    virtual void NativeConstruct() override;
+
     // IUserObjectListEntry 인터페이스 구현 (데이터가 설정될 때 호출됨)
     virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 

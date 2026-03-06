@@ -14,4 +14,9 @@ class UNREAL_PROJECTG_API APetCharacter : public APGCharacterBase
 {
 	GENERATED_BODY()
 	
+public:
+    APetCharacter();
+
+protected:
+    virtual void PossessedBy(AController* NewController) override;
 };

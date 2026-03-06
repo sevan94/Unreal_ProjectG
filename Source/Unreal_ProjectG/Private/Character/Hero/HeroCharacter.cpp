@@ -317,6 +317,10 @@ void AHeroCharacter::Tick(float DeltaTime)
 
         ActivateAttack();
     }
+    else
+    {
+        CurrentTarget = nullptr;
+    }
 
     if (bIsAuto)
     {

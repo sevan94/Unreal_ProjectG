@@ -143,6 +143,7 @@ public:
     FOnHeroCostChanged OnHeroCostChanged;
     FOnHeroMaxCostChanged OnHeroMaxCostChanged;
 
+    UPROPERTY(BlueprintReadOnly)
     TWeakObjectPtr<AActor> CurrentTarget;
 protected:
     //컴포넌트

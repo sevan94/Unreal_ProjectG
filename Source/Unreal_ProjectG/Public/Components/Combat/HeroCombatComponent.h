@@ -22,6 +22,8 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+    void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    
     void ActivateManualCombat();    // 수동전투 활성화 함수
     void ActivateAutoCombat();      // 자동전투 활성화 함수
     void DeactivateCombat();        // 전투 비활성화 함수
@@ -41,20 +43,21 @@ private:
     void HandleBasicAttack();                         // 기본 공격 처리 함수
 
     AActor* FindNearestEnemy() const;                 // 가장 가까운 적을 찾는 함수
-    void FaceCurrentTarget();                         // 현재 타겟을 바라보게 하는 함수
 
+    // 인터페이스 관련 함수
     float GetBasickAttackInterval() const;            // 기본 공격 간격 계산 함수
     float GetBasicAttackRange() const;                // 기본 공격 범위 계산 함수
     bool IsTargetInBasicAttackRange() const;          // 현재 타겟이 기본 공격 범위 내에 있는지 확인하는 함수
     bool CanUseCombatInterface() const;               // 전투 인터페이스 사용 가능 여부 확인 함수
 
     bool IsValidEnemy(AActor* TargetActor) const;     // 유효한 적인지 확인하는 함수
+
+public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TWeakObjectPtr<AActor> CurrentTarget; // 현재 타겟
 private:
     UPROPERTY()
-    TObjectPtr<AActor> OwningActor;
-
-    UPROPERTY()
-    TWeakObjectPtr<AActor> CurrentTarget; // 현재 타겟
+    TObjectPtr<ACharacter> OwningCharacter;
 
     UPROPERTY(EditAnywhere)
     float DetectRadius = 500.f; // 적 감지 반경(Target Actor를 잡는 반경)
@@ -67,4 +70,6 @@ private:
 
     FTimerHandle DetectTimerHandle; // 탐색 타이머를 관리하는 핸들
     FTimerHandle BasicAttackTimerHandle; // 기본 공격 타이머 핸들
+
+    bool bWasTargetInAttackRange = false; // 타겟이 기본 공격 범위 내에 있었는지 여부를 추적하는 변수
 };

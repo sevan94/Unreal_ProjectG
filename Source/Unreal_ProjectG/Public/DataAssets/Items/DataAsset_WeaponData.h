@@ -49,4 +49,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillDataArray;
 
+    // 무기 공격력
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float WeaponAttackSpeed;
+
+    // 무기 공격 범위
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float WeaponAttackRange;
 };

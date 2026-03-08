@@ -11,6 +11,7 @@
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "AnimInstance/Hero/PGHeroLinkedAnimLayer.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGFunctionLibrary.h"
 
 void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
@@ -52,6 +53,9 @@ void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeapo
             SkillDataPtr.LoadSynchronous();
         }
         ASC->GrantHeroAbilitiesByAbilityData(InWeaponData->WeaponSkillDataArray, 1, GrantedSkillAbilitySpecHandles);
+
+        ASC->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackSpeedAttribute(), InWeaponData->WeaponAttackSpeed);
+        ASC->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackRangeAttribute(), InWeaponData->WeaponAttackRange);
     }
 }
 

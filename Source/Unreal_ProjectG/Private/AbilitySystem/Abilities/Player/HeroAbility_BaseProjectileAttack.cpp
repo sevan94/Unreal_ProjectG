@@ -8,6 +8,7 @@
 #include "Items/PGProjectileBase.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "Components/Combat/HeroCombatComponent.h"
 
 void UHeroAbility_BaseProjectileAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -80,8 +81,9 @@ void UHeroAbility_BaseProjectileAttack::SpawnProjectile(FGameplayEventData InEve
 
     // 히어로 캐릭터의 TargetActor가 유효하다면 그쪽으로 발사, 아니라면 캐릭터가 바라보는 방향으로 발사
     FRotator SpawnRotation = GetAvatarActorFromActorInfo()->GetActorForwardVector().Rotation();
-    if (AActor* TargetActor = GetHeroCharacterFromActorInfo()->CurrentTarget.Get())
+    if (GetHeroCharacterFromActorInfo()->GetHeroCombatComponent()->CurrentTarget.IsValid())
     {
+        AActor* TargetActor = GetHeroCharacterFromActorInfo()->GetHeroCombatComponent()->CurrentTarget.Get();
         SpawnRotation = (TargetActor->GetActorLocation() - SpawnLocation).Rotation();
     }
 

@@ -8,10 +8,12 @@
 #include "PGGameplayTags.h"
 #include "Character/PGCharacterBase.h"
 #include "Interfaces/HeroCombatInterface.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UHeroCombatComponent::UHeroCombatComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.SetTickFunctionEnable(false);
 }
 
 void UHeroCombatComponent::SetCombatMode(EHeroCombatMode NewCombatMode)
@@ -37,7 +39,25 @@ void UHeroCombatComponent::SetCombatMode(EHeroCombatMode NewCombatMode)
 void UHeroCombatComponent::BeginPlay()
 {
     Super::BeginPlay();
-    OwningActor = GetOwner();
+    OwningCharacter = Cast<ACharacter>(GetOwner());
+}
+
+void UHeroCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if(!OwningCharacter || CombatMode == EHeroCombatMode::None || !CurrentTarget.IsValid())
+    {
+        SetComponentTickEnabled(false); // 전투 모드가 None이면 Tick 비활성화
+        return;
+    }
+
+    FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwningCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+    LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
+
+    const FRotator NewRotation = FMath::RInterpTo(OwningCharacter->GetActorRotation(), LookAtRotation, DeltaTime, 10.f);
+
+    OwningCharacter->SetActorRotation(NewRotation);
 }
 
 void UHeroCombatComponent::ActivateManualCombat()
@@ -131,33 +151,28 @@ void UHeroCombatComponent::RefreshBasicAttackTimer()
 
 void UHeroCombatComponent::UpdateDetection()
 {
-    if(!OwningActor || CombatMode == EHeroCombatMode::None)
+    if(!OwningCharacter || CombatMode == EHeroCombatMode::None)
     {
+        SetComponentTickEnabled(false); // 전투 모드가 None이면 Tick 비활성화
         return;
     }
 
     // 현재 타깃은 가장 가까운 적으로 변경
     CurrentTarget = FindNearestEnemy();
-    
+    SetComponentTickEnabled(CurrentTarget.IsValid()); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
+
     // 유효한 타깃이 없으면 전투 종료
     if (!CurrentTarget.IsValid()) return;
 
-    // 타깃을 바라보게 함
-    FaceCurrentTarget();
-
     if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
     {
-        IHeroCombatInterface::Execute_TryExecuteActiveSkill(OwningActor);
+        IHeroCombatInterface::Execute_TryExecuteActiveSkill(OwningCharacter);
     }
-
-    RefreshBasicAttackTimer(); // 타깃이 변경될 때마다 기본 공격 타이머 갱신
 }
 
 void UHeroCombatComponent::HandleBasicAttack()
 {
-    if(!OwningActor || !CurrentTarget.IsValid() || CombatMode == EHeroCombatMode::None) return;
-
-    FaceCurrentTarget(); // 기본 공격 시에도 타깃을 바라보게 함
+    if(!OwningCharacter || !CurrentTarget.IsValid() || CombatMode == EHeroCombatMode::None) return;
 
     if(!IsTargetInBasicAttackRange())
     {
@@ -166,25 +181,25 @@ void UHeroCombatComponent::HandleBasicAttack()
 
     if(CanUseCombatInterface())
     {
-        IHeroCombatInterface::Execute_TryExecuteBasicAttack(OwningActor);
+        IHeroCombatInterface::Execute_TryExecuteBasicAttack(OwningCharacter);
     }
 }
 
 AActor* UHeroCombatComponent::FindNearestEnemy() const
 {
-    if (!OwningActor) return nullptr;
+    if (!OwningCharacter) return nullptr;
 
     TArray<AActor*> OverlapActors;
     TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
     ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn)); // Pawn 타입의 오브젝트만 감지
 
     TArray<AActor*> IgnoredActors;
-    IgnoredActors.Add(OwningActor); // 자신은 감지에서 제외
+    IgnoredActors.Add(OwningCharacter); // 자신은 감지에서 제외
 
     // 감지 반경 내의 Pawn 타입 오브젝트들을 감지
     UKismetSystemLibrary::SphereOverlapActors(
         GetWorld(),
-        OwningActor->GetActorLocation(),
+        OwningCharacter->GetActorLocation(),
         DetectRadius,
         ObjectTypes,
         APGCharacterBase::StaticClass(), // APGCharacterBase 클래스와 그 자식 클래스만 감지
@@ -200,7 +215,7 @@ AActor* UHeroCombatComponent::FindNearestEnemy() const
     {
         if (IsValidEnemy(Actor))
         {
-            float DistanceSquared = OwningActor->GetSquaredDistanceTo(Actor);
+            float DistanceSquared = OwningCharacter->GetSquaredDistanceTo(Actor);
             if (DistanceSquared < MinDistanceSquared)
             {
                 MinDistanceSquared = DistanceSquared;
@@ -223,27 +238,13 @@ bool UHeroCombatComponent::IsValidEnemy(AActor* TargetActor) const
     return TargetCharacter->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe); // 적 팀 태그와 일치하는지 확인
 }
 
-void UHeroCombatComponent::FaceCurrentTarget()
-{
-    if (!OwningActor || !CurrentTarget.IsValid()) return;
-
-    FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(
-        OwningActor->GetActorLocation(),
-        CurrentTarget->GetActorLocation()
-    );
-
-    LookAtRotation.Pitch = 0.f; // 수평으로만 회전하도록 Pitch는 0으로 고정
-    // 부드러운 회전을 위해 보간
-    OwningActor->SetActorRotation(LookAtRotation);
-}
-
 float UHeroCombatComponent::GetBasickAttackInterval() const
 {
-    if (!OwningActor) return 1.f;
+    if (!OwningCharacter) return 1.f;
 
     if (CanUseCombatInterface())
     {
-        const float AttackSpeed = IHeroCombatInterface::Execute_GetBasicAttackSpeed(OwningActor);
+        const float AttackSpeed = IHeroCombatInterface::Execute_GetBasicAttackSpeed(OwningCharacter);
         return AttackSpeed > 0.f ? 1.f / AttackSpeed : 1.f; // 공격 속도가 양수인 경우 간격 계산, 그렇지 않으면 기본값 1초
     }
     return 1.f;
@@ -253,17 +254,17 @@ float UHeroCombatComponent::GetBasicAttackRange() const
 {
     if (CanUseCombatInterface())
     {
-        return IHeroCombatInterface::Execute_GetBasicAttackRange(OwningActor);
+        return IHeroCombatInterface::Execute_GetBasicAttackRange(OwningCharacter);
     }
     return 0.f;
 }
 
 bool UHeroCombatComponent::IsTargetInBasicAttackRange() const
 {
-    if (!OwningActor || !CurrentTarget.IsValid()) return false;
+    if (!OwningCharacter || !CurrentTarget.IsValid()) return false;
 
     const float AttackRange = GetBasicAttackRange();
-    const float DistanceSquared = OwningActor->GetSquaredDistanceTo(CurrentTarget.Get());
+    const float DistanceSquared = OwningCharacter->GetSquaredDistanceTo(CurrentTarget.Get());
 
     if(AttackRange <= 0.f)
     {
@@ -276,5 +277,5 @@ bool UHeroCombatComponent::IsTargetInBasicAttackRange() const
 
 bool UHeroCombatComponent::CanUseCombatInterface() const
 {
-    return OwningActor && OwningActor->GetClass()->ImplementsInterface(UHeroCombatInterface::StaticClass());
+    return OwningCharacter && OwningCharacter->GetClass()->ImplementsInterface(UHeroCombatInterface::StaticClass());
 }

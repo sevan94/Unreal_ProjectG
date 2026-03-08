@@ -64,6 +64,7 @@ public:
     void BroadCastAttributeSet();
 
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
+    FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
 protected:
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -10,6 +10,7 @@
 #include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "Components/Combat/HeroCombatComponent.h"
 
 void AHeroTestCharacter::BeginPlay()
 {
@@ -23,4 +24,10 @@ void AHeroTestCharacter::BeginPlay()
     EquipmentsStorageComponent->EquipHeroWeapon(WeaponDataAsset.Get());
     EquipmentsStorageComponent->EquipHeroArmor(ArmorDataAsset.Get());
     EquipmentsStorageComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+
+    // 인스턴스 멤버 함수로 호출하도록 수정
+    if (HeroCombatComponent)
+    {
+        HeroCombatComponent->SetCombatMode(EHeroCombatMode::Manual);
+    }
 }

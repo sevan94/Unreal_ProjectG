@@ -8,9 +8,6 @@
 #include "Types/PGGasTypes.h"
 #include "Types/AbilityConfig.h"
 
-#include "Customization/SetBonusDataCustomization.h"
-#include "DataAssets/Items/DataAsset_SetBonusData.h"
-
 IMPLEMENT_MODULE(FPGEditorModule, PGEditor)
 
 void FPGEditorModule::StartupModule()
@@ -32,12 +29,6 @@ void FPGEditorModule::StartupModule()
         FOnGetPropertyTypeCustomizationInstance::CreateStatic(
             &FAttributeModEntryCustomization::MakeInstance));
 
-    // UDataAssets_SetBonusData 디테일 커스터 마이저 등록
-    PropertyModule.RegisterCustomClassLayout(
-        UDataAsset_SetBonusData::StaticClass()->GetFName(),
-        FOnGetDetailCustomizationInstance::CreateStatic(
-            &FSetBonusDataCustomization::MakeInstance));
-
     PropertyModule.NotifyCustomizationModuleChanged();
 }
 
@@ -55,9 +46,5 @@ void FPGEditorModule::ShutdownModule()
         // FAttributeModEntry 커스터마이저 등록 해제
         PropertyModule.UnregisterCustomPropertyTypeLayout(
             FPGAttributeModifierEntry::StaticStruct()->GetFName());
-
-        // UDataAssets_SetBonusData 디테일 커스터마이저 등록 해제
-        PropertyModule.UnregisterCustomClassLayout(
-            UDataAsset_SetBonusData::StaticClass()->GetFName());
     }
 }

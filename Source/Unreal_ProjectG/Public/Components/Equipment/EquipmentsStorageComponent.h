@@ -9,7 +9,6 @@
 class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
-class UDataAsset_SetBonusData;
 
 /**
  * 
@@ -34,9 +33,6 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData);
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void ApplySetBonus(UDataAsset_SetBonusData* InSetBonusData);
 
 public:
     TWeakObjectPtr<UStaticMeshComponent> CachedWeaponMeshComponent;

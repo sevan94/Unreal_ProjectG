@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/CurrentEquipWidget.h"
+#include "UI/Lobby/Equip/CurrentEquipWidget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
-#include "UI/Lobby/LobbyEquipWidget.h"
+#include "UI/Lobby/Equip/LobbyEquipWidget.h"
 
 void UCurrentEquipWidget::UpdateEquipSlot(UEquipUIDataAsset* InData)
 {

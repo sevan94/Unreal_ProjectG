@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/LobbyGachaWidget.h"
+#include "UI/Lobby/Gacha/LobbyGachaWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 

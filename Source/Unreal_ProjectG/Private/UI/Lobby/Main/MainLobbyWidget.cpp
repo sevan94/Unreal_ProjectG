@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/MainLobbyWidget.h"
+#include "UI/Lobby/Main/MainLobbyWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 

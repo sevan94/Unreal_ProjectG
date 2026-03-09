@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/GoodsBarWidget.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 

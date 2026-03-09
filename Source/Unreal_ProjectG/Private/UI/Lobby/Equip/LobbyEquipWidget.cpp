@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/LobbyEquipWidget.h"
+#include "UI/Lobby/Equip/LobbyEquipWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
-#include "UI/Lobby/CurrentEquipWidget.h"
-#include "UI/Lobby/EquipListWidget.h"
-#include "UI/Lobby/EquipDescriptionWidget.h"
+#include "UI/Lobby/Equip/CurrentEquipWidget.h"
+#include "UI/Lobby/Equip/EquipListWidget.h"
+#include "UI/Lobby/Equip/EquipDescriptionWidget.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 #include "Mode/Save/PGGameInstance.h"
 

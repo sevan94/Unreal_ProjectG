@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/EquipListWidget.h"
+#include "UI/Lobby/Equip/EquipListWidget.h"
 #include "Components/TileView.h"
 #include "UI/EquipEntryObject.h"
 #include "UI/DataTable/EquipUIDataTable.h"

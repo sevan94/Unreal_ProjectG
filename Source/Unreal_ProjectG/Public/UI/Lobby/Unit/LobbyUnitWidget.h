@@ -14,7 +14,7 @@ class UUnitListWidget;
 class UUnitDescriptionWidget; 
 class UUnitUIDataAsset;
 class UUnitEntryObject;
-class UPartyUnitWidget;
+class UCurrentUnitWidget;
 
 /**
  * 
@@ -69,7 +69,7 @@ private:
 
     // 파티 슬롯 배열
     UPROPERTY()
-    TArray<TObjectPtr<UPartyUnitWidget>> PartySlots;
+    TArray<TObjectPtr<UCurrentUnitWidget>> PartySlots;
 
     // 게임 인스턴스
     TObjectPtr<UPGGameInstance> GI;

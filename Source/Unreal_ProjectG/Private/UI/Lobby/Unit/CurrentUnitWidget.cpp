@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/PartyUnitWidget.h"
+#include "UI/Lobby/Unit/CurrentUnitWidget.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Components/Overlay.h"
 
-void UPartyUnitWidget::UpdateSlot(UUnitUIDataAsset* NewData)
+void UCurrentUnitWidget::UpdateSlot(UUnitUIDataAsset* NewData)
 {
     CurrentUnitData = NewData;
 
@@ -23,7 +23,7 @@ void UPartyUnitWidget::UpdateSlot(UUnitUIDataAsset* NewData)
     }
 }
 
-void UPartyUnitWidget::ShowReplaceOverlay(bool bVisible)
+void UCurrentUnitWidget::ShowReplaceOverlay(bool bVisible)
 {
     if (ReplaceOverlay)
     {
@@ -31,13 +31,13 @@ void UPartyUnitWidget::ShowReplaceOverlay(bool bVisible)
     }
 }
 
-void UPartyUnitWidget::NativeConstruct()
+void UCurrentUnitWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
     if (UnitButton)
     {
-        UnitButton->OnClicked.AddDynamic(this, &UPartyUnitWidget::OnCurrentButtonClicked);
+        UnitButton->OnClicked.AddDynamic(this, &UCurrentUnitWidget::OnCurrentButtonClicked);
     }
 
     UpdateSlot(CurrentUnitData);
@@ -46,7 +46,7 @@ void UPartyUnitWidget::NativeConstruct()
     ShowReplaceOverlay(false);
 }
 
-void UPartyUnitWidget::OnCurrentButtonClicked()
+void UCurrentUnitWidget::OnCurrentButtonClicked()
 {
     if (OnSlotClicked.IsBound())
     {

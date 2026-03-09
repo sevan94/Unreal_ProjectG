@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/EquipSelectWidget.h"
+#include "UI/Lobby/Equip/EquipSelectWidget.h"
 #include "UI/EquipEntryObject.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 #include "Components/Image.h"

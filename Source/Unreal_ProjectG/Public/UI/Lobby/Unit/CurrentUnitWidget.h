@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PartyUnitWidget.generated.h"
+#include "CurrentUnitWidget.generated.h"
 
 class UImage;
 class UButton;
 class UOverlay;
 class UUnitUIDataAsset;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPartySlotClicked, int32, SlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCurrentSlotClicked, int32, SlotIndex);
 /**
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API UPartyUnitWidget : public UUserWidget
+class UNREAL_PROJECTG_API UCurrentUnitWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -38,7 +38,7 @@ protected:
 public:
     // 부모 위젯에서 구독할 클릭 이벤트
     UPROPERTY(BlueprintAssignable, Category = "Events")
-    FOnPartySlotClicked OnSlotClicked;
+    FOnCurrentSlotClicked OnSlotClicked;
 
     // 슬롯 식별 번호 (0~4)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot Settings")

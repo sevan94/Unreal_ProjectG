@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/LobbyUnitWidget.h"
+#include "UI/Lobby/Unit/LobbyUnitWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
-#include "UI/Lobby/UnitListWidget.h"
-#include "UI/Lobby/UnitDescriptionWidget.h"
-#include "UI/Lobby/PartyUnitWidget.h"
+#include "UI/Lobby/Unit/UnitListWidget.h"
+#include "UI/Lobby/Unit/UnitDescriptionWidget.h"
+#include "UI/Lobby/Unit/CurrentUnitWidget.h"
 #include "UI/UnitEntryObject.h"
 #include "Components/HorizontalBox.h"
 #include "Mode/Save/PGGameInstance.h"
@@ -31,8 +31,8 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
     {
 
         // 선택한 유닛이 이미 다른 슬롯에 있는지 확인 (중복 검사)
-        UPartyUnitWidget* ExistingSlot = nullptr;
-        for (UPartyUnitWidget* PartySlot : PartySlots)
+        UCurrentUnitWidget* ExistingSlot = nullptr;
+        for (UCurrentUnitWidget* PartySlot : PartySlots)
         {
             if (PartySlot && PartySlot->GetUnitData() == SelectedUnit)
             {
@@ -55,7 +55,7 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
         if (GI)
         {
             TArray<TSoftObjectPtr<UUnitUIDataAsset>> NewPartyList;
-            for (UPartyUnitWidget* PartySlot : PartySlots)
+            for (UCurrentUnitWidget* PartySlot : PartySlots)
             {
                 NewPartyList.Add(TSoftObjectPtr<UUnitUIDataAsset>(PartySlot->GetUnitData()));
             }
@@ -83,7 +83,7 @@ void ULobbyUnitWidget::InitializePartySlots()
     {
         for (int32 i = 0; i < PartyBox->GetChildrenCount(); ++i)
         {
-            if (UPartyUnitWidget* PartySlot = Cast<UPartyUnitWidget>(PartyBox->GetChildAt(i)))
+            if (UCurrentUnitWidget* PartySlot = Cast<UCurrentUnitWidget>(PartyBox->GetChildAt(i)))
             {
                 PartySlot->SlotIndex = i; // 인덱스 자동 부여
                 PartySlot->OnSlotClicked.AddDynamic(this, &ULobbyUnitWidget::HandlePartySlotClick);

@@ -14,7 +14,8 @@ void UHeroAbility_SpawnPet::OnGiveAbility(const FGameplayAbilityActorInfo* Actor
     UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
     if (DataAsset)
     {
-        const FHeroSpawnPetAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroSpawnPetAbilityConfig>();
+        const FAbilityEntry& SelectedAbilityEntry = DataAsset->GetGivenAbilityEntryForASC(GetAbilitySystemComponentFromActorInfo());
+        const FHeroSpawnPetAbilityConfig* Config = SelectedAbilityEntry.AbilityConfig.GetPtr<FHeroSpawnPetAbilityConfig>();
         if (Config)
         {
             HeroSpawnPetConfig = *Config;

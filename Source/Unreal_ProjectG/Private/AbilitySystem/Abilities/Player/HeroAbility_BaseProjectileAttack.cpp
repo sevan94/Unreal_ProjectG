@@ -17,7 +17,8 @@ void UHeroAbility_BaseProjectileAttack::OnGiveAbility(const FGameplayAbilityActo
     UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
     if (DataAsset)
     {
-        const FHeroSpawnProjectileAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroSpawnProjectileAbilityConfig>();
+        const FAbilityEntry& SelectedAbilityEntry = DataAsset->GetGivenAbilityEntryForASC(GetAbilitySystemComponentFromActorInfo());
+        const FHeroSpawnProjectileAbilityConfig* Config = SelectedAbilityEntry.AbilityConfig.GetPtr<FHeroSpawnProjectileAbilityConfig>();
         if (Config)
         {
             HeroSpawnProjectileConfig = *Config;
@@ -29,7 +30,6 @@ void UHeroAbility_BaseProjectileAttack::ActivateAbility(const FGameplayAbilitySp
 {
     //==============================================
     // FHeroSpawnProjectileAbilityConfig의 SoftPtr 로드
-    HeroSpawnProjectileConfig.DamageEffectClass.LoadSynchronous();
     HeroSpawnProjectileConfig.SpawnedProjectileClass.LoadSynchronous();
     for(TSoftObjectPtr<UAnimMontage>& Montage : HeroSpawnProjectileConfig.SpawnProjectileMontages)
     {

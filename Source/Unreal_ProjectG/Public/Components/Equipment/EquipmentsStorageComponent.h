@@ -21,7 +21,7 @@ class UNREAL_PROJECTG_API UEquipmentsStorageComponent : public UPawnExtensionCom
 	
 public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
-    TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedSkillAbilitySpecHandles; }
+    TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedWeaponAbilitySpecHandles; }
 
     // ==============================================================
     // 장비 장착 함수들
@@ -47,5 +47,5 @@ public:
 protected:
     // 어빌리티 스펙 핸들 저장 배열
     UPROPERTY(VisibleAnywhere, Category = "Combat|Data")
-    TArray<FGameplayAbilitySpecHandle> GrantedSkillAbilitySpecHandles;
+    TArray<FGameplayAbilitySpecHandle> GrantedWeaponAbilitySpecHandles;
 };

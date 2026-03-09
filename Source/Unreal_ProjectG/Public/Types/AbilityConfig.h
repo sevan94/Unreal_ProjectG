@@ -35,7 +35,7 @@ struct FNumericBuffEffectConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> EffectClass;
+    TSubclassOf<UGameplayEffect> EffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier;
@@ -82,7 +82,7 @@ struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier; // 스킬 계수
@@ -103,7 +103,7 @@ struct FHeroCastingAOEAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier; // 스킬 계수
@@ -137,7 +137,7 @@ struct FUnitBaseMeleeAttackAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier; // 스킬 계수
@@ -161,7 +161,7 @@ struct FUnitSpawnProjectileAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier; // 스킬 계수
@@ -182,7 +182,7 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; 
+    TSubclassOf<UGameplayEffect> DamageEffectClass; 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier;
@@ -210,7 +210,7 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     TArray<FNumericBuffEffectConfig> NumericBuffs; // 수치 버프량 계산을 위한 데이터 배열
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftClassPtr<UGameplayEffect>> StatusEffectClasses; // 상태형 버프
+    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses; // 상태형 버프
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float BuffAuraRadius; // 버프 오라의 반경

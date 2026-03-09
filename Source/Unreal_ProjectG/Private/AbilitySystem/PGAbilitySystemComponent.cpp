@@ -5,43 +5,6 @@
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 
-void UPGAbilitySystemComponent::GrantHeroAbilityByAbilityData(const TSoftObjectPtr<UDataAsset_SkillData>& InAbilityData, int32 ApplyLevel)
-{
-    UDataAsset_SkillData* LoadedData = InAbilityData.LoadSynchronous();
-    
-    if (LoadedData->AbilityEntry.AbilityClass)
-    {
-        // 이 어빌리티 스킬 데이터 에셋을 소스로 하는 어빌리티 스펙 생성
-        FGameplayAbilitySpec BasicAttackAbilitySpec(
-            LoadedData->AbilityEntry.AbilityClass,
-            ApplyLevel,
-            INDEX_NONE,
-            LoadedData
-        );
-        GiveAbility(BasicAttackAbilitySpec);
-    }
-}
-
-void UPGAbilitySystemComponent::GrantHeroAbilitiesByAbilityData(const TArray<TSoftObjectPtr<UDataAsset_SkillData>>& InAbilityDataArray, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles)
-{
-    for (TSoftObjectPtr<UDataAsset_SkillData> AbilityData : InAbilityDataArray)
-    {
-        if (AbilityData)
-        {
-            UDataAsset_SkillData* LoadedData = AbilityData.LoadSynchronous();
-            FGameplayAbilitySpec AbilitySpec(
-                LoadedData->AbilityEntry.AbilityClass,
-                ApplyLevel,
-                INDEX_NONE,
-                LoadedData
-            );
-            // 부여한 어빌리티 삭제를 위해 핸들을 저장
-            OutWeaponAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
-        }
-    }
-
-}
-
 bool UPGAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate)
 {
     check(AbilityTagToActivate.IsValid());

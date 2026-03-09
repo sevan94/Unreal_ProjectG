@@ -28,14 +28,13 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 {
     //==============================================
     // FUnitBaseMeleeAttackAbilityConfig의 SoftPtr 로드
-    MeleeAttackConfig.DamageEffectClass.LoadSynchronous();
     for (TSoftObjectPtr<UAnimMontage>& AttackMontage : MeleeAttackConfig.MeleeAttackMontages)
     {
         AttackMontage.LoadSynchronous();
     }
     //==============================================
     checkf(MeleeAttackConfig.MeleeAttackMontages.Num() > 0, TEXT("MeleeAttackMontage 배열이 비어있습니다!"));
-    checkf(MeleeAttackConfig.DamageEffectClass.IsValid(), TEXT("유닛 %s : DamageEffectClass이 유효하지 않습니다!"), *GetAvatarActorFromActorInfo()->GetName());
+    checkf(MeleeAttackConfig.DamageEffectClass, TEXT("유닛 %s : DamageEffectClass이 유효하지 않습니다!"), *GetAvatarActorFromActorInfo()->GetName());
 
     // 전방에 박스 트레이스를 발사하여 가장 가까운 타겟 액터를 찾음
     FVector StartLocation = GetAvatarActorFromActorInfo()->GetActorLocation()

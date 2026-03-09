@@ -60,6 +60,9 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
     TArray<TSoftObjectPtr<UUnitUIDataAsset>> CurrentUnits;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Equipment")
+    FGameplayTag CurrentSetTag = FGameplayTag::EmptyTag;
+
     //로비에서 선택한 스테이지 번호(게임 모드에 전달할 목적)
     UPROPERTY(BlueprintReadWrite, Category = "Stage")
     int32 SelectedStageNum = 1;

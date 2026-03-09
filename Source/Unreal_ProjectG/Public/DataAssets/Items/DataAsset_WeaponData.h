@@ -5,13 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
-//#include "Types/PGStructTypes.h"
 #include "DataAsset_WeaponData.generated.h"
 
-class UPGHeroGameplayAbility;
 class UPGHeroLinkedAnimLayer;
-class UPGGameplayAbility;
 class UDataAsset_SkillData;
+class UPGAbilitySystemComponent;
 
 /**
  * 
@@ -21,6 +19,11 @@ class UNREAL_PROJECTG_API UDataAsset_WeaponData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 	
+public:
+    // 무기 데이터 에셋으로부터 단일 어빌리티 부여(핸들 반환)
+    UFUNCTION(BlueprintCallable, Category = "Abilities", meta = (ApplyLevel = "1"))
+    void GrantWeaponAbilityToAbilityComponent(UPGAbilitySystemComponent* InASCToGive, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutWeaponAbilitySpecHandles);
+
 public:
     // 세트 구분을 위한 태그
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))

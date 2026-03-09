@@ -42,16 +42,8 @@ void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeapo
 
     if (ASC)
     {
-        // 어빌리티를 Give하고 스펙 핸들을 저장
-        // 기본 공격 어빌리티 부여(핸들 반환 필요 없음)
-        ASC->GrantHeroAbilityByAbilityData(InWeaponData->WeaponBasicAttackData, 1);
-
-        // 무기 스킬 어빌리티 부여(핸들 반환 필요)
-        for (TSoftObjectPtr<UDataAsset_SkillData>& SkillDataPtr : InWeaponData->WeaponSkillDataArray)
-        {
-            SkillDataPtr.LoadSynchronous();
-        }
-        ASC->GrantHeroAbilitiesByAbilityData(InWeaponData->WeaponSkillDataArray, 1, GrantedSkillAbilitySpecHandles);
+        // 무기 어빌리티 부여(핸들 반환 필요)
+        InWeaponData->GrantWeaponAbilityToAbilityComponent(ASC, 1, GrantedWeaponAbilitySpecHandles);
 
         // 무기의 공격속도와 공격 사거리를 ASC의 어트리뷰트에 세팅
         ASC->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackSpeedAttribute(), InWeaponData->WeaponAttackSpeed);

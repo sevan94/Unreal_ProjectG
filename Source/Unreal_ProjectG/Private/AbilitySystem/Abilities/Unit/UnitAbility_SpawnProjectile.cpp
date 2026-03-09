@@ -27,7 +27,6 @@ void UUnitAbility_SpawnProjectile::ActivateAbility(const FGameplayAbilitySpecHan
 {
     //==============================================
 // FUnitSpawnProjectileAbilityConfig의 SoftPtr 로드
-    UnitSpawnProjectileConfig.DamageEffectClass.LoadSynchronous();
     UnitSpawnProjectileConfig.SpawnedProjectileClass.LoadSynchronous();
     for (TSoftObjectPtr<UAnimMontage>& Montage : UnitSpawnProjectileConfig.SpawnProjectileMontages)
     {

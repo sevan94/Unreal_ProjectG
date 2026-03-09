@@ -10,6 +10,7 @@
 class UButton;
 class UImage;
 class UWidgetSwitcher;
+class UPGGameInstance;
 class UCurrentEquipWidget;
 class UEquipListWidget;
 class UEquipUIDataAsset;
@@ -29,6 +30,8 @@ public:
 	
 protected:
     virtual void NativeConstruct() override;
+
+    void IntializeEquipSlots();
 
 private:
     UFUNCTION()
@@ -86,4 +89,7 @@ private:
     // 현재 리스트에서 선택된 장비
     UPROPERTY()
     TObjectPtr<UEquipUIDataAsset> SelectedEquip;
+
+    // 게임 인스턴스
+    TObjectPtr<UPGGameInstance> GI;
 };

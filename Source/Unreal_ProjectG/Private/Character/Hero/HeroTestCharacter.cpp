@@ -21,17 +21,19 @@ void AHeroTestCharacter::BeginPlay()
 
     if (GI)
     {
-        if(GI->CurrentWeapon) WeaponDataAsset = GI->CurrentWeapon->EquipDataAsset;
+        if (GI->CurrentWeapon) WeaponDataAsset = Cast<UDataAsset_WeaponData>(GI->CurrentWeapon->EquipDataAsset.LoadSynchronous());
+        if (GI->CurrentArmor) ArmorDataAsset = Cast<UDataAsset_ArmorData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
+        if (GI->CurrentAccessory) AccessoryDataAsset = Cast<UDataAsset_AccessoryData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
     }
 
     // 데이터 에셋 로드
-    WeaponDataAsset.LoadSynchronous();
-    ArmorDataAsset.LoadSynchronous();
-    AccessoryDataAsset.LoadSynchronous();
+    //WeaponDataAsset.LoadSynchronous();
+    //ArmorDataAsset.LoadSynchronous();
+    //AccessoryDataAsset.LoadSynchronous();
 
-    HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
-    HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
-    HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+    if (WeaponDataAsset.IsValid()) HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
+    if (ArmorDataAsset.IsValid()) HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
+    if (AccessoryDataAsset.IsValid()) HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 
 }
 

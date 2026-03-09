@@ -9,6 +9,7 @@
 class UButton;
 class UHorizontalBox;
 class UWidgetSwitcher;
+class UPGGameInstance;
 class UUnitListWidget;
 class UUnitDescriptionWidget; 
 class UUnitUIDataAsset;
@@ -28,6 +29,8 @@ protected:
     // 파티 슬롯 클릭 시 호출될 함수
     UFUNCTION()
     void HandlePartySlotClick(int32 SlotIndex);
+
+    void InitializePartySlots();
 
 private:
     UFUNCTION()
@@ -66,4 +69,7 @@ private:
     // 파티 슬롯 배열
     UPROPERTY()
     TArray<TObjectPtr<UPartyUnitWidget>> PartySlots;
+
+    // 게임 인스턴스
+    TObjectPtr<UPGGameInstance> GI;
 };

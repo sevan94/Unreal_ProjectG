@@ -17,7 +17,7 @@ class UNREAL_PROJECTG_API UEquipUIDataAsset : public UPrimaryDataAsset
 public:
     // 장비 데이터 에셋
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
-    TObjectPtr<UPrimaryDataAsset> EquipDataAsset;
+    TSoftObjectPtr<UPrimaryDataAsset> EquipDataAsset;
 
     // 장비 버튼 이미지
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")

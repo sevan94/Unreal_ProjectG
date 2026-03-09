@@ -14,20 +14,11 @@ void ULobbyUnitWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     PartySlots.Empty();
+    GI = Cast<UPGGameInstance>(GetGameInstance());
+    GI->LoadGameData();
     UnitDescription->SetVisibility(ESlateVisibility::Hidden);
 
-    if (PartyBox)
-    {
-        for (int32 i = 0; i < PartyBox->GetChildrenCount(); ++i)
-        {
-            if (UPartyUnitWidget* PartySlot = Cast<UPartyUnitWidget>(PartyBox->GetChildAt(i)))
-            {
-                PartySlot->SlotIndex = i; // 인덱스 자동 부여
-                PartySlot->OnSlotClicked.AddDynamic(this, &ULobbyUnitWidget::HandlePartySlotClick);
-                PartySlots.Add(PartySlot);
-            }
-        }
-    }
+    InitializePartySlots();
 
     if (ExitButton) ExitButton->OnClicked.AddDynamic(this, &ULobbyUnitWidget::OnExitButtonClick);
     if (UnitList) UnitList->OnUnitSelected.AddDynamic(this, &ULobbyUnitWidget::HandleUnitSelected);
@@ -37,7 +28,6 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
 {
     if (SelectedUnit && PartySlots.IsValidIndex(SlotIndex))
     {
-        UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
 
         // 선택한 유닛이 이미 다른 슬롯에 있는지 확인 (중복 검사)
         UPartyUnitWidget* ExistingSlot = nullptr;
@@ -83,6 +73,24 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
 
         // 설명 창 숨기기
         UnitDescription->SetVisibility(ESlateVisibility::Hidden);
+    }
+}
+
+void ULobbyUnitWidget::InitializePartySlots()
+{
+    if (PartyBox)
+    {
+        for (int32 i = 0; i < PartyBox->GetChildrenCount(); ++i)
+        {
+            if (UPartyUnitWidget* PartySlot = Cast<UPartyUnitWidget>(PartyBox->GetChildAt(i)))
+            {
+                PartySlot->SlotIndex = i; // 인덱스 자동 부여
+                PartySlot->OnSlotClicked.AddDynamic(this, &ULobbyUnitWidget::HandlePartySlotClick);
+                PartySlots.Add(PartySlot);
+                if (GI->CurrentUnits.IsValidIndex(i))
+                    PartySlot->UpdateSlot(GI->CurrentUnits[i].LoadSynchronous());
+            }
+        }
     }
 }
 

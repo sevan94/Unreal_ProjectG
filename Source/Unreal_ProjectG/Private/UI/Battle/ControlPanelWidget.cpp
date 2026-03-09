@@ -27,7 +27,7 @@ void UControlPanelWidget::SetAbilitySpecHandle()
     {
         //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
         if(SpecHandleArray[0].IsValid())WeaponSkill1->SetAbilitySpecHandle(SpecHandleArray[0]);
-        // if(SpecHandleArray[1].IsValid())WeaponSkill2->SetAbilitySpecHandle(SpecHandleArray[1]);
+        //if(SpecHandleArray[1].IsValid())WeaponSkill2->SetAbilitySpecHandle(SpecHandleArray[1]);
         if (GI->CurrentWeapon)
         {
             WeaponSkill1->SetSkillIcon(GI->CurrentWeapon->SkillImage1);

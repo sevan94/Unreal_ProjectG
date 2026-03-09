@@ -4,6 +4,7 @@
 #include "AbilitySystem/GEEC/GEExecCalc_DefaultDamageTaken.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGGameplayTags.h"
+#include "Character/PGCharacterBase.h"
 
 struct FPGDamageCapture
 {
@@ -31,6 +32,45 @@ UGEExecCalc_DefaultDamageTaken::UGEExecCalc_DefaultDamageTaken()
     // 캡처할 어트리뷰트 정의를 RelevantAttributesToCapture 배열에 추가
     RelevantAttributesToCapture.Add(GetPGDamageCapture().HealthDef);
     RelevantAttributesToCapture.Add(GetPGDamageCapture().AttackPowerDef);
+}
+
+float UGEExecCalc_DefaultDamageTaken::GetElementMultiplier(const FGameplayTagContainer& SourceTags, const FGameplayTagContainer& TargetTags)
+{
+    static TMap<FGameplayTag, TMap<FGameplayTag, float>> ElementMultiplierMap;
+    if (ElementMultiplierMap.IsEmpty())
+    {
+        ElementMultiplierMap.Add(PGGameplayTags::Unit_Element_Fire, {
+            { PGGameplayTags::Unit_Element_Electric, 1.2f },
+            { PGGameplayTags::Unit_Element_Water, 0.5f } 
+            });
+
+        ElementMultiplierMap.Add(PGGameplayTags::Unit_Element_Water, {
+            { PGGameplayTags::Unit_Element_Fire, 1.2f }, 
+            { PGGameplayTags::Unit_Element_Electric, 0.5f } 
+            });
+
+        ElementMultiplierMap.Add(PGGameplayTags::Unit_Element_Electric, {
+            { PGGameplayTags::Unit_Element_Water, 1.2f }, 
+            { PGGameplayTags::Unit_Element_Fire, 0.5f }  
+            });
+    }
+
+    for (const FGameplayTag& SourceTag : SourceTags)
+    {
+        if (const TMap<FGameplayTag, float>* DefenderMap = ElementMultiplierMap.Find(SourceTag))
+        {
+            for (const FGameplayTag& TargetTag : TargetTags)
+            {
+                if (const float* FoundMultiplier = DefenderMap->Find(TargetTag))
+                {
+                    return *FoundMultiplier;
+                }
+            }
+            return 1.0f;
+        }
+    }
+
+    return 1.0f;
 }
 
 void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -62,8 +102,27 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
         }
     }
 
-    // 방어력 등 추가 스탯이 생기면 여기에서 계산 로직 추가
+    //원소별 데미지 배수 계산식, 불, 물 전기 세가지 약속성 1.5 피해 입고 강속성에게 0.5배
+    float ElementMultiplier = 1.0f;
 
+    AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent() ? ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor() : nullptr;
+    AActor* TargetActor = ExecutionParams.GetTargetAbilitySystemComponent() ? ExecutionParams.GetTargetAbilitySystemComponent()->GetAvatarActor() : nullptr;
+    APGCharacterBase* SourceCharacter = Cast<APGCharacterBase>(SourceActor);
+    APGCharacterBase* TargetCharacter = Cast<APGCharacterBase>(TargetActor);
+
+    if (SourceCharacter && TargetCharacter)
+    {
+        FGameplayTag SourceElement = SourceCharacter->GetElementTag();
+        FGameplayTag TargetElement = TargetCharacter->GetElementTag();
+
+        if (SourceElement.IsValid() && TargetElement.IsValid())
+        {
+            FGameplayTagContainer TempSourceTags(SourceElement);
+            FGameplayTagContainer TempTargetTags(TargetElement);
+
+            ElementMultiplier = GetElementMultiplier(TempSourceTags, TempTargetTags);
+        }
+    }
     //================================================
     // 최종 데미지 계산
     //================================================
@@ -71,6 +130,8 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
     {
         BaseDamage *= SkillDamageMultiplier;
     }
+
+    BaseDamage *= ElementMultiplier;
 
     const float FinalDamage = BaseDamage;
 

@@ -171,19 +171,23 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSoftClassPtr<UGameplayEffect> DamageEffectClass; 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
+    FScalableFloat SkillMultiplier;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<AActor> SpawnedActorClass; // 스폰할 프로젝타일 클래스
+    TSoftClassPtr<AActor> SpawnedActorClass; 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages; // 공격 애니메이션 몽타주들
+    int32 SpawnCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages; 
+
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
+    FGameplayTag SpawnCueTag; 
 };
 
 USTRUCT(BlueprintType)

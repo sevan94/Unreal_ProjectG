@@ -9,6 +9,7 @@
 
 class UImage;
 class UButton;
+class UTextBlock;
 class UOverlay;
 class UUnitEntryObject;
 
@@ -37,6 +38,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> UnitButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitLevel;
 
     // 잠금 표시용 오버레이
     UPROPERTY(meta = (BindWidget))

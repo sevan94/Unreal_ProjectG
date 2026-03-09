@@ -145,7 +145,7 @@ void AUnitCharacter::InitUnitStartUpData()
                 {
                     if (PGAbilitySystemComponent)
                     {
-                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent, UnitLevel);
                     }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 

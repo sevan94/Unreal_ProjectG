@@ -7,6 +7,8 @@
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UUnitSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -35,15 +37,18 @@ void UUnitSelectWidget::UpdateWidget(UUnitEntryObject* InEntryObject)
 
     // EntryObject 내부의 데이터 에셋 가져오기
     UUnitUIDataAsset* UIData = InEntryObject->GetUnitUIData();
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()); 
+    FUnitSaveData SaveData = GI->GetUnitSaveData(UIData->UnitID);
 
     if (UIData && UnitImage)
     {
         // 이미지 위젯에 텍스처 설정
         UnitImage->SetBrushFromTexture(UIData->UnitImage);
+        UnitLevel->SetText(FText::AsNumber(SaveData.Level));
     }
 
     // 소유 여부에 따른 잠금 표시 처리
-    if (LockOverlay)
+    if (LockOverlay && !SaveData.bIsUnlocked)
     {
         ESlateVisibility LockVisibility = InEntryObject->IsOwned() ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
         LockOverlay->SetVisibility(LockVisibility);

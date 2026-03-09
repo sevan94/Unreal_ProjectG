@@ -16,6 +16,10 @@ class UNREAL_PROJECTG_API UUnitUIDataAsset : public UPrimaryDataAsset
 	GENERATED_BODY()
 	
 public:
+    // 유닛 구분용 ID
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
+    int32 UnitID;
+
     // 유닛 캐릭터 블루프린트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     TSubclassOf<AUnitCharacter> UnitClass;

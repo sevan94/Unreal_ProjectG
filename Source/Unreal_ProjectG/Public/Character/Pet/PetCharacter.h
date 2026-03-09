@@ -19,4 +19,8 @@ public:
 
 protected:
     virtual void PossessedBy(AController* NewController) override;
+
+private:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    float AttackPowerMultiplier = 0.75f; // 공격력 배율
 };

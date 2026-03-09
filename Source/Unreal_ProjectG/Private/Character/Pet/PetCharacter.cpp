@@ -5,6 +5,7 @@
 #include "DataAssets/StartUp/DataAsset_PetStartUpData.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "Engine/AssetManager.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 
 APetCharacter::APetCharacter()
 {
@@ -35,4 +36,18 @@ void APetCharacter::PossessedBy(AController* NewController)
             }
         )
     );
+
+    // 소유자 캐릭터의 공격력에 비례하여 펫의 공격력 설정
+    if (GetInstigator())
+    {
+        float InstigatorAttackPower = 0.f;
+        if (APGCharacterBase* InstigatorCharacter = Cast<APGCharacterBase>(GetInstigator()))
+        {
+            if (UPGCharacterAttributeSet* InstigatorAttributeSet = InstigatorCharacter->GetPGCharacterAttributeSet())
+            {
+                InstigatorAttackPower = InstigatorAttributeSet->GetAttackPower();
+                PGAbilitySystemComponent->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackPowerAttribute(), InstigatorAttackPower * AttackPowerMultiplier);
+            }
+        }
+    }
 }

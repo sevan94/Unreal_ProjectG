@@ -46,3 +46,13 @@ enum class EUnitState : uint8
     Move        UMETA(DisplayName = "Move"),
     Dead        UMETA(DisplayName = "Dead")
 };
+
+
+// UI에서 장비 구분용 열거형
+UENUM()
+enum class EEquipCategory : uint8
+{
+    Weapon      UMETA(DisplayName = "Weapon"),
+    Armor       UMETA(DisplayName = "Armor"),
+    Accessory   UMETA(DisplayName = "Accessory")
+};

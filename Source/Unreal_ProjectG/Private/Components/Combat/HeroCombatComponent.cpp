@@ -52,6 +52,11 @@ void UHeroCombatComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
             SkillDataPtr.LoadSynchronous();
         }
         ASC->GrantHeroAbilitiesByAbilityData(InWeaponData->WeaponSkillDataArray, 1, GrantedSkillAbilitySpecHandles);
+
+        if (OnWeaponAbilitiesActivate.IsBound())
+        {
+            OnWeaponAbilitiesActivate.Broadcast();
+        }
     }
 }
 

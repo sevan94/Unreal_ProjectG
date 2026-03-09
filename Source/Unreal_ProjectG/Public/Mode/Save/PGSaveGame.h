@@ -25,10 +25,10 @@ public:
     int32 PlayerGold;
 
     UPROPERTY(VisibleAnywhere, Category = "Basic")
-    int32 PlayerRuby;
+    int32 PlayerGem;
 
     UPROPERTY(VisibleAnywhere, Category = "Basic")
-    int32 PlayerPiece;
+    int32 PlayerUnlock;
 
     // 장착 중인 무기 데이터 에셋의 경로 (SoftObjectPath)
     UPROPERTY(VisibleAnywhere, Category = "Equipment")

@@ -10,6 +10,7 @@
 #include "ActiveSkillWidget.generated.h"
 
 class UButton;
+class UImage;
 class UOverlay;
 class UTextBlock;
 
@@ -25,6 +26,9 @@ public:
     // 어빌리티 스펙 핸들을 이용하여 어빌리티 오브젝트 레퍼런스 할당
     UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandle);
+
+    // 스킬 이미지 설정
+    void SetSkillIcon(UTexture2D* InIcon);
 
     // 쿨타임 태그가 변경될 때 호출될 함수
     virtual void OnCoolDownTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
@@ -50,11 +54,13 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> CoolTimeText;
 
-    UPROPERTY(EditAnywhere, Category = "Data")
-    TObjectPtr<UDataTable> SkillDataTable;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> SkillBackground;
 
     UPROPERTY()
     TObjectPtr<UTexture2D> SkillIcon;
+    UPROPERTY(EditAnywhere, Category = "Data")
+    TObjectPtr<UTexture2D> SkillBackgroundImage;
 
     UPROPERTY(EditAnywhere, Category = "Data")
     TObjectPtr<UTexture2D> CancelIcon;

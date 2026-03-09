@@ -5,6 +5,8 @@
 #include "Pawn/BaseStructure.h"
 #include "GameFramework/PlayerController.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
+#include "UI/Battle/BattleHUD.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {
@@ -31,6 +33,12 @@ void APGBaseGameMode::BeginPlay()
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
+}
+
+void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)
+{
+    ABattleHUD* HUD = Cast<ABattleHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    HUD->OnGameOver(ResultData);
 }
 
 // --- 시간 및 등급 관리 ---
@@ -81,4 +89,6 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         FinalStarCount = 0; // 패배 시 별 없음
         UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
+
+    ShowStageResult(Result);
 }

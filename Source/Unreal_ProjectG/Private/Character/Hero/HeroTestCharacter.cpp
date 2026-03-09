@@ -10,19 +10,31 @@
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "Mode/Save/PGGameInstance.h"
+#include "DataAssets/UI/EquipUIDataAsset.h"
 
 void AHeroTestCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
-    // 데이터 에셋 로드
-    WeaponDataAsset.LoadSynchronous();
-    ArmorDataAsset.LoadSynchronous();
-    AccessoryDataAsset.LoadSynchronous();
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
 
-    HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
-    HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
-    HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+    if (GI)
+    {
+        if (GI->CurrentWeapon) WeaponDataAsset = Cast<UDataAsset_WeaponData>(GI->CurrentWeapon->EquipDataAsset.LoadSynchronous());
+        if (GI->CurrentArmor) ArmorDataAsset = Cast<UDataAsset_ArmorData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
+        if (GI->CurrentAccessory) AccessoryDataAsset = Cast<UDataAsset_AccessoryData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
+    }
+
+    // 데이터 에셋 로드
+    //WeaponDataAsset.LoadSynchronous();
+    //ArmorDataAsset.LoadSynchronous();
+    //AccessoryDataAsset.LoadSynchronous();
+
+    if (WeaponDataAsset.IsValid()) HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
+    if (ArmorDataAsset.IsValid()) HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
+    if (AccessoryDataAsset.IsValid()) HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+
 }
 
 //void AHeroTestCharacter::SetupAccessoryToPawn()

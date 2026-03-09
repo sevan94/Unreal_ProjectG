@@ -11,6 +11,7 @@ class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
 class UDataAsset_SetBonusData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAbilitiesActivate);
 /**
  * 
  */
@@ -40,4 +41,8 @@ public:
 
 public:
     TWeakObjectPtr<UStaticMeshComponent> CachedWeaponMeshComponent;
+
+    // UI 바인딩 델리게이트
+    UPROPERTY()
+    FOnWeaponAbilitiesActivate OnWeaponAbilitiesActivate;
 };

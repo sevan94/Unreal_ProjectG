@@ -22,7 +22,8 @@ void UHeroAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo
     UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
     if (DataAsset)
     {
-        const FHeroMeleeAttackAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroMeleeAttackAbilityConfig>();
+        const FAbilityEntry& SelectedAbilityEntry = DataAsset->GetGivenAbilityEntryForASC(GetAbilitySystemComponentFromActorInfo());
+        const FHeroMeleeAttackAbilityConfig* Config = SelectedAbilityEntry.AbilityConfig.GetPtr<FHeroMeleeAttackAbilityConfig>();
         if (Config)
         {
             MeleeAttackConfig = *Config;

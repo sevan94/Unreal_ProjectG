@@ -24,7 +24,8 @@ void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
     UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
     if (DataAsset)
     {
-        const FHeroCastingAOEAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FHeroCastingAOEAbilityConfig>();
+        const FAbilityEntry& SelectedAbilityEntry = DataAsset->GetGivenAbilityEntryForASC(GetAbilitySystemComponentFromActorInfo());
+        const FHeroCastingAOEAbilityConfig* Config = SelectedAbilityEntry.AbilityConfig.GetPtr<FHeroCastingAOEAbilityConfig>();
         if (Config)
         {
             AOEAttackConfig = *Config;

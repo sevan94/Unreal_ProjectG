@@ -27,10 +27,11 @@ void UDataAsset_WeaponData::GrantWeaponAbilityToAbilityComponent(UPGAbilitySyste
         for(const TSoftObjectPtr<UDataAsset_SkillData>& SkillDataPtr : WeaponSkillDataArray)
         {
             UDataAsset_SkillData* LoadedSkillData = SkillDataPtr.LoadSynchronous();
-            if (LoadedSkillData && LoadedSkillData->AbilityEntry.AbilityClass)
+            const FAbilityEntry& AbilityEntryToGrant = LoadedSkillData ? LoadedSkillData->GetGivenAbilityEntryForASC(InASCToGive) : FAbilityEntry();
+            if (LoadedSkillData && AbilityEntryToGrant.AbilityClass)
             {
                 FGameplayAbilitySpec SkillAbilitySpec(
-                    LoadedSkillData->AbilityEntry.AbilityClass,
+                    AbilityEntryToGrant.AbilityClass,
                     ApplyLevel,
                     INDEX_NONE,
                     LoadedSkillData

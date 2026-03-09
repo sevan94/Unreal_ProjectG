@@ -17,7 +17,8 @@ void USharedAbility_BuffAura::OnGiveAbility(const FGameplayAbilityActorInfo* Act
     UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
     if (DataAsset)
     {
-        const FSharedBuffAuraAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FSharedBuffAuraAbilityConfig>();
+        const FAbilityEntry& SelectedAbilityEntry = DataAsset->GetGivenAbilityEntryForASC(GetAbilitySystemComponentFromActorInfo());
+        const FSharedBuffAuraAbilityConfig* Config = SelectedAbilityEntry.AbilityConfig.GetPtr<FSharedBuffAuraAbilityConfig>();
         if (Config)
         {
             BuffAuraConfig = *Config;

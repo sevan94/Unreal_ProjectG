@@ -29,14 +29,6 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
     //==============================================
     // FSharedBuffAuraAbilityConfig의 SoftPtr 로드
-    for(FNumericBuffEffectConfig& NumericBuffConig : BuffAuraConfig.NumericBuffs)
-    {
-        NumericBuffConig.EffectClass.LoadSynchronous();
-    }
-    for (TSoftClassPtr<UGameplayEffect>& StatusEffectClass : BuffAuraConfig.StatusEffectClasses)
-    {
-        StatusEffectClass.LoadSynchronous();
-    }
     BuffAuraConfig.AuraRadiusDecalMaterial.LoadSynchronous();
     //==============================================
 
@@ -137,7 +129,7 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
     //수치형 버프
     for (const FNumericBuffEffectConfig& Buff : BuffAuraConfig.NumericBuffs)
     {
-        if (Buff.EffectClass.IsValid())
+        if (Buff.EffectClass)
         {
             FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Buff.EffectClass.Get(), GetAbilityLevel());
             
@@ -155,9 +147,9 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
     }
 
     // 상태형 버프
-    for (const TSoftClassPtr<UGameplayEffect>& EffectClass : BuffAuraConfig.StatusEffectClasses)
+    for (const TSubclassOf<UGameplayEffect>& EffectClass : BuffAuraConfig.StatusEffectClasses)
     {
-        if (EffectClass.IsValid())
+        if (EffectClass)
         {
             FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass.Get(), GetAbilityLevel());
             CachedStatusBuffSpecs.Add(SpecHandle);

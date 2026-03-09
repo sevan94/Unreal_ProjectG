@@ -24,9 +24,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Base Ability Entry"))
     FAbilityEntry AbilityEntry;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Required Ability Tag", Categories = "Equipment.Set"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgraded", meta = (DisplayName = "Required Ability Tag", Categories = "Equipment.Set"))
     FGameplayTag RequiredSetTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Upgrade Ability Entry"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgraded", meta = (DisplayName = "Upgrade Ability Entry"))
     FAbilityEntry UpgradeAbilityEntry;
 };

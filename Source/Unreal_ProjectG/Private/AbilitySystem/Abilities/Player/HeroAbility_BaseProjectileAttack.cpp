@@ -29,7 +29,6 @@ void UHeroAbility_BaseProjectileAttack::ActivateAbility(const FGameplayAbilitySp
 {
     //==============================================
     // FHeroSpawnProjectileAbilityConfig의 SoftPtr 로드
-    HeroSpawnProjectileConfig.DamageEffectClass.LoadSynchronous();
     HeroSpawnProjectileConfig.SpawnedProjectileClass.LoadSynchronous();
     for(TSoftObjectPtr<UAnimMontage>& Montage : HeroSpawnProjectileConfig.SpawnProjectileMontages)
     {

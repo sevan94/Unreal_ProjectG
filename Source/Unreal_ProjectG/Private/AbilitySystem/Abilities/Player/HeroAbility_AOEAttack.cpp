@@ -33,7 +33,6 @@ void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 
     //==============================================
     // FHeroCastingAOEAbilityConfig의 SoftPtr 로드
-    AOEAttackConfig.DamageEffectClass.LoadSynchronous();
     AOEAttackConfig.CastingMontage.LoadSynchronous();
     //==============================================
 }

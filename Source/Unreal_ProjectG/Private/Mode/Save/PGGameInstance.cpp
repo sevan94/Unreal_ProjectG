@@ -38,12 +38,18 @@ void UPGGameInstance::LoadGameData()
     if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
     {
         CachedSaveData = Cast<UPGSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
-        InitializeUnitMap();
+        this->UnitLevelMap = CachedSaveData->UnitLevelMap;
+        if (CachedSaveData->UnitLevelMap.IsEmpty())
+            InitializeUnitMap();
     }
     else
     {
         CachedSaveData = Cast<UPGSaveGame>(UGameplayStatics::CreateSaveGameObject(UPGSaveGame::StaticClass()));
+        InitializeUnitMap();
     }
+
+    // 테스트용 유닛 맵 초기화
+    InitializeUnitMap();
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
     //장비
@@ -68,7 +74,7 @@ void UPGGameInstance::InitializeUnitMap()
     if (!UnitDataTable) return;
 
     // 이미 데이터가 있다면 중복 초기화를 방지
-    if (UnitLevelMap.Num() > 0) return;
+    //if (UnitLevelMap.Num() > 0) return;
 
     // 데이터 테이블의 모든 행을 가져옴 (RowStruct는 본인의 데이터 테이블 구조체 타입)
     static const FString ContextString(TEXT("UnitMapRef"));
@@ -82,8 +88,14 @@ void UPGGameInstance::InitializeUnitMap()
             FUnitSaveData NewData;
             NewData.Level = 1;
 
-            // 특정 ID(예: 101번 전사)만 시작 시 해금 상태로 설정
-            NewData.bIsUnlocked = (Row->UnitID == 101);
+            // 특정 ID만 시작 시 해금 상태로 설정
+            NewData.bIsUnlocked = (
+                Row->UnitID == 101 ||
+                Row->UnitID == 102 ||
+                Row->UnitID == 201 ||
+                Row->UnitID == 202 ||
+                Row->UnitID == 301
+                );
 
             // 맵에 추가
             UnitLevelMap.Add(Row->UnitID, NewData);
@@ -106,6 +118,9 @@ FUnitSaveData UPGGameInstance::GetUnitSaveData(int32 UnitID)
 void UPGGameInstance::SaveGameData()
 {
     if (!CachedSaveData) return;
+
+    // 현재 보유 유닛 리스트 저장
+    CachedSaveData->UnitLevelMap = this->UnitLevelMap;
 
     // 런타임 데이터(SoftPtr) -> 디스크 데이터(Path) 저장
     // 게임 중 변동된 장비를 세이브 파일에 덮어쓰기

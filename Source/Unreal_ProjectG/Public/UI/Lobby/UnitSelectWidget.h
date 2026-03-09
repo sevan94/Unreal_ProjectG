@@ -28,6 +28,9 @@ protected:
     UFUNCTION()
     void OnUnitClicked();
 
+    UFUNCTION()
+    void ListDataChanged();
+
     // 위젯 내부 데이터 갱신
     void UpdateWidget(UUnitEntryObject* InEntryObject);
 

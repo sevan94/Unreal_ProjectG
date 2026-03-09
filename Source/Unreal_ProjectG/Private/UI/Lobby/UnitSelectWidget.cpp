@@ -16,6 +16,12 @@ void UUnitSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 
     if (EntryObject)
     {
+        // 기존 바인딩이 있다면 제거 (재사용 시 중복 방지)
+        EntryObject->OnUnitDataChanged.RemoveAll(this);
+
+        // 데이터가 바뀌었을 때 UpdateWidget을 실행하도록 바인딩
+        EntryObject->OnUnitDataChanged.AddDynamic(this, &UUnitSelectWidget::ListDataChanged);
+
         UpdateWidget(EntryObject);
         UnitButton->OnClicked.AddDynamic(this, &UUnitSelectWidget::OnUnitClicked);
     }
@@ -28,6 +34,15 @@ void UUnitSelectWidget::OnUnitClicked()
     {
         // 델리게이트 실행
         EntryObject->HandleClick();
+    }
+}
+
+void UUnitSelectWidget::ListDataChanged()
+{
+    UUnitEntryObject* EntryObject = Cast<UUnitEntryObject>(GetListItem());
+    if (EntryObject)
+    {
+        UpdateWidget(EntryObject);
     }
 }
 
@@ -48,7 +63,7 @@ void UUnitSelectWidget::UpdateWidget(UUnitEntryObject* InEntryObject)
     }
 
     // 소유 여부에 따른 잠금 표시 처리
-    if (LockOverlay && !SaveData.bIsUnlocked)
+    if (LockOverlay && SaveData.bIsUnlocked)
     {
         ESlateVisibility LockVisibility = InEntryObject->IsOwned() ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
         LockOverlay->SetVisibility(LockVisibility);

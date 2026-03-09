@@ -10,7 +10,7 @@ class UDataTable;
 class UTileView;
 class UUnitEntryObject;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitSelected, UUnitUIDataAsset*, SelectedData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitSelected, UUnitEntryObject*, SelectedData);
 /**
  * 
  */
@@ -32,7 +32,7 @@ protected:
 
     // 유닛 클릭시
     UFUNCTION()
-    void OnUnitClicked(UUnitUIDataAsset* SelectedData);
+    void OnUnitClicked(UUnitEntryObject* SelectedData);
 
 protected:
     UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Unit")

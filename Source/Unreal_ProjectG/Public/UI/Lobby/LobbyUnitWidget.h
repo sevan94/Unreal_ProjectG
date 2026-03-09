@@ -13,6 +13,7 @@ class UPGGameInstance;
 class UUnitListWidget;
 class UUnitDescriptionWidget; 
 class UUnitUIDataAsset;
+class UUnitEntryObject;
 class UPartyUnitWidget;
 
 /**
@@ -38,7 +39,7 @@ private:
 
     // 유닛 선택 시 데이터 저장
     UFUNCTION()
-    void HandleUnitSelected(UUnitUIDataAsset* InData);
+    void HandleUnitSelected(UUnitEntryObject* InData);
 
 public:
     // 위젯 스위처

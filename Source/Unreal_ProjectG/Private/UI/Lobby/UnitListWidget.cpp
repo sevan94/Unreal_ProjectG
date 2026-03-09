@@ -54,7 +54,7 @@ void UUnitListWidget::InitializeUnitList()
     }
 }
 
-void UUnitListWidget::OnUnitClicked(UUnitUIDataAsset* SelectedData)
+void UUnitListWidget::OnUnitClicked(UUnitEntryObject* SelectedData)
 {
     if (OnUnitSelected.IsBound())
     {

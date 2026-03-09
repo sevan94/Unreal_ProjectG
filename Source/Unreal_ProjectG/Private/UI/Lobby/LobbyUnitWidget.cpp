@@ -7,6 +7,7 @@
 #include "UI/Lobby/UnitListWidget.h"
 #include "UI/Lobby/UnitDescriptionWidget.h"
 #include "UI/Lobby/PartyUnitWidget.h"
+#include "UI/UnitEntryObject.h"
 #include "Components/HorizontalBox.h"
 #include "Mode/Save/PGGameInstance.h"
 
@@ -101,7 +102,7 @@ void ULobbyUnitWidget::OnExitButtonClick()
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 }
 
-void ULobbyUnitWidget::HandleUnitSelected(UUnitUIDataAsset* InData)
+void ULobbyUnitWidget::HandleUnitSelected(UUnitEntryObject* InData)
 {
     if (UnitDescription && InData)
     {
@@ -111,7 +112,7 @@ void ULobbyUnitWidget::HandleUnitSelected(UUnitUIDataAsset* InData)
     }
 
     // 교체 대기 유닛 저장
-    SelectedUnit = InData;
+    SelectedUnit = InData->GetUnitUIData();
     //UE_LOG(LogTemp, Log, TEXT("교체 유닛 저장"));
 
     // 모든 파티 슬롯에 교체 오버레이 켜기

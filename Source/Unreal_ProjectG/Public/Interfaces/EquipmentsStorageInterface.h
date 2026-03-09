@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "PawnCombatInterface.generated.h"
+#include "EquipmentsStorageInterface.generated.h"
 
-class UPawnCombatComponent;
-
+class UEquipmentsStorageComponent;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UPawnCombatInterface : public UInterface
+class UEquipmentsStorageInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -18,10 +17,10 @@ class UPawnCombatInterface : public UInterface
 /**
  * 
  */
-class UNREAL_PROJECTG_API IPawnCombatInterface
+class UNREAL_PROJECTG_API IEquipmentsStorageInterface
 {
 	GENERATED_BODY()
 
 public:
-    virtual UPawnCombatComponent* GetPawnCombatComponent() const = 0;  
+    virtual UEquipmentsStorageComponent* GetEquipmentsStorageComponent() const = 0;
 };

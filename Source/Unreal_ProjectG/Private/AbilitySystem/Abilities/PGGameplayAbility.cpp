@@ -4,7 +4,6 @@
 #include "AbilitySystem/Abilities/PGGameplayAbility.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Components/Combat/PawnCombatComponent.h"
 
 UPGGameplayAbility::UPGGameplayAbility()
 {
@@ -39,11 +38,6 @@ void UPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
     }
 }
 
-UPawnCombatComponent* UPGGameplayAbility::GetPawnCombatComponent() const
-{
-    return GetAvatarActorFromActorInfo()->FindComponentByClass<UPawnCombatComponent>();
-}
-
 UPGAbilitySystemComponent* UPGGameplayAbility::GetPGAbilitySystemComponentFromActorInfo() const
 {
     return Cast<UPGAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
@@ -60,8 +54,6 @@ FActiveGameplayEffectHandle UPGGameplayAbility::NativeApplyEffectSpecHandleToTar
     return GetPGAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(
         *InSpecHandle.Data, TargetASC);
 }
-
-
 
 FActiveGameplayEffectHandle UPGGameplayAbility::BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType)
 {

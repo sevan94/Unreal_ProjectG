@@ -16,13 +16,14 @@
 #include "Interfaces/JoysticInput.h"
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 
 void UControlPanelWidget::SetAbilitySpecHandle()
 {
     UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetPawnCombatComponent()->GetSkillAbilitySpecHandles();
+    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetEquipmentsStorageComponent()->GetSkillAbilitySpecHandles();
     if (!SpecHandleArray.IsEmpty())
     {
         //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
@@ -218,11 +219,9 @@ void UControlPanelWidget::BindHero()
         HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
         HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-        // 영웅 무기 스킬 어빌리티 바인딩
-        if (UHeroCombatComponent* CombatComp = HeroCharacter->FindComponentByClass<UHeroCombatComponent>())
-        {
-            CombatComp->OnWeaponAbilitiesActivate.AddDynamic(this, &UControlPanelWidget::SetAbilitySpecHandle);
-        }
+        // 영웅 무기 스킬 어빌리티 설정
+        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetEquipmentsStorageComponent()->GetSkillAbilitySpecHandles();
+        if (!SpecHandleArray.IsEmpty())
     }
 }
 

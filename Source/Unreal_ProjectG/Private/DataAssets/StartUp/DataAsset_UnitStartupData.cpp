@@ -27,23 +27,3 @@ void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemCo
         }
     }
 }
-
-
-//void UDataAsset_UnitStartupData::GiveToAbilitySystemComponent(UPGAbilitySystemComponent* InASCToGive, int32 InLevel)
-//{
-//    Super::GiveToAbilitySystemComponent(InASCToGive, InLevel);
-//
-//    if (!UnitCombatAbilities.IsEmpty())
-//    {
-//        for (const TSubclassOf<UPGUnitGameplayAbility>& AbilityClass : UnitCombatAbilities)
-//        {
-//            if (!AbilityClass) continue;
-//
-//            FGameplayAbilitySpec AbilitySpec(AbilityClass);
-//            AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
-//            AbilitySpec.Level = InLevel;
-//
-//            InASCToGive->GiveAbility(AbilitySpec);
-//        }
-//    }
-//}

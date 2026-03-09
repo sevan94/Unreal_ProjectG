@@ -3,46 +3,73 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/Combat/PawnCombatComponent.h"
+#include "Components/PawnExtensionComponentBase.h"
+#include "Types/PGEnumTypes.h"
 #include "HeroCombatComponent.generated.h"
 
-class UDataAsset_WeaponData;
-class UDataAsset_ArmorData;
-class UDataAsset_AccessoryData;
-class UDataAsset_SetBonusData;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAbilitiesActivate);
 /**
  * 
  */
-UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnCombatComponent
+UCLASS()
+class UNREAL_PROJECTG_API UHeroCombatComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
-	
-public:
-    // 전투 관련 함수들
-
-
-    // ==============================================================
-    // 장비 장착 함수들
-    // ==============================================================
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData);
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void EquipHeroArmor(UDataAsset_ArmorData* InArmorData);
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData);
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void ApplySetBonus(UDataAsset_SetBonusData* InSetBonusData);
 
 public:
-    TWeakObjectPtr<UStaticMeshComponent> CachedWeaponMeshComponent;
+    UHeroCombatComponent();
 
-    // UI 바인딩 델리게이트
+    void SetCombatMode(EHeroCombatMode NewCombatMode); // 전투 모드 설정 함수
+
+protected:
+    virtual void BeginPlay() override;
+    void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    
+    void ActivateManualCombat();    // 수동전투 활성화 함수
+    void ActivateAutoCombat();      // 자동전투 활성화 함수
+    void DeactivateCombat();        // 전투 비활성화 함수
+
+private:
+    void StartCombat();                               // 전투 시작 함수
+    void StopCombat();                                // 전투 중지 함수
+    
+    void StartDetectTimer();                          // 탐색 타이머 시작 함수
+    void StopDetectTimer();                           // 탐색 타이머 중지 함수
+
+    void StartBasicAttackTimer();                     // 기본 공격 타이머 시작 함수
+    void StopBasicAttackTimer();                      // 기본 공격 타이머 중지 함수
+    void RefreshBasicAttackTimer();                   // 기본 공격 타이머 갱신 함수(공격 속도가 변경 되었을 때)
+
+    void UpdateDetection();
+    void HandleBasicAttack();                         // 기본 공격 처리 함수
+
+    AActor* FindNearestEnemy() const;                 // 가장 가까운 적을 찾는 함수
+
+    // 인터페이스 관련 함수
+    float GetBasickAttackInterval() const;            // 기본 공격 간격 계산 함수
+    float GetBasicAttackRange() const;                // 기본 공격 범위 계산 함수
+    bool IsTargetInBasicAttackRange() const;          // 현재 타겟이 기본 공격 범위 내에 있는지 확인하는 함수
+    bool CanUseCombatInterface() const;               // 전투 인터페이스 사용 가능 여부 확인 함수
+
+    bool IsValidEnemy(AActor* TargetActor) const;     // 유효한 적인지 확인하는 함수
+
+public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TWeakObjectPtr<AActor> CurrentTarget; // 현재 타겟
+private:
     UPROPERTY()
-    FOnWeaponAbilitiesActivate OnWeaponAbilitiesActivate;
+    TObjectPtr<ACharacter> OwningCharacter;
+
+    UPROPERTY(EditAnywhere)
+    float DetectRadius = 500.f; // 적 감지 반경(Target Actor를 잡는 반경)
+
+    UPROPERTY(EditAnywhere)
+    float DetectInterval = 0.25f; // 탐색 업데이트 간격
+
+    UPROPERTY(EditAnywhere)
+    EHeroCombatMode CombatMode = EHeroCombatMode::None; // 현재 전투 모드
+
+    FTimerHandle DetectTimerHandle; // 탐색 타이머를 관리하는 핸들
+    FTimerHandle BasicAttackTimerHandle; // 기본 공격 타이머 핸들
+
+    bool bWasTargetInAttackRange = false; // 타겟이 기본 공격 범위 내에 있었는지 여부를 추적하는 변수
 };

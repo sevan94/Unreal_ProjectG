@@ -4,8 +4,6 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
-#include "Interfaces/PawnCombatInterface.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "Character/PGCharacterBase.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGGameplayTags.h"
@@ -22,31 +20,6 @@ bool UPGFunctionLibrary::NativeDoesActorHaveTag(AActor* InActor, FGameplayTag Ta
     UPGAbilitySystemComponent* ASC = NativeGetPGASCFromActor(InActor);
 
     return ASC->HasMatchingGameplayTag(TagToCheck);
-}
-
-UPawnCombatComponent* UPGFunctionLibrary::NativeGetCombatComponentFromActor(AActor* InActor)
-{
-    check(InActor);
-
-    if(IPawnCombatInterface* PawnCombatInterface = Cast<IPawnCombatInterface>(InActor))
-    {
-        return PawnCombatInterface->GetPawnCombatComponent();
-    }
-
-    if (UPawnCombatComponent* PawnCombatComp = InActor->FindComponentByClass<UPawnCombatComponent>())
-    {
-        return PawnCombatComp;
-    }
-
-    return nullptr;
-}
-
-UPawnCombatComponent* UPGFunctionLibrary::BP_GetCombatComponentFromActor(AActor* InActor, EPGValidType& OutValidType)
-{
-    UPawnCombatComponent* EquipComp = NativeGetCombatComponentFromActor(InActor);
-
-    OutValidType = EquipComp ? EPGValidType::Valid : EPGValidType::InValid;
-    return EquipComp;
 }
 
 bool UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
@@ -111,3 +84,29 @@ FGameplayTag UPGFunctionLibrary::GetSetByCallerTagForAttribute(const FGameplayAt
     
     return FGameplayTag();
 }
+
+
+//UPawnCombatComponent* UPGFunctionLibrary::NativeGetCombatComponentFromActor(AActor* InActor)
+//{
+//    check(InActor);
+//
+//    if (IPawnCombatInterface* PawnCombatInterface = Cast<IPawnCombatInterface>(InActor))
+//    {
+//        return PawnCombatInterface->GetPawnCombatComponent();
+//    }
+//
+//    if (UPawnCombatComponent* PawnCombatComp = InActor->FindComponentByClass<UPawnCombatComponent>())
+//    {
+//        return PawnCombatComp;
+//    }
+//
+//    return nullptr;
+//}
+//
+//UPawnCombatComponent* UPGFunctionLibrary::BP_GetCombatComponentFromActor(AActor* InActor, EPGValidType& OutValidType)
+//{
+//    UPawnCombatComponent* EquipComp = NativeGetCombatComponentFromActor(InActor);
+//
+//    OutValidType = EquipComp ? EPGValidType::Valid : EPGValidType::InValid;
+//    return EquipComp;
+//}

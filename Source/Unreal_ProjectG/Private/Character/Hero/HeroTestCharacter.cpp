@@ -7,11 +7,12 @@
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AnimInstance/Hero/PGHeroLinkedAnimLayer.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
-#include "Components/Combat/HeroCombatComponent.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "Engine/AssetManager.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
+#include "Components/Combat/HeroCombatComponent.h"
 
 void AHeroTestCharacter::BeginPlay()
 {
@@ -35,15 +36,13 @@ void AHeroTestCharacter::BeginPlay()
     if (ArmorDataAsset.IsValid()) HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
     if (AccessoryDataAsset.IsValid()) HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 
-}
+    EquipmentsStorageComponent->EquipHeroWeapon(WeaponDataAsset.Get());
+    EquipmentsStorageComponent->EquipHeroArmor(ArmorDataAsset.Get());
+    EquipmentsStorageComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 
-//void AHeroTestCharacter::SetupAccessoryToPawn()
-//{
-//    FGameplayAbilitySpec AbilitySpec(AccessoryDataAsset.Get()->GetGrantedAbility());
-//    AbilitySpec.SourceObject = this;
-//    AbilitySpec.Level = TestAbilityLevel;
-//    PGAbilitySystemComponent->GiveAbility(AbilitySpec);
-//
-//    PGAbilitySystemComponent->TryActivateAbility(AbilitySpec.Handle);
-//}
-//
+    // 인스턴스 멤버 함수로 호출하도록 수정
+    if (HeroCombatComponent)
+    {
+        HeroCombatComponent->SetCombatMode(EHeroCombatMode::Manual);
+    }
+}

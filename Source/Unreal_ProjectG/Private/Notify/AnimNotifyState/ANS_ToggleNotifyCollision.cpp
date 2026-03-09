@@ -3,7 +3,6 @@
 
 #include "Notify/AnimNotifyState/ANS_ToggleNotifyCollision.h"
 #include "PGFunctionLibrary.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "PGGameplayTags.h"
 #include "Types/PGEnumTypes.h"

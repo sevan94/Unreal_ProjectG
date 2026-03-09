@@ -9,6 +9,7 @@
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseProjectileAttack.h"
 #include "AbilitySystem/Abilities/Player/HeroAbility_AOEAttack.h"
+#include "AbilitySystem/Abilities/Player/HeroAbility_SpawnPet.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnActor.h"
@@ -25,6 +26,7 @@ static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), FHeroMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), FHeroSpawnProjectileAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_AOEAttack::StaticClass(), FHeroCastingAOEAbilityConfig::StaticStruct());
+    Map.Add(UHeroAbility_SpawnPet::StaticClass(), FHeroSpawnPetAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnActor::StaticClass(), FUnitSpawnActorAbilityConfig::StaticStruct());

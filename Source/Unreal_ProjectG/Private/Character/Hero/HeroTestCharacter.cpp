@@ -24,21 +24,12 @@ void AHeroTestCharacter::BeginPlay()
     {
         if (GI->CurrentWeapon) WeaponDataAsset = Cast<UDataAsset_WeaponData>(GI->CurrentWeapon->EquipDataAsset.LoadSynchronous());
         if (GI->CurrentArmor) ArmorDataAsset = Cast<UDataAsset_ArmorData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
-        if (GI->CurrentAccessory) AccessoryDataAsset = Cast<UDataAsset_AccessoryData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
+        if (GI->CurrentAccessory) AccessoryDataAsset = Cast<UDataAsset_AccessoryData>(GI->CurrentAccessory->EquipDataAsset.LoadSynchronous());
     }
 
-    // 데이터 에셋 로드
-    //WeaponDataAsset.LoadSynchronous();
-    //ArmorDataAsset.LoadSynchronous();
-    //AccessoryDataAsset.LoadSynchronous();
-
-    if (WeaponDataAsset.IsValid()) HeroCombatComponent->EquipHeroWeapon(WeaponDataAsset.Get());
-    if (ArmorDataAsset.IsValid()) HeroCombatComponent->EquipHeroArmor(ArmorDataAsset.Get());
-    if (AccessoryDataAsset.IsValid()) HeroCombatComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
-
-    EquipmentsStorageComponent->EquipHeroWeapon(WeaponDataAsset.Get());
-    EquipmentsStorageComponent->EquipHeroArmor(ArmorDataAsset.Get());
-    EquipmentsStorageComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
+    if (WeaponDataAsset.IsValid()) EquipmentsStorageComponent->EquipHeroWeapon(WeaponDataAsset.Get());
+    if (ArmorDataAsset.IsValid()) EquipmentsStorageComponent->EquipHeroArmor(ArmorDataAsset.Get());
+    if (AccessoryDataAsset.IsValid()) EquipmentsStorageComponent->EquipHeroAccessory(AccessoryDataAsset.Get());
 
     // 인스턴스 멤버 함수로 호출하도록 수정
     if (HeroCombatComponent)

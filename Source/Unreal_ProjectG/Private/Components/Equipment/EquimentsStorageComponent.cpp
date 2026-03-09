@@ -56,6 +56,9 @@ void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeapo
         // 무기의 공격속도와 공격 사거리를 ASC의 어트리뷰트에 세팅
         ASC->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackSpeedAttribute(), InWeaponData->WeaponAttackSpeed);
         ASC->SetNumericAttributeBase(UPGCharacterAttributeSet::GetAttackRangeAttribute(), InWeaponData->WeaponAttackRange);
+
+        if (OnWeaponAbilitiesActivate.IsBound())
+            OnWeaponAbilitiesActivate.Broadcast();
     }
 }
 

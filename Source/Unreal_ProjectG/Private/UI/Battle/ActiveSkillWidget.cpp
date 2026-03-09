@@ -6,7 +6,6 @@
 #include "Components/TextBlock.h"
 #include "Components/Overlay.h"
 #include "Components/Image.h"
-#include "Components/Combat/PawnCombatComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "TimerManager.h"

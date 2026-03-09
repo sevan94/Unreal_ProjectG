@@ -13,6 +13,7 @@ class UBaseHpWidget;
 class UUnitPanelWidget;
 class UActiveSkillWidget;
 class AHeroCharacter;
+class UStorageEquipmentsComponent;
 
 /**
  * 

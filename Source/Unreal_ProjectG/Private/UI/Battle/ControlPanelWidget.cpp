@@ -6,8 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
-#include "Components/Combat/HeroCombatComponent.h"
-#include "Components/Combat/PawnCombatComponent.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BarWidget.h"
 #include "UI/Battle/BaseHpWidget.h"
@@ -16,7 +15,6 @@
 #include "Interfaces/JoysticInput.h"
 #include "Kismet/GameplayStatics.h"
 #include "Pawn/BaseStructure.h"
-#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 
@@ -219,9 +217,11 @@ void UControlPanelWidget::BindHero()
         HeroCharacter->OnHeroCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateCost);
         HeroCharacter->OnHeroMaxCostChanged.AddDynamic(this, &UControlPanelWidget::UpdateMaxCost);
 
-        // 영웅 무기 스킬 어빌리티 설정
-        TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetEquipmentsStorageComponent()->GetSkillAbilitySpecHandles();
-        if (!SpecHandleArray.IsEmpty())
+        UEquipmentsStorageComponent* EquipComp = HeroCharacter->GetEquipmentsStorageComponent();
+        if (EquipComp)
+        {
+            EquipComp->OnWeaponAbilitiesActivate.AddDynamic(this, &UControlPanelWidget::SetAbilitySpecHandle);
+        }
     }
 }
 

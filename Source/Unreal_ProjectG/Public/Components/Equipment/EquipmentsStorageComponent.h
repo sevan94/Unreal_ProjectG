@@ -10,6 +10,7 @@ class UDataAsset_WeaponData;
 class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAbilitiesActivate);
 /**
  * 
  */
@@ -40,6 +41,8 @@ public:
     // 나중에 태그나 다른 타입도 고려
     UPROPERTY(BlueprintReadWrite, Category = "Combat|Property")
     bool bWeaponEquipped = false;
+
+    FOnWeaponAbilitiesActivate OnWeaponAbilitiesActivate;
 
 protected:
     // 어빌리티 스펙 핸들 저장 배열

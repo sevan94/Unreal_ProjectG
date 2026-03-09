@@ -89,8 +89,4 @@ protected:
     // 상태 및 시간 저장용 변수
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
-
-    //  UI 출력 이벤트
-    UFUNCTION(BlueprintImplementableEvent, Category = "GameRule")
-    void BP_ShowResultUI(bool bIsVictory, int32 StarCount);
 };

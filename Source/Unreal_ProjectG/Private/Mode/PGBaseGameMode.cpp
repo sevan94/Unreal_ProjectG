@@ -54,13 +54,15 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
     if (bIsGameOver) return; // 이미 종료된 게임이면 무시
     bIsGameOver = true;
 
-    bool bIsPlayerVictory = false;
-    int32 FinalStarCount = 0;
+    FBattleResultData Result;
+
+    Result.bIsVictory = false;
+    Result.StarCount = 0;
 
     // 파괴된 팀이 'Enemy'라면 -> 플레이어 승리
     if (DefeatedTeam == ETeamType::Enemy)
     {
-        bIsPlayerVictory = true;
+        Result.bIsVictory = true;
 
         // 클리어 시간 체크
         float PlayTime = GetCurrentPlayTime();
@@ -68,25 +70,25 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
 
         if (PlayTime <= ClearTimeLimit_3Stars)
         {
-            FinalStarCount = 3; // 3성 (빠른 클리어)
+            Result.StarCount = 3; // 3성 (빠른 클리어)
         }
         else if (PlayTime <= ClearTimeLimit_2Stars)
         {
-            FinalStarCount = 2; // 2성 (보통)
+            Result.StarCount = 2; // 2성 (보통)
         }
         else
         {
-            FinalStarCount = 1; // 1성 (턱걸이)
+            Result.StarCount = 1; // 1성 (턱걸이)
         }
 
-        UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), FinalStarCount);
+        UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
 
         // 여기서 GameInstance를 불러와서 클리어 보상(골드 등)을 저장(Save)하는 로직을 추가 가능
     }
     else // 플레이어 기지 파괴 -> 패배
     {
-        bIsPlayerVictory = false;
-        FinalStarCount = 0; // 패배 시 별 없음
+        Result.bIsVictory = false;
+        Result.StarCount = 0; // 패배 시 별 없음
         UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
 

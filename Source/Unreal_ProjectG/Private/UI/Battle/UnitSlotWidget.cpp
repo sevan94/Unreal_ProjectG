@@ -28,7 +28,10 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 
 void UUnitSlotWidget::UpdateSlot(float InCost)
 {
-    UnitButton->SetIsEnabled(InCost >= UnitData->UnitCost);
+    if (UnitData)
+    {
+        UnitButton->SetIsEnabled(InCost >= UnitData->UnitCost);
+    }
 }
 
 void UUnitSlotWidget::NativeConstruct()

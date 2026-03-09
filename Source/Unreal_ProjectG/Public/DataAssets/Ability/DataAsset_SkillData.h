@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "PGGameplayTags.h"
 #include "Types/AbilityConfig.h"
 #include "DataAsset_SkillData.generated.h"
 
@@ -17,6 +18,15 @@ class UNREAL_PROJECTG_API UDataAsset_SkillData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Base Ability Entry"))
     FAbilityEntry AbilityEntry;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Required Ability Tag", Categories = "Equipment.Set"))
+    FGameplayTag RequiredSetTag;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (DisplayName = "Upgrade Ability Entry"))
+    FAbilityEntry UpgradeAbilityEntry;
 };

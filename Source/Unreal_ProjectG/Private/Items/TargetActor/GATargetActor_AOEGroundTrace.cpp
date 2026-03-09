@@ -4,6 +4,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/DecalComponent.h"
 #include "PGFunctionLibrary.h"
+#include "Interfaces/VisualEffectTargetInterface.h"
+
 
 AGATargetActor_AOEGroundTrace::AGATargetActor_AOEGroundTrace()
 {
@@ -176,27 +178,23 @@ void AGATargetActor_AOEGroundTrace::OnTouchReleased()
 
 void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)
 {
-    // 머티리얼 변경
-    TArray<UMeshComponent*> TargetMeshComponents;
-    InActor->GetComponents<UMeshComponent>(TargetMeshComponents);
+    // 머티리얼 변경하여 하이라이트 효과 적용
+    if (!IsValid(InActor)) return;
 
-    for (UMeshComponent* MeshComp : TargetMeshComponents)
+    if(InActor->GetClass()->ImplementsInterface(UVisualEffectTargetInterface::StaticClass()))
     {
-        if(UMaterialInstanceDynamic* DynamicMat = MeshComp->CreateAndSetMaterialInstanceDynamic(0))
-        {
-            DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 1.f);
-            HighlightedActorMap.Add(InActor, DynamicMat);
-        }
+        IVisualEffectTargetInterface::Execute_SetAOEHighlightEnabled(InActor, true);
     }
 }
 
 void AGATargetActor_AOEGroundTrace::OnUnhighlightActorOutAOE(AActor* InActor)
 {
     // 머티리얼 원래대로 복원
-    if(UMaterialInstanceDynamic* DynamicMat = *HighlightedActorMap.Find(InActor))
+    if (!IsValid(InActor)) return;
+
+    if(InActor->GetClass()->ImplementsInterface(UVisualEffectTargetInterface::StaticClass()))
     {
-        DynamicMat->SetScalarParameterValue(FName("OverlapFXSwitch"), 0.f);
-        HighlightedActorMap.Remove(InActor);
+        IVisualEffectTargetInterface::Execute_SetAOEHighlightEnabled(InActor, false);
     }
 }
 

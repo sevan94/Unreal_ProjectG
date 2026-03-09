@@ -1,19 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AbilitySystem/Abilities/Unit/UnitAbility_HitReact.h"
-#include "Character/Unit/UnitCharacter.h"
 #include "TimerManager.h"
+#include "Interfaces/VisualEffectTargetInterface.h"
 
 void UUnitAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    OwnerMesh = GetUnitCharacterFromActorInfo()->GetMesh();
-    if (OwnerMesh.IsValid())
+    if(AActor* AvatarActor = ActorInfo->AvatarActor.Get())
     {
-        if (UMaterialInstanceDynamic* DynamicMaterial = OwnerMesh->CreateAndSetMaterialInstanceDynamic(0))
+        if(IVisualEffectTargetInterface* VisualEffectTarget = Cast<IVisualEffectTargetInterface>(AvatarActor))
         {
-            DynamicMaterial->SetScalarParameterValue(FName("HitFXSwitch"), 1.f);
+            VisualEffectTarget->Execute_SetHitReactEnabled(AvatarActor, true);
         }
     }
- 
+
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
         {
@@ -24,12 +23,13 @@ void UUnitAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UUnitAbility_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-    if (OwnerMesh.IsValid())
+    if(AActor* AvatarActor = ActorInfo->AvatarActor.Get())
     {
-        if (UMaterialInstanceDynamic* DynamicMaterial = OwnerMesh->CreateAndSetMaterialInstanceDynamic(0))
+        if(IVisualEffectTargetInterface* VisualEffectTarget = Cast<IVisualEffectTargetInterface>(AvatarActor))
         {
-            DynamicMaterial->SetScalarParameterValue(FName("HitFXSwitch"), 0.f);
+            VisualEffectTarget->Execute_SetHitReactEnabled(AvatarActor, false);
         }
     }
+
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

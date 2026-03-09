@@ -35,12 +35,19 @@ void ABaseStructure::BeginPlay()
 
     if (PGAbilitySystemComponent)
     {
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &ABaseStructure::CurrentHealthChange);
+        PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+            CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
+
         // 초기 스탯 적용 (InitStatEffect가 있다면)
         if (InitStatEffect)
         {
             FGameplayEffectContextHandle ContextHandle = PGAbilitySystemComponent->MakeEffectContext();
             ContextHandle.AddSourceObject(this);
+
             FGameplayEffectSpecHandle SpecHandle = PGAbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
+            UE_LOG(LogTemp, Warning, TEXT("Base Initialize Effect 적용"));
 
             if (SpecHandle.IsValid())
             {
@@ -49,13 +56,6 @@ void ABaseStructure::BeginPlay()
         }
 
     }
-
-    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-        CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &ABaseStructure::CurrentHealthChange);
-    PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-        CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ABaseStructure::MaxHealthChange);
-
-
 
     //// 오버랩 이벤트
     //AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseStructure::OnAttackRangeBeginOverlap);
@@ -154,6 +154,7 @@ void ABaseStructure::CurrentHealthChange(const FOnAttributeChangeData& Data) con
 }
 void ABaseStructure::MaxHealthChange(const FOnAttributeChangeData& Data) const
 {
+    UE_LOG(LogTemp, Warning, TEXT("MaxHealthChange BroadCast"));
     OnBaseMaxHpChanged.Broadcast(TeamTag, Data.NewValue);
 }
 

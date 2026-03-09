@@ -9,6 +9,7 @@
 * 해당 액터의 메시를 가져와서 메시->SetRenderCustomDepth(ture(셀 세이딩 켜짐)/false(셀 세이딩 꺼짐)); 쓰면 됨
 */
 
+class AUnitCharacter;
 /**
  * 
  */
@@ -26,6 +27,5 @@ protected:
     float HitFXDuration = 0.2f;
 
 private:
-    UPROPERTY()
-    TWeakObjectPtr<UMeshComponent> OwnerMesh;
+    TWeakObjectPtr<AUnitCharacter> OwnerUnit;
 };

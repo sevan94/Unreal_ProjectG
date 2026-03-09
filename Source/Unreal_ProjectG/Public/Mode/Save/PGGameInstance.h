@@ -8,10 +8,9 @@
 #include "PGGameInstance.generated.h"
 
 class UPGSaveGame;
-class UDataAsset_WeaponData;
-class UDataAsset_ArmorData;
-class UDataAsset_AccessoryData;
 class UUnitUIDataAsset;
+class UEquipUIDataAsset;
+class AHeroCharacter;
 
 UCLASS()
 class UNREAL_PROJECTG_API UPGGameInstance : public UGameInstance
@@ -31,13 +30,13 @@ public:
     // --- [런타임 장착 데이터] ---
     // 로비 UI에서 이 변수들을 수정하고, 전투 맵에서 이 변수들을 읽어 적용
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
-    TSoftObjectPtr<UDataAsset_WeaponData> CurrentWeapon;
+    TSoftObjectPtr<UEquipUIDataAsset> CurrentWeapon;
 
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
-    TSoftObjectPtr<UDataAsset_ArmorData> CurrentArmor;
+    TSoftObjectPtr<UEquipUIDataAsset> CurrentArmor;
 
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
-    TSoftObjectPtr<UDataAsset_AccessoryData> CurrentAccessory;
+    TSoftObjectPtr<UEquipUIDataAsset> CurrentAccessory;
 
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
     TArray<TSoftObjectPtr<UUnitUIDataAsset>> CurrentUnits;
@@ -51,10 +50,10 @@ public:
     int32 CurrentPlayerGold;
 
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
-    int32 CurrentPlayerRuby;
+    int32 CurrentPlayerGem;
 
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
-    int32 CurrentPlayerPiece;
+    int32 CurrentPlayerUnlock;
 
     //스테이지
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")

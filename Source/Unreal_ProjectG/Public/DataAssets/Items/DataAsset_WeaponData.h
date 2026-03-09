@@ -21,9 +21,6 @@ class UNREAL_PROJECTG_API UDataAsset_WeaponData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 	
-//public:
-    //FORCEINLINE const FPGHeroWeaponData& GetHeroWeaponData() const { return HeroWeaponData; }
-
 public:
     // 세트 구분을 위한 태그
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
@@ -45,11 +42,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UDataAsset_SkillData> WeaponBasicAttackData;
 
-    // 무기 스킬 어빌리티 들
+    // 무기 스킬 어빌리티(1번 슬롯 : 무기 공통 스킬, 2번 슬롯 : 무기 고유 스킬)
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillDataArray;
 
-//protected:
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-//    FPGHeroWeaponData HeroWeaponData;
+    // 무기 공격력
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float WeaponAttackSpeed;
+
+    // 무기 공격 범위
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float WeaponAttackRange;
 };

@@ -6,8 +6,6 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGGameplayTags.h"
 
-#include "Components/Combat/UnitCombatComponent.h"
-
 AUnitCharacter* UPGUnitGameplayAbility::GetUnitCharacterFromActorInfo()
 {
     if (!CachedUnitCharacter.IsValid())
@@ -15,11 +13,6 @@ AUnitCharacter* UPGUnitGameplayAbility::GetUnitCharacterFromActorInfo()
         CachedUnitCharacter = Cast<AUnitCharacter>(CurrentActorInfo->AvatarActor);
     }
     return CachedUnitCharacter.IsValid() ? CachedUnitCharacter.Get() : nullptr;
-}
-
-UUnitCombatComponent* UPGUnitGameplayAbility::GetUnitCombatComponent()
-{
-    return GetUnitCharacterFromActorInfo()->GetUnitCombatComponent();
 }
 
 FGameplayEffectSpecHandle UPGUnitGameplayAbility::MakeOutgoingEffectSpecToTarget(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier)

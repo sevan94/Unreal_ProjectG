@@ -11,6 +11,7 @@ class APGProjectileBase;
 class UNiagaraComponent;
 class UGameplayEffect;
 class UPGGameplayAbility;
+class APetCharacter;
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
@@ -119,6 +120,16 @@ struct FHeroCastingAOEAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag ImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
 };
+
+USTRUCT(BlueprintType)
+struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSoftClassPtr<APetCharacter> SpawnedPetClass; // 스폰할 펫 클래스
+};
+
 
 USTRUCT(BlueprintType)
 struct FUnitBaseMeleeAttackAbilityConfig : public FAbilityConfig

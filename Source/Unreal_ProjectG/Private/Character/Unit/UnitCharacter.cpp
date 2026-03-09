@@ -4,7 +4,6 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "Components/Combat/UnitCombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
@@ -17,6 +16,7 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "DataAssets/Unit/BranchDataAsset.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
+#include "Components/Visual/CharacterVisualEffectComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -24,8 +24,6 @@ AUnitCharacter::AUnitCharacter()
     PrimaryActorTick.bCanEverTick = false;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-    UnitCombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("UnitCombatComponent"));
 
     UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
     if (MovementComponent)
@@ -54,14 +52,9 @@ AUnitCharacter::AUnitCharacter()
         WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"));
     }
+
+    UnitVisualEffectComponent = CreateDefaultSubobject<UCharacterVisualEffectComponent>(TEXT("UnitVisualEffectComponent"));
 }
-
-UPawnCombatComponent* AUnitCharacter::GetPawnCombatComponent() const
-{
-    return UnitCombatComponent;
-}
-
-
 
 void AUnitCharacter::BeginPlay()
 {
@@ -82,6 +75,30 @@ void AUnitCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AUnitCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AUnitCharacter::SetAOEHighlightEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetAOEHighlightEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::SetHitReactEnabled_Implementation(bool bEnabled)
+{
+    if(UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->SetHitReactEnabled(bEnabled);
+    }
+}
+
+void AUnitCharacter::ResetVisualEffectState_Implementation()
+{
+    if (UnitVisualEffectComponent)
+    {
+        UnitVisualEffectComponent->ResetVisualEffectState();
+    }
 }
 
 void AUnitCharacter::PossessedBy(AController* NewController)
@@ -141,6 +158,11 @@ void AUnitCharacter::InitUnitStartUpData()
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
                         AttackMarginKey = AttackRangeKey * 0.7f;
+
+                        if (StartUpData->BranchData->BranchTag.IsValid())
+                        {
+                            BranchTag = StartUpData->BranchData->BranchTag;
+                        }
                     }
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
                     if (CharacterAttributeSet)
@@ -150,11 +172,6 @@ void AUnitCharacter::InitUnitStartUpData()
                     else
                     {
                         UE_LOG(LogTemp, Error, TEXT("[%s] AttributeSet이 없습니다! 블루프린트를 확인하세요."), *GetName());
-                    }
-
-                    if (StartUpData->BranchData->BranchTag.IsValid())
-                    {
-                        BranchTag = StartUpData->BranchData->BranchTag;
                     }
 
                     if (StartUpData->TeamTag.IsValid())

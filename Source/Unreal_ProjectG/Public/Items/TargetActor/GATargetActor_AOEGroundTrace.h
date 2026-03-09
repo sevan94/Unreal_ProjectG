@@ -64,6 +64,4 @@ protected:
 
     bool bIsTouching = false;
     FVector LastTouchLocation;
-
-    TMap<TObjectPtr<AActor>, TObjectPtr<UMaterialInstanceDynamic>> HighlightedActorMap;
 };

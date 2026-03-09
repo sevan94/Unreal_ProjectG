@@ -1,10 +1,8 @@
 #include "Mode/Save/PGGameInstance.h"
 #include "Mode/Save/PGSaveGame.h"
 #include "Kismet/GameplayStatics.h"
-#include "DataAssets/Items/DataAsset_WeaponData.h"
-#include "DataAssets/Items/DataAsset_ArmorData.h"
-#include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "UI/Battle/BattleHUD.h"
 
 
 //------- 구현 방식 ----------
@@ -46,14 +44,14 @@ void UPGGameInstance::LoadGameData()
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
     //장비
-    CurrentWeapon = TSoftObjectPtr<UDataAsset_WeaponData>(CachedSaveData->EquippedWeaponPath);
-    CurrentArmor = TSoftObjectPtr<UDataAsset_ArmorData>(CachedSaveData->EquippedArmorPath);
-    CurrentAccessory = TSoftObjectPtr<UDataAsset_AccessoryData>(CachedSaveData->EquippedAccessoryPath);
+    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
+    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
+    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
 
     //재화
     CurrentPlayerGold = CachedSaveData->PlayerGold;
-    CurrentPlayerRuby = CachedSaveData->PlayerRuby;
-    CurrentPlayerPiece = CachedSaveData->PlayerPiece;
+    CurrentPlayerGem = CachedSaveData->PlayerGem;
+    CurrentPlayerUnlock = CachedSaveData->PlayerUnlock;
 
     CurrentUnits.Empty();
     for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
@@ -74,8 +72,8 @@ void UPGGameInstance::SaveGameData()
 
     // 게임 중 변동된 재화를 세이브 파일에 덮어쓰기
     CachedSaveData->PlayerGold = CurrentPlayerGold;
-    CachedSaveData->PlayerRuby = CurrentPlayerRuby;
-    CachedSaveData->PlayerPiece = CurrentPlayerPiece;
+    CachedSaveData->PlayerGem = CurrentPlayerGem;
+    CachedSaveData->PlayerUnlock = CurrentPlayerUnlock;
 
     CachedSaveData->EquippedUnitPaths.Empty();
     for (const auto& UnitPtr : CurrentUnits)

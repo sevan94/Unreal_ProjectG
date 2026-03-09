@@ -25,6 +25,7 @@ void AHeroController::BeginPlay()
         this->SetViewTargetWithBlend(Camera, 0.0f);
     }
 
+    SetShowMouseCursor(true);
     Hero = Cast<AHeroCharacter>(GetPawn());
 }
 

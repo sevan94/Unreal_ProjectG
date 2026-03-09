@@ -3,6 +3,7 @@
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "Character/Unit/UnitCharacter.h"
 #include "Engine/World.h"
+#include "Interfaces/VisualEffectTargetInterface.h"
 #include "DataAssets/StartUp/DataAsset_UnitStartupData.h"
 
 void UUnitSpawnSubsystem::PrewarmPool(TSubclassOf<AUnitCharacter> UnitClass, int32 Count)
@@ -81,6 +82,12 @@ void UUnitSpawnSubsystem::ReturnToPool(AUnitCharacter* Unit)
     if (!IsValid(Unit)) return;
 
     Unit->DeactivateUnit();
+    
+    // 유닛의 모든 시각 효과를 초기화
+    if(Unit->GetClass()->ImplementsInterface(UVisualEffectTargetInterface::StaticClass()))
+    {
+        IVisualEffectTargetInterface::Execute_ResetVisualEffectState(Unit);
+    }
 
     // 유닛의 클래스를 키값으로 사용하여 풀에 저장
     TSubclassOf<AUnitCharacter> UnitClass = Unit->GetClass();

@@ -9,6 +9,7 @@
 class UButton;
 class UHorizontalBox;
 class UWidgetSwitcher;
+class UPGGameInstance;
 class UUnitListWidget;
 class UUnitDescriptionWidget; 
 class UUnitUIDataAsset;
@@ -29,12 +30,15 @@ protected:
     UFUNCTION()
     void HandlePartySlotClick(int32 SlotIndex);
 
+    void InitializePartySlots();
+
 private:
     UFUNCTION()
     void OnExitButtonClick();
 
+    // 유닛 선택 시 데이터 저장
     UFUNCTION()
-    void HandleUnitSelected(UUnitUIDataAsset* SelectedData);
+    void HandleUnitSelected(UUnitUIDataAsset* InData);
 
 public:
     // 위젯 스위처
@@ -58,11 +62,14 @@ public:
     TObjectPtr<UHorizontalBox> PartyBox;
 
 private:
-    // 선택한 유닛
+    // 현재 리스트에서 선택된 유닛
     UPROPERTY()
     TObjectPtr<UUnitUIDataAsset> SelectedUnit;
 
     // 파티 슬롯 배열
     UPROPERTY()
     TArray<TObjectPtr<UPartyUnitWidget>> PartySlots;
+
+    // 게임 인스턴스
+    TObjectPtr<UPGGameInstance> GI;
 };

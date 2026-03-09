@@ -76,6 +76,10 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    //  UI 출력 이벤트
+    UFUNCTION(BlueprintCallable, Category = "GameRule")
+    void ShowStageResult(const FBattleResultData& ResultData);
+
 public:
     //기지 파괴 시 호출될 게임오버 함수
     UFUNCTION()
@@ -85,8 +89,4 @@ protected:
     // 상태 및 시간 저장용 변수
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
-
-    //  UI 출력 이벤트
-    UFUNCTION(BlueprintImplementableEvent, Category = "GameRule")
-    void BP_ShowResultUI(bool bIsVictory, int32 StarCount);
 };

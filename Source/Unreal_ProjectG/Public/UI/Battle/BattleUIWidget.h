@@ -23,6 +23,12 @@ class UNREAL_PROJECTG_API UBattleUIWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+    UFUNCTION(BlueprintCallable)
+    void ShowGameResult(const FBattleResultData& ResultData);
+
+    UControlPanelWidget* GetControlPanel() { return ControlPanel; }
+
 protected:
     virtual void NativeConstruct() override;
 
@@ -32,22 +38,19 @@ protected:
     UFUNCTION()
     void OnSpeedButtonClicked();
 
-    //UFUNCTION()
-    //void OnAutoButtonClicked();
-
-    UFUNCTION(BlueprintCallable)
-    void ShowGameResult(const FBattleResultData& ResultData);
+    UFUNCTION()
+    void OnAutoButtonClicked();
 	
 protected:
     // 플레이타임 텍스트
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> PlayTimeText;
 
-    //// 자동 버튼
-    //UPROPERTY(meta = (BindWidget))
-    //TObjectPtr<UButton> AutoButton;
-    //UPROPERTY(meta = (BindWidget))
-    //TObjectPtr<UImage> AutoActiveEffect;
+    // 자동 버튼
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> AutoButton;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> AutoActiveEffect;
 
     // 배속 버튼
     UPROPERTY(meta = (BindWidget))
@@ -79,6 +82,16 @@ protected:
     // 자동 모드 확인 변수
     UPROPERTY(BlueprintReadWrite)
     bool bIsAuto = false;
+
+    // 위젯 애니메이션
+    UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+    UWidgetAnimation* ControlPanelSlide;
+
+    UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+    UWidgetAnimation* ResultVictoryScale;
+
+    UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+    UWidgetAnimation* ResultFailScale;
 
 private:
     // 현재 배속 단계 (0: 1배, 1: 1.5배, 2: 2배)

@@ -179,6 +179,12 @@ void AUnitCharacter::InitUnitStartUpData()
                         TeamTag = StartUpData->TeamTag;
                     }
 
+                    if (StartUpData->ElementTag.IsValid())
+                    {
+                        ElementTag = StartUpData->ElementTag;
+                    }
+
+
                     if (StartUpData->DeadMontage)
                     {
                         UnitDeadMontage = StartUpData->DeadMontage;

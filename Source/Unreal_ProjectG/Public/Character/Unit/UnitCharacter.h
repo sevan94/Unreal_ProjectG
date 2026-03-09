@@ -70,7 +70,6 @@ public:
     }
 
     FORCEINLINE UCharacterVisualEffectComponent* GetUnitVisualEffectComponent() const { return UnitVisualEffectComponent; }
-
 protected:
     //
     virtual void PossessedBy(AController* NewController) override;

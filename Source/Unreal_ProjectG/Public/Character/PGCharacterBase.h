@@ -36,6 +36,12 @@ public:
     FORCEINLINE FGameplayTag GetTeamTag() { return TeamTag; }
     FORCEINLINE UPGAbilitySystemComponent* GetPGAbilitySystemComponent() const { return PGAbilitySystemComponent; }
     FORCEINLINE UPGCharacterAttributeSet* GetPGCharacterAttributeSet() const { return CharacterAttributeSet; }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE FGameplayTag GetBranchTag(){ return BranchTag; }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE FGameplayTag GetElementTag() { return ElementTag; }
 protected:
     virtual void PossessedBy(AController* NewController) override;
 
@@ -58,6 +64,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     FGameplayTag BranchTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    FGameplayTag ElementTag;
 };
 
 

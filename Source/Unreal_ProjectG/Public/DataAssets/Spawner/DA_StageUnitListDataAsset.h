@@ -14,10 +14,10 @@ struct FUnitSpawnDataInfo
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TObjectPtr<UUnitUIDataAsset> UnitData;
+    TObjectPtr<UUnitUIDataAsset> UnitData = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    int32 Spawnweight;
+    int32 Spawnweight = 1;
 };
 
 USTRUCT(BlueprintType)
@@ -26,7 +26,7 @@ struct FStageInfo
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    int32 StageIndex;
+    int32 StageIndex = 1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     TArray<FUnitSpawnDataInfo> UnitSpawnList;

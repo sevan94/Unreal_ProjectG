@@ -22,11 +22,14 @@
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Mode/PGBaseGameMode.h"
+#include "Character/Unit/SubSystem/UnitSubsystem.h"
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit.Side.Ally");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -288,6 +291,11 @@ void AHeroCharacter::BeginPlay()
         AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
         AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
         UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
+    }
+
+    if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+    {
+        Subsystem->RegisterUnit(this, TAG_Unit_Side_Ally);
     }
 }
 

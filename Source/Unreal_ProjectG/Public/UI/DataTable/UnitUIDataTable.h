@@ -16,5 +16,5 @@ struct FUnitUIDataTable : public FTableRowBase
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TObjectPtr<UUnitUIDataAsset> UnitData;
+    TObjectPtr<UUnitUIDataAsset> UnitData = nullptr;
 };

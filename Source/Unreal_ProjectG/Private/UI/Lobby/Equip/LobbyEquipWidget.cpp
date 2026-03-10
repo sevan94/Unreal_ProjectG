@@ -25,7 +25,7 @@ void ULobbyEquipWidget::SetEquipList(EEquipCategory InType)
 void ULobbyEquipWidget::NativeConstruct()
 {
     GI = Cast<UPGGameInstance>(GetGameInstance());
-    GI->LoadGameData();
+    //GI->LoadGameData();
 
     if (ExitButton) ExitButton->OnClicked.AddDynamic(this, &ULobbyEquipWidget::OnExitButtonClick); 
     if (WeaponEquip) WeaponEquip->OnSelected.AddDynamic(this, &ULobbyEquipWidget::SetEquipList);

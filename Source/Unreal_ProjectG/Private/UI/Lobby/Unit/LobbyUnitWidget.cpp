@@ -16,7 +16,7 @@ void ULobbyUnitWidget::NativeConstruct()
     Super::NativeConstruct();
     PartySlots.Empty();
     GI = Cast<UPGGameInstance>(GetGameInstance());
-    GI->LoadGameData();
+    //GI->LoadGameData();
     UnitDescription->SetVisibility(ESlateVisibility::Hidden);
 
     InitializePartySlots();

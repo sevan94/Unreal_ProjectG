@@ -22,6 +22,9 @@ public:
 
     UFUNCTION()
     void UpdateGoodsText(int32 InValue);
+
+protected:
+    virtual void NativeConstruct() override;
 	
 public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI|Lobby")

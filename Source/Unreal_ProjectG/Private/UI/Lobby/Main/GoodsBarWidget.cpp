@@ -19,3 +19,8 @@ void UGoodsBarWidget::UpdateGoodsText(int32 InValue)
 {
     GoodsText->SetText(FText::AsNumber(InValue));
 }
+
+void UGoodsBarWidget::NativeConstruct()
+{
+    // 추후 델리게이트 구독
+}

@@ -30,27 +30,7 @@ protected:
     void OnMontageFinished();
 
 protected:
-    // 장판 반경 내 아군에게 부여할 힐/버프 이펙트 (GE)
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    TSubclassOf<UGameplayEffect> SupportEffectClass;
-
-    // 시전 애니메이션
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Support")
-    TObjectPtr<UAnimMontage> SupportMontage;
 
-    // 힐/버프 계수
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    FScalableFloat SupportSkillMultiplier;
-
-    // 지원 유닛 주위에 깔릴 장판의 탐색 반경
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    float SupportRadius = 500.f;
-
-    // 시각적으로 바닥에 깔아둘 장판 액터 클래스 (데칼이나 파티클을 가진 액터)
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    TSubclassOf<AActor> JangpanActorClass;
-
-    // 장판이 유닛을 따라다닐지(오라 형태), 시전 위치에 남을지 결정
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    bool bAttachToUnit = false;
+    FUnitBuffAuraAbilityConfig UnitBuffConfig;
 };

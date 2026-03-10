@@ -6,9 +6,9 @@
 #include "PGGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/Unit/UnitCharacter.h"
+#include "DataAssets/Ability/DataAsset_SkillData.h"
 
-// 만약 UUnitSupporterAbilityConfig 같은 데이터 에셋을 만든다면 Include 추가
-// #include "DataAssets/Ability/AbilityConfig.h" 
+
 
 UUnitAbility_Supporter::UUnitAbility_Supporter()
 {
@@ -19,22 +19,24 @@ void UUnitAbility_Supporter::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
-    // 다른 스킬들처럼 AbilityConfig 구조를 사용하신다면 여기서 할당
-    // if (UUnitSupporterConfig* Data = Cast<UUnitSupporterConfig>(Spec.SourceObject.Get()))
-    // {
-    //     SupportMontage = Data->AbilityMontage;
-    //     SupportSkillMultiplier = Data->DamageMultiplier;
-    //     JangpanActorClass = Data->SpawnedActorClass;
-    //     SupportRadius = Data->AOERadius;
-    // }
+    UDataAsset_SkillData* DataAsset = Cast<UDataAsset_SkillData>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (DataAsset)
+    {
+        const FUnitBuffAuraAbilityConfig* Config = DataAsset->AbilityEntry.AbilityConfig.GetPtr<FUnitBuffAuraAbilityConfig>();
+        if (Config)
+        {
+            UnitBuffConfig = *Config;
+        }
+    }
 }
 
 void UUnitAbility_Supporter::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     //checkf(SupportMontage, TEXT("SupportMontage가 비어있습니다!"));
+    UAnimMontage* MeleeAttackMontage = UnitBuffConfig.SupportMontage.Get();
 
     // 1. 몽타주 재생 (캐스팅 동작)
-    UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SupportMontage);
+    UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MeleeAttackMontage);
     if (MontageTask)
     {
         MontageTask->OnCompleted.AddUniqueDynamic(this, &UUnitAbility_Supporter::OnMontageFinished);
@@ -67,10 +69,10 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
     FRotator SpawnRotation = AvatarActor->GetActorForwardVector().Rotation();
 
     // --- [1] 시각적 장판 액터 스폰 ---
-    if (JangpanActorClass)
+    if (UnitBuffConfig.JangpanActorClass)
     {
         AActor* SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(
-            JangpanActorClass, FTransform(SpawnRotation, SpawnLocation),
+            UnitBuffConfig.JangpanActorClass, FTransform(SpawnRotation, SpawnLocation),
             AvatarActor, Cast<APawn>(AvatarActor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn
         );
 
@@ -79,7 +81,7 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
             SpawnedActor->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));
 
             // 장판이 유닛을 따라다니게 하려면 Attach, 바닥에 고정하려면 주석 처리
-            if (bAttachToUnit)
+            if (UnitBuffConfig.bAttachToUnit)
             {
                 SpawnedActor->AttachToActor(AvatarActor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
             }
@@ -92,13 +94,13 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
     // 자신은 힐을 안 받게 하려면 IgnoredActors.Add(AvatarActor); 추가
 
     UKismetSystemLibrary::SphereOverlapActors(
-        this, SpawnLocation, SupportRadius,
+        this, SpawnLocation, UnitBuffConfig.SupportRadius,
         TArray<TEnumAsByte<EObjectTypeQuery>>{ EObjectTypeQuery::ObjectTypeQuery3 }, // Pawn
         AUnitCharacter::StaticClass(), IgnoredActors, OverlapActors
     );
 
-    float MultiplierValue = SupportSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(SupportEffectClass, MultiplierValue);
+    float MultiplierValue = UnitBuffConfig.SupportSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(UnitBuffConfig.SupportEffectClass, MultiplierValue);
 
     for (AActor* TargetActor : OverlapActors)
     {

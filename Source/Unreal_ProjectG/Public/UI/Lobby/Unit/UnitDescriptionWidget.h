@@ -12,6 +12,7 @@ class UButton;
 class UTextBlock;
 class UUnitEntryObject;
 class UUnitUIDataAsset;
+class UGoodsBarWidget;
 
 /**
  * 
@@ -91,4 +92,12 @@ protected:
     // 강화 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> UpgradeButton;
+
+    // 버튼 텍스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> ButtonText;
+
+    // 소모 비용 위젯
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> CostBar;
 };

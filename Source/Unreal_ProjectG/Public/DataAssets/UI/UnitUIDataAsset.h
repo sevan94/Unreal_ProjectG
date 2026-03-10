@@ -36,7 +36,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     FString UnitStatus;
 
+    // 유닛 설명
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
+    FString UnitDetail;
+
     // 유닛 코스트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     int32 UnitCost;
+
+    // 유닛 해금 비용
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
+    int32 UnitUnlock;
 };

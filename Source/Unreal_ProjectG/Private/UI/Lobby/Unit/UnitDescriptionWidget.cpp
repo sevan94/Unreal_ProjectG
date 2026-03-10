@@ -37,6 +37,13 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
     UnitCost->SetText(FText::AsNumber(CurrentUIData->UnitCost));
     UnitLevel->SetText(FText::AsNumber(SaveData.Level));
 
+    // 해금 여부에 따라 버튼 텍스트 변경
+    if (ButtonText)
+    {
+        FText ButtonLabel = SaveData.bIsUnlocked ? FText::FromString(TEXT("강화")) : FText::FromString(TEXT("해금"));
+        ButtonText->SetText(ButtonLabel);
+    }
+
     SetUnitStatus();
 }
 
@@ -50,11 +57,22 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
     // GameInstance의 맵에서 직접 데이터 참조를 가져와 수정
     if (FUnitSaveData* TargetData = GI->UnitLevelMap.Find(CurrentUIData->UnitID))
     {
-        // 골드 체크 로직
-        // if(GI->CurrentGold >= UpgradeCost) { ... }
+        if (TargetData->bIsUnlocked)
+        {
+            // 강화 로직
+            // 골드 체크
+            // if(GI->Gold >= UpgradeCost)
 
-        // 레벨업 실행 후 저장
-        TargetData->Level++;
+            // 레벨업 실행 후 저장
+            TargetData->Level++;
+        }
+        else
+        {
+            // 해금 로직
+            // 해금 재화 체크
+            // if(GI->Unlock >= UnlockCost) 
+            TargetData->bIsUnlocked = true;
+        }
 
         GI->SaveGameData();
 

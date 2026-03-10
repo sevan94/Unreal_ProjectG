@@ -12,12 +12,12 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 
-UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
+UHeroAbility_PointTargetAOE::UHeroAbility_PointTargetAOE()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UHeroAbility_PointTargetAOE::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnGiveAbility(ActorInfo, Spec);
 
@@ -38,7 +38,7 @@ void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
     //==============================================
 }
 
-//void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+//void UHeroAbility_PointTargetAOE::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //    {
@@ -47,14 +47,14 @@ void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* Acto
 //    }
 //}
 
-void UHeroAbility_AOEAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UHeroAbility_PointTargetAOE::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
     HitActors.Empty();
 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UHeroAbility_AOEAttack::OnHitLocationReady(FVector InHitLocation)
+void UHeroAbility_PointTargetAOE::OnHitLocationReady(FVector InHitLocation)
 {
     CachedHitLocation = InHitLocation;
 
@@ -68,10 +68,10 @@ void UHeroAbility_AOEAttack::OnHitLocationReady(FVector InHitLocation)
     {
         UE_LOG(LogTemp, Warning, TEXT("AOE Attack Montage Play!"));
 
-        AOEMontageTask->OnCompleted.AddUniqueDynamic(this, &UHeroAbility_AOEAttack::OnAOEMontageFinished);
-        AOEMontageTask->OnInterrupted.AddUniqueDynamic(this, &UHeroAbility_AOEAttack::OnAOEMontageFinished);
-        AOEMontageTask->OnBlendOut.AddUniqueDynamic(this, &UHeroAbility_AOEAttack::OnAOEMontageFinished);
-        AOEMontageTask->OnCancelled.AddUniqueDynamic(this, &UHeroAbility_AOEAttack::OnAOEMontageFinished);
+        AOEMontageTask->OnCompleted.AddUniqueDynamic(this, &UHeroAbility_PointTargetAOE::OnAOEMontageFinished);
+        AOEMontageTask->OnInterrupted.AddUniqueDynamic(this, &UHeroAbility_PointTargetAOE::OnAOEMontageFinished);
+        AOEMontageTask->OnBlendOut.AddUniqueDynamic(this, &UHeroAbility_PointTargetAOE::OnAOEMontageFinished);
+        AOEMontageTask->OnCancelled.AddUniqueDynamic(this, &UHeroAbility_PointTargetAOE::OnAOEMontageFinished);
 
         AOEMontageTask->ReadyForActivation();
     }
@@ -80,11 +80,11 @@ void UHeroAbility_AOEAttack::OnHitLocationReady(FVector InHitLocation)
     UAbilityTask_WaitGameplayEvent* AOEAttackEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, PGGameplayTags::Shared_Event_AOEExecute);
 
     // 이벤트 수신 핸들러 바인딩
-    AOEAttackEventTask->EventReceived.AddUniqueDynamic(this, &UHeroAbility_AOEAttack::OnApplyAOEDamage);
+    AOEAttackEventTask->EventReceived.AddUniqueDynamic(this, &UHeroAbility_PointTargetAOE::OnApplyAOEDamage);
     AOEAttackEventTask->ReadyForActivation();
 }
 
-void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
+void UHeroAbility_PointTargetAOE::OnApplyAOEDamage(FGameplayEventData EventData)
 {
     FGameplayCueParameters GameplayCueParameters;
     GameplayCueParameters.Location = CachedHitLocation;
@@ -118,7 +118,7 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
     }
 }
 
-void UHeroAbility_AOEAttack::OnAOEMontageFinished()
+void UHeroAbility_PointTargetAOE::OnAOEMontageFinished()
 {
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

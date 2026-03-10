@@ -25,7 +25,7 @@ static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
     // 스킬 클래스 추가 시 이곳에 매핑 추가
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), FHeroMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), FHeroSpawnProjectileAbilityConfig::StaticStruct());
-    Map.Add(UHeroAbility_AOEAttack::StaticClass(), FHeroCastingAOEAbilityConfig::StaticStruct());
+    Map.Add(UHeroAbility_PointTargetAOE::StaticClass(), FHeroCastingAOEAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_SpawnPet::StaticClass(), FHeroSpawnPetAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());

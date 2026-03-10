@@ -17,6 +17,7 @@ class APetCharacter;
  */
 
 
+ // 어빌리티 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
 struct FAbilityEntry
 {
@@ -29,6 +30,7 @@ struct FAbilityEntry
     FInstancedStruct AbilityConfig;
 };
 
+// 버프를 적용하는 이펙트 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
 struct FNumericBuffEffectConfig
 {
@@ -44,6 +46,57 @@ struct FNumericBuffEffectConfig
     FScalableFloat BaseBuffAmount;
 };
 
+// 버프/디버프 설정 구조체, 수치형 버프/디버프와 상태이상 버프/디버프를 모두 담을 수 있도록 함
+USTRUCT(BlueprintType)
+struct FBuffDebuffConfig
+{
+    GENERATED_BODY()
+
+    //수치형 버프/디버프 (공격력, 체력 등)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<FNumericBuffEffectConfig> NumericBuffs;
+
+    //상태이상 버프/디버프
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses;
+
+    //지속시간
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FScalableFloat Duration;
+};
+
+// 데미지 설정 구조체, 데미지 계산에 필요한 정보들을 담음
+USTRUCT(BlueprintType)
+struct FDamageConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FScalableFloat SkillMultiplier; // 스킬 계수
+};
+
+// AOE 공격의 실행 방식에 대한 열거형, 즉 즉시 효과인지 장판 형태로 남는 효과인지
+UENUM(BlueprintType)
+enum class EAOEExecutionType : uint8
+{
+    Instant,
+    PersistentField,
+};
+
+UENUM(BlueprintType)
+enum class EAOETargetPolicy : uint8
+{
+    HostileOnly,
+    FriendlyOnly,
+    AllExceptSelf,
+};
+//==========================================================================================================
+//==========================================================================================================
+//==========================================================================================================
+// 모든 어빌리티 설정의 부모 구조체, FInstancedStruct로 구조체도 다형성을 가지게 하기 위해서 만들어짐
 USTRUCT(BlueprintType)
 struct FAbilityConfig
 {
@@ -52,6 +105,9 @@ struct FAbilityConfig
     virtual ~FAbilityConfig() = default;
 };
 
+//==========================================================================================================
+// 히어로 어빌리티 설정 구조체들
+//==========================================================================================================
 USTRUCT(BlueprintType)
 struct FHeroMeleeAttackAbilityConfig : public FAbilityConfig
 {
@@ -97,28 +153,35 @@ struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
     FGameplayTag SpawnCueTag; // 스폰할때, 재생할 이펙트 태그
 };
 
+// AOE 어비릴티 설정 구조체
 USTRUCT(BlueprintType)
-struct FHeroCastingAOEAbilityConfig : public FAbilityConfig
+struct FHeroAOECommonConfig : public FAbilityConfig
 {
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "TargetPolicy != EAOETargetPolicy::FriendlyOnly")) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
+    FDamageConfig DamageConfig; // 데미지 계산 정보
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
+    FBuffDebuffConfig BuffDebuffConfig; // 버프/디버프 정보
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<AActor> SpawnedActorClass; // 스폰할 액터 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     int32 MaxHitTargets = 3; // 최대 공격 가능한 적의 수
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    float AOEAttackRadius = 300.f; // AOE 공격 반경
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UAnimMontage> CastingMontage; // 캐스팅 애니메이션 몽타주들
+    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag ImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
+    TSubclassOf<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
 };
 
 USTRUCT(BlueprintType)
@@ -131,6 +194,9 @@ struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
 };
 
 
+//==========================================================================================================
+// 유닛 어빌리티 설정 구조체들
+//==========================================================================================================
 USTRUCT(BlueprintType)
 struct FUnitBaseMeleeAttackAbilityConfig : public FAbilityConfig
 {
@@ -194,8 +260,7 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     int32 SpawnCount;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages; 
-
+    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; 

@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "AbilitySystem/Abilities/Player/HeroAbility_AOEBase.h"
 #include "HeroAbility_AOEAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREAL_PROJECTG_API UHeroAbility_AOEAttack : public UPGHeroGameplayAbility
+class UNREAL_PROJECTG_API UHeroAbility_PointTargetAOE : public UHeroAbility_AOEBase
 {
 	GENERATED_BODY()
 	
 public:
-    UHeroAbility_AOEAttack();
+    UHeroAbility_PointTargetAOE();
 
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 

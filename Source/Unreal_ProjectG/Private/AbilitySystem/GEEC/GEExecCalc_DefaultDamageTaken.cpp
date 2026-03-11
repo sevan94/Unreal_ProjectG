@@ -8,13 +8,12 @@
 struct FPGDamageCapture
 {
     // 캡처할 어트리 뷰트 정의 추가
-    DECLARE_ATTRIBUTE_CAPTUREDEF(Health)
+    DECLARE_ATTRIBUTE_CAPTUREDEF(DamageTaken)
     DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower)
 
     FPGDamageCapture()
     {
         // 어트리뷰트 캡처 설정
-        DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, Health, Target, false);
         DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, AttackPower, Source, false);
     }
 };
@@ -29,7 +28,6 @@ static const FPGDamageCapture& GetPGDamageCapture()
 UGEExecCalc_DefaultDamageTaken::UGEExecCalc_DefaultDamageTaken()
 {
     // 캡처할 어트리뷰트 정의를 RelevantAttributesToCapture 배열에 추가
-    RelevantAttributesToCapture.Add(GetPGDamageCapture().HealthDef);
     RelevantAttributesToCapture.Add(GetPGDamageCapture().AttackPowerDef);
 }
 
@@ -56,7 +54,7 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
     // SetByCaller로 넘겨준 Map(태그, 값)에서 태그를 찾아서 값을 가져옴 
     for (const TPair<FGameplayTag, float>& TagMagnitude : EffectSpec.SetByCallerTagMagnitudes)
     {
-        if (TagMagnitude.Key.MatchesTagExact(PGGameplayTags::Shared_SetByCaller_DamageMultiplier))
+        if (TagMagnitude.Key.MatchesTagExact(PGGameplayTags::Shared_SetByCaller_SkillMultiplier))
         {
             SkillDamageMultiplier = TagMagnitude.Value;
         }
@@ -80,9 +78,9 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
     {
         OutExecutionOutput.AddOutputModifier(
             FGameplayModifierEvaluatedData(
-                GetPGDamageCapture().HealthProperty,
+                UPGCharacterAttributeSet::GetDamageTakenAttribute(),
                 EGameplayModOp::AddBase,
-                -FinalDamage
+                FinalDamage
             )
         );
     }

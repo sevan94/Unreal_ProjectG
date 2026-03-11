@@ -5,6 +5,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "ScalableFloat.h"
 #include "GameplayTagContainer.h"
+#include "Types/PGEnumTypes.h"
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
@@ -12,6 +13,7 @@ class UNiagaraComponent;
 class UGameplayEffect;
 class UPGGameplayAbility;
 class APetCharacter;
+class AAOESkillActor;
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
@@ -78,21 +80,6 @@ struct FDamageConfig
     FScalableFloat SkillMultiplier; // 스킬 계수
 };
 
-// AOE 공격의 실행 방식에 대한 열거형, 즉 즉시 효과인지 장판 형태로 남는 효과인지
-UENUM(BlueprintType)
-enum class EAOEExecutionType : uint8
-{
-    Instant,
-    PersistentField,
-};
-
-UENUM(BlueprintType)
-enum class EAOETargetPolicy : uint8
-{
-    HostileOnly,
-    FriendlyOnly,
-    AllExceptSelf,
-};
 //==========================================================================================================
 //==========================================================================================================
 //==========================================================================================================
@@ -153,7 +140,7 @@ struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
     FGameplayTag SpawnCueTag; // 스폰할때, 재생할 이펙트 태그
 };
 
-// AOE 어비릴티 설정 구조체
+// AOE 어빌리티 설정 구조체
 USTRUCT(BlueprintType)
 struct FHeroAOECommonConfig : public FAbilityConfig
 {
@@ -168,8 +155,9 @@ struct FHeroAOECommonConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FBuffDebuffConfig BuffDebuffConfig; // 버프/디버프 정보
 
+    // TODO
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<AActor> SpawnedActorClass; // 스폰할 액터 클래스
+    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     int32 MaxHitTargets = 3; // 최대 공격 가능한 적의 수
@@ -177,11 +165,8 @@ struct FHeroAOECommonConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag ImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    TSubclassOf<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
 };
 
 USTRUCT(BlueprintType)
@@ -282,9 +267,6 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
 };
 
 //UCLASS(EditInlineNew, BlueprintType)

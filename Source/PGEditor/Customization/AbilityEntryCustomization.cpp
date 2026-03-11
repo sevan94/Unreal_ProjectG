@@ -8,7 +8,7 @@
 // 어빌리티 클래스 헤더
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Player/HeroAbility_BaseProjectileAttack.h"
-#include "AbilitySystem/Abilities/Player/HeroAbility_AOEAttack.h"
+#include "AbilitySystem/Abilities/Player/HeroAbility_AOEBase.h"
 #include "AbilitySystem/Abilities/Player/HeroAbility_SpawnPet.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
@@ -25,7 +25,7 @@ static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
     // 스킬 클래스 추가 시 이곳에 매핑 추가
     Map.Add(UHeroAbility_BaseMeleeAttack::StaticClass(), FHeroMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UHeroAbility_BaseProjectileAttack::StaticClass(), FHeroSpawnProjectileAbilityConfig::StaticStruct());
-    Map.Add(UHeroAbility_PointTargetAOE::StaticClass(), FHeroCastingAOEAbilityConfig::StaticStruct());
+    Map.Add(UHeroAbility_AOEBase::StaticClass(), FHeroAOECommonConfig::StaticStruct());
     Map.Add(UHeroAbility_SpawnPet::StaticClass(), FHeroSpawnPetAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());

@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Player/HeroAbility_AOEBase.h"
-#include "HeroAbility_AOEAttack.generated.h"
+#include "HeroAbility_PointTargetAOE.generated.h"
 
 /**
+ * 플레이어가 원하는 위치를 지정하여 해당 위치를 중심으로 AOE 공격을 하는 어빌리티
  * 
+ * 1. ActivateAbility -> WaitTargetData -> GATargetActor_AOEGroundTrace 스폰
+ * 2. 플레이어가 위치 확정 -> OnTargetReady -> 몽타주 재생 -> WaitGameplayEvent
+ * 3. Shared_Event_AOEExecute 이벤트 수신 -> OnApplyAOEDamage -> SpawnAndInitializeAOEActor
  */
 UCLASS()
 class UNREAL_PROJECTG_API UHeroAbility_PointTargetAOE : public UHeroAbility_AOEBase
@@ -17,25 +21,23 @@ class UNREAL_PROJECTG_API UHeroAbility_PointTargetAOE : public UHeroAbility_AOEB
 public:
     UHeroAbility_PointTargetAOE();
 
-    virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
-
-    //virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+protected:
+    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-protected:
-    UFUNCTION(BlueprintCallable, Category = "Ability|AOE Attack")
-    void OnHitLocationReady(FVector InHitLocation);
+private:
+    UFUNCTION(BlueprintCallable)
+    void OnTargetDataReady(const FGameplayAbilityTargetDataHandle& InTargetDataHandle);
+
+    UFUNCTION(BlueprintCallable)
+    void OnTargetDataCancelled(const FGameplayAbilityTargetDataHandle& InTargetDataHandle);
 
     UFUNCTION()
     void OnApplyAOEDamage(FGameplayEventData EventData);
 
     UFUNCTION()
     void OnAOEMontageFinished();
-protected:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|AOE Attack")
-    FHeroCastingAOEAbilityConfig AOEAttackConfig;
 
 private:
     FVector CachedHitLocation;
-    TArray<AActor*> HitActors;
 };

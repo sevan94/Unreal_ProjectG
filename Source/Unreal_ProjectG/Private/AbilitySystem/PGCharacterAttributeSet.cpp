@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/PGCharacterBase.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "PGGameplayTags.h"
 
 UPGCharacterAttributeSet::UPGCharacterAttributeSet()
 {
@@ -14,6 +16,9 @@ UPGCharacterAttributeSet::UPGCharacterAttributeSet()
     InitCost(GetMaxCost());
     InitAttackPower(10.0f);
     InitAttackSpeed(1.0f);
+
+    InitDamageTaken(0.0f);
+    InitHealReceived(0.0f);
 }
 
 void UPGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -27,6 +32,12 @@ void UPGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attr
     if (Attribute == GetCostAttribute())
     {
         NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxCost());
+    }
+
+    if(Attribute == GetDamageTakenAttribute() || Attribute == GetHealReceivedAttribute())
+    {
+        // Meta Attribute는 실제 Attribute의 값에 반영한 뒤 바로 0으로 초기화 한다.
+        NewValue = FMath::Max(0.0f, NewValue);
     }
 }
 
@@ -110,5 +121,40 @@ void UPGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
         {
             Character->GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
         }
+    }
+
+    //----------------------------------------------------------------------
+    // DamageTaken, HealReceived는 Meta Attribute로 실제 Attribute의 값에 반영한 뒤 바로 0으로 초기화 한다.
+    //----------------------------------------------------------------------
+    if(Data.EvaluatedData.Attribute == GetDamageTakenAttribute())
+    {
+        const float FinalDamage = GetDamageTaken();
+
+        if(FinalDamage > 0.0f)
+        {
+            const float NewHealth = FMath::Clamp(GetHealth() - FinalDamage, 0.0f, GetMaxHealth());
+            SetHealth(NewHealth);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(BaseCharacter, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData()); // 체력이 감소하면 HitReact 이벤트를 보낸다.
+
+            if (FMath::IsNearlyZero(NewHealth))
+            {
+                if(BaseCharacter)
+                {
+                    BaseCharacter->OnDie();
+                }
+            }
+        }
+        SetDamageTaken(0.0f);
+    }
+
+    if(Data.EvaluatedData.Attribute == GetHealReceivedAttribute())
+    {
+        const float FinalHeal = GetHealReceived();
+        if(FinalHeal > 0.0f)
+        {
+            const float NewHealth = FMath::Clamp(GetHealth() + FinalHeal, 0.0f, GetMaxHealth());
+            SetHealth(NewHealth);
+        }
+        SetHealReceived(0.0f);
     }
 }

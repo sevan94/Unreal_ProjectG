@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Character/Unit/UnitCharacter.h"
+#include "Types/PGEnumTypes.h"
 #include "PGGameInstance.generated.h"
 
 class UPGSaveGame;
 class UUnitUIDataAsset;
 class UEquipUIDataAsset;
 class AHeroCharacter;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoodsChanged, EGoodsCategory, InCategory, int32, InValue);
 
 USTRUCT(BlueprintType)
 struct FUnitSaveData
@@ -38,6 +41,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void LoadGameData();
+
+    UFUNCTION(BlueprintCallable, Category = "SaveGame")
+    void AddGoods(EGoodsCategory InCategory, int32 InValue);
+
+    UFUNCTION(BlueprintCallable, Category = "SaveGame")
+    void ConsumeGoods(EGoodsCategory InCategory, int32 InValue);
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")
@@ -83,6 +92,8 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
     TMap<int32, FUnitSaveData> UnitLevelMap;
+
+    FOnGoodsChanged OnGoodsChanged;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")

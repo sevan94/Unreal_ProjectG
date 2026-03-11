@@ -56,6 +56,15 @@ enum class EEquipCategory : uint8
     Accessory   UMETA(DisplayName = "Accessory")
 };
 
+// 플레이어 재화 열거형
+UENUM()
+enum class EGoodsCategory : uint8
+{
+    Gem         UMETA(DisplayName = "Gem"),
+    Unlock      UMETA(DisplayName = "Unlock"),
+    Gold        UMETA(DisplayName = "Gold")
+};
+
 // 영웅의 전투 모드를 나타내는 열거형
 UENUM(BlueprintType)
 enum class EHeroCombatMode : uint8

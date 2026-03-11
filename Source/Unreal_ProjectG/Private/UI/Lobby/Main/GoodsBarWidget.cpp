@@ -4,6 +4,7 @@
 #include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UGoodsBarWidget::InitializeGoodsBar(int32 InValue)
 {
@@ -23,9 +24,4 @@ void UGoodsBarWidget::SetGoodsIcon(UTexture2D* InIcon)
 void UGoodsBarWidget::UpdateGoodsText(int32 InValue)
 {
     GoodsText->SetText(FText::AsNumber(InValue));
-}
-
-void UGoodsBarWidget::NativeConstruct()
-{
-    // 추후 델리게이트 구독
 }

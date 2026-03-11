@@ -15,6 +15,9 @@ void UMainLobbyWidget::NativeConstruct()
     if (EquipButton) EquipButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnEquipButtonClick);
     if (GachaButton) GachaButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnGachaButtonClick);
 
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (GI) GI->OnGoodsChanged.AddDynamic(this, &UMainLobbyWidget::UpdateGoodsBar);
+
     InitializeMainWidget();
 }
 
@@ -25,6 +28,16 @@ void UMainLobbyWidget::InitializeMainWidget()
     Gem->InitializeGoodsBar(GI->CurrentPlayerGem);
     Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
     Gold->InitializeGoodsBar(GI->CurrentPlayerGold);
+}
+
+void UMainLobbyWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
+{
+    switch (InCategory)
+    {
+    case EGoodsCategory::Gem: Gem->UpdateGoodsText(InValue); break;
+    case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
+    case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
+    }
 }
 
 void UMainLobbyWidget::OnUnitButtonClick()

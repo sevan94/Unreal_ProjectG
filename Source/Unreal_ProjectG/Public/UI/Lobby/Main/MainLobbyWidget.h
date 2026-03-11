@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/PGEnumTypes.h"
 #include "MainLobbyWidget.generated.h"
 
 class UWidgetSwitcher;
@@ -22,6 +23,9 @@ protected:
     virtual void NativeConstruct() override;
 
     void InitializeMainWidget();
+
+    UFUNCTION()
+    void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
 private:
     // 각 버튼 클릭 시 실행될 함수들

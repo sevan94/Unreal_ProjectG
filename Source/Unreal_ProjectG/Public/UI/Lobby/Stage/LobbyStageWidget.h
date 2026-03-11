@@ -8,6 +8,7 @@
 
 class UButton;
 class UWidgetSwitcher;
+class UStageMapWidget;
 
 /**
  * 
@@ -27,6 +28,10 @@ private:
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
+
+protected:
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UStageMapWidget> StageMap;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;

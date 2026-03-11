@@ -87,6 +87,12 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
             {
                 GI->ConsumeGoods(EGoodsCategory::Unlock, CurrentUIData->UnitUnlock);
                 TargetData->bIsUnlocked = true;
+
+                // 해금 성공 시 델리게이트 호출
+                if (OnUnitUnlocked.IsBound())
+                {
+                    OnUnitUnlocked.Broadcast(CurrentEntryObject);
+                }
             }
         }
 

@@ -25,8 +25,13 @@ void ULobbyUnitWidget::NativeConstruct()
 
         Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
         Gold->InitializeGoodsBar(GI->CurrentPlayerGold);
+    } 
+    if (UnitDescription)
+    {
+        // 해금 이벤트 구독
+        UnitDescription->SetVisibility(ESlateVisibility::Hidden);
+        UnitDescription->OnUnitUnlocked.AddDynamic(this, &ULobbyUnitWidget::HandleUnitSelected);
     }
-    UnitDescription->SetVisibility(ESlateVisibility::Hidden);
 
     InitializePartySlots();
 

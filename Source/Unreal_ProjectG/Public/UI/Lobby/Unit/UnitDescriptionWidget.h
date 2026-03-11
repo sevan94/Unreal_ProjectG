@@ -14,6 +14,7 @@ class UUnitEntryObject;
 class UUnitUIDataAsset;
 class UGoodsBarWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitUnlocked, UUnitEntryObject*, UnlockedUnit);
 /**
  * 
  */
@@ -35,6 +36,10 @@ protected:
     void OnUpgradeButtonClicked();
 
     void SetUnitStatus();
+
+public:
+    // 유닛 해금 델리게이트
+    FOnUnitUnlocked OnUnitUnlocked;
 
 protected:
     // 위젯에 표시할 UI 데이터 캐싱

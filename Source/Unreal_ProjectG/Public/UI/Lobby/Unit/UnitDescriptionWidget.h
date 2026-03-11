@@ -100,4 +100,10 @@ protected:
     // 소모 비용 위젯
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> CostBar;
+
+    // 비용 아이콘
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Goods")
+    TObjectPtr<UTexture2D> UnlockIcon;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Goods")
+    TObjectPtr<UTexture2D> GoldIcon;
 };

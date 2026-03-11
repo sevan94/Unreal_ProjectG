@@ -8,6 +8,7 @@
 #include "UI/Lobby/Unit/UnitDescriptionWidget.h"
 #include "UI/Lobby/Unit/CurrentUnitWidget.h"
 #include "UI/UnitEntryObject.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Components/HorizontalBox.h"
 #include "Mode/Save/PGGameInstance.h"
@@ -17,7 +18,14 @@ void ULobbyUnitWidget::NativeConstruct()
     Super::NativeConstruct();
     PartySlots.Empty();
     GI = Cast<UPGGameInstance>(GetGameInstance());
-    GI->LoadGameData();
+    if (GI)
+    {
+        GI->LoadGameData();
+        GI->OnGoodsChanged.AddDynamic(this, &ULobbyUnitWidget::UpdateGoodsBar);
+
+        Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
+        Gold->InitializeGoodsBar(GI->CurrentPlayerGold);
+    }
     UnitDescription->SetVisibility(ESlateVisibility::Hidden);
 
     InitializePartySlots();
@@ -93,6 +101,15 @@ void ULobbyUnitWidget::InitializePartySlots()
                     PartySlot->UpdateSlot(GI->CurrentUnits[i].LoadSynchronous());
             }
         }
+    }
+}
+
+void ULobbyUnitWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
+{
+    switch (InCategory)
+    {
+    case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
+    case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
     }
 }
 

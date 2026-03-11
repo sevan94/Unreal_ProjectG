@@ -16,9 +16,9 @@ void UGoodsBarWidget::InitializeGoodsBar(int32 InValue)
     GoodsText->SetText(FText::AsNumber(InValue));
 }
 
-void UGoodsBarWidget::SetGoodsIcon(UTexture2D* InIcon)
+void UGoodsBarWidget::SetGoodsImage(UTexture2D* InImage)
 {
-    GoodsImage->SetBrushFromTexture(InIcon);
+    GoodsImage->SetBrushFromTexture(InImage);
 }
 
 void UGoodsBarWidget::UpdateGoodsText(int32 InValue)

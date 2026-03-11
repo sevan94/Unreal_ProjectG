@@ -20,7 +20,7 @@ class UNREAL_PROJECTG_API UGoodsBarWidget : public UUserWidget
 public:
     void InitializeGoodsBar(int32 InValue);
 
-    void SetGoodsIcon(UTexture2D* InIcon);
+    void SetGoodsImage(UTexture2D* InImage);
 
     UFUNCTION()
     void UpdateGoodsText(int32 InValue);

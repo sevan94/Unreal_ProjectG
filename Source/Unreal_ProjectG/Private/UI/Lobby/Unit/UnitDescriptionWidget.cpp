@@ -7,7 +7,10 @@
 #include "Components/Button.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/UnitEntryObject.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "Types/PGEnumTypes.h"
+#include "Character/Unit/UnitCharacter.h"
 
 void UUnitDescriptionWidget::NativeConstruct()
 {
@@ -37,11 +40,19 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
     UnitCost->SetText(FText::AsNumber(CurrentUIData->UnitCost));
     UnitLevel->SetText(FText::AsNumber(SaveData.Level));
 
-    // 해금 여부에 따라 버튼 텍스트 변경
-    if (ButtonText)
+    // 해금 여부에 따라 UI 갱신
+    if (ButtonText && CostBar)
     {
-        FText ButtonLabel = SaveData.bIsUnlocked ? FText::FromString(TEXT("강화")) : FText::FromString(TEXT("해금"));
-        ButtonText->SetText(ButtonLabel);
+        if (SaveData.bIsUnlocked)
+        {
+            ButtonText->SetText(FText::FromString(TEXT("강화")));
+            CostBar->SetGoodsImage(GoldIcon);
+        }
+        else
+        {
+            ButtonText->SetText(FText::FromString(TEXT("해금")));
+            CostBar->SetGoodsImage(UnlockIcon);
+        }
     }
 
     SetUnitStatus();
@@ -61,17 +72,22 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
         {
             // 강화 로직
             // 골드 체크
-            // if(GI->Gold >= UpgradeCost)
+            if (GI->CurrentPlayerGold >= CurrentUIData->UnitUnlock)
+            {
+                GI->ConsumeGoods(EGoodsCategory::Gold, CurrentUIData->UnitUnlock);
+                TargetData->Level++;
+            }
 
-            // 레벨업 실행 후 저장
-            TargetData->Level++;
         }
         else
         {
             // 해금 로직
             // 해금 재화 체크
-            // if(GI->Unlock >= UnlockCost) 
-            TargetData->bIsUnlocked = true;
+            if (GI->CurrentPlayerUnlock >= CurrentUIData->UnitUnlock)
+            {
+                GI->ConsumeGoods(EGoodsCategory::Unlock, CurrentUIData->UnitUnlock);
+                TargetData->bIsUnlocked = true;
+            }
         }
 
         GI->SaveGameData();

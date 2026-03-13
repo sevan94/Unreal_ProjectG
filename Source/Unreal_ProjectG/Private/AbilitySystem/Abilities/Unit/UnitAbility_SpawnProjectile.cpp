@@ -2,7 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
-#include "Items/PGProjectileBase.h"
+#include "Actors/PGProjectileBase.h"
 #include "PGGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -27,7 +27,6 @@ void UUnitAbility_SpawnProjectile::ActivateAbility(const FGameplayAbilitySpecHan
 {
     //==============================================
 // FUnitSpawnProjectileAbilityConfig의 SoftPtr 로드
-    UnitSpawnProjectileConfig.DamageEffectClass.LoadSynchronous();
     UnitSpawnProjectileConfig.SpawnedProjectileClass.LoadSynchronous();
     for (TSoftObjectPtr<UAnimMontage>& Montage : UnitSpawnProjectileConfig.SpawnProjectileMontages)
     {

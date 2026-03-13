@@ -34,10 +34,11 @@ namespace PGGameplayTags
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_SupportExecute);
 
     // 공유 SetByCaller 태그
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_DamageMultiplier);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_SkillMultiplier);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_MaxHealthMultiplier);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_AttackPowerMultiplier);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseBuffAmount);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_EffectDuration);
 
     //유닛 상태(State) 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Idle);

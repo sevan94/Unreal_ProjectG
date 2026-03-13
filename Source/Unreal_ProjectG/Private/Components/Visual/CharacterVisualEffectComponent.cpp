@@ -94,7 +94,7 @@ void UCharacterVisualEffectComponent::RefreshVisualState()
         // 메시 컴포넌트 또는 머티리얼 캐시가 유효하지 않다면 해당 컴포넌트는 건너뜀
         if (!IsValid(MeshComponent) || !MaterialCache.bInitialized) continue;
 
-        MeshComponent->SetRenderCustomDepth(bDisableCelShading);
+        MeshComponent->SetRenderCustomDepth(!bDisableCelShading);
 
         for(UMaterialInstanceDynamic* DynamicMaterialInstance : MaterialCache.DynamicMaterialInstances)
         {

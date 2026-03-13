@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/PGGameplayAbility.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "PGGameplayTags.h"
 
 UPGGameplayAbility::UPGGameplayAbility()
 {
@@ -73,4 +74,46 @@ void UPGGameplayAbility::NativeRemoveActiveGameplayEffectFromTarget(AActor* Targ
     checkf(EffectHandle.IsValid(), TEXT("EffectHandle이 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
     
     TargetASC->RemoveActiveGameplayEffect(EffectHandle);
+}
+
+FGameplayEffectSpecHandle UPGGameplayAbility::MakeDurationBuffEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiplier, float BaseBuffAmount, float Duration)
+{
+    check(EffectClass);
+
+    FGameplayEffectContextHandle ContextHandle = GetPGAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+    ContextHandle.SetAbility(this);
+    ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
+    ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+
+    FGameplayEffectSpecHandle EffectSpecHandle = 
+        GetPGAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), ContextHandle);
+
+    if (EffectSpecHandle.IsValid())
+    {
+        // 스킬 계수, 기본 버프량, 지속 시간 전달
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, SkillMultiplier);
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, BaseBuffAmount);
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_EffectDuration, Duration);
+    }
+    return EffectSpecHandle;
+}
+
+FGameplayEffectSpecHandle UPGGameplayAbility::MakeDurationStatusEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float Duration)
+{
+    check(EffectClass);
+
+    FGameplayEffectContextHandle ContextHandle = GetPGAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+    ContextHandle.SetAbility(this);
+    ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
+    ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+
+    FGameplayEffectSpecHandle EffectSpecHandle =
+        GetPGAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), ContextHandle);
+
+    if (EffectSpecHandle.IsValid())
+    {
+        // 지속 시간 전달
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_EffectDuration, Duration);
+    }
+    return EffectSpecHandle;
 }

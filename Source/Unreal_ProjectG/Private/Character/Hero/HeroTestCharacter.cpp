@@ -22,6 +22,7 @@ void AHeroTestCharacter::BeginPlay()
 
     if (GI)
     {
+        if (GI->CurrentSetTag.IsValid()) PGAbilitySystemComponent->AddLooseGameplayTag(GI->CurrentSetTag);
         if (GI->CurrentWeapon) WeaponDataAsset = Cast<UDataAsset_WeaponData>(GI->CurrentWeapon->EquipDataAsset.LoadSynchronous());
         if (GI->CurrentArmor) ArmorDataAsset = Cast<UDataAsset_ArmorData>(GI->CurrentArmor->EquipDataAsset.LoadSynchronous());
         if (GI->CurrentAccessory) AccessoryDataAsset = Cast<UDataAsset_AccessoryData>(GI->CurrentAccessory->EquipDataAsset.LoadSynchronous());

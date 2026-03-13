@@ -25,7 +25,6 @@ void UUnitAbility_SpawnActor::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
     //==============================================
     // FUnitSpawnActorConfig의 SoftPtr 로드
-    UnitSpawnActorConfig.DamageEffectClass.LoadSynchronous();
     UnitSpawnActorConfig.SpawnedActorClass.LoadSynchronous();
     for (TSoftObjectPtr<UAnimMontage>& Montage : UnitSpawnActorConfig.SpawnActorMontages)
     {
@@ -109,7 +108,7 @@ void UUnitAbility_SpawnActor::SpawnActorEvent(FGameplayEventData InEventData)
 
         if (SpawnedActor)
         {
-            if (UnitSpawnActorConfig.DamageEffectClass.IsValid())
+            if (UnitSpawnActorConfig.DamageEffectClass)
             {
                 float MultiplierValue = UnitSpawnActorConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
                 FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(UnitSpawnActorConfig.DamageEffectClass.Get(), MultiplierValue);

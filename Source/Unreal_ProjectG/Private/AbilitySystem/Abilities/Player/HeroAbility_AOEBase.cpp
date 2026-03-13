@@ -59,7 +59,8 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
 
     const FTransform SpawnTransform(FRotator::ZeroRotator, SpawnLocation);
 
-    AAOESkillActor* SpawnedAOEActor = World->SpawnActor<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams);
+    AAOESkillActor* SpawnedAOEActor = World->SpawnActorDeferred<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams.Owner, SpawnParams.Instigator, SpawnParams.SpawnCollisionHandlingOverride);
+    //AAOESkillActor* SpawnedAOEActor = World->SpawnActor<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams);
 
     if(!SpawnedAOEActor)
     {
@@ -67,17 +68,15 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
         return nullptr;
     }
 
-    // TODO : 액터 초기화
-    //SpawnedAOEActor->InitializeAOEActor(
-    //    GetAvatarActorFromActorInfo(),
-    //    BuildAllSpecHandles(),
-    //    AOEConfig.TargetPolicy,
-    //    AOEConfig.MaxHitTargets,
-    //    AOEConfig.ImpactCueTag
-    //);
+    SpawnedAOEActor->InitializeAOEActor(
+        GetAvatarActorFromActorInfo(),
+        BuildAllSpecHandles(),
+        AOEConfig.TargetPolicy,
+        AOEConfig.MaxHitTargets
+    );
+    SpawnedAOEActor->FinishSpawning(SpawnTransform);
 
-    return nullptr;
-    //return SpawnedAOEActor;
+    return SpawnedAOEActor;
 }
 
 TArray<FGameplayEffectSpecHandle> UHeroAbility_AOEBase::BuildAllSpecHandles()

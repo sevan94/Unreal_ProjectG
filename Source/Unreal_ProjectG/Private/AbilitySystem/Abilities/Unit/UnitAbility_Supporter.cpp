@@ -7,7 +7,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/Unit/UnitCharacter.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
-
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 
 UUnitAbility_Supporter::UUnitAbility_Supporter()
@@ -46,7 +47,12 @@ void UUnitAbility_Supporter::ActivateAbility(const FGameplayAbilitySpecHandle Ha
     }
 
     // 2. 애니메이션 노티파이 대기 (지팡이를 내리찍거나 손을 뻗을 때 장판 생성)
-    UAbilityTask_WaitGameplayEvent* EventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, PGGameplayTags::Shared_Event_SupportExecute);
+    UAbilityTask_WaitGameplayEvent* EventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+        this,
+        PGGameplayTags::Unit_Ability_Buff,
+        nullptr,
+        true
+    );
     if (EventTask)
     {
         EventTask->EventReceived.AddUniqueDynamic(this, &UUnitAbility_Supporter::HandleSupportEffect);
@@ -68,30 +74,10 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
     FVector SpawnLocation = AvatarActor->GetActorLocation();
     FRotator SpawnRotation = AvatarActor->GetActorForwardVector().Rotation();
 
-    // --- [1] 시각적 장판 액터 스폰 ---
-    if (UnitBuffConfig.JangpanActorClass)
-    {
-        AActor* SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(
-            UnitBuffConfig.JangpanActorClass, FTransform(SpawnRotation, SpawnLocation),
-            AvatarActor, Cast<APawn>(AvatarActor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-        );
-
-        if (SpawnedActor)
-        {
-            SpawnedActor->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));
-
-            // 장판이 유닛을 따라다니게 하려면 Attach, 바닥에 고정하려면 주석 처리
-            if (UnitBuffConfig.bAttachToUnit)
-            {
-                SpawnedActor->AttachToActor(AvatarActor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-            }
-        }
-    }
-
-    // --- [2] 자신을 중심으로 반경 내 아군 탐색 및 이펙트(힐/버프) 즉시 적용 ---
     TArray<AActor*> OverlapActors;
     TArray<AActor*> IgnoredActors;
-    // 자신은 힐을 안 받게 하려면 IgnoredActors.Add(AvatarActor); 추가
+
+    IgnoredActors.Add(AvatarActor);
 
     UKismetSystemLibrary::SphereOverlapActors(
         this, SpawnLocation, UnitBuffConfig.SupportRadius,
@@ -102,15 +88,42 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
     float MultiplierValue = UnitBuffConfig.SupportSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
     FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(UnitBuffConfig.SupportEffectClass, MultiplierValue);
 
+    if (EffectSpecHandle.IsValid())
+    {
+        FGameplayTag BaseBuffTag = FGameplayTag::RequestGameplayTag(FName("Shared.SetByCaller.BaseBuffAmount"));
+        EffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(BaseBuffTag, MultiplierValue);
+    }
+
+    UNiagaraSystem* LoadedBuffEffect = nullptr;
+    if (UnitBuffConfig.BuffEffect.IsValid() || UnitBuffConfig.BuffEffect.IsPending())
+    {
+        LoadedBuffEffect = UnitBuffConfig.BuffEffect.LoadSynchronous();
+    }
+
     for (AActor* TargetActor : OverlapActors)
     {
         if (AUnitCharacter* TargetUnit = Cast<AUnitCharacter>(TargetActor))
         {
-            //  아군 판별 로직 (예: 팀 태그 비교)
-            // if (TargetUnit->GetTeamTag() == Cast<AUnitCharacter>(AvatarActor)->GetTeamTag())
+            if (TargetUnit->GetTeamTag() == Cast<AUnitCharacter>(AvatarActor)->GetTeamTag())
+            {
 
-            NativeApplyEffectSpecHandleToTarget(TargetActor, EffectSpecHandle);
-            UE_LOG(LogTemp, Log, TEXT("지원가 장판 효과 적용됨: %s"), *TargetActor->GetName());
+                NativeApplyEffectSpecHandleToTarget(TargetActor, EffectSpecHandle);
+                UE_LOG(LogTemp, Log, TEXT("장판"));
+
+                // 대상의 루트 컴포넌트에 나이아가라 이펙트 부착 및 재생
+                if (LoadedBuffEffect)
+                {
+                    UNiagaraFunctionLibrary::SpawnSystemAttached(
+                        LoadedBuffEffect,
+                        TargetUnit->GetRootComponent(),
+                        NAME_None,
+                        FVector::ZeroVector,
+                        FRotator::ZeroRotator,
+                        EAttachLocation::SnapToTarget,
+                        true
+                    );
+                }
+            }
         }
     }
 }

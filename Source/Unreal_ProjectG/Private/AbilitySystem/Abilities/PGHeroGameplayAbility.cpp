@@ -54,6 +54,5 @@ FGameplayEffectSpecHandle UPGHeroGameplayAbility::MakeHeroDamageEffectSpecHandle
        );
 
     // 추가적으로 넘길 속성들이 있다면 여기에 추가
-
     return EffectSpecHandle;
 }

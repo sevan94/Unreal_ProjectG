@@ -157,7 +157,7 @@ void AUnitCharacter::InitUnitStartUpData()
 
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
-                        AttackMarginKey = AttackRangeKey * 0.7f;
+                        AttackMarginKey = AttackRangeKey * 0.85f;
 
                         if (StartUpData->BranchData->BranchTag.IsValid())
                         {

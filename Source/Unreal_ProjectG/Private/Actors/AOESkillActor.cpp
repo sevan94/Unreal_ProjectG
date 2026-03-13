@@ -4,6 +4,7 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "PGGameplayTags.h"
 
 AAOESkillActor::AAOESkillActor()
 {
@@ -21,12 +22,13 @@ AAOESkillActor::AAOESkillActor()
     CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
-void AAOESkillActor::InitializeAOEActor(AActor* InInstigator, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, EAOETargetPolicy InTargetPolicy, int32 InMaxHitTargets)
+void AAOESkillActor::InitializeAOEActor(AActor* InInstigator, EAOETargetPolicy InTargetPolicy, int32 InAbilityLevel, const FGameplayEffectSpecHandle& InDamageEffectSpecHandle, const FGameplayEffectSpecHandle& InBuffDebuffEffectSpecHandle, const TArray<FGameplayEffectSpecHandle>& InStatusEffectSpecHandles)
 {
     InstigatorActor = InInstigator;
-    EffectSpecHandles = InSpecHandles;
     TargetPolicy = InTargetPolicy;
-    MaxHitTargets = InMaxHitTargets;
+    DamageEffectSpecHandle = InDamageEffectSpecHandle;
+    BuffDebuffEffectSpecHandle = InBuffDebuffEffectSpecHandle;
+    StatusEffectSpecHandles = InStatusEffectSpecHandles;
 }
 
 float AAOESkillActor::GetAOERadius() const
@@ -65,6 +67,60 @@ void AAOESkillActor::BP_CollectAndApplyEffects()
             HitCount++;
         }
     }
+}
+
+FGameplayEffectSpecHandle AAOESkillActor::MakeDamageEffectSpecHandleInAOE(float InSkillMultiplier) const
+{
+    if(DamageEffectSpecHandle.IsValid())
+    {
+        FGameplayEffectSpecHandle NewSpecHandle = DamageEffectSpecHandle;
+        if (NewSpecHandle.IsValid())
+        {
+            // 스킬 배율을 적용하여 데미지 계산 (예시에서는 SetByCaller로 처리)
+            NewSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, InSkillMultiplier);
+            return NewSpecHandle;
+        }
+    }
+    return FGameplayEffectSpecHandle();
+}
+
+FGameplayEffectSpecHandle AAOESkillActor::MakeBuffDebuffEffectSpecHandleInAOE(FBuffDebuffEffectConfig& InEffectConfig) const
+{
+    if(BuffDebuffEffectSpecHandle.IsValid())
+    {
+        FGameplayEffectSpecHandle NewSpecHandle = BuffDebuffEffectSpecHandle;
+        if (NewSpecHandle.IsValid())
+        {
+            float FinalBuffAmount = InEffectConfig.BaseBuffAmount.GetValueAtLevel(AbilityLevel) * InEffectConfig.SkillMultiplier.GetValueAtLevel(AbilityLevel);
+            // 스킬 배율과 지속시간을 적용하여 버프/디버프 계산 (예시에서는 SetByCaller로 처리)
+            NewSpecHandle.Data->SetSetByCallerMagnitude(InEffectConfig.BuffTag, InDuration);
+            return NewSpecHandle;
+        }
+    }
+    return FGameplayEffectSpecHandle();
+}
+
+TArray<FGameplayEffectSpecHandle> AAOESkillActor::MakeStatusEffectSpecHandlesInAOE(float InDuration) const
+{
+    if(StatusEffectSpecHandles.Num() > 0)
+    {
+        TArray<FGameplayEffectSpecHandle> NewSpecHandles;
+        for (const FGameplayEffectSpecHandle& SpecHandle : StatusEffectSpecHandles)
+        {
+            if (SpecHandle.IsValid())
+            {
+                FGameplayEffectSpecHandle NewSpecHandle = SpecHandle;
+                if (NewSpecHandle.IsValid())
+                {
+                    // 지속시간을 적용하여 상태형 버프 계산 (예시에서는 SetByCaller로 처리)
+                    NewSpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_Duration, InDuration);
+                    NewSpecHandles.Add(NewSpecHandle);
+                }
+            }
+        }
+        return NewSpecHandles;
+    }
+    return TArray<FGameplayEffectSpecHandle>();
 }
 
 bool AAOESkillActor::IsValidTarget(AActor* InTarget) const

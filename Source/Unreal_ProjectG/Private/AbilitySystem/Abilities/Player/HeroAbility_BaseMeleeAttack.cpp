@@ -179,7 +179,7 @@ void UHeroAbility_BaseMeleeAttack::HandleApplyDamage(AActor* InTargetActor)
 
     //// TODO : 스킬의 데미지 Multiflier를 변수화
     float SkillMultiplierValue = MeleeAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
     
     NativeApplyEffectSpecHandleToTarget(InTargetActor, EffectSpecHandle);
     CurrentHitTargets++;

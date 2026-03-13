@@ -32,14 +32,14 @@ struct FAbilityEntry
     FInstancedStruct AbilityConfig;
 };
 
-// 버프를 적용하는 이펙트 클래스와 그에 대한 설정을 담는 구조체
+//// 버프를 적용하는 이펙트 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
 struct FNumericBuffEffectConfig
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> EffectClass;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attribute_SetByCaller"))
+    FGameplayTag BuffTag; // 버프/디버프의 태그, 예: "Buff.AttackPower", "Debuff.Defense"
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier;
@@ -48,37 +48,37 @@ struct FNumericBuffEffectConfig
     FScalableFloat BaseBuffAmount;
 };
 
-// 버프/디버프 설정 구조체, 수치형 버프/디버프와 상태이상 버프/디버프를 모두 담을 수 있도록 함
-USTRUCT(BlueprintType)
-struct FBuffDebuffConfig
-{
-    GENERATED_BODY()
+//// 버프/디버프 설정 구조체, 수치형 버프/디버프와 상태이상 버프/디버프를 모두 담을 수 있도록 함
+//USTRUCT(BlueprintType)
+//struct FBuffDebuffConfig
+//{
+//    GENERATED_BODY()
+//
+//    //수치형 버프/디버프 (공격력, 체력 등)
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TArray<FNumericBuffEffectConfig> NumericBuffs;
+//
+//    //상태이상 버프/디버프
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses;
+//
+//    //지속시간
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    FScalableFloat Duration;
+//};
 
-    //수치형 버프/디버프 (공격력, 체력 등)
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<FNumericBuffEffectConfig> NumericBuffs;
-
-    //상태이상 버프/디버프
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses;
-
-    //지속시간
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat Duration;
-};
-
-// 데미지 설정 구조체, 데미지 계산에 필요한 정보들을 담음
-USTRUCT(BlueprintType)
-struct FDamageConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
-};
+//// 데미지 설정 구조체, 데미지 계산에 필요한 정보들을 담음
+//USTRUCT(BlueprintType)
+//struct FDamageConfig
+//{
+//    GENERATED_BODY()
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    FScalableFloat SkillMultiplier; // 스킬 계수
+//};
 
 //==========================================================================================================
 //==========================================================================================================
@@ -150,17 +150,16 @@ struct FHeroAOECommonConfig : public FAbilityConfig
     EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "TargetPolicy != EAOETargetPolicy::FriendlyOnly")) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-    FDamageConfig DamageConfig; // 데미지 계산 정보
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FBuffDebuffConfig BuffDebuffConfig; // 버프/디버프 정보
+    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
 
-    // TODO
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses; // 상태이상 버프/디버프 클래스
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 MaxHitTargets = 3; // 최대 공격 가능한 적의 수
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들

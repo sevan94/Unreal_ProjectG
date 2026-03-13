@@ -70,54 +70,55 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
 
     SpawnedAOEActor->InitializeAOEActor(
         GetAvatarActorFromActorInfo(),
-        BuildAllSpecHandles(),
         AOEConfig.TargetPolicy,
-        AOEConfig.MaxHitTargets
+        GetAbilityLevel(),
+        MakeDamageSpecHandle(),
+        MakeBuffDebuffSpecHandle(),
+        MakeStatusSpecHandles()
     );
     SpawnedAOEActor->FinishSpawning(SpawnTransform);
 
     return SpawnedAOEActor;
 }
 
-TArray<FGameplayEffectSpecHandle> UHeroAbility_AOEBase::BuildAllSpecHandles()
-{
-    TArray<FGameplayEffectSpecHandle> OutHandles;
-    AppendDamageSpecHandle(OutHandles);
-    AppendBuffDebuffSpecHandles(OutHandles);
-    return OutHandles;
-}
-
-void UHeroAbility_AOEBase::AppendDamageSpecHandle(TArray<FGameplayEffectSpecHandle>& OutHandles)
+FGameplayEffectSpecHandle UHeroAbility_AOEBase::MakeDamageSpecHandle()
 {
     // 데미지 이펙트 클래스가 없다면 종료
-    if (!AOEConfig.DamageConfig.DamageEffectClass) return;
+    if (!AOEConfig.DamageEffectClass) return FGameplayEffectSpecHandle();
 
-    float SkillMultiplierValue = AOEConfig.DamageConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-
-    FGameplayEffectSpecHandle SpecHandle = MakeHeroDamageEffectSpecHandle(
-        AOEConfig.DamageConfig.DamageEffectClass, SkillMultiplierValue);
-
+    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(AOEConfig.DamageEffectClass);
     if (SpecHandle.IsValid())
     {
-        OutHandles.Add(SpecHandle);
+        return SpecHandle;
     }
+    return FGameplayEffectSpecHandle();
 }
 
-void UHeroAbility_AOEBase::AppendBuffDebuffSpecHandles(TArray<FGameplayEffectSpecHandle>& OutHandles)
+FGameplayEffectSpecHandle UHeroAbility_AOEBase::MakeBuffDebuffSpecHandle()
 {
-    const FBuffDebuffConfig& BDConfig = AOEConfig.BuffDebuffConfig;
-    const float Duration = BDConfig.Duration.GetValueAtLevel(GetAbilityLevel());
-
-    for (const FNumericBuffEffectConfig& NumericBuff : BDConfig.NumericBuffs)
+    // 버프/디버프 이펙트 클래스가 없다면 종료
+    if (!AOEConfig.BuffDebuffClass) return FGameplayEffectSpecHandle();
+    
+    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(AOEConfig.BuffDebuffClass);
+    if (SpecHandle.IsValid())
     {
-        if (!NumericBuff.EffectClass) continue;
-
-        const float SkillMultiplierValue =
-            NumericBuff.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-        const float BaesBuffAmountValue =
-            NumericBuff.BaseBuffAmount.GetValueAtLevel(GetAbilityLevel());
-
-        FGameplayEffectSpecHandle SpecHandle = MakeDurationBuffEffectSpecHandle(
-            NumericBuff.EffectClass, SkillMultiplierValue, BaesBuffAmountValue, Duration);
+        return SpecHandle;
     }
+    return FGameplayEffectSpecHandle();
+}
+
+TArray<FGameplayEffectSpecHandle> UHeroAbility_AOEBase::MakeStatusSpecHandles()
+{
+    if (AOEConfig.StatusEffectClasses.IsEmpty()) return TArray<FGameplayEffectSpecHandle>();
+
+    TArray<FGameplayEffectSpecHandle> SpecHandles;
+    for(TSubclassOf<UGameplayEffect> StatusEffectClass : AOEConfig.StatusEffectClasses)
+    {
+        FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(StatusEffectClass);
+        if (SpecHandle.IsValid())
+        {
+            SpecHandles.Add(SpecHandle);
+        }
+    }
+    return SpecHandles;
 }

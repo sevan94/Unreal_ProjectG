@@ -30,11 +30,13 @@ namespace PGGameplayTags
 
     // SetByCaller 태그
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_SkillMultiplier, "Shared.SetByCaller.SkillMultiplier");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_MaxHealthMultiplier, "Shared.SetByCaller.MaxHealthMultiplier");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_AttackPowerMultiplier, "Shared.SetByCaller.AttackPowerMultiplier");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseBuffAmount, "Shared.SetByCaller.BaseBuffAmount");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_EffectDuration, "Shared.SetByCaller.EffectDuration");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_Duration, "Shared.SetByCaller.Duration");
 
+    // 스탯 관련 SetByCaller 태그
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MaxHealth, "Attribute.SetByCaller.MaxHealth");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_AttackPower, "Attribute.SetByCaller.AttackPower");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed"); 
 
     //유닛 등급 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Tier_Normal, "Unit.Tier.Normal");

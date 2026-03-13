@@ -147,7 +147,7 @@ void UHeroAbility_PointTargetAOE::OnAOEMontageFinished()
 //    );
 //
 //    float SkillMultiplierValue = AOEAttackConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-//    FGameplayEffectSpecHandle EffectSpecHandle = MakeHeroDamageEffectSpecHandle(AOEAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
+//    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(AOEAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
 //
 //    for (AActor* HitActor : HitActors)
 //    {

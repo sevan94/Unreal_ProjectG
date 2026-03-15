@@ -5,7 +5,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "PGGameplayTags.h"
-#include "Items/PGProjectileBase.h"
+#include "Actors/PGProjectileBase.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Components/Combat/HeroCombatComponent.h"

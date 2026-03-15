@@ -140,7 +140,7 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
                 const float Multiplier = Buff.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
                 const float BaseAmount = Buff.BaseBuffAmount.GetValueAtLevel(GetAbilityLevel());
 
-                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_DamageMultiplier, Multiplier);
+                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, Multiplier);
                 SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, BaseAmount);
             }
             CachedNumericBuffSpecs.Add(SpecHandle);

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "Mode/Save/PGGameInstance.h"
 #include "PGSaveGame.generated.h"
 
 /**
@@ -45,6 +44,7 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Equipment")
     TArray<FSoftObjectPath> EquippedUnitPaths;
 
-    UPROPERTY()
-    TMap<int32, FUnitSaveData> UnitLevelMap;
+    //[추가: 도감 데이터] 
+    UPROPERTY(VisibleAnywhere, Category = "Collection")
+    TArray<FSoftObjectPath> OwnedUnitPaths; // 획득하여 보유 중인 모든 유닛 목록
 };

@@ -89,7 +89,4 @@ protected:
     // 상태 및 시간 저장용 변수
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
-
-    // 체력 달성도 확인용 아군 기지
-    TObjectPtr<ABaseStructure> AllyBase;
 };

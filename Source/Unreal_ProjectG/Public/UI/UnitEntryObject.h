@@ -8,10 +8,7 @@
 
 class UUnitUIDataAsset;
 
-// 유닛 선택 시 호출
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitRequestSelected, UUnitEntryObject*, SelectedData);
-// 유닛 데이터 변경 시 호출
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUnitDataChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitRequestSelected, UUnitUIDataAsset*, SelectedData);
 /**
  * 
  */
@@ -23,11 +20,7 @@ class UNREAL_PROJECTG_API UUnitEntryObject : public UObject
 public:
     // 버튼 클릭 시 호출할 함수
     UFUNCTION()
-    void HandleClick() { OnUnitRequestSelected.Broadcast(this); }
-    
-    // 데이터 변경 시 호출할 함수
-    UFUNCTION()
-    void BroadcastDataChanged() { OnUnitDataChanged.Broadcast(); }
+    void HandleClick() { OnUnitRequestSelected.Broadcast(UnitUIData); }
 
     void SetUnitUIData(UUnitUIDataAsset* InData) { UnitUIData = InData; }
     void SetIsOwned(bool bInOwned) { bIsOwned = bInOwned; }
@@ -40,9 +33,6 @@ public:
 public:
     UPROPERTY(BlueprintAssignable, Category = "Events")
     FOnUnitRequestSelected OnUnitRequestSelected;
-    
-    UPROPERTY(BlueprintAssignable, Category = "Events")
-    FOnUnitDataChanged OnUnitDataChanged;
 
 private:
     // 유닛 데이터

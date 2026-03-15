@@ -49,10 +49,11 @@ FGameplayEffectSpecHandle UPGHeroGameplayAbility::MakeHeroDamageEffectSpecHandle
 
     // SetByCaller 매개변수로 Map(태그, 값) 형태로 스킬 데미지 배율 전달
     EffectSpecHandle.Data->SetSetByCallerMagnitude(
-        PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
+        PGGameplayTags::Shared_SetByCaller_DamageMultiplier,
         SkillMultiflier
        );
 
     // 추가적으로 넘길 속성들이 있다면 여기에 추가
+
     return EffectSpecHandle;
 }

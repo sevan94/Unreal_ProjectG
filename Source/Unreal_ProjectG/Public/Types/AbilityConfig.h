@@ -5,7 +5,6 @@
 #include "StructUtils/InstancedStruct.h"
 #include "ScalableFloat.h"
 #include "GameplayTagContainer.h"
-#include "Types/PGEnumTypes.h"
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
@@ -13,13 +12,11 @@ class UNiagaraComponent;
 class UGameplayEffect;
 class UPGGameplayAbility;
 class APetCharacter;
-class AAOESkillActor;
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
 
 
- // 어빌리티 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
 struct FAbilityEntry
 {
@@ -32,7 +29,6 @@ struct FAbilityEntry
     FInstancedStruct AbilityConfig;
 };
 
-// 버프를 적용하는 이펙트 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
 struct FNumericBuffEffectConfig
 {
@@ -48,42 +44,6 @@ struct FNumericBuffEffectConfig
     FScalableFloat BaseBuffAmount;
 };
 
-// 버프/디버프 설정 구조체, 수치형 버프/디버프와 상태이상 버프/디버프를 모두 담을 수 있도록 함
-USTRUCT(BlueprintType)
-struct FBuffDebuffConfig
-{
-    GENERATED_BODY()
-
-    //수치형 버프/디버프 (공격력, 체력 등)
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<FNumericBuffEffectConfig> NumericBuffs;
-
-    //상태이상 버프/디버프
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses;
-
-    //지속시간
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat Duration;
-};
-
-// 데미지 설정 구조체, 데미지 계산에 필요한 정보들을 담음
-USTRUCT(BlueprintType)
-struct FDamageConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
-};
-
-//==========================================================================================================
-//==========================================================================================================
-//==========================================================================================================
-// 모든 어빌리티 설정의 부모 구조체, FInstancedStruct로 구조체도 다형성을 가지게 하기 위해서 만들어짐
 USTRUCT(BlueprintType)
 struct FAbilityConfig
 {
@@ -92,9 +52,6 @@ struct FAbilityConfig
     virtual ~FAbilityConfig() = default;
 };
 
-//==========================================================================================================
-// 히어로 어빌리티 설정 구조체들
-//==========================================================================================================
 USTRUCT(BlueprintType)
 struct FHeroMeleeAttackAbilityConfig : public FAbilityConfig
 {
@@ -140,33 +97,28 @@ struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
     FGameplayTag SpawnCueTag; // 스폰할때, 재생할 이펙트 태그
 };
 
-// AOE 어빌리티 설정 구조체
 USTRUCT(BlueprintType)
-struct FHeroAOECommonConfig : public FAbilityConfig
+struct FHeroCastingAOEAbilityConfig : public FAbilityConfig
 {
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "TargetPolicy != EAOETargetPolicy::FriendlyOnly")) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-    FDamageConfig DamageConfig; // 데미지 계산 정보
+    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FBuffDebuffConfig BuffDebuffConfig; // 버프/디버프 정보
-
-    // TODO
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
+    FScalableFloat SkillMultiplier; // 스킬 계수
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     int32 MaxHitTargets = 3; // 최대 공격 가능한 적의 수
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
+    float AOEAttackRadius = 300.f; // AOE 공격 반경
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
+    TSoftObjectPtr<UAnimMontage> CastingMontage; // 캐스팅 애니메이션 몽타주들
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
+    FGameplayTag ImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
 };
 
 USTRUCT(BlueprintType)
@@ -179,9 +131,6 @@ struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
 };
 
 
-//==========================================================================================================
-// 유닛 어빌리티 설정 구조체들
-//==========================================================================================================
 USTRUCT(BlueprintType)
 struct FUnitBaseMeleeAttackAbilityConfig : public FAbilityConfig
 {
@@ -245,7 +194,8 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     int32 SpawnCount;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages;
+    TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages; 
+
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; 
@@ -267,33 +217,18 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
+    FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
 };
 
-USTRUCT(BlueprintType)
-struct FUnitBuffAuraAbilityConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    // 장판 반경 내 아군에게 부여할 힐/버프 이펙트 (GE)
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    TSubclassOf<UGameplayEffect> SupportEffectClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<class UNiagaraSystem> BuffEffect;
-
-    // 시전 애니메이션
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Support")
-    TObjectPtr<UAnimMontage> SupportMontage;
-
-    // 힐/버프 계수
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    FScalableFloat SupportSkillMultiplier;
-
-    // 지원 유닛 주위에 깔릴 장판의 탐색 반경
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    float SupportRadius = 500.f;
-
-    // 장판이 유닛을 따라다닐지(오라 형태), 시전 위치에 남을지 결정
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
-    bool bAttachToUnit = false;
-};
+//UCLASS(EditInlineNew, BlueprintType)
+//class UNREAL_PROJECTG_API UUnitSpawnNiagaraConfig : public UAbilityConfig
+//{
+//    GENERATED_BODY()
+//
+//public:
+//    // 프로젝타일 스폰 어빌리티 데이터
+//    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+//    TSubclassOf<UNiagaraComponent> SpawnedActorClass;
+//};

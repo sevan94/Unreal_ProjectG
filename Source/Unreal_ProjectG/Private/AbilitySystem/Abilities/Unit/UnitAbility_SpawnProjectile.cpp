@@ -2,7 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
-#include "Actors/PGProjectileBase.h"
+#include "Items/PGProjectileBase.h"
 #include "PGGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"

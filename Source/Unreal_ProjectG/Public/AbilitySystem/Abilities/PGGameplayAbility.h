@@ -46,14 +46,6 @@ protected:
     // 타깃 액터에게 게임플레이 이펙트를 제거하는 네이티브 함수
     void NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle);
 
-    // Duration 기반의 버프 스펙핸들 생성(수치형 버프에 사용)
-    UFUNCTION(BlueprintPure)
-    FGameplayEffectSpecHandle MakeDurationBuffEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiplier, float BaseBuffAmount, float Duration);
-
-    // Duration 기반 상태형 버프 스펙핸들 생성(상태형 버프에 사용)
-    UFUNCTION(BlueprintPure)
-    FGameplayEffectSpecHandle MakeDurationStatusEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float Duration);
-
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "PGGameplayAbility")
     EPGAbilityActivationPolicy AbilityActivationPolicy = EPGAbilityActivationPolicy::OnTriggered;

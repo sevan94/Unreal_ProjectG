@@ -35,7 +35,6 @@ EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp
     QueryParams.AddIgnoredActor(SelfUnit);
 
     FVector SelfLoc = SelfUnit->GetActorLocation();
-    SearchRadius = SelfUnit->GetDetectRangeKey();
     GetWorld()->OverlapMultiByChannel(OverlapResults, SelfLoc, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(SearchRadius), QueryParams);
 
     AUnitCharacter* NearestAlly = nullptr;

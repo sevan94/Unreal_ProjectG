@@ -6,6 +6,7 @@
 #include "AnimInstance/PGCharacterAnimInstance.h"
 #include "PGHeroAnimInstance.generated.h"
 
+// TODO : 나중에 우리의 캐릭터로 변경
 class AHeroCharacter;
 /**
  * 

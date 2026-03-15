@@ -29,7 +29,7 @@ UMMCalculation_DefaultGiveBuff::UMMCalculation_DefaultGiveBuff()
 
 float UMMCalculation_DefaultGiveBuff::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
-    const float Multiplier = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, true, 1.0f);
+    const float Multiplier = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_DamageMultiplier, true, 1.0f);
 
     const float BaseBuffAmount = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, true, 0.0f);
     

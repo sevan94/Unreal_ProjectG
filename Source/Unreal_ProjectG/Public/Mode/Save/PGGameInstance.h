@@ -12,6 +12,18 @@ class UUnitUIDataAsset;
 class UEquipUIDataAsset;
 class AHeroCharacter;
 
+USTRUCT(BlueprintType)
+struct FUnitSaveData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Level = 1;        // 유닛 레벨
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bIsUnlocked = false; // 보유 여부
+};
+
 UCLASS()
 class UNREAL_PROJECTG_API UPGGameInstance : public UGameInstance
 {
@@ -26,6 +38,13 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void LoadGameData();
+
+protected:
+    UFUNCTION(BlueprintCallable, Category = "SaveData")
+    void InitializeUnitMap();
+
+public:
+    FUnitSaveData GetUnitSaveData(int32 UnitID);
 
     // --- [런타임 장착 데이터] ---
     // 로비 UI에서 이 변수들을 수정하고, 전투 맵에서 이 변수들을 읽어 적용
@@ -61,6 +80,14 @@ public:
     //스테이지
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentStageIndex = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
+    TMap<int32, FUnitSaveData> UnitLevelMap;
+
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+    TObjectPtr<UDataTable> UnitDataTable;
+
 private:
     UPROPERTY()
     TObjectPtr<UPGSaveGame> CachedSaveData;

@@ -27,10 +27,13 @@ void UHeroAbility_SpawnPet::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
     //==============================================
     // FHeroSpawnPetAbilityConfig의 SoftPtr 로드
-    HeroSpawnPetConfig.SpawnedPetClass.LoadSynchronous();
+    for(TSoftClassPtr<APetCharacter>& PetClass : HeroSpawnPetConfig.SpawnedPetClasses)
+    {
+        PetClass.LoadSynchronous();
+    }
     //==============================================
 
-    if (HeroSpawnPetConfig.SpawnedPetClass.IsValid())
+    if (!HeroSpawnPetConfig.SpawnedPetClasses.IsEmpty())
     {
         FVector SpawnLocation = GetHeroCharacterFromActorInfo()->GetActorLocation() + GetHeroCharacterFromActorInfo()->GetActorForwardVector() * -300.f; // 영웅 앞쪽에 소환
         FActorSpawnParameters SpawnParams;
@@ -38,7 +41,15 @@ void UHeroAbility_SpawnPet::ActivateAbility(const FGameplayAbilitySpecHandle Han
         SpawnParams.Instigator = GetHeroCharacterFromActorInfo();
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
         
-        APetCharacter* SpawnedPet = GetWorld()->SpawnActor<APetCharacter>(HeroSpawnPetConfig.SpawnedPetClass.Get(), FTransform(FRotator::ZeroRotator, SpawnLocation), SpawnParams);
+        for (TSoftClassPtr<APetCharacter>& PetClass : HeroSpawnPetConfig.SpawnedPetClasses)
+        {
+            if (PetClass.IsNull())
+            {
+                UE_LOG(LogTemp, Warning, TEXT("HeroSpawnPetConfig의 SpawnedPetClasses에 유효하지 않은 클래스가 있습니다."));
+                continue;
+            }
+            APetCharacter* SpawnedPet = GetWorld()->SpawnActor<APetCharacter>(PetClass.Get(), FTransform(FRotator::ZeroRotator, SpawnLocation), SpawnParams);
+        }
     }
     EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }

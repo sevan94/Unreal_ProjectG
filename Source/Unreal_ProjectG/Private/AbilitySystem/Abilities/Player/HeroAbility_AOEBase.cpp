@@ -5,6 +5,8 @@
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "PGGameplayTags.h"
 #include "Actors/AOESkillActor.h"
+#include "Actors/AOEActor/AOEInstantEffectActor.h"
+#include "Actors/AOEActor/AOEDurationEffectActor.h"
 
 UHeroAbility_AOEBase::UHeroAbility_AOEBase()
 {
@@ -40,7 +42,7 @@ void UHeroAbility_AOEBase::EndAbility(const FGameplayAbilitySpecHandle Handle, c
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);   
 }
 
-AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& SpawnLocation)
+AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& SpawnLocation, const FRotator& SpawnRotation)
 {
     if (!AOEConfig.SpawnedActorClass)
     {
@@ -57,10 +59,9 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
     SpawnParams.Instigator = Cast<APawn>(GetAvatarActorFromActorInfo());
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    const FTransform SpawnTransform(FRotator::ZeroRotator, SpawnLocation);
+    const FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
     AAOESkillActor* SpawnedAOEActor = World->SpawnActorDeferred<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams.Owner, SpawnParams.Instigator, SpawnParams.SpawnCollisionHandlingOverride);
-    //AAOESkillActor* SpawnedAOEActor = World->SpawnActor<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams);
 
     if(!SpawnedAOEActor)
     {
@@ -68,57 +69,29 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
         return nullptr;
     }
 
+    // Actor 타입에 따라 알맞은 EffectClass 선택
+    FGameplayEffectSpecHandle SpecHandle;
+    if(SpawnedAOEActor->IsA<AAOEInstantEffectActor>())
+    {
+        // InstantEffectActor에 대한 처리
+        SpecHandle = AOEConfig.InstantEffectClass
+            ? MakeOutgoingEffectSpec(AOEConfig.InstantEffectClass)
+            : FGameplayEffectSpecHandle();
+    }
+    else if(SpawnedAOEActor->IsA<AAOEDurationEffectActor>())
+    {
+        // DurationEffectActor에 대한 처리
+        SpecHandle = AOEConfig.BuffDebuffClass
+            ? MakeOutgoingEffectSpec(AOEConfig.BuffDebuffClass)
+            : FGameplayEffectSpecHandle();
+    }
     SpawnedAOEActor->InitializeAOEActor(
         GetAvatarActorFromActorInfo(),
         AOEConfig.TargetPolicy,
-        GetAbilityLevel(),
-        MakeDamageSpecHandle(),
-        MakeBuffDebuffSpecHandle(),
-        MakeStatusSpecHandles()
+        SpecHandle,
+        GetAbilityLevel()
     );
     SpawnedAOEActor->FinishSpawning(SpawnTransform);
 
     return SpawnedAOEActor;
-}
-
-FGameplayEffectSpecHandle UHeroAbility_AOEBase::MakeDamageSpecHandle()
-{
-    // 데미지 이펙트 클래스가 없다면 종료
-    if (!AOEConfig.DamageEffectClass) return FGameplayEffectSpecHandle();
-
-    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(AOEConfig.DamageEffectClass);
-    if (SpecHandle.IsValid())
-    {
-        return SpecHandle;
-    }
-    return FGameplayEffectSpecHandle();
-}
-
-FGameplayEffectSpecHandle UHeroAbility_AOEBase::MakeBuffDebuffSpecHandle()
-{
-    // 버프/디버프 이펙트 클래스가 없다면 종료
-    if (!AOEConfig.BuffDebuffClass) return FGameplayEffectSpecHandle();
-    
-    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(AOEConfig.BuffDebuffClass);
-    if (SpecHandle.IsValid())
-    {
-        return SpecHandle;
-    }
-    return FGameplayEffectSpecHandle();
-}
-
-TArray<FGameplayEffectSpecHandle> UHeroAbility_AOEBase::MakeStatusSpecHandles()
-{
-    if (AOEConfig.StatusEffectClasses.IsEmpty()) return TArray<FGameplayEffectSpecHandle>();
-
-    TArray<FGameplayEffectSpecHandle> SpecHandles;
-    for(TSubclassOf<UGameplayEffect> StatusEffectClass : AOEConfig.StatusEffectClasses)
-    {
-        FGameplayEffectSpecHandle SpecHandle = MakeOutgoingEffectSpec(StatusEffectClass);
-        if (SpecHandle.IsValid())
-        {
-            SpecHandles.Add(SpecHandle);
-        }
-    }
-    return SpecHandles;
 }

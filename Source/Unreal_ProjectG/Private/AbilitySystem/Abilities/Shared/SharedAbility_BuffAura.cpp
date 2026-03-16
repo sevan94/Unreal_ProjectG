@@ -128,11 +128,11 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
     CachedStatusBuffSpecs.Empty();
 
     //수치형 버프
-    for (const FNumericBuffEffectConfig& Buff : BuffAuraConfig.NumericBuffs)
+    for (const FBuffEffectConfig& Buff : BuffAuraConfig.Buffs)
     {
-        if (Buff.EffectClass)
+        if (Buff.BuffEffectClass)
         {
-            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Buff.EffectClass.Get(), GetAbilityLevel());
+            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Buff.BuffEffectClass.Get(), GetAbilityLevel());
             
             // 버프 효과의 magnitude를 설정
             if (SpecHandle.IsValid())
@@ -141,19 +141,9 @@ void USharedAbility_BuffAura::BuildCachedBuffEffectSpecs()
                 const float BaseAmount = Buff.BaseBuffAmount.GetValueAtLevel(GetAbilityLevel());
 
                 SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, Multiplier);
-                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseBuffAmount, BaseAmount);
+                SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseAmount, BaseAmount);
             }
             CachedNumericBuffSpecs.Add(SpecHandle);
-        }
-    }
-
-    // 상태형 버프
-    for (const TSubclassOf<UGameplayEffect>& EffectClass : BuffAuraConfig.StatusEffectClasses)
-    {
-        if (EffectClass)
-        {
-            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass.Get(), GetAbilityLevel());
-            CachedStatusBuffSpecs.Add(SpecHandle);
         }
     }
 }

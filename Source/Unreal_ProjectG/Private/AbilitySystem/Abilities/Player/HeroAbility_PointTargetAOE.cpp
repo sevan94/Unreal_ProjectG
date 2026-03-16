@@ -82,7 +82,7 @@ void UHeroAbility_PointTargetAOE::OnTargetDataReady(const FGameplayAbilityTarget
     // 몽타주가 없으면 즉시 스폰하고 종료
     if (!AOEConfig.Montage.IsValid())
     {
-        SpawnAndInitializeAOEActor(CachedHitLocation);
+        SpawnAndInitializeAOEActor(CachedHitLocation, GetAvatarActorFromActorInfo()->GetActorRotation());
         EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
         return;
     }
@@ -109,7 +109,7 @@ void UHeroAbility_PointTargetAOE::OnTargetDataReady(const FGameplayAbilityTarget
 
 void UHeroAbility_PointTargetAOE::OnApplyAOEDamage(FGameplayEventData EventData)
 {
-    SpawnAndInitializeAOEActor(CachedHitLocation);
+    SpawnAndInitializeAOEActor(CachedHitLocation, GetAvatarActorFromActorInfo()->GetActorRotation());
 }
 
 

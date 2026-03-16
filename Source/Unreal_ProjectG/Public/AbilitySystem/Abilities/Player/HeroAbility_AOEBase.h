@@ -26,13 +26,8 @@ protected:
 
     // AOE 액터 스폰
     UFUNCTION(BlueprintCallable)
-    AAOESkillActor* SpawnAndInitializeAOEActor(const FVector& SpawnLocation);
+    AAOESkillActor* SpawnAndInitializeAOEActor(const FVector& SpawnLocation, const FRotator& SpawnRotation = FRotator::ZeroRotator);
 
-private:
-    // 스킬이 적용할 모든 게임플레이 이펙트 스펙핸들을 빌드하는 헬퍼 함수
-    FGameplayEffectSpecHandle MakeBuffDebuffSpecHandle();
-    FGameplayEffectSpecHandle MakeDamageSpecHandle();
-    TArray<FGameplayEffectSpecHandle> MakeStatusSpecHandles();
 protected:
     // Config 캐싱
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

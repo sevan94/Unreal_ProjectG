@@ -34,12 +34,12 @@ struct FAbilityEntry
 
 //// 버프를 적용하는 이펙트 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
-struct FNumericBuffEffectConfig
+struct FBuffEffectConfig
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "Attribute_SetByCaller"))
-    FGameplayTag BuffTag; // 버프/디버프의 태그, 예: "Buff.AttackPower", "Debuff.Defense"
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<UGameplayEffect> BuffEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat SkillMultiplier;
@@ -150,13 +150,10 @@ struct FHeroAOECommonConfig : public FAbilityConfig
     EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "TargetPolicy != EAOETargetPolicy::FriendlyOnly")) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
+    TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses; // 상태이상 버프/디버프 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
@@ -174,7 +171,7 @@ struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<APetCharacter> SpawnedPetClass; // 스폰할 펫 클래스
+    TArray<TSoftClassPtr<APetCharacter>> SpawnedPetClasses; // 스폰할 펫 클래스
 };
 
 
@@ -256,10 +253,7 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<FNumericBuffEffectConfig> NumericBuffs; // 수치 버프량 계산을 위한 데이터 배열
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses; // 상태형 버프
+    TArray<FBuffEffectConfig> Buffs; // 수치 버프량 계산을 위한 데이터 배열
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float BuffAuraRadius; // 버프 오라의 반경
@@ -267,14 +261,3 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼
 };
-
-//UCLASS(EditInlineNew, BlueprintType)
-//class UNREAL_PROJECTG_API UUnitSpawnNiagaraConfig : public UAbilityConfig
-//{
-//    GENERATED_BODY()
-//
-//public:
-//    // 프로젝타일 스폰 어빌리티 데이터
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-//    TSubclassOf<UNiagaraComponent> SpawnedActorClass;
-//};

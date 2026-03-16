@@ -65,8 +65,8 @@ const TMap<FGameplayAttribute, FGameplayTag>& UPGFunctionLibrary::GetAttributeTa
         // ==========================================================================
         // 여기에 Attribute와 TagName을 추가
         // ==========================================================================
-        Add(UPGCharacterAttributeSet::GetMaxHealthAttribute(), PGGameplayTags::Status_SetByCaller_MaxHealth);
-        Add(UPGCharacterAttributeSet::GetAttackPowerAttribute(), PGGameplayTags::Status_SetByCaller_AttackPower);
+        Add(UPGCharacterAttributeSet::GetMaxHealthAttribute(), PGGameplayTags::Attribute_SetByCaller_MaxHealth);
+        Add(UPGCharacterAttributeSet::GetAttackPowerAttribute(), PGGameplayTags::Attribute_SetByCaller_AttackPower);
     
         return M;
     }();

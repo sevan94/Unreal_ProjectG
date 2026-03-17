@@ -14,6 +14,9 @@ struct FStageDataTable : public FTableRowBase
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 StageCode;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText StageNumber;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)

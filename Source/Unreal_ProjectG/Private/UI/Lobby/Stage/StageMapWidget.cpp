@@ -38,7 +38,7 @@ void UStageMapWidget::GenerateStageButtons()
         if (NewButton)
         {
             // 버튼 초기화
-            NewButton->InitStageButton(Data->StageNumber, Data->StarCount);
+            NewButton->InitStageButton(Data->StageCode, Data->StageNumber, Data->StarCount);
 
             // 캔버스 패널(MapContainer)에 추가
             UCanvasPanelSlot* ButtonSlot = MapContainer->AddChildToCanvas(NewButton);
@@ -51,6 +51,13 @@ void UStageMapWidget::GenerateStageButtons()
                 // 버튼 크기가 찌그러지지 않게 크기에 맞춤 설정
                 ButtonSlot->SetAutoSize(true);
             }
+
+            NewButton->OnStageSelected.AddDynamic(this, &UStageMapWidget::HandleStageButtonSelected);
         }
     }
+}
+
+void UStageMapWidget::HandleStageButtonSelected(int32 StageCode)
+{
+    OnRequestStageInfo.Broadcast(StageCode);
 }

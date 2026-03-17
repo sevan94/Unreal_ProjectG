@@ -9,6 +9,7 @@
 class UButton;
 class UWidgetSwitcher;
 class UStageMapWidget;
+class UStageReadyWidget;
 
 /**
  * 
@@ -21,6 +22,9 @@ class UNREAL_PROJECTG_API ULobbyStageWidget : public UUserWidget
 protected:
     virtual void NativeConstruct() override;
 
+    UFUNCTION()
+    void OpenStageInfo(int32 StageCode);
+
 private:
     UFUNCTION()
     void OnExitButtonClick();
@@ -32,6 +36,9 @@ public:
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UStageMapWidget> StageMap;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UStageReadyWidget> StageReady;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;

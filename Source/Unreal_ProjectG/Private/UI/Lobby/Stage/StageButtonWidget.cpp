@@ -5,9 +5,12 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Mode/Save/PGGameInstance.h"
 
-void UStageButtonWidget::InitStageButton(const FText& InStageName, int32 InStarCount)
+void UStageButtonWidget::InitStageButton(int32 InStageCode, const FText& InStageName, int32 InStarCount)
 {
+    StageCode = InStageCode;
+
     if (StageNumber)
     {
         StageNumber->SetText(InStageName);
@@ -24,7 +27,10 @@ void UStageButtonWidget::InitStageButton(const FText& InStageName, int32 InStarC
 
 void UStageButtonWidget::OnStageButtonClicked()
 {
-    // 스테이지 정보 패널 출력
+    if (OnStageSelected.IsBound())
+    {
+        OnStageSelected.Broadcast(StageCode);
+    }
 }
 
 void UStageButtonWidget::NativeConstruct()

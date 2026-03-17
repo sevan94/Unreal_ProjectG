@@ -10,6 +10,7 @@
 class UCanvasPanel;
 class UStageButtonWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRequestStageInfo, int32, StageCode);
 /**
  * 
  */
@@ -22,11 +23,17 @@ public:
     // 외부에서 지도를 새로고침할 때 호출
     void RefreshStageMap();
 
+    UPROPERTY(BlueprintAssignable)
+    FOnRequestStageInfo OnRequestStageInfo;
+
 protected:
     virtual void NativeConstruct() override;
 
 private:
     void GenerateStageButtons();
+
+    UFUNCTION()
+    void HandleStageButtonSelected(int32 StageCode);
 
 protected:
     UPROPERTY(meta = (BindWidget))

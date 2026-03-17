@@ -6,6 +6,7 @@
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/Lobby/Stage/ReadyUnitWidget.h"
+#include "UI/Lobby/Stage/ReadyEquipWidget.h"
 
 void UStageReadyWidget::NativeConstruct()
 {
@@ -22,7 +23,7 @@ void UStageReadyWidget::OnExitButtonClicked()
     this->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UStageReadyWidget::InitializeReadyWidget()
+void UStageReadyWidget::InitializeReadyUnit()
 {
     TArray<TObjectPtr<UReadyUnitWidget>> UnitWidgets;
     UnitWidgets.Add(ReadyUnit1);
@@ -48,4 +49,17 @@ void UStageReadyWidget::InitializeReadyWidget()
             UnitWidgets[i]->UpdateUnitWidget(UnitData, Level);
         }
     }
+}
+
+void UStageReadyWidget::InitializeReadyEquip()
+{
+    ReadyWeapon->UpdateEquipWidget(GI->CurrentWeapon.LoadSynchronous());
+    ReadyArmor->UpdateEquipWidget(GI->CurrentArmor.LoadSynchronous());
+    ReadyAccessory->UpdateEquipWidget(GI->CurrentAccessory.LoadSynchronous());
+}
+
+void UStageReadyWidget::InitializeReadyWidget()
+{
+    InitializeReadyUnit();
+    InitializeReadyEquip();
 }

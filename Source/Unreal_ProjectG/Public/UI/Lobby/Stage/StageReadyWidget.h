@@ -8,6 +8,7 @@
 
 class UButton;
 class UReadyUnitWidget;
+class UReadyEquipWidget;
 class UPGGameInstance;
 
 /**
@@ -27,10 +28,15 @@ protected:
     UFUNCTION()
     void OnExitButtonClicked();
 
+    // 각종 초기화 함수
+    void InitializeReadyUnit();
+    void InitializeReadyEquip();
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;
 
+    // 현재 유닛 패널
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UReadyUnitWidget> ReadyUnit1;
     UPROPERTY(meta = (BindWidget))
@@ -41,6 +47,17 @@ protected:
     TObjectPtr<UReadyUnitWidget> ReadyUnit4;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UReadyUnitWidget> ReadyUnit5;
+
+    // 장착 장비 패널
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UReadyEquipWidget> ReadyWeapon;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UReadyEquipWidget> ReadyArmor;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UReadyEquipWidget> ReadyAccessory;
+
+    // 적 정보 패널
+
 
 private:
     TObjectPtr<UPGGameInstance> GI;

@@ -86,7 +86,7 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
     );
 
     float MultiplierValue = UnitBuffConfig.SupportSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecToTarget(UnitBuffConfig.SupportEffectClass, MultiplierValue);
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(UnitBuffConfig.SupportEffectClass, MultiplierValue);
 
     if (EffectSpecHandle.IsValid())
     {

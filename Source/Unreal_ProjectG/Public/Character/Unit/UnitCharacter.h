@@ -70,7 +70,6 @@ public:
     }
 
     FORCEINLINE UCharacterVisualEffectComponent* GetUnitVisualEffectComponent() const { return UnitVisualEffectComponent; }
-
 protected:
     //
     virtual void PossessedBy(AController* NewController) override;
@@ -87,6 +86,9 @@ public:
             
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<class UStaticMeshComponent> WeaponMesh;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    int32 UnitLevel = 1;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

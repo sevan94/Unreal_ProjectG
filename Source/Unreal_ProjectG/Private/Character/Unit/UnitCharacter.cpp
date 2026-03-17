@@ -145,7 +145,7 @@ void AUnitCharacter::InitUnitStartUpData()
                 {
                     if (PGAbilitySystemComponent)
                     {
-                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent);
+                        LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent, UnitLevel);
                     }
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 
@@ -157,7 +157,7 @@ void AUnitCharacter::InitUnitStartUpData()
 
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
-                        AttackMarginKey = AttackRangeKey * 0.7f;
+                        AttackMarginKey = AttackRangeKey * 0.85f;
 
                         if (StartUpData->BranchData->BranchTag.IsValid())
                         {
@@ -178,6 +178,12 @@ void AUnitCharacter::InitUnitStartUpData()
                     {
                         TeamTag = StartUpData->TeamTag;
                     }
+
+                    if (StartUpData->ElementTag.IsValid())
+                    {
+                        ElementTag = StartUpData->ElementTag;
+                    }
+
 
                     if (StartUpData->DeadMontage)
                     {

@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/PGBaseGameMode.h"
+#include "Character/Hero/HeroCharacter.h"
 
 void UBattleUIWidget::NativeConstruct()
 {
@@ -18,7 +19,10 @@ void UBattleUIWidget::NativeConstruct()
     if (PlaySpeedButton)
     {
         PlaySpeedButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnSpeedButtonClicked);
-        //AutoButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnAutoButtonClicked);
+    }
+    if (AutoButton)
+    {
+        AutoButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnAutoButtonClicked);
     }
 
     // 초기 텍스트 설정
@@ -74,7 +78,7 @@ void UBattleUIWidget::OnSpeedButtonClicked()
 
 void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
 {
-    PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+    PlayAnimation(ControlPanelSlide, 0.0f, 1);
     if (ResultData.bIsVictory)
     {
         ResultVictory->ShowResult(ResultData);
@@ -90,15 +94,18 @@ void UBattleUIWidget::ShowGameResult(const FBattleResultData& ResultData)
 
 void UBattleUIWidget::OnAutoButtonClicked()
 {
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
     bIsAuto = !bIsAuto;
     if (bIsAuto)
     {
-        PlayAnimation(ControlPanelSlide,0.0f,1,EUMGSequencePlayMode::Reverse);
+        Hero->ChangeCombatMode(EHeroCombatMode::Auto);
+        PlayAnimation(ControlPanelSlide, 0.0f, 1);
         AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
-        PlayAnimation(ControlPanelSlide, 0.0f, 1);
+        Hero->ChangeCombatMode(EHeroCombatMode::Manual);
+        PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
     }
 }

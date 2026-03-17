@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "Mode/Save/PGGameInstance.h"
 #include "PGSaveGame.generated.h"
 
 /**
@@ -43,4 +44,7 @@ public:
     // 장착 중인 유닛(최대 5개) 데이터 에셋의 경로들
     UPROPERTY(VisibleAnywhere, Category = "Equipment")
     TArray<FSoftObjectPath> EquippedUnitPaths;
+
+    UPROPERTY()
+    TMap<int32, FUnitSaveData> UnitLevelMap;
 };

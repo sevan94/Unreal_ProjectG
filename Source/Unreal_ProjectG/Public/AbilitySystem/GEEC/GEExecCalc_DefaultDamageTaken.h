@@ -17,5 +17,7 @@ class UNREAL_PROJECTG_API UGEExecCalc_DefaultDamageTaken : public UGameplayEffec
 public:
     UGEExecCalc_DefaultDamageTaken();
 
+    static float GetElementMultiplier(const FGameplayTagContainer& SourceTags, const FGameplayTagContainer& TargetTags);
+
     virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

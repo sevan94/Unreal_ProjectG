@@ -48,38 +48,6 @@ struct FBuffEffectConfig
     FScalableFloat BaseBuffAmount;
 };
 
-//// 버프/디버프 설정 구조체, 수치형 버프/디버프와 상태이상 버프/디버프를 모두 담을 수 있도록 함
-//USTRUCT(BlueprintType)
-//struct FBuffDebuffConfig
-//{
-//    GENERATED_BODY()
-//
-//    //수치형 버프/디버프 (공격력, 체력 등)
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TArray<FNumericBuffEffectConfig> NumericBuffs;
-//
-//    //상태이상 버프/디버프
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TArray<TSubclassOf<UGameplayEffect>> StatusEffectClasses;
-//
-//    //지속시간
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    FScalableFloat Duration;
-//};
-
-//// 데미지 설정 구조체, 데미지 계산에 필요한 정보들을 담음
-//USTRUCT(BlueprintType)
-//struct FDamageConfig
-//{
-//    GENERATED_BODY()
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    FScalableFloat SkillMultiplier; // 스킬 계수
-//};
-
 //==========================================================================================================
 //==========================================================================================================
 //==========================================================================================================
@@ -260,4 +228,33 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼
+};
+
+USTRUCT(BlueprintType)
+struct FUnitBuffAuraAbilityConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    // 장판 반경 내 아군에게 부여할 힐/버프 이펙트 (GE)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
+    TSubclassOf<UGameplayEffect> SupportEffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSoftObjectPtr<class UNiagaraSystem> BuffEffect;
+
+    // 시전 애니메이션
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability|Support")
+    TObjectPtr<UAnimMontage> SupportMontage;
+
+    // 힐/버프 계수
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
+    FScalableFloat SupportSkillMultiplier;
+
+    // 지원 유닛 주위에 깔릴 장판의 탐색 반경
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
+    float SupportRadius = 500.f;
+
+    // 장판이 유닛을 따라다닐지(오라 형태), 시전 위치에 남을지 결정
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
+    bool bAttachToUnit = false;
 };

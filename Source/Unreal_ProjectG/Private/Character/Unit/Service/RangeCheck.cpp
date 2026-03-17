@@ -53,8 +53,7 @@ void URangeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
         return;
     }
 
-    FGameplayTag EnemyTag = UnitInterface->
-        HasMatchingGameplayTag(PGGameplayTags::Unit_Side_Ally)
+    FGameplayTag EnemyTag = UnitInterface->HasMatchingGameplayTag(PGGameplayTags::Unit_Side_Ally)
         ? PGGameplayTags::Unit_Side_Foe
         : PGGameplayTags::Unit_Side_Ally;
 
@@ -66,14 +65,36 @@ void URangeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
     bool bInAttackRange = false;
 
     FVector MyLocation = ControllPawn->GetActorLocation();
+
+    // [추가됨] 내 캐릭터의 캡슐 반경 구하기
+    float MyRadius = 0.0f;
+    UCapsuleComponent* MyCapsule = ControllPawn->FindComponentByClass<UCapsuleComponent>();
+    if (MyCapsule)
+    {
+        MyRadius = MyCapsule->GetScaledCapsuleRadius();
+    }
+
     for (const TWeakObjectPtr<AActor>& EnemyPtr : EnemyList)
     {
         AActor* Enemy = EnemyPtr.Get();
         if (!Enemy) continue;
 
-        //float DistSq = FVector::DistSquared(MyLocation, Enemy->GetActorLocation());
+        // [수정됨] 1. Z축을 무시한 2D 평면상의 '중심점 간 거리'
+        float CenterToCenterDist = FVector::DistXY(MyLocation, Enemy->GetActorLocation());
 
-        float DistSq = FVector::DistSquaredXY(MyLocation, Enemy->GetActorLocation());
+        // [추가됨] 2. 적의 캡슐 반경 구하기
+        float EnemyRadius = 0.0f;
+        UCapsuleComponent* EnemyCapsule = Enemy->FindComponentByClass<UCapsuleComponent>();
+        if (EnemyCapsule)
+        {
+            EnemyRadius = EnemyCapsule->GetScaledCapsuleRadius();
+        }
+
+        // [추가됨] 3. 가장자리 간 거리 산출 (캡슐이 겹쳤을 때 음수가 되는 것 방지)
+        float EdgeToEdgeDist = FMath::Max(0.0f, CenterToCenterDist - MyRadius - EnemyRadius);
+
+        // [수정됨] 4. 거리를 제곱값으로 변환하여 비교
+        float DistSq = EdgeToEdgeDist * EdgeToEdgeDist;
 
         if (DistSq <= MinDistSq)
         {
@@ -99,36 +120,44 @@ void URangeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
         GetWorld(),
         ControllPawn->GetActorLocation(),
         AttackRange,
-        48,                               // 더 매끄럽게 48 정도로 수정
+        48,
         FColor::Red,
         false,
-        Interval + 0.1f,                  // [핵심] 서비스 실행 주기 + 알파 만큼 유지
+        Interval + 0.1f,
         0,
         2.0f,
-        FVector(1, 0, 0),                // X축
-        FVector(0, 1, 0),                // Y축
-        false                      // 채우기 여부
+        FVector(1, 0, 0),
+        FVector(0, 1, 0),
+        false
     );
     DrawDebugCircle(
         GetWorld(),
         ControllPawn->GetActorLocation(),
         Range,
-        48,                               // 더 매끄럽게 48 정도로 수정
+        48,
         FColor::Green,
         false,
-        Interval + 0.1f,                  // [핵심] 서비스 실행 주기 + 알파 만큼 유지
+        Interval + 0.1f,
         0,
         2.0f,
-        FVector(1, 0, 0),                // X축
-        FVector(0, 1, 0),                // Y축
-        false                      // 채우기 여부
+        FVector(1, 0, 0),
+        FVector(0, 1, 0),
+        false
     );
+
     if (TargetEnemy)
     {
+        // [수정됨] 시작점과 끝점을 명시적으로 분리
+        FVector StartLoc = ControllPawn->GetActorLocation();
+        FVector EndLoc = TargetEnemy->GetActorLocation();
+
+        // [수정됨] 디버그 라인이 수평으로 그려지도록, 끝점의 Z(높이) 값을 시작점과 동일하게 맞춤
+        EndLoc.Z = StartLoc.Z;
+
         DrawDebugLine(
             GetWorld(),
-            ControllPawn->GetActorLocation(),
-            TargetEnemy->GetActorLocation(),
+            StartLoc,
+            EndLoc,
             FColor::Yellow, // 타겟 연결선은 노란색
             false,
             Interval + 0.1f,

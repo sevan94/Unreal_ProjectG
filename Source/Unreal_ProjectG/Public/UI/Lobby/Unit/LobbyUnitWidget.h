@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/PGEnumTypes.h"
 #include "LobbyUnitWidget.generated.h"
 
 class UButton;
@@ -15,6 +16,7 @@ class UUnitDescriptionWidget;
 class UUnitUIDataAsset;
 class UUnitEntryObject;
 class UCurrentUnitWidget;
+class UGoodsBarWidget;
 
 /**
  * 
@@ -32,6 +34,9 @@ protected:
     void HandlePartySlotClick(int32 SlotIndex);
 
     void InitializePartySlots();
+
+    UFUNCTION()
+    void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
 private:
     UFUNCTION()
@@ -61,6 +66,14 @@ public:
     // 파티 슬롯 박스
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UHorizontalBox> PartyBox;
+
+    // 해금 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Unlock;
+
+    // 업그레이드 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Gold;
 
 private:
     // 현재 리스트에서 선택된 유닛

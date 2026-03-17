@@ -7,7 +7,10 @@
 #include "Components/Button.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/UnitEntryObject.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "Types/PGEnumTypes.h"
+#include "Character/Unit/UnitCharacter.h"
 
 void UUnitDescriptionWidget::NativeConstruct()
 {
@@ -37,6 +40,21 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
     UnitCost->SetText(FText::AsNumber(CurrentUIData->UnitCost));
     UnitLevel->SetText(FText::AsNumber(SaveData.Level));
 
+    // 해금 여부에 따라 UI 갱신
+    if (ButtonText && CostBar)
+    {
+        if (SaveData.bIsUnlocked)
+        {
+            ButtonText->SetText(FText::FromString(TEXT("강화")));
+            CostBar->SetGoodsImage(GoldIcon);
+        }
+        else
+        {
+            ButtonText->SetText(FText::FromString(TEXT("해금")));
+            CostBar->SetGoodsImage(UnlockIcon);
+        }
+    }
+
     SetUnitStatus();
 }
 
@@ -50,11 +68,33 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
     // GameInstance의 맵에서 직접 데이터 참조를 가져와 수정
     if (FUnitSaveData* TargetData = GI->UnitLevelMap.Find(CurrentUIData->UnitID))
     {
-        // 골드 체크 로직
-        // if(GI->CurrentGold >= UpgradeCost) { ... }
+        if (TargetData->bIsUnlocked)
+        {
+            // 강화 로직
+            // 골드 체크
+            if (GI->CurrentPlayerGold >= CurrentUIData->UnitUnlock)
+            {
+                GI->ConsumeGoods(EGoodsCategory::Gold, CurrentUIData->UnitUnlock);
+                TargetData->Level++;
+            }
 
-        // 레벨업 실행 후 저장
-        TargetData->Level++;
+        }
+        else
+        {
+            // 해금 로직
+            // 해금 재화 체크
+            if (GI->CurrentPlayerUnlock >= CurrentUIData->UnitUnlock)
+            {
+                GI->ConsumeGoods(EGoodsCategory::Unlock, CurrentUIData->UnitUnlock);
+                TargetData->bIsUnlocked = true;
+
+                // 해금 성공 시 델리게이트 호출
+                if (OnUnitUnlocked.IsBound())
+                {
+                    OnUnitUnlocked.Broadcast(CurrentEntryObject);
+                }
+            }
+        }
 
         GI->SaveGameData();
 

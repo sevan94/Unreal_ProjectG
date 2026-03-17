@@ -69,6 +69,70 @@ void UPGGameInstance::LoadGameData()
     }
 }
 
+void UPGGameInstance::AddGoods(EGoodsCategory InCategory, int32 InValue)
+{
+    int32 OutValue = 0;
+    switch (InCategory)
+    {
+    case EGoodsCategory::Gem:
+    {
+        CurrentPlayerGem += InValue;
+        OutValue = CurrentPlayerGem;
+        break;
+    }
+    case EGoodsCategory::Unlock:
+    {
+        CurrentPlayerUnlock += InValue;
+        OutValue = CurrentPlayerUnlock;
+        break;
+    }
+    case EGoodsCategory::Gold:
+    {
+        CurrentPlayerGold += InValue;
+        OutValue = CurrentPlayerGold;
+        break;
+    }
+    }
+    if (OutValue <= 0)
+        OutValue = 0;
+    if (OnGoodsChanged.IsBound())
+    {
+        OnGoodsChanged.Broadcast(InCategory, OutValue);
+    }
+}
+
+void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
+{
+    int32 OutValue = 0;
+    switch (InCategory)
+    {
+    case EGoodsCategory::Gem:
+    {
+        CurrentPlayerGem -= InValue;
+        OutValue = CurrentPlayerGem;
+        break;
+    }
+    case EGoodsCategory::Unlock:
+    {
+        CurrentPlayerUnlock -= InValue;
+        OutValue = CurrentPlayerUnlock;
+        break;
+    }
+    case EGoodsCategory::Gold:
+    {
+        CurrentPlayerGold -= InValue;
+        OutValue = CurrentPlayerGold;
+        break;
+    }
+    }
+    if (OutValue <= 0)
+        OutValue = 0;
+    if (OnGoodsChanged.IsBound())
+    {
+        OnGoodsChanged.Broadcast(InCategory, OutValue);
+    }
+}
+
 void UPGGameInstance::InitializeUnitMap()
 {
     if (!UnitDataTable) return;

@@ -12,7 +12,9 @@ class UButton;
 class UTextBlock;
 class UUnitEntryObject;
 class UUnitUIDataAsset;
+class UGoodsBarWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitUnlocked, UUnitEntryObject*, UnlockedUnit);
 /**
  * 
  */
@@ -34,6 +36,10 @@ protected:
     void OnUpgradeButtonClicked();
 
     void SetUnitStatus();
+
+public:
+    // 유닛 해금 델리게이트
+    FOnUnitUnlocked OnUnitUnlocked;
 
 protected:
     // 위젯에 표시할 UI 데이터 캐싱
@@ -91,4 +97,18 @@ protected:
     // 강화 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> UpgradeButton;
+
+    // 버튼 텍스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> ButtonText;
+
+    // 소모 비용 위젯
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> CostBar;
+
+    // 비용 아이콘
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Goods")
+    TObjectPtr<UTexture2D> UnlockIcon;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Goods")
+    TObjectPtr<UTexture2D> GoldIcon;
 };

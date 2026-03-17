@@ -8,6 +8,8 @@
 #include "UI/Lobby/Unit/UnitDescriptionWidget.h"
 #include "UI/Lobby/Unit/CurrentUnitWidget.h"
 #include "UI/UnitEntryObject.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
+#include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Components/HorizontalBox.h"
 #include "Mode/Save/PGGameInstance.h"
 
@@ -16,8 +18,20 @@ void ULobbyUnitWidget::NativeConstruct()
     Super::NativeConstruct();
     PartySlots.Empty();
     GI = Cast<UPGGameInstance>(GetGameInstance());
-    GI->LoadGameData();
-    UnitDescription->SetVisibility(ESlateVisibility::Hidden);
+    if (GI)
+    {
+        GI->LoadGameData();
+        GI->OnGoodsChanged.AddDynamic(this, &ULobbyUnitWidget::UpdateGoodsBar);
+
+        Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
+        Gold->InitializeGoodsBar(GI->CurrentPlayerGold);
+    } 
+    if (UnitDescription)
+    {
+        // 해금 이벤트 구독
+        UnitDescription->SetVisibility(ESlateVisibility::Hidden);
+        UnitDescription->OnUnitUnlocked.AddDynamic(this, &ULobbyUnitWidget::HandleUnitSelected);
+    }
 
     InitializePartySlots();
 
@@ -95,6 +109,15 @@ void ULobbyUnitWidget::InitializePartySlots()
     }
 }
 
+void ULobbyUnitWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
+{
+    switch (InCategory)
+    {
+    case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
+    case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
+    }
+}
+
 void ULobbyUnitWidget::OnExitButtonClick()
 {
     SelectedUnit = nullptr;
@@ -104,20 +127,35 @@ void ULobbyUnitWidget::OnExitButtonClick()
 
 void ULobbyUnitWidget::HandleUnitSelected(UUnitEntryObject* InData)
 {
-    if (UnitDescription && InData)
+    if (!UnitDescription || !InData) return;
+
+    // 정보 창 표시
+    UnitDescription->SetVisibility(ESlateVisibility::Visible);
+    UnitDescription->UpdateDescription(InData);
+
+    // 보유 여부 확인
+    FUnitSaveData SaveData = GI->GetUnitSaveData(InData->GetUnitUIData()->UnitID);
+
+    if (SaveData.bIsUnlocked)
     {
-        // 정보 창 표시
-        UnitDescription->SetVisibility(ESlateVisibility::Visible);
-        UnitDescription->UpdateDescription(InData);
+        // 교체 대기 유닛 저장
+        SelectedUnit = InData->GetUnitUIData();
+
+        // 모든 파티 슬롯에 교체 오버레이 켜기
+        for (auto PartySlot : PartySlots)
+        {
+            if (PartySlot) PartySlot->ShowReplaceOverlay(true);
+        }
     }
-
-    // 교체 대기 유닛 저장
-    SelectedUnit = InData->GetUnitUIData();
-    //UE_LOG(LogTemp, Log, TEXT("교체 유닛 저장"));
-
-    // 모든 파티 슬롯에 교체 오버레이 켜기
-    for (auto PartySlot : PartySlots)
+    else
     {
-        if (PartySlot) PartySlot->ShowReplaceOverlay(true);
+        // 교체 대기 유닛 해제
+        SelectedUnit = nullptr;
+
+        // 모든 파티 슬롯에 교체 오버레이 끄기
+        for (auto PartySlot : PartySlots)
+        {
+            if (PartySlot) PartySlot->ShowReplaceOverlay(false);
+        }
     }
 }

@@ -13,7 +13,9 @@
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnActor.h"
+#include "AbilitySystem/Abilities/Unit/UnitAbility_InstantAOE.h"
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
+
 
 // 어빌리티 클래스 -> Config 클래스 매핑 테이블
 // 새 어빌리티 혹은 Config 추가 시 이곳에 추가
@@ -30,6 +32,7 @@ static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnActor::StaticClass(), FUnitSpawnActorAbilityConfig::StaticStruct());
+    Map.Add(UUnitAbility_InstantAOE::StaticClass(), FUnitAOEAbilityConfig::StaticStruct());
     Map.Add(USharedAbility_BuffAura::StaticClass(), FSharedBuffAuraAbilityConfig::StaticStruct());
 
     return Map;

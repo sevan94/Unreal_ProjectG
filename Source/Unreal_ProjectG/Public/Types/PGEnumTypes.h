@@ -90,3 +90,11 @@ enum class EAOETargetPolicy : uint8
     FriendlyOnly,
     AllExceptSelf,
 };
+
+// 버프가 Infinite인지 Duration이 있는지 나타내는 열거형
+UENUM(BlueprintType)
+enum class EBuffDurationType : uint8
+{
+    Infinite,
+    Duration
+};

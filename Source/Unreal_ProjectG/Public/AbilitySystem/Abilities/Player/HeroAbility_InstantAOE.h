@@ -25,6 +25,10 @@ protected:
     FVector GetInstantAOESpawnLocation() const;
     virtual FVector GetInstantAOESpawnLocation_Implementation() const;
 
+    UFUNCTION(BlueprintNativeEvent)
+    FRotator GetInstantAOESpawnRotation() const;
+    virtual FRotator GetInstantAOESpawnRotation_Implementation() const;
+
 private:
     UFUNCTION()
     void OnAOEExecuteEventReceived(FGameplayEventData EventData);

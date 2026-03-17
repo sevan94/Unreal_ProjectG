@@ -20,9 +20,6 @@ public:
     UFUNCTION(BlueprintPure, Category = "PG|Ability")
     AUnitCharacter* GetUnitCharacterFromActorInfo();
 
-    UFUNCTION(BlueprintPure, Category = "PG|Ability")
-    FGameplayEffectSpecHandle MakeOutgoingEffectSpecToTarget(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier);
-
 private:
     TWeakObjectPtr<AUnitCharacter> CachedUnitCharacter;
 };

@@ -5,6 +5,8 @@
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "PGGameplayTags.h"
 #include "Actors/AOESkillActor.h"
+#include "Actors/AOEActor/AOEInstantEffectActor.h"
+#include "Actors/AOEActor/AOEDurationEffectActor.h"
 
 UHeroAbility_AOEBase::UHeroAbility_AOEBase()
 {
@@ -40,7 +42,7 @@ void UHeroAbility_AOEBase::EndAbility(const FGameplayAbilitySpecHandle Handle, c
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);   
 }
 
-AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& SpawnLocation)
+AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& SpawnLocation, const FRotator& SpawnRotation)
 {
     if (!AOEConfig.SpawnedActorClass)
     {
@@ -57,10 +59,9 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
     SpawnParams.Instigator = Cast<APawn>(GetAvatarActorFromActorInfo());
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    const FTransform SpawnTransform(FRotator::ZeroRotator, SpawnLocation);
+    const FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
     AAOESkillActor* SpawnedAOEActor = World->SpawnActorDeferred<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams.Owner, SpawnParams.Instigator, SpawnParams.SpawnCollisionHandlingOverride);
-    //AAOESkillActor* SpawnedAOEActor = World->SpawnActor<AAOESkillActor>(AOEConfig.SpawnedActorClass, SpawnTransform, SpawnParams);
 
     if(!SpawnedAOEActor)
     {
@@ -68,56 +69,29 @@ AAOESkillActor* UHeroAbility_AOEBase::SpawnAndInitializeAOEActor(const FVector& 
         return nullptr;
     }
 
+    // Actor 타입에 따라 알맞은 EffectClass 선택
+    FGameplayEffectSpecHandle SpecHandle;
+    if(SpawnedAOEActor->IsA<AAOEInstantEffectActor>())
+    {
+        // InstantEffectActor에 대한 처리
+        SpecHandle = AOEConfig.InstantEffectClass
+            ? MakeOutgoingEffectSpec(AOEConfig.InstantEffectClass)
+            : FGameplayEffectSpecHandle();
+    }
+    else if(SpawnedAOEActor->IsA<AAOEDurationEffectActor>())
+    {
+        // DurationEffectActor에 대한 처리
+        SpecHandle = AOEConfig.BuffDebuffClass
+            ? MakeOutgoingEffectSpec(AOEConfig.BuffDebuffClass)
+            : FGameplayEffectSpecHandle();
+    }
     SpawnedAOEActor->InitializeAOEActor(
         GetAvatarActorFromActorInfo(),
-        BuildAllSpecHandles(),
         AOEConfig.TargetPolicy,
-        AOEConfig.MaxHitTargets
+        SpecHandle,
+        GetAbilityLevel()
     );
     SpawnedAOEActor->FinishSpawning(SpawnTransform);
 
     return SpawnedAOEActor;
-}
-
-TArray<FGameplayEffectSpecHandle> UHeroAbility_AOEBase::BuildAllSpecHandles()
-{
-    TArray<FGameplayEffectSpecHandle> OutHandles;
-    AppendDamageSpecHandle(OutHandles);
-    AppendBuffDebuffSpecHandles(OutHandles);
-    return OutHandles;
-}
-
-void UHeroAbility_AOEBase::AppendDamageSpecHandle(TArray<FGameplayEffectSpecHandle>& OutHandles)
-{
-    // 데미지 이펙트 클래스가 없다면 종료
-    if (!AOEConfig.DamageConfig.DamageEffectClass) return;
-
-    float SkillMultiplierValue = AOEConfig.DamageConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-
-    FGameplayEffectSpecHandle SpecHandle = MakeHeroDamageEffectSpecHandle(
-        AOEConfig.DamageConfig.DamageEffectClass, SkillMultiplierValue);
-
-    if (SpecHandle.IsValid())
-    {
-        OutHandles.Add(SpecHandle);
-    }
-}
-
-void UHeroAbility_AOEBase::AppendBuffDebuffSpecHandles(TArray<FGameplayEffectSpecHandle>& OutHandles)
-{
-    const FBuffDebuffConfig& BDConfig = AOEConfig.BuffDebuffConfig;
-    const float Duration = BDConfig.Duration.GetValueAtLevel(GetAbilityLevel());
-
-    for (const FNumericBuffEffectConfig& NumericBuff : BDConfig.NumericBuffs)
-    {
-        if (!NumericBuff.EffectClass) continue;
-
-        const float SkillMultiplierValue =
-            NumericBuff.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-        const float BaesBuffAmountValue =
-            NumericBuff.BaseBuffAmount.GetValueAtLevel(GetAbilityLevel());
-
-        FGameplayEffectSpecHandle SpecHandle = MakeDurationBuffEffectSpecHandle(
-            NumericBuff.EffectClass, SkillMultiplierValue, BaesBuffAmountValue, Duration);
-    }
 }

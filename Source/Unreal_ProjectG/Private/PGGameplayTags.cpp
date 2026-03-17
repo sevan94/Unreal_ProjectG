@@ -11,8 +11,11 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
 
-    // 플레이어 무기 게임 플레이 태그
-    UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Sword, "Player.Weapon.Sword");
+    // 플레이어 세트 게임 플레이 태그 
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Defender, "Equipment.Set.Defender");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Blackhole, "Equipment.Set.Blackhole");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Thunder, "Equipment.Set.Thunder");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_PetsAssemble, "Equipment.Set.PetsAssemble");
 
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
@@ -31,11 +34,13 @@ namespace PGGameplayTags
 
     // SetByCaller 태그
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_SkillMultiplier, "Shared.SetByCaller.SkillMultiplier");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_MaxHealthMultiplier, "Shared.SetByCaller.MaxHealthMultiplier");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_AttackPowerMultiplier, "Shared.SetByCaller.AttackPowerMultiplier");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseBuffAmount, "Shared.SetByCaller.BaseBuffAmount");
-    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_EffectDuration, "Shared.SetByCaller.EffectDuration");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseAmount, "Shared.SetByCaller.BaseAmount");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_Duration, "Shared.SetByCaller.Duration");
 
+    // 스탯 관련 SetByCaller 태그
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MaxHealth, "Attribute.SetByCaller.MaxHealth");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_AttackPower, "Attribute.SetByCaller.AttackPower");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed"); 
 
     //유닛 등급 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Tier_Normal, "Unit.Tier.Normal");
@@ -63,9 +68,5 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
-
-    //버프 태그
-    UE_DEFINE_GAMEPLAY_TAG(Buff_AttackPower, "Buff.AttackPower");
-    UE_DEFINE_GAMEPLAY_TAG(Buff_MaxHealth, "Buff.MaxHealth");
 }
 

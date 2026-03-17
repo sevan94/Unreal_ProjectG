@@ -23,7 +23,7 @@ void UHeroAbility_InstantAOE::ActivateAbility(const FGameplayAbilitySpecHandle H
 
     if (!MontageToPlay)
     {
-        SpawnAndInitializeAOEActor(GetInstantAOESpawnLocation());
+        SpawnAndInitializeAOEActor(GetInstantAOESpawnLocation(), GetInstantAOESpawnRotation());
         EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
         return;
     }
@@ -57,9 +57,15 @@ FVector UHeroAbility_InstantAOE::GetInstantAOESpawnLocation_Implementation() con
     return AvatarActor ? AvatarActor->GetActorLocation() : FVector::ZeroVector;
 }
 
+FRotator UHeroAbility_InstantAOE::GetInstantAOESpawnRotation_Implementation() const
+{
+    const AActor* AvatarActor = GetAvatarActorFromActorInfo();
+    return AvatarActor ? AvatarActor->GetActorRotation() : FRotator::ZeroRotator;
+}
+
 void UHeroAbility_InstantAOE::OnAOEExecuteEventReceived(FGameplayEventData EventData)
 {
-    SpawnAndInitializeAOEActor(GetInstantAOESpawnLocation());
+    SpawnAndInitializeAOEActor(GetInstantAOESpawnLocation(), GetInstantAOESpawnRotation());
 }
 
 void UHeroAbility_InstantAOE::OnMontageFinished()

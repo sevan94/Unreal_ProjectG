@@ -89,7 +89,7 @@ void APGProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overlapped
     {
         return;
     }
-     //UE_LOG(LogTemp, Log, TEXT("Overlap With %s"), *OtherActor->GetName());
+     UE_LOG(LogTemp, Log, TEXT("Overlap With %s"), *OtherActor->GetName());
 
     APawn* OverlappedPawn = Cast<APawn>(OtherActor);
     if (OverlappedPawn)

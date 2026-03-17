@@ -6,6 +6,7 @@
 #include "Character/PGCharacterBase.h"
 #include "PetCharacter.generated.h"
 
+class UDataAsset_PetStartUpData;
 /**
  * 
  */

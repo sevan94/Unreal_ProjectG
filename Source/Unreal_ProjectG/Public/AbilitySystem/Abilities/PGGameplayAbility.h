@@ -46,9 +46,13 @@ protected:
     // 타깃 액터에게 게임플레이 이펙트를 제거하는 네이티브 함수
     void NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle);
 
-    // Duration 기반의 버프 스펙핸들 생성(수치형 버프에 사용)
-    UFUNCTION(BlueprintPure)
-    FGameplayEffectSpecHandle MakeDurationBuffEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiplier, float BaseBuffAmount, float Duration);
+    // 게임 플레이 이펙트 스펙핸들을 생성하는 함수
+    UFUNCTION(BlueprintPure, Category = "PG|Ability")
+    FGameplayEffectSpecHandle MakeOutgoingEffectSpec(TSubclassOf<UGameplayEffect> EffectClass);
+
+    // 스킬 배율이 적용된 게임플레이 이펙트 스펙핸들 생성
+    UFUNCTION(BlueprintPure, Category = "PG|Ability")
+    FGameplayEffectSpecHandle MakeOutgoingEffectSpecWithMultiplier(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier);
 
     // Duration 기반 상태형 버프 스펙핸들 생성(상태형 버프에 사용)
     UFUNCTION(BlueprintPure)

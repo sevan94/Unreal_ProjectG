@@ -2,8 +2,6 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PGFunctionLibrary.h"
-#include "AbilitySystemBlueprintLibrary.h"
-#include "AbilitySystemComponent.h"
 
 AAOESkillActor::AAOESkillActor()
 {
@@ -21,12 +19,12 @@ AAOESkillActor::AAOESkillActor()
     CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
-void AAOESkillActor::InitializeAOEActor(AActor* InInstigator, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, EAOETargetPolicy InTargetPolicy, int32 InMaxHitTargets)
+void AAOESkillActor::InitializeAOEActor(AActor* InInstigator, EAOETargetPolicy InTargetPolicy, FGameplayEffectSpecHandle& InEffectSpecHandle, int32 InAbilityLevel)
 {
     InstigatorActor = InInstigator;
-    EffectSpecHandles = InSpecHandles;
     TargetPolicy = InTargetPolicy;
-    MaxHitTargets = InMaxHitTargets;
+    EffectSpecHandle = InEffectSpecHandle;
+    AbilityLevel = InAbilityLevel;
 }
 
 float AAOESkillActor::GetAOERadius() const
@@ -34,14 +32,14 @@ float AAOESkillActor::GetAOERadius() const
     return CollisionSphere ? CollisionSphere->GetScaledSphereRadius() : 0.f;
 }
 
-void AAOESkillActor::BP_CollectAndApplyEffects()
+TArray<AActor*> AAOESkillActor::CollectValidTargets()
 {
-    if (!InstigatorActor.IsValid()) return;
+    OverlappedTargets.Reset();
+    if (!InstigatorActor.IsValid()) return {};
 
-    TArray<AActor*> IgnoredActors;
-    IgnoredActors.Add(InstigatorActor.Get());
-
+    TArray<AActor*> IgnoredActors = { InstigatorActor.Get() };
     TArray<AActor*> OverlappedActors;
+
     UKismetSystemLibrary::SphereOverlapActors(
         this,
         CollisionSphere->GetComponentLocation(),
@@ -55,15 +53,26 @@ void AAOESkillActor::BP_CollectAndApplyEffects()
     int32 HitCount = 0;
     for (AActor* Target : OverlappedActors)
     {
-        if (MaxHitTargets > 0 && HitCount >= MaxHitTargets)
-        {
-            break; // 최대 타겟 수에 도달하면 루프 종료
-        }
+        if (MaxHitTargets > 0 && HitCount >= MaxHitTargets) break; // 최대 타겟 수에 도달하면 루프 종료
+
         if (IsValidTarget(Target))
         {
-            ApplySpecHandlesToSingleTarget(Target);
+            OverlappedTargets.Add(Target);
             HitCount++;
         }
+    }
+    return OverlappedTargets;
+}
+
+float AAOESkillActor::GetScalableValueAtLevel(const FScalableFloat& InScalableFloat) const
+{
+    if (InScalableFloat.IsStatic())
+    {
+        return InScalableFloat.Value;
+    }
+    else
+    {
+        return InScalableFloat.GetValueAtLevel(AbilityLevel);
     }
 }
 
@@ -79,20 +88,5 @@ bool AAOESkillActor::IsValidTarget(AActor* InTarget) const
     case EAOETargetPolicy::FriendlyOnly: return !bIsHostile;
     case EAOETargetPolicy::AllExceptSelf: return true;
     default: return false;
-    }
-}
-
-void AAOESkillActor::ApplySpecHandlesToSingleTarget(AActor* InTarget)
-{
-    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InTarget);
-
-    if (!TargetASC) return;
-
-    for (const FGameplayEffectSpecHandle& SpecHandle : EffectSpecHandles)
-    {
-        if (SpecHandle.IsValid())
-        {
-            TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-        }
     }
 }

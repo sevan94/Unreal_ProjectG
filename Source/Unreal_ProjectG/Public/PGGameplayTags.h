@@ -15,8 +15,11 @@ namespace PGGameplayTags
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Die);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Initialize);
 
-    // 플레이어 무기 게임 플레이 태그 
+    // 플레이어 세트 게임 플레이 태그 
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equipment_Set_Defender);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equipment_Set_Blackhole);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equipment_Set_Thunder);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equipment_Set_PetsAssemble);
 
     // 유닛 어빌리티 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Ability_MagicCharge);
@@ -35,10 +38,13 @@ namespace PGGameplayTags
 
     // 공유 SetByCaller 태그
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_SkillMultiplier);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_MaxHealthMultiplier);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_AttackPowerMultiplier);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseBuffAmount);
-    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_EffectDuration);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseAmount);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_Duration);
+
+    // 스탯 관련 SetByCaller 태그
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_MaxHealth);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_AttackPower);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_MoveSpeed);
 
     //유닛 상태(State) 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Idle);
@@ -46,7 +52,6 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Move);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Dead);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Guard);
-
 
     //유닛 등급 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Tier_Normal);
@@ -67,9 +72,4 @@ namespace PGGameplayTags
     //아군 적군 구분 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
-
-    //버프 태그
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Buff_AttackPower);
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Buff_MaxHealth);
-
 }

@@ -107,7 +107,7 @@ void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventD
     FGameplayEffectSpecHandle EffectSpecHandle;
     if (MeleeAttackConfig.DamageEffectClass.Get())
     {
-        EffectSpecHandle = MakeOutgoingEffectSpecToTarget(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
+        EffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(MeleeAttackConfig.DamageEffectClass.Get(), SkillMultiplierValue);
     }
     for( TWeakObjectPtr<AActor> TargetActor : CachedTargetActors)
     {

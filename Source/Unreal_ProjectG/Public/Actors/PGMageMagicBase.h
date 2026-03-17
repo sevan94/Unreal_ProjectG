@@ -5,7 +5,7 @@
 #include "GameplayEffectTypes.h"
 #include "PGMageMagicBase.generated.h"
 
-class USphereComponent;
+class UBoxComponent;
 class UNiagaraComponent;
 
 UCLASS()
@@ -29,7 +29,10 @@ protected:
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic|Components")
-    TObjectPtr<USphereComponent> MagicCollisionComponent;
+    TObjectPtr<USceneComponent> RootSceneComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic|Components")
+    TObjectPtr<UBoxComponent> MagicCollisionComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic|Components")
     TObjectPtr<UNiagaraComponent> MagicNiagaraComponent;

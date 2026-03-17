@@ -1,5 +1,5 @@
 #include "Actors/PGMageMagicBase.h"
-#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -9,18 +9,18 @@ APGMageMagicBase::APGMageMagicBase()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    MagicCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("MagicCollisionComponent"));
-    SetRootComponent(MagicCollisionComponent);
+    RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+    SetRootComponent(RootSceneComponent);
 
+    MagicCollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("MagicCollisionComponent"));
+    MagicCollisionComponent->SetupAttachment(RootSceneComponent); 
     MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
     MagicCollisionComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-
     MagicCollisionComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
     MagicCollisionComponent->SetGenerateOverlapEvents(true);
 
     MagicNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MagicNiagaraComponent"));
-    MagicNiagaraComponent->SetupAttachment(RootComponent);
+    MagicNiagaraComponent->SetupAttachment(RootSceneComponent);
     MagicNiagaraComponent->SetUsingAbsoluteRotation(true);
 }
 

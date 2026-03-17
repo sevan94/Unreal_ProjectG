@@ -29,4 +29,7 @@ struct FStageDataTable : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UDA_StageUnitListDataAsset> EnemyList;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSoftObjectPtr<UWorld> StageLevel;
 };

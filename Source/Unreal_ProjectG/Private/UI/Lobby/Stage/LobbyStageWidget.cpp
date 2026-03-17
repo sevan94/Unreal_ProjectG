@@ -39,8 +39,8 @@ void ULobbyStageWidget::OpenStageInfo(int32 StageCode)
                 GI->SelectedStageNum = StageCode;
             }
 
-            // 3. StageReady 위젯에 적 리스트 전달 및 UI 갱신
-            StageReady->InitializeReadyWidget(Row->EnemyList);
+            // 적 리스트 전달 및 UI 갱신
+            StageReady->InitializeReadyWidget(Row->EnemyList, Row->StageLevel);
 
             // 정보창 표시
             StageReady->SetVisibility(ESlateVisibility::Visible);

@@ -20,22 +20,35 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
         FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpec);
         if (Spec)
         {
+            // 인스턴스가 있으면 가져오고, 없으면 기본 CDO(Class Default Object)를 사용
             AbilityObject = Spec->GetPrimaryInstance();
             if (!AbilityObject)
             {
-                AbilityObject = Spec->Ability;
+                AbilityObject = Cast<UGameplayAbility>(Spec->Ability);
             }
-            if (AbilityObject->GetCooldownTags()->IsValid())
-            {
-                CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
-            }
-            UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
 
-            if (AbilitySystemComponent && CooldownTag.IsValid())
+            if (AbilityObject)
             {
-                // 태그 변경 이벤트 등록
-                TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
-                    .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
+                const FGameplayTagContainer* CooldownTags = AbilityObject->GetCooldownTags();
+                if (CooldownTags && CooldownTags->IsValid())
+                {
+                    CooldownTag = CooldownTags->GetByIndex(0);
+                }
+
+                UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
+
+                if (CooldownTag.IsValid())
+                {
+                    // 기존 핸들이 있다면 해제 후 재등록 (안정성 확보)
+                    AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
+
+                    TagChangedDelegateHandle = AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
+                        .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("AbilityObject를 찾을 수 없습니다!"));
             }
         }
     }

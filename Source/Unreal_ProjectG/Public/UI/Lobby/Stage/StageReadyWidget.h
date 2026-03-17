@@ -24,7 +24,7 @@ class UNREAL_PROJECTG_API UStageReadyWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData);
+    void InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData, TSoftObjectPtr<UWorld> InTargetLevel);
 	
 protected:
     virtual void NativeConstruct() override;
@@ -77,4 +77,6 @@ protected:
 
 private:
     TObjectPtr<UPGGameInstance> GI;
+
+    TSoftObjectPtr<UWorld> TargetLevel;
 };

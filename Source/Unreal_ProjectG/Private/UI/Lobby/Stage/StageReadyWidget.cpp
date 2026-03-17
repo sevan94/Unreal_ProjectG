@@ -31,8 +31,10 @@ void UStageReadyWidget::OnExitButtonClicked()
 
 void UStageReadyWidget::OnStartButtonClicked()
 {
-    if (StageLevel.IsNull()) return;
-    FString LevelName = StageLevel.GetAssetName();
+    if (TargetLevel.IsNull()) return;
+
+    // 레벨 에셋의 이름을 가져와서 해당 레벨을 열음
+    FString LevelName = TargetLevel.GetAssetName();
     UGameplayStatics::OpenLevel(GetWorld(), FName(*LevelName));
 }
 
@@ -99,8 +101,9 @@ void UStageReadyWidget::InitializeReadyEnemy(UDA_StageUnitListDataAsset* InEnemy
     }
 }
 
-void UStageReadyWidget::InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData)
+void UStageReadyWidget::InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData, TSoftObjectPtr<UWorld> InTargetLevel)
 {
+    TargetLevel = InTargetLevel;
     InitializeReadyUnit();
     InitializeReadyEquip();
     InitializeReadyEnemy(InEnemyListData);

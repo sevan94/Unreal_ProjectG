@@ -48,7 +48,7 @@ protected:
     bool bLoopSpawning = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    int32 PoolSize = 5;
+    int32 PoolSize = 7;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     TObjectPtr<AActor> AttackTarget;

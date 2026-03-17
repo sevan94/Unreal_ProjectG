@@ -94,6 +94,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCharacterVisualEffectComponent> UnitVisualEffectComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+    bool bIsDead = false;
 private:
     // AI 컨트롤러 캐싱
     class AAIController* AIController = nullptr;

@@ -222,30 +222,6 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
 };
 
 USTRUCT(BlueprintType)
-struct FUnitAOEAbilityConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> InstantEffectClass; // Instant 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "InstantEffectClass != nullptr")) // InstantEffectClass가 설정되어 있을 때만 보이는 설정
-    FScalableFloat SkillMultiplier; // 스킬 계수
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
-};
-
-USTRUCT(BlueprintType)
 struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
 {
     GENERATED_BODY()

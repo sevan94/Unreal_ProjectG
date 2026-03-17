@@ -13,7 +13,6 @@
 #include "AbilitySystem/Abilities/Unit/UnitAbility_BaseMeleeAttack.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnProjectile.h"
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnActor.h"
-#include "AbilitySystem/Abilities/Unit/UnitAbility_InstantAOE.h"
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
 
 
@@ -32,7 +31,6 @@ static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()
     Map.Add(UUnitAbility_BaseMeleeAttack::StaticClass(), FUnitBaseMeleeAttackAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnProjectile::StaticClass(), FUnitSpawnProjectileAbilityConfig::StaticStruct());
     Map.Add(UUnitAbility_SpawnActor::StaticClass(), FUnitSpawnActorAbilityConfig::StaticStruct());
-    Map.Add(UUnitAbility_InstantAOE::StaticClass(), FUnitAOEAbilityConfig::StaticStruct());
     Map.Add(USharedAbility_BuffAura::StaticClass(), FSharedBuffAuraAbilityConfig::StaticStruct());
 
     return Map;

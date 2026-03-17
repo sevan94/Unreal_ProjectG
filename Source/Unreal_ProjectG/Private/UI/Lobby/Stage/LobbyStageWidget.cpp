@@ -21,16 +21,31 @@ void ULobbyStageWidget::NativeConstruct()
 
 void ULobbyStageWidget::OpenStageInfo(int32 StageCode)
 {
-    UPGGameInstance* GI = GetGameInstance<UPGGameInstance>();
-    if (GI && StageReady)
+    UDataTable* DataTable = StageMap->GetStageData();
+    if (!DataTable || !StageReady) return;
+
+    static const FString ContextString(TEXT("Stage Info"));
+    TArray<FStageDataTable*> StageRows;
+    DataTable->GetAllRows<FStageDataTable>(ContextString, StageRows);
+
+    // 전달받은 StageCode와 일치하는 데이터 탐색
+    for (FStageDataTable* Row : StageRows)
     {
-        // 게임 인스턴스에 스테이지 코드 저장
-        GI->SelectedStageNum = StageCode;
+        if (Row && Row->StageCode == StageCode)
+        {
+            // GameInstance에 현재 선택한 스테이지 코드 저장
+            if (UPGGameInstance* GI = GetGameInstance<UPGGameInstance>())
+            {
+                GI->SelectedStageNum = StageCode;
+            }
 
-        // 정보창 보이기 및 갱신
-        StageReady->SetVisibility(ESlateVisibility::Visible);
-        StageReady->InitializeReadyWidget();
+            // 3. StageReady 위젯에 적 리스트 전달 및 UI 갱신
+            StageReady->InitializeReadyWidget(Row->EnemyList);
 
+            // 정보창 표시
+            StageReady->SetVisibility(ESlateVisibility::Visible);
+            break;
+        }
     }
 }
 

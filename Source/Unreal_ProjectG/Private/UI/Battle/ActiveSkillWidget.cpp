@@ -25,7 +25,10 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             {
                 AbilityObject = Spec->Ability;
             }
-            CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
+            if (AbilityObject->GetCooldownTags()->IsValid())
+            {
+                CooldownTag = AbilityObject->GetCooldownTags()->GetByIndex(0);
+            }
             UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s, 쿨다운 태그 : %s"), *Spec->Ability->GetName(), *CooldownTag.ToString());
 
             if (AbilitySystemComponent && CooldownTag.IsValid())

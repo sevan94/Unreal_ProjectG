@@ -7,9 +7,13 @@
 #include "StageReadyWidget.generated.h"
 
 class UButton;
+class UHorizontalBox;
 class UReadyUnitWidget;
 class UReadyEquipWidget;
+class UReadyEnemyWidget;
+class UEnemyUIDataAsset;
 class UPGGameInstance;
+class UDA_StageUnitListDataAsset;
 
 /**
  * 
@@ -20,21 +24,30 @@ class UNREAL_PROJECTG_API UStageReadyWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void InitializeReadyWidget();
+    void InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData);
 	
 protected:
     virtual void NativeConstruct() override;
 
     UFUNCTION()
     void OnExitButtonClicked();
+    UFUNCTION()
+    void OnStartButtonClicked();
 
     // 각종 초기화 함수
     void InitializeReadyUnit();
     void InitializeReadyEquip();
+    void InitializeReadyEnemy(UDA_StageUnitListDataAsset* InEnemyListData);
 
 protected:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stage")
+    TSoftObjectPtr<UWorld> StageLevel;
+
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> StartButton;
 
     // 현재 유닛 패널
     UPROPERTY(meta = (BindWidget))
@@ -57,7 +70,10 @@ protected:
     TObjectPtr<UReadyEquipWidget> ReadyAccessory;
 
     // 적 정보 패널
-
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UHorizontalBox> EnemyBox;
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TSubclassOf<UReadyEnemyWidget> EnemySlotClass;
 
 private:
     TObjectPtr<UPGGameInstance> GI;

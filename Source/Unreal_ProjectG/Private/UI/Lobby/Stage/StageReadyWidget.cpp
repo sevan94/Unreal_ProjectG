@@ -3,24 +3,37 @@
 
 #include "UI/Lobby/Stage/StageReadyWidget.h"
 #include "Components/Button.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "DataAssets/UI/EnemyUIDataAsset.h"
+#include "DataAssets/Spawner/DA_StageUnitListDataAsset.h"
 #include "UI/Lobby/Stage/ReadyUnitWidget.h"
 #include "UI/Lobby/Stage/ReadyEquipWidget.h"
+#include "UI/Lobby/Stage/ReadyEnemyWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 void UStageReadyWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
     GI = Cast<UPGGameInstance>(GetGameInstance());
-    InitializeReadyWidget();
 
     if (ExitButton) ExitButton->OnClicked.AddDynamic(this, &UStageReadyWidget::OnExitButtonClicked);
+    if (StartButton) StartButton->OnClicked.AddDynamic(this, &UStageReadyWidget::OnStartButtonClicked);
 }
 
 void UStageReadyWidget::OnExitButtonClicked()
 {
     this->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UStageReadyWidget::OnStartButtonClicked()
+{
+    if (StageLevel.IsNull()) return;
+    FString LevelName = StageLevel.GetAssetName();
+    UGameplayStatics::OpenLevel(GetWorld(), FName(*LevelName));
 }
 
 void UStageReadyWidget::InitializeReadyUnit()
@@ -58,8 +71,37 @@ void UStageReadyWidget::InitializeReadyEquip()
     ReadyAccessory->UpdateEquipWidget(GI->CurrentAccessory.LoadSynchronous());
 }
 
-void UStageReadyWidget::InitializeReadyWidget()
+void UStageReadyWidget::InitializeReadyEnemy(UDA_StageUnitListDataAsset* InEnemyListData)
+{
+    if (!EnemyBox || !EnemySlotClass || !InEnemyListData) return;
+
+    // 기존 목록 초기화
+    EnemyBox->ClearChildren();
+
+    // 데이터 에셋의 UnitSpawnLis 순회
+    for (const FUnitSpawnDataInfo& SpawnInfo : InEnemyListData->UnitSpawnList)
+    {
+        // 구조체 내부의 UnitData가 유효한지 확인
+        if (SpawnInfo.UnitData)
+        {
+            UReadyEnemyWidget* NewEnemyWidget = CreateWidget<UReadyEnemyWidget>(this, EnemySlotClass);
+            if (NewEnemyWidget)
+            {
+                // 적 위젯에 실제 UI 데이터 주입
+                NewEnemyWidget->UpdateEnemyWidget(SpawnInfo.UnitData);
+                UHorizontalBoxSlot* EnemySlot = EnemyBox->AddChildToHorizontalBox(NewEnemyWidget);
+                if (EnemySlot)
+                {
+                    EnemySlot->SetPadding(FMargin(10.0f));
+                }
+            }
+        }
+    }
+}
+
+void UStageReadyWidget::InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData)
 {
     InitializeReadyUnit();
     InitializeReadyEquip();
+    InitializeReadyEnemy(InEnemyListData);
 }

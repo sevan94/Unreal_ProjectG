@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Engine/DataTable.h"
+#include "DataAssets/UI/EnemyUIDataAsset.h"
+#include "DataAssets/Spawner/DA_StageUnitListDataAsset.h"
 #include "StageDataTable.generated.h"
 
  /**
@@ -24,4 +26,7 @@ struct FStageDataTable : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FVector2D MapPosition;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UDA_StageUnitListDataAsset> EnemyList;
 };

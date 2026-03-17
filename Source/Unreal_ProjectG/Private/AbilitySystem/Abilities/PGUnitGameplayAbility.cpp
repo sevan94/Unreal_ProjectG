@@ -35,7 +35,7 @@ FGameplayEffectSpecHandle UPGUnitGameplayAbility::MakeOutgoingEffectSpecToTarget
 
     // 이펙트 스펙에 SetByCaller 매개변수 설정하여 스킬 배율값을 전달
     EffectSpecHandle.Data->SetSetByCallerMagnitude(
-        PGGameplayTags::Shared_SetByCaller_DamageMultiplier,
+        PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
         SkillMultiflier
     );
 

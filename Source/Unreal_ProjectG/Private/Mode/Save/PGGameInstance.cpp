@@ -108,24 +108,25 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
     case EGoodsCategory::Gem:
     {
         CurrentPlayerGem -= InValue;
+        if (CurrentPlayerGem < 0) CurrentPlayerGem = 0;
         OutValue = CurrentPlayerGem;
         break;
     }
     case EGoodsCategory::Unlock:
     {
         CurrentPlayerUnlock -= InValue;
+        if (CurrentPlayerUnlock < 0) CurrentPlayerUnlock = 0;
         OutValue = CurrentPlayerUnlock;
         break;
     }
     case EGoodsCategory::Gold:
     {
         CurrentPlayerGold -= InValue;
+        if (CurrentPlayerGold < 0) CurrentPlayerGold = 0;
         OutValue = CurrentPlayerGold;
         break;
     }
     }
-    if (OutValue <= 0)
-        OutValue = 0;
     if (OnGoodsChanged.IsBound())
     {
         OnGoodsChanged.Broadcast(InCategory, OutValue);

@@ -32,9 +32,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     FName UnitName;
 
-    // 유닛 스테이터스 식별용 이름
+    // 유닛 스테이터스 커브테이블
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
-    FString UnitStatus;
+    TObjectPtr<UCurveTable> UnitStatus;
 
     // 유닛 설명
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")

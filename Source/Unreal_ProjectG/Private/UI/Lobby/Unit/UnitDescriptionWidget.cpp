@@ -40,6 +40,8 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
     UnitCost->SetText(FText::AsNumber(CurrentUIData->UnitCost));
     UnitLevel->SetText(FText::AsNumber(SaveData.Level));
 
+    int32 CurrentCost = 0;
+
     // 해금 여부에 따라 UI 갱신
     if (ButtonText && CostBar)
     {
@@ -47,12 +49,21 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
         {
             ButtonText->SetText(FText::FromString(TEXT("강화")));
             CostBar->SetGoodsImage(GoldIcon);
+            if (CurrentUIData->UnitStatus)
+            {
+                if (FRealCurve* CostCurve = CurrentUIData->UnitStatus->FindCurve(TEXT("UpgradeCost"), TEXT("")))
+                {
+                    CurrentCost = FMath::RoundToInt(CostCurve->Eval(SaveData.Level));
+                }
+            }
         }
         else
         {
             ButtonText->SetText(FText::FromString(TEXT("해금")));
             CostBar->SetGoodsImage(UnlockIcon);
+            CurrentCost = CurrentUIData->UnitUnlock;
         }
+        CostBar->UpdateGoodsText(CurrentCost);
     }
 
     SetUnitStatus();
@@ -71,10 +82,19 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
         if (TargetData->bIsUnlocked)
         {
             // 강화 로직
-            // 골드 체크
-            if (GI->CurrentPlayerGold >= CurrentUIData->UnitUnlock)
+            int32 CurrentCost = 0;
+            if (CurrentUIData->UnitStatus)
             {
-                GI->ConsumeGoods(EGoodsCategory::Gold, CurrentUIData->UnitUnlock);
+                if (FRealCurve* CostCurve = CurrentUIData->UnitStatus->FindCurve(TEXT("UpgradeCost"), TEXT("")))
+                {
+                    CurrentCost = FMath::RoundToInt(CostCurve->Eval(TargetData->Level));
+                }
+            }
+
+            // 골드 체크
+            if (GI->CurrentPlayerGold >= CurrentCost)
+            {
+                GI->ConsumeGoods(EGoodsCategory::Gold, CurrentCost);
                 TargetData->Level++;
             }
 
@@ -108,41 +128,37 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
 
 void UUnitDescriptionWidget::SetUnitStatus()
 {
+    if (!CurrentUIData || !CurrentUIData->UnitStatus) return;
+
     static const FString ContextString(TEXT("Unit Stat Context"));
 
-    FName HealthRowName = *FString::Printf(TEXT("%sMaxHealth"), *CurrentUIData->UnitStatus);
-    FName AttackDamageRowName = *FString::Printf(TEXT("%sAttackDamage"), *CurrentUIData->UnitStatus);
-    FName AttackSpeedRowName = *FString::Printf(TEXT("%sAttackSpeed"), *CurrentUIData->UnitStatus);
-    FName MoveSpeedRowName = *FString::Printf(TEXT("%sMoveSpeed"), *CurrentUIData->UnitStatus);
+    // 데이터 에셋에 들어있는 커브 테이블을 가져옴
+    UCurveTable* TargetTable = CurrentUIData->UnitStatus;
 
-    // 커브 찾기
-    FRealCurve* HealthCurve = StatusCurveTable->FindCurve(HealthRowName, ContextString);
-    FRealCurve* AttackDamageCurve = StatusCurveTable->FindCurve(AttackDamageRowName, ContextString);
-    FRealCurve* AttackSpeedCurve = StatusCurveTable->FindCurve(AttackSpeedRowName, ContextString);
-    FRealCurve* MoveSpeedCurve = StatusCurveTable->FindCurve(MoveSpeedRowName, ContextString);
+    FRealCurve* HealthCurve = TargetTable->FindCurve(TEXT("MaxHealth"), ContextString);
+    FRealCurve* AttackDamageCurve = TargetTable->FindCurve(TEXT("AttackDamage"), ContextString);
+    FRealCurve* AttackSpeedCurve = TargetTable->FindCurve(TEXT("AttackSpeed"), ContextString);
+    FRealCurve* MoveSpeedCurve = TargetTable->FindCurve(TEXT("MoveSpeed"), ContextString);
 
     // 데이터 적용
-    if (HealthCurve)
+    if (HealthCurve && UnitHealth)
     {
         float HealthValue = HealthCurve->Eval(SaveData.Level);
-        UnitHealth->SetText(FText::AsNumber(HealthValue));
+        UnitHealth->SetText(FText::AsNumber(FMath::RoundToInt(HealthValue)));
     }
-
-    if (AttackDamageCurve)
+    if (AttackDamageCurve && UnitAttackDamage)
     {
         float AttackDamageValue = AttackDamageCurve->Eval(SaveData.Level);
-        UnitAttackDamage->SetText(FText::AsNumber(AttackDamageValue));
+        UnitAttackDamage->SetText(FText::AsNumber(FMath::RoundToInt(AttackDamageValue)));
     }
-
-    if (AttackSpeedCurve)
+    if (AttackSpeedCurve && UnitAttackSpeed)
     {
         float AttackSpeedValue = AttackSpeedCurve->Eval(SaveData.Level);
         UnitAttackSpeed->SetText(FText::AsNumber(AttackSpeedValue));
     }
-
-    if (MoveSpeedCurve)
+    if (MoveSpeedCurve && UnitMoveSpeed)
     {
         float MoveSpeedValue = MoveSpeedCurve->Eval(SaveData.Level);
-        UnitMoveSpeed->SetText(FText::AsNumber(MoveSpeedValue));
+        UnitMoveSpeed->SetText(FText::AsNumber(FMath::RoundToInt(MoveSpeedValue)));
     }
 }

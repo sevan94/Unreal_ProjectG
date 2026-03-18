@@ -74,14 +74,6 @@ enum class EHeroCombatMode : uint8
     Auto UMETA(DisplayName = "Auto"),
 };
 
-// AOE 공격의 실행 방식에 대한 열거형, 즉 즉시 효과인지 장판 형태로 남는 효과인지
-UENUM(BlueprintType)
-enum class EAOEExecutionType : uint8
-{
-    Instant,
-    PersistentField,
-};
-
 // AOE 공격의 타겟팅 정책을 나타내는 열거형, 즉 적군만 타겟팅할지 아군만 타겟팅할지 등
 UENUM(BlueprintType)
 enum class EAOETargetPolicy : uint8
@@ -97,4 +89,13 @@ enum class EBuffDurationType : uint8
 {
     Infinite,
     Duration
+};
+
+// 스킬의 발동 방식 (즉시 발동인지, 채널링인지 등)을 나타내는 열거형
+UENUM(BlueprintType)
+enum class ESkillActivationType : uint8
+{
+    Instant,
+    Channeling,
+    Passive
 };

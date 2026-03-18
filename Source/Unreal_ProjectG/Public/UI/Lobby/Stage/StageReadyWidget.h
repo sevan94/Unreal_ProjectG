@@ -4,9 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/DataTable/StageDataTable.h"
+#include "Types/PGEnumTypes.h"
 #include "StageReadyWidget.generated.h"
 
 class UButton;
+class UImage;
+class UTextBlock;
 class UHorizontalBox;
 class UReadyUnitWidget;
 class UReadyEquipWidget;
@@ -24,7 +28,7 @@ class UNREAL_PROJECTG_API UStageReadyWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData, TSoftObjectPtr<UWorld> InTargetLevel);
+    void InitializeReadyWidget(const FStageDataTable& InStageData);
 	
 protected:
     virtual void NativeConstruct() override;
@@ -38,6 +42,8 @@ protected:
     void InitializeReadyUnit();
     void InitializeReadyEquip();
     void InitializeReadyEnemy(UDA_StageUnitListDataAsset* InEnemyListData);
+    void InitializeReadyReward(const FStageDataTable& InStageData);
+    FText GetRewardText(ERewardCategory Category, float RewardValue);
 
 protected:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stage")
@@ -74,6 +80,22 @@ protected:
     TObjectPtr<UHorizontalBox> EnemyBox;
     UPROPERTY(EditAnywhere, Category = "UI")
     TSubclassOf<UReadyEnemyWidget> EnemySlotClass;
+
+    // 달성도 패널
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> Star1;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> Star2;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> Star3;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> Star2Description;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> Star3Description;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> RewardGem;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> RewardGold;
 
 private:
     TObjectPtr<UPGGameInstance> GI;

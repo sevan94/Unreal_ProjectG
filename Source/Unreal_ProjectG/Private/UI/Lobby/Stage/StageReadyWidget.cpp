@@ -5,6 +5,8 @@
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "DataAssets/UI/EnemyUIDataAsset.h"
@@ -101,10 +103,49 @@ void UStageReadyWidget::InitializeReadyEnemy(UDA_StageUnitListDataAsset* InEnemy
     }
 }
 
-void UStageReadyWidget::InitializeReadyWidget(UDA_StageUnitListDataAsset* InEnemyListData, TSoftObjectPtr<UWorld> InTargetLevel)
+void UStageReadyWidget::InitializeReadyReward(const FStageDataTable& InStageData)
 {
-    TargetLevel = InTargetLevel;
+    // 2성, 3성 문구 생성
+    FText Star2Text = GetRewardText(InStageData.RewardType, InStageData.Star2);
+    FText Star3Text = GetRewardText(InStageData.RewardType, InStageData.Star3);
+
+    if (Star2Description) Star2Description->SetText(Star2Text);
+    if (Star3Description) Star3Description->SetText(Star3Text);
+    if (RewardGem) RewardGem->SetText(FText::AsNumber(InStageData.RewardGem));
+    if (RewardGold) RewardGold->SetText(FText::AsNumber(InStageData.RewardGold));
+}
+
+FText UStageReadyWidget::GetRewardText(ERewardCategory Category, float RewardValue)
+{
+    FString RewardString;
+
+    switch (Category)
+    {
+    case ERewardCategory::Time:
+        RewardString = FString::Printf(TEXT("%.0f초 이내로 클리어"), RewardValue);
+        break;
+
+    case ERewardCategory::Health:
+        RewardString = FString::Printf(TEXT("아군 기지 체력 %.0f%% 이상"), RewardValue);
+        break;
+
+    case ERewardCategory::Cost:
+        RewardString = FString::Printf(TEXT("소모 코스트 %.0f 이내로 클리어"), RewardValue);
+        break;
+
+    default:
+        RewardString = TEXT("조건 정보 없음");
+        break;
+    }
+
+    return FText::FromString(RewardString);
+}
+
+void UStageReadyWidget::InitializeReadyWidget(const FStageDataTable& InStageData)
+{
+    TargetLevel = InStageData.StageLevel;
     InitializeReadyUnit();
     InitializeReadyEquip();
-    InitializeReadyEnemy(InEnemyListData);
+    InitializeReadyEnemy(InStageData.EnemyList);
+    InitializeReadyReward(InStageData);
 }

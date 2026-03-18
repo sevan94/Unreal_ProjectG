@@ -33,14 +33,14 @@ void ULobbyStageWidget::OpenStageInfo(int32 StageCode)
     {
         if (Row && Row->StageCode == StageCode)
         {
-            // GameInstance에 현재 선택한 스테이지 코드 저장
+            // GameInstance에 현재 선택한 스테이지 데이터 저장
             if (UPGGameInstance* GI = GetGameInstance<UPGGameInstance>())
             {
-                GI->SelectedStageNum = StageCode;
+                GI->CurrentStageData = *Row;
             }
 
-            // 적 리스트 전달 및 UI 갱신
-            StageReady->InitializeReadyWidget(Row->EnemyList, Row->StageLevel);
+            // 스테이지 정보창에 스테이지 데이터 전달
+            StageReady->InitializeReadyWidget(*Row);
 
             // 정보창 표시
             StageReady->SetVisibility(ESlateVisibility::Visible);

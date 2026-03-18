@@ -48,9 +48,6 @@ void UPGGameInstance::LoadGameData()
         InitializeUnitMap();
     }
 
-    // 테스트용 유닛 맵 초기화
-    InitializeUnitMap();
-
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
     //장비
     CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
@@ -133,6 +130,30 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
     }
 }
 
+void UPGGameInstance::UpdateStageClearData(int32 StageCode, int32 InStarCount)
+{
+    int32* OldStarCountPtr = StageClearData.Find(StageCode);
+    bool bIsFirstClear = (OldStarCountPtr == nullptr);
+
+    // 젬은 최초 클리어시에만 지급
+    if (bIsFirstClear)
+    {
+        AddGoods(EGoodsCategory::Gem, CurrentStageData.RewardGem);
+    }
+    
+    // 달성도에 따라 골드 지급
+    AddGoods(EGoodsCategory::Gold, CurrentStageData.RewardGold * InStarCount);
+
+    if (bIsFirstClear || InStarCount > *OldStarCountPtr)
+    {
+        StageClearData.Add(StageCode, InStarCount);
+
+        // 다음 스테이지 해금 로직 [추가 예정]
+        // UnlockNextStage(StageCode); 
+    }
+    SaveGameData();
+}
+
 void UPGGameInstance::InitializeUnitMap()
 {
     if (!UnitDataTable) return;
@@ -185,6 +206,9 @@ void UPGGameInstance::SaveGameData()
 
     // 현재 보유 유닛 리스트 저장
     CachedSaveData->UnitLevelMap = this->UnitLevelMap;
+
+    // 현재 스테이지 데이터 저장
+    CachedSaveData->StageDataMap = this->StageClearData;
 
     // 런타임 데이터(SoftPtr) -> 디스크 데이터(Path) 저장
     // 게임 중 변동된 장비를 세이브 파일에 덮어쓰기

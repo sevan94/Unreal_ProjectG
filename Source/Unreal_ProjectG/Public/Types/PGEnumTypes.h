@@ -90,3 +90,12 @@ enum class EAOETargetPolicy : uint8
     FriendlyOnly,
     AllExceptSelf,
 };
+
+// 스테이지 달성도 타입 열거형
+UENUM()
+enum class ERewardCategory : uint8
+{
+    Time        UMETA(DisplayName = "Time"),
+    Health      UMETA(DisplayName = "Health"),
+    Cost        UMETA(DisplayName = "Cost")
+};

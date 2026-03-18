@@ -80,6 +80,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "GameRule")
     void ShowStageResult(const FBattleResultData& ResultData);
 
+    // 스테이지 결과 계산
+    void SetStageResult();
+
 public:
     //기지 파괴 시 호출될 게임오버 함수
     UFUNCTION()

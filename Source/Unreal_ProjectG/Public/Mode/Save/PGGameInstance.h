@@ -52,8 +52,6 @@ public:
     void ConsumeGoods(EGoodsCategory InCategory, int32 InValue);
 
     // 스테이지 결과 정보 저장
-    void SaveStageClearProgress(int32 StageCode, int32 InStarCount);
-
     void UpdateStageClearData(int32 StageCode, int32 InStarCount);
 
     // 선택한 스테이지 데이터

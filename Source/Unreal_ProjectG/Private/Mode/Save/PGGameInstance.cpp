@@ -48,6 +48,8 @@ void UPGGameInstance::LoadGameData()
         InitializeUnitMap();
     }
 
+    StageClearData = CachedSaveData->StageDataMap;
+
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
     //장비
     CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);

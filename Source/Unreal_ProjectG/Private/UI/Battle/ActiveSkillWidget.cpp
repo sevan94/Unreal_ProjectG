@@ -7,6 +7,7 @@
 #include "Components/Overlay.h"
 #include "Components/Image.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/PGGameplayAbility.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "TimerManager.h"
 #include "UI/DataTable/SkillUIDataTable.h"
@@ -24,7 +25,7 @@ void UActiveSkillWidget::SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandl
             AbilityObject = Spec->GetPrimaryInstance();
             if (!AbilityObject)
             {
-                AbilityObject = Cast<UGameplayAbility>(Spec->Ability);
+                AbilityObject = Cast<UPGGameplayAbility>(Spec->Ability);
             }
 
             if (AbilityObject)

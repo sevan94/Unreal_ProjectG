@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/PGEnumTypes.h"
 #include "ResultVictoryWidget.generated.h"
 
 class UImage;
@@ -30,6 +31,10 @@ protected:
 
     UFUNCTION()
     void OnStageButtonClicked();
+    
+private:
+    // 달성도 문구 수정
+    FText GetRewardText(ERewardCategory Category, float RewardValue);
 
 protected:
     // 다음 스테이지 버튼
@@ -57,6 +62,19 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> Star3;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> Star2Text;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> Star3Text;
+
+    // 보상 텍스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> RewardGem;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> RewardGold;
 
     // 별 이미지
     UPROPERTY(BlueprintReadWrite, Category = "BattleResult")

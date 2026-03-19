@@ -33,7 +33,7 @@ protected:
     void OnEquipButtonClicked();
 
 public:
-    // 에디터에서 각 위젯 인스턴스마다 어떤 카테고리인지 지정합니다.
+    // 에디터에서 어떤 카테고리인지 지정
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equip")
     EEquipCategory SlotCategory;
 

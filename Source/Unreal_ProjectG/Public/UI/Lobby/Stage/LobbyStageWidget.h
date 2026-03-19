@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/DataTable/StageDataTable.h"
 #include "LobbyStageWidget.generated.h"
 
 class UButton;

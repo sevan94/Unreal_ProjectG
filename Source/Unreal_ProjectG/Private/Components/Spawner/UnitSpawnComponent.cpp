@@ -4,7 +4,7 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DataAssets/Spawner/DA_StageUnitListDataAsset.h"
-#include "DataAssets/UI/UnitUIDataAsset.h"
+#include "DataAssets/UI/EnemyUIDataAsset.h"
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
@@ -38,16 +38,13 @@ void UUnitSpawnComponent::BeginPlay()
         {
             TSet<TSubclassOf<AUnitCharacter>> UniqueUnitClasses;
 
-            for (const FStageInfo& StageInfo : StageUnitDataAsset->Stage)
-            {
-                for (const FUnitSpawnDataInfo& UnitInfo : StageInfo.UnitSpawnList)
+                for (const FUnitSpawnDataInfo& UnitInfo : StageUnitDataAsset->UnitSpawnList)
                 {
                     if (UnitInfo.UnitData)
                     {
-                        UniqueUnitClasses.Add(UnitInfo.UnitData->UnitClass);
+                        UniqueUnitClasses.Add(UnitInfo.UnitData->EnemyClass);
                     }
                 }
-            }
 
             for (const TSubclassOf<AUnitCharacter>& UnitClass : UniqueUnitClasses)
             {
@@ -75,15 +72,15 @@ void UUnitSpawnComponent::SpawnRandomUnit()
         return;
     }
 
-    const FStageInfo* CurrentStageInfo = nullptr;
-    for (const FStageInfo& Info : StageUnitDataAsset->Stage)
-    {
-        if (Info.StageIndex == CurrentStageIndex)
-        {
-            CurrentStageInfo = &Info;
-            break;
-        }
-    }
+    //const FStageInfo* CurrentStageInfo = nullptr;
+    //for (const FStageInfo& Info : StageUnitDataAsset->Stage)
+    //{
+    //    if (Info.StageIndex == CurrentStageIndex)
+    //    {
+    //        CurrentStageInfo = &Info;
+    //        break;
+    //    }
+    //}
 
     // 배열이 비어있는지 먼저 확인하여 크래시 방지
     if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.IsEmpty())
@@ -91,7 +88,7 @@ void UUnitSpawnComponent::SpawnRandomUnit()
         return;
     }
 
-    const TArray<FUnitSpawnDataInfo>& UnitSpawnList = CurrentStageInfo->UnitSpawnList;
+    const TArray<FUnitSpawnDataInfo>& UnitSpawnList = StageUnitDataAsset->UnitSpawnList;
 
     // 가중치를 무시하고 0부터 (배열 크기 - 1) 사이에서 무작위 인덱스 추출
     int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
@@ -99,7 +96,7 @@ void UUnitSpawnComponent::SpawnRandomUnit()
     TSubclassOf<AUnitCharacter> SelectedUnitClass;
     if (UnitSpawnList[RandomIndex].UnitData)
     {
-        SelectedUnitClass = UnitSpawnList[RandomIndex].UnitData->UnitClass;
+        SelectedUnitClass = UnitSpawnList[RandomIndex].UnitData->EnemyClass;
     }
 
     if (SelectedUnitClass)

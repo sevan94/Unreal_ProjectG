@@ -24,9 +24,11 @@ class UNREAL_PROJECTG_API UUISwitcherWidget : public UUserWidget
 protected:
     virtual void NativeConstruct() override;
 	
-    UPROPERTY(meta = (BindWidget))
+public:
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
 
+protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UMainLobbyWidget> LobbyWidget;
 

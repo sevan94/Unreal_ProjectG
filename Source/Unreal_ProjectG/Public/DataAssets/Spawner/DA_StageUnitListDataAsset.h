@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "DA_StageUnitListDataAsset.generated.h"
+
 class AUnitCharacter;
-class UUnitUIDataAsset;
+class UEnemyUIDataAsset;
 
 USTRUCT(BlueprintType)
 struct FUnitSpawnDataInfo
@@ -14,26 +15,11 @@ struct FUnitSpawnDataInfo
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TObjectPtr<UUnitUIDataAsset> UnitData;
+    TObjectPtr<UEnemyUIDataAsset> UnitData;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     int32 Spawnweight;
 };
-
-USTRUCT(BlueprintType)
-struct FStageInfo
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    int32 StageIndex;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TArray<FUnitSpawnDataInfo> UnitSpawnList;
-};
-/**
- * 
- */
 
 UCLASS()
 class UNREAL_PROJECTG_API UDA_StageUnitListDataAsset : public UPrimaryDataAsset
@@ -41,6 +27,6 @@ class UNREAL_PROJECTG_API UDA_StageUnitListDataAsset : public UPrimaryDataAsset
 	GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere, Category = "Stage")
-    TArray<FStageInfo> Stage;
+    TArray<FUnitSpawnDataInfo> UnitSpawnList;
 
 };

@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/PGEnumTypes.h"
 #include "LobbyGachaWidget.generated.h"
 
 class UButton;
 class UWidgetSwitcher;
+class UGoodsBarWidget;
+class UPGGameInstance;
 
 /**
  * 
@@ -20,14 +23,32 @@ class UNREAL_PROJECTG_API ULobbyGachaWidget : public UUserWidget
 protected:
     virtual void NativeConstruct() override;
 
-private:
     UFUNCTION()
     void OnExitButtonClick();
+
+    UFUNCTION()
+    void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
 
+protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;
+
+    // 소유 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Gem;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Unlock;
+
+    // 뽑기 소모 비용 위젯
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> UnitGachaCost;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> EquipGachaCost;
+
+private:
+    TObjectPtr<UPGGameInstance> GI;
 };

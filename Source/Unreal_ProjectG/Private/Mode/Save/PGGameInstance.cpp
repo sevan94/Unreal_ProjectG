@@ -48,25 +48,26 @@ void UPGGameInstance::LoadGameData()
         InitializeUnitMap();
     }
 
-    // 테스트용 유닛 맵 초기화
-    InitializeUnitMap();
-
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
-    //장비
-    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
-    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
-    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
-
-    //재화
+    // 재화 로드
     CurrentPlayerGold = CachedSaveData->PlayerGold;
     CurrentPlayerGem = CachedSaveData->PlayerGem;
     CurrentPlayerUnlock = CachedSaveData->PlayerUnlock;
 
+    // 유닛 데이터 로드
     CurrentUnits.Empty();
     for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
     {
         CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Path));
     }
+
+    // 장비 로드
+    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
+    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
+    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
+
+    // 클리어 스테이지 데이터 로드
+    StageClearData = CachedSaveData->StageDataMap;
 }
 
 void UPGGameInstance::AddGoods(EGoodsCategory InCategory, int32 InValue)
@@ -109,28 +110,53 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
     case EGoodsCategory::Gem:
     {
         CurrentPlayerGem -= InValue;
+        if (CurrentPlayerGem < 0) CurrentPlayerGem = 0;
         OutValue = CurrentPlayerGem;
         break;
     }
     case EGoodsCategory::Unlock:
     {
         CurrentPlayerUnlock -= InValue;
+        if (CurrentPlayerUnlock < 0) CurrentPlayerUnlock = 0;
         OutValue = CurrentPlayerUnlock;
         break;
     }
     case EGoodsCategory::Gold:
     {
         CurrentPlayerGold -= InValue;
+        if (CurrentPlayerGold < 0) CurrentPlayerGold = 0;
         OutValue = CurrentPlayerGold;
         break;
     }
     }
-    if (OutValue <= 0)
-        OutValue = 0;
     if (OnGoodsChanged.IsBound())
     {
         OnGoodsChanged.Broadcast(InCategory, OutValue);
     }
+}
+
+void UPGGameInstance::UpdateStageClearData(int32 StageCode, int32 InStarCount)
+{
+    int32* OldStarCountPtr = StageClearData.Find(StageCode);
+    bool bIsFirstClear = (OldStarCountPtr == nullptr);
+
+    // 젬은 최초 클리어시에만 지급
+    if (bIsFirstClear)
+    {
+        AddGoods(EGoodsCategory::Gem, CurrentStageData.RewardGem);
+    }
+    
+    // 달성도에 따라 골드 지급
+    AddGoods(EGoodsCategory::Gold, CurrentStageData.RewardGold * InStarCount);
+
+    if (bIsFirstClear || InStarCount > *OldStarCountPtr)
+    {
+        StageClearData.Add(StageCode, InStarCount);
+
+        // 다음 스테이지 해금 로직 [추가 예정]
+        // UnlockNextStage(StageCode); 
+    }
+    SaveGameData();
 }
 
 void UPGGameInstance::InitializeUnitMap()
@@ -185,6 +211,9 @@ void UPGGameInstance::SaveGameData()
 
     // 현재 보유 유닛 리스트 저장
     CachedSaveData->UnitLevelMap = this->UnitLevelMap;
+
+    // 현재 스테이지 데이터 저장
+    CachedSaveData->StageDataMap = this->StageClearData;
 
     // 런타임 데이터(SoftPtr) -> 디스크 데이터(Path) 저장
     // 게임 중 변동된 장비를 세이브 파일에 덮어쓰기

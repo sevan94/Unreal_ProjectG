@@ -20,7 +20,7 @@ class UNREAL_PROJECTG_API UReadyUnitWidget : public UUserWidget
 
 public:
     // UI 업데이트 함수
-    void UpdateUnitWidget(TSoftObjectPtr<UUnitUIDataAsset> UnitDataAsset, int32 Level);
+    void UpdateUnitWidget(TSoftObjectPtr<UUnitUIDataAsset> InData, int32 Level);
 	
 protected:
     UPROPERTY(meta = (BindWidget))

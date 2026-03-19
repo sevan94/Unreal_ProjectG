@@ -6,9 +6,8 @@
 namespace PGGameplayTags
 {
     // 플레이어 어빌리티 태그
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_WeaponSharedSkill, "Player.Ability.Combat.WeaponSharedSkill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_WeaponUniqueSkill, "Player.Ability.Combat.WeaponUniqueSkill");   
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill, "Player.Ability.Skill");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
 

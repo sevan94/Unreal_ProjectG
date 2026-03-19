@@ -202,6 +202,8 @@ void AUnitCharacter::InitUnitStartUpData()
                     {
                         OnUnitStartUpDataLoadedDelegate.Broadcast();
                     }
+
+
                 }
             }
         )
@@ -211,28 +213,21 @@ void AUnitCharacter::InitUnitStartUpData()
 
 void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 {
-    //적 베이스로 돌격하기 위한 함수, 지금은 유닛 블루프린트의 beginplay에서만 호출하는데 + 여기서만 적 베이스를 정할 수 있는데 나중ㅇ 바꿀듯????
     TargetActor = InTargetActor;
 
-    if (!IsValid(TargetActor))
-    {
-        return;
-    }
+    if (!IsValid(TargetActor)) return;
 
-    if (!AIController)
+    if (!IsValid(AIController))
     {
         AIController = Cast<AAIController>(GetController());
     }
 
+    if (!IsValid(AIController)) return;
 
-
-    if (AIController)
+    UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+    if (IsValid(BBComp))
     {
-        UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
-        if (BBComp)
-        {
-            BBComp->SetValueAsObject(TEXT("AttackTargetBase"), InTargetActor);
-        }
+        BBComp->SetValueAsObject(TEXT("AttackTargetBase"), InTargetActor);
     }
 
 }

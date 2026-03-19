@@ -45,6 +45,11 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Equipment")
     TArray<FSoftObjectPath> EquippedUnitPaths;
 
+    // 유닛 정보 맵
     UPROPERTY()
     TMap<int32, FUnitSaveData> UnitLevelMap;
+
+    // 스테이지 정보 맵
+    UPROPERTY()
+    TMap<int32, int32> StageDataMap;
 };

@@ -14,6 +14,8 @@ class UGameplayEffect;
 class UPGGameplayAbility;
 class APetCharacter;
 class AAOESkillActor;
+class APGMageMagicBase;
+
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
@@ -263,4 +265,28 @@ struct FUnitBuffAuraAbilityConfig : public FAbilityConfig
     // 장판이 유닛을 따라다닐지(오라 형태), 시전 위치에 남을지 결정
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Support")
     bool bAttachToUnit = false;
+};
+
+USTRUCT(BlueprintType)
+struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    // 데미지 계산 클래스
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+    // 스킬 계수
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FScalableFloat SkillMultiplier; 
+
+    // 스폰할 클래스를 APGMageMagicBase로 지정
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSoftClassPtr<APGMageMagicBase> SpawnedMagicClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<TSoftObjectPtr<UAnimMontage>> SpawnMagicMontages; // 시전 애니메이션 몽타주들
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
+    FGameplayTag SpawnCueTag; // 스폰 시 재생할 이펙트 태그 (필요시)
 };

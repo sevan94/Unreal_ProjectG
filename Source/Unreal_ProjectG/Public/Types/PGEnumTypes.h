@@ -47,6 +47,15 @@ enum class EUnitState : uint8
     Dead        UMETA(DisplayName = "Dead")
 };
 
+//유닛 등급 열거형
+UENUM(BlueprintType)
+enum class EUnitRank : uint8
+{
+    Normal      UMETA(DisplayName = "Normal"),
+    Rare        UMETA(DisplayName = "Rare"),
+    SuperRare   UMETA(DisplayName = "SuperRare")
+};
+
 // UI에서 장비 구분용 열거형
 UENUM()
 enum class EEquipCategory : uint8
@@ -98,4 +107,13 @@ enum class ESkillActivationType : uint8
     Instant,
     Channeling,
     Passive
+};
+
+// 스테이지 달성도 타입 열거형
+UENUM()
+enum class ERewardCategory : uint8
+{
+    Time        UMETA(DisplayName = "Time"),
+    Health      UMETA(DisplayName = "Health"),
+    Cost        UMETA(DisplayName = "Cost")
 };

@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Character/Unit/UnitCharacter.h"
 #include "Types/PGEnumTypes.h"
+#include "UI/DataTable/StageDataTable.h"
 #include "PGGameInstance.generated.h"
 
 class UPGSaveGame;
@@ -42,11 +43,29 @@ public:
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void LoadGameData();
 
+    // 재화 추가
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void AddGoods(EGoodsCategory InCategory, int32 InValue);
 
+    // 재화 소비
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void ConsumeGoods(EGoodsCategory InCategory, int32 InValue);
+
+    // 스테이지 결과 정보 저장
+    void UpdateStageClearData(int32 StageCode, int32 InStarCount);
+
+    // 선택한 스테이지 데이터
+    inline void SetCurrentStageData(const FStageDataTable& InData) { CurrentStageData = InData; }
+
+    // 스테이지의 달성도를 리턴하는 함수
+    inline int32 GetStageStarCount(int32 StageCode)
+    {
+        if (StageClearData.Contains(StageCode))
+        {
+            return StageClearData[StageCode];
+        }
+        return 0; // 데이터가 없으면 미클리어 상태
+    }
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")
@@ -72,11 +91,15 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Equipment")
     FGameplayTag CurrentSetTag = FGameplayTag::EmptyTag;
 
-    //로비에서 선택한 스테이지 번호(게임 모드에 전달할 목적)
+    // 로비에서 선택한 스테이지 정보
     UPROPERTY(BlueprintReadWrite, Category = "Stage")
-    int32 SelectedStageNum = 1;
+    FStageDataTable CurrentStageData;
 
-    //소지 재화
+    // 스테이지 데이터 정보 (스테이지 코드, 스테이지 달성도 정보)
+    UPROPERTY(BlueprintReadWrite, Category = "SaveData")
+    TMap<int32, int32> StageClearData;
+
+    // 소지 재화
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerGold;
 
@@ -86,10 +109,11 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerUnlock;
 
-    //스테이지
+    // 현재 선택 스테이지
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentStageIndex = 0;
 
+    // 유닛 도감 형식 데이터(유닛 코드, 유닛 데이터)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
     TMap<int32, FUnitSaveData> UnitLevelMap;
 

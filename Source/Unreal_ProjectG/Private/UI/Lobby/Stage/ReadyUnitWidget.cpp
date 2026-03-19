@@ -6,11 +6,11 @@
 #include "Components/TextBlock.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
-void UReadyUnitWidget::UpdateUnitWidget(TSoftObjectPtr<UUnitUIDataAsset> UnitDataAsset, int32 Level)
+void UReadyUnitWidget::UpdateUnitWidget(TSoftObjectPtr<UUnitUIDataAsset> InData, int32 Level)
 {
-    if (UnitDataAsset && UnitImage)
+    if (InData && UnitImage)
     {
-        UnitImage->SetBrushFromTexture(UnitDataAsset->UnitImage);
+        UnitImage->SetBrushFromTexture(InData->UnitImage);
     }
 
     if (UnitLevel)

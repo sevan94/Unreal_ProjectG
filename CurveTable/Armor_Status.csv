@@ -1,0 +1,13 @@
+---,1,2,3,4
+Defender MaxHealth,20,30,40,50
+Defender AttackPower,2,4,6,8
+Crasher MaxHealth,20,30,40,50
+Crasher AttackPower,2,4,6,8
+Dimension MaxHealth,20,30,40,50
+Dimension AttackPower,2,4,6,8
+Healer MaxHealth,20,30,40,50
+Healer AttackPower,2,4,6,8
+PetFriends MaxHealth,20,30,40,50
+PetFriends AttackPower,2,4,6,8
+Thunder MaxHealth,20,30,40,50
+Thunder AttackPower,2,4,6,8

@@ -45,6 +45,55 @@ void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)
     HUD->OnGameOver(ResultData);
 }
 
+void APGBaseGameMode::SetStageResult()
+{
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (GI)
+    {
+        int32 FinalStarCount = 1; // 기본 클리어 1성
+        float CurrentValue = 0.0f;
+
+        // 카테고리에 따른 현재 기록 측정
+        switch (GI->CurrentStageData.RewardType)
+        {
+        case ERewardCategory::Time:
+        {
+            CurrentValue = GetCurrentPlayTime(); // 소요 시간
+            break;
+        }
+        case ERewardCategory::Health:
+        {
+            if (AllyBase)
+            {
+                UPGCharacterAttributeSet* BaseAttribute = AllyBase->GetPGCharacterAttributeSet();
+                CurrentValue = (BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth()) * 100.0f;
+            }
+            break;
+        }
+        case ERewardCategory::Cost:
+        {
+            CurrentValue = SpentCost; // 전투 중 소모한 총 코스트
+            break;
+        }
+        }
+
+        // 별 개수 판별 (시간/코스트는 작을수록 좋고, 체력은 클수록 좋음)
+        bool bSetStarCount = (GI->CurrentStageData.RewardType != ERewardCategory::Health);
+
+        if (bSetStarCount) {
+            if (CurrentValue <= GI->CurrentStageData.Star3) FinalStarCount = 3;
+            else if (CurrentValue <= GI->CurrentStageData.Star2) FinalStarCount = 2;
+        }
+        else {
+            if (CurrentValue >= GI->CurrentStageData.Star3) FinalStarCount = 3;
+            else if (CurrentValue >= GI->CurrentStageData.Star2) FinalStarCount = 2;
+        }
+
+        // 결과 저장 및 보상 지급 호출
+        GI->UpdateStageClearData(GI->CurrentStageData.StageCode, FinalStarCount);
+    }
+}
+
 // --- 시간 및 등급 관리 ---
 float APGBaseGameMode::GetCurrentPlayTime() const
 {
@@ -92,6 +141,8 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         {
             Result.StarCount = 1; // 1성 (턱걸이)
         }
+
+        SetStageResult();
 
         UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
 

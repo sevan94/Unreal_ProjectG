@@ -23,6 +23,8 @@ public:
     // 외부에서 지도를 새로고침할 때 호출
     void RefreshStageMap();
 
+    UDataTable* GetStageData() { return StageDataTable; }
+
     UPROPERTY(BlueprintAssignable)
     FOnRequestStageInfo OnRequestStageInfo;
 

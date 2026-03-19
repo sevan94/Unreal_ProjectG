@@ -5,6 +5,7 @@
 #include "UI/Lobby/Stage/StageButtonWidget.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UStageMapWidget::RefreshStageMap()
 {
@@ -27,6 +28,9 @@ void UStageMapWidget::GenerateStageButtons()
 {
     if (!StageDataTable || !StageButtonClass || !MapContainer) return;
 
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (!GI) return;
+
     static const FString ContextString(TEXT("Stage Generation Context"));
     TArray<FStageDataTable*> StageRows;
     StageDataTable->GetAllRows<FStageDataTable>(ContextString, StageRows);
@@ -37,8 +41,11 @@ void UStageMapWidget::GenerateStageButtons()
         UStageButtonWidget* NewButton = CreateWidget<UStageButtonWidget>(this, StageButtonClass);
         if (NewButton)
         {
+            // 게임 인스턴스에 저장된 스테이지 달성도
+            int32 SavedStarCount = GI->GetStageStarCount(Data->StageCode);
+
             // 버튼 초기화
-            NewButton->InitStageButton(Data->StageCode, Data->StageNumber, Data->StarCount);
+            NewButton->InitStageButton(Data->StageCode, Data->StageNumber, SavedStarCount);
 
             // 캔버스 패널(MapContainer)에 추가
             UCanvasPanelSlot* ButtonSlot = MapContainer->AddChildToCanvas(NewButton);

@@ -15,11 +15,6 @@ class UNREAL_PROJECTG_API AAOEDurationEffectActor : public AAOESkillActor
 	GENERATED_BODY()
 
 public:
-    void SetEffectSpecHandle(const FGameplayEffectSpecHandle& InSpecHandle);
-
     UFUNCTION(BlueprintCallable, meta = (DisplayName = "Collect And Apply Duration Effects"))
     void BP_CollectAndApplyDurationEffects(float InSkillMultiplier, float InBaseAmount, float InDuration);
-	
-private:
-    FGameplayEffectSpecHandle EffectSpecHandle;
 };

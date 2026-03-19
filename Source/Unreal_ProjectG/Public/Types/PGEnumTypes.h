@@ -47,6 +47,15 @@ enum class EUnitState : uint8
     Dead        UMETA(DisplayName = "Dead")
 };
 
+//유닛 등급 열거형
+UENUM(BlueprintType)
+enum class EUnitRank : uint8
+{
+    Normal      UMETA(DisplayName = "Normal"),
+    Rare        UMETA(DisplayName = "Rare"),
+    SuperRare   UMETA(DisplayName = "SuperRare")
+};
+
 // UI에서 장비 구분용 열거형
 UENUM()
 enum class EEquipCategory : uint8
@@ -74,14 +83,6 @@ enum class EHeroCombatMode : uint8
     Auto UMETA(DisplayName = "Auto"),
 };
 
-// AOE 공격의 실행 방식에 대한 열거형, 즉 즉시 효과인지 장판 형태로 남는 효과인지
-UENUM(BlueprintType)
-enum class EAOEExecutionType : uint8
-{
-    Instant,
-    PersistentField,
-};
-
 // AOE 공격의 타겟팅 정책을 나타내는 열거형, 즉 적군만 타겟팅할지 아군만 타겟팅할지 등
 UENUM(BlueprintType)
 enum class EAOETargetPolicy : uint8
@@ -89,4 +90,30 @@ enum class EAOETargetPolicy : uint8
     HostileOnly,
     FriendlyOnly,
     AllExceptSelf,
+};
+
+// 버프가 Infinite인지 Duration이 있는지 나타내는 열거형
+UENUM(BlueprintType)
+enum class EBuffDurationType : uint8
+{
+    Infinite,
+    Duration
+};
+
+// 스킬의 발동 방식 (즉시 발동인지, 채널링인지 등)을 나타내는 열거형
+UENUM(BlueprintType)
+enum class ESkillActivationType : uint8
+{
+    Instant,
+    Channeling,
+    Passive
+};
+
+// 스테이지 달성도 타입 열거형
+UENUM()
+enum class ERewardCategory : uint8
+{
+    Time        UMETA(DisplayName = "Time"),
+    Health      UMETA(DisplayName = "Health"),
+    Cost        UMETA(DisplayName = "Cost")
 };

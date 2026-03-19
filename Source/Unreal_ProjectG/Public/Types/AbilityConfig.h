@@ -41,6 +41,9 @@ struct FBuffEffectConfig
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    EBuffDurationType BuffDurationType = EBuffDurationType::Infinite;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<UGameplayEffect> BuffEffectClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -48,6 +51,9 @@ struct FBuffEffectConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FScalableFloat BaseBuffAmount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "BuffDurationType == EBuffDurationType::Duration")) // 버프 지속시간이 Duration일 때만 보이는 설정
+    FScalableFloat BuffDuration;
 };
 
 //==========================================================================================================
@@ -119,7 +125,7 @@ struct FHeroAOECommonConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "TargetPolicy != EAOETargetPolicy::FriendlyOnly")) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
     TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

@@ -21,7 +21,7 @@ void UUnitSpawnSubsystem::PrewarmPool(TSubclassOf<AUnitCharacter> UnitClass, int
 
     for (int32 i = 0; i < NeededCount; i++)
     {
-        AUnitCharacter* NewUnit = GetWorld()->SpawnActor<AUnitCharacter>(UnitClass, FVector(0, 0, -10000.0f), FRotator::ZeroRotator, SpawnParams);
+        AUnitCharacter* NewUnit = GetWorld()->SpawnActor<AUnitCharacter>(UnitClass, FVector(0, 0, -1024.0f), FRotator::ZeroRotator, SpawnParams);
         if (NewUnit)
         {
             NewUnit->DeactivateUnit();

@@ -24,7 +24,7 @@ public:
 
 public:
     // 세트 구분을 위한 태그
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Equipment.Set"))
     FGameplayTag SetTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

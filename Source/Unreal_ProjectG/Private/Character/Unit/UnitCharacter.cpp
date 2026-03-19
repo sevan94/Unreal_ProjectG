@@ -167,6 +167,7 @@ void AUnitCharacter::InitUnitStartUpData()
                     UE_LOG(LogTemp, Log, TEXT("InitUnitStartUpData"));
                     if (CharacterAttributeSet)
                     {
+                        CharacterAttributeSet->SetHealth(CharacterAttributeSet->GetMaxHealth());
                         UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
                     }
                     else
@@ -212,10 +213,18 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 {
     //적 베이스로 돌격하기 위한 함수, 지금은 유닛 블루프린트의 beginplay에서만 호출하는데 + 여기서만 적 베이스를 정할 수 있는데 나중ㅇ 바꿀듯????
     TargetActor = InTargetActor;
+
+    if (!IsValid(TargetActor))
+    {
+        return;
+    }
+
     if (!AIController)
     {
         AIController = Cast<AAIController>(GetController());
     }
+
+
 
     if (AIController)
     {
@@ -225,6 +234,7 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
             BBComp->SetValueAsObject(TEXT("AttackTargetBase"), InTargetActor);
         }
     }
+
 }
 
 //void AUnitCharacter::Attack()
@@ -242,6 +252,13 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 
 void AUnitCharacter::OnDie()
 {
+    if (bIsDead)
+    {
+        return;
+    }
+
+    bIsDead = true;
+
     if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
     {
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -270,6 +287,7 @@ void AUnitCharacter::OnDie()
 
 void AUnitCharacter::ActivateUnit()
 {
+    bIsDead = false;
     SetActorHiddenInGame(false); // 보이게 하기
     SetActorEnableCollision(true); // 충돌 켜기
     SetActorTickEnabled(true); // 로직 다시 돌리기
@@ -293,7 +311,7 @@ void AUnitCharacter::ActivateUnit()
 void AUnitCharacter::DeactivateUnit()
 {
 
-    OnUnitStartUpDataLoadedDelegate.Clear();
+    //OnUnitStartUpDataLoadedDelegate.Clear();
 
     if (AController* OldController = GetController())
     {

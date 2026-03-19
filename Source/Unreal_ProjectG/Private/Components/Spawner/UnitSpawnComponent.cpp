@@ -82,14 +82,17 @@ void UUnitSpawnComponent::SpawnRandomUnit()
     //    }
     //}
 
-    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.Num() == 0)
+    // 배열이 비어있는지 먼저 확인하여 크래시 방지
+    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.IsEmpty())
     //{
     //    return;
     //}
 
     const TArray<FUnitSpawnDataInfo>& UnitSpawnList = StageUnitDataAsset->UnitSpawnList;
 
+    // 가중치를 무시하고 0부터 (배열 크기 - 1) 사이에서 무작위 인덱스 추출
     int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
+
     TSubclassOf<AUnitCharacter> SelectedUnitClass;
     if (UnitSpawnList[RandomIndex].UnitData)
     {
@@ -111,11 +114,55 @@ void UUnitSpawnComponent::SpawnRandomUnit()
             }
         }
     }
+    //if (!StageUnitDataAsset)
+    //{
+    //    return;
+    //}
+
+    //const FStageInfo* CurrentStageInfo = nullptr;
+    //for (const FStageInfo& Info : StageUnitDataAsset->Stage)
+    //{
+    //    if (Info.StageIndex == CurrentStageIndex)
+    //    {
+    //        CurrentStageInfo = &Info;
+    //        break;
+    //    }
+    //}
+
+    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.Num() == 0)
+    //{
+    //    return;
+    //}
+
+    //const TArray<FUnitSpawnDataInfo>& UnitSpawnList = CurrentStageInfo->UnitSpawnList;
+
+    //int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
+    //TSubclassOf<AUnitCharacter> SelectedUnitClass;
+    //if (UnitSpawnList[RandomIndex].UnitData)
+    //{
+    //    SelectedUnitClass = UnitSpawnList[RandomIndex].UnitData->UnitClass;
+    //}
+
+    //if (SelectedUnitClass)
+    //{
+    //    if (UWorld* World = GetWorld())
+    //    {
+    //        if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
+    //        {
+    //            SpawnSystem->SpawnUnit(
+    //                SelectedUnitClass,
+    //                GetComponentLocation(),
+    //                GetComponentRotation(),
+    //                AttackTarget
+    //            );
+    //        }
+    //    }
+    //}
 }
 
 void UUnitSpawnComponent::StartWave()
 {
-    SpawnInterval = 4.0f;
+    SpawnInterval = 5.0f;
 
     if (GetWorld())
     {

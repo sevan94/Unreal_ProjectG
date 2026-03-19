@@ -63,6 +63,7 @@ EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
     if (NearestAlly)
     {
+        InFrontCheckDistance = SelfUnit->GetAttackRangeKey();
         BlackboardComp->SetValueAsObject(BlackboardKey.SelectedKeyName, NearestAlly);
 
         FVector DirToAlly = (NearestAlly->GetActorLocation() - SelfLoc).GetSafeNormal();

@@ -4,23 +4,23 @@
 	"Category": "",
 	"Description": "",
 	"Modules": [
-    {
-      "Name": "Unreal_ProjectG",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "GameplayAbilities",
-        "UMG",
-        "CoreUObject",
-        "AIModule"
-      ]
-    },
-    {
-      "Name": "PGEditor",
-      "Type": "Editor",
-      "LoadingPhase": "PostEngineInit"
-    }
+		{
+			"Name": "Unreal_ProjectG",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"GameplayAbilities",
+				"UMG",
+				"CoreUObject",
+				"AIModule"
+			]
+		},
+		{
+			"Name": "PGEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
 	],
 	"Plugins": [
 		{
@@ -33,6 +33,14 @@
 		{
 			"Name": "GameplayAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "NiagaraUIRenderer",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64",
+				"Android"
+			]
 		}
 	]
 }

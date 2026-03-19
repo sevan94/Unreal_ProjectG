@@ -47,6 +47,15 @@ enum class EUnitState : uint8
     Dead        UMETA(DisplayName = "Dead")
 };
 
+//유닛 등급 열거형
+UENUM(BlueprintType)
+enum class EUnitRank : uint8
+{
+    Normal      UMETA(DisplayName = "Normal"),
+    Rare        UMETA(DisplayName = "Rare"),
+    SuperRare   UMETA(DisplayName = "SuperRare")
+};
+
 // UI에서 장비 구분용 열거형
 UENUM()
 enum class EEquipCategory : uint8

@@ -86,6 +86,14 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UnitMoveSpeed;
 
+    // 유닛 등급
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> UnitRank;
+
+    // 유닛 속성 및 병과
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> UnitType;
+
     // 유닛 코스트
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UnitCost;

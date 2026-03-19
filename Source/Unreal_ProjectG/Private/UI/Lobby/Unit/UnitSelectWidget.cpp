@@ -10,6 +10,13 @@
 #include "Components/TextBlock.h"
 #include "Mode/Save/PGGameInstance.h"
 
+void UUnitSelectWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    if(UnitButton) UnitButton->OnClicked.AddDynamic(this, &UUnitSelectWidget::OnUnitClicked);
+}
+
 void UUnitSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
     UUnitEntryObject* EntryObject = Cast<UUnitEntryObject>(ListItemObject);
@@ -23,7 +30,6 @@ void UUnitSelectWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
         EntryObject->OnUnitDataChanged.AddDynamic(this, &UUnitSelectWidget::ListDataChanged);
 
         UpdateWidget(EntryObject);
-        UnitButton->OnClicked.AddDynamic(this, &UUnitSelectWidget::OnUnitClicked);
     }
 }
 

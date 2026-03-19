@@ -48,24 +48,26 @@ void UPGGameInstance::LoadGameData()
         InitializeUnitMap();
     }
 
-    StageClearData = CachedSaveData->StageDataMap;
-
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
-    //장비
-    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
-    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
-    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
-
-    //재화
+    // 재화 로드
     CurrentPlayerGold = CachedSaveData->PlayerGold;
     CurrentPlayerGem = CachedSaveData->PlayerGem;
     CurrentPlayerUnlock = CachedSaveData->PlayerUnlock;
 
+    // 유닛 데이터 로드
     CurrentUnits.Empty();
     for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
     {
         CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Path));
     }
+
+    // 장비 로드
+    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
+    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
+    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
+
+    // 클리어 스테이지 데이터 로드
+    StageClearData = CachedSaveData->StageDataMap;
 }
 
 void UPGGameInstance::AddGoods(EGoodsCategory InCategory, int32 InValue)

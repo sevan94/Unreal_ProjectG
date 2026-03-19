@@ -111,7 +111,7 @@ void UUnitAbility_SpawnActor::SpawnActorEvent(FGameplayEventData InEventData)
             if (UnitSpawnActorConfig.DamageEffectClass)
             {
                 float MultiplierValue = UnitSpawnActorConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-                FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(UnitSpawnActorConfig.DamageEffectClass.Get(), MultiplierValue);
+                FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(UnitSpawnActorConfig.DamageEffectClass.Get(), MultiplierValue);
             }
 
             SpawnedActor->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));

@@ -77,7 +77,7 @@ void UUnitAbility_SpawnProjectile::SpawnProjectile(FGameplayEventData InEventDat
     if (SpawnedProjectile)
     {
         float ProjectileMultiplierValue = UnitSpawnProjectileConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-        FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(UnitSpawnProjectileConfig.DamageEffectClass.Get(), ProjectileMultiplierValue);
+        FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(UnitSpawnProjectileConfig.DamageEffectClass.Get(), ProjectileMultiplierValue);
         SpawnedProjectile->SetProjectileDamageEffectSpecHandle(ProjectileDamageEffectSpecHandle);
 
         SpawnedProjectile->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));

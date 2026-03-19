@@ -15,6 +15,7 @@
 #include "AbilitySystem/Abilities/Unit/UnitAbility_SpawnActor.h"
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
 
+
 // 어빌리티 클래스 -> Config 클래스 매핑 테이블
 // 새 어빌리티 혹은 Config 추가 시 이곳에 추가
 static TMap<UClass*, UScriptStruct*> GetAbilityToConfigMap()

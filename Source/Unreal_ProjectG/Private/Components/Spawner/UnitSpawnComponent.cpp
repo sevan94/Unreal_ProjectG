@@ -83,10 +83,10 @@ void UUnitSpawnComponent::SpawnRandomUnit()
     //}
 
     // 배열이 비어있는지 먼저 확인하여 크래시 방지
-    if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.IsEmpty())
-    {
-        return;
-    }
+    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.IsEmpty())
+    //{
+    //    return;
+    //}
 
     const TArray<FUnitSpawnDataInfo>& UnitSpawnList = StageUnitDataAsset->UnitSpawnList;
 

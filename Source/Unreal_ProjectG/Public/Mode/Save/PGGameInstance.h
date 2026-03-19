@@ -99,7 +99,7 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "SaveData")
     TMap<int32, int32> StageClearData;
 
-    //소지 재화
+    // 소지 재화
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerGold;
 
@@ -109,10 +109,11 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerUnlock;
 
-    //스테이지
+    // 현재 선택 스테이지
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentStageIndex = 0;
 
+    // 유닛 도감 형식 데이터(유닛 코드, 유닛 데이터)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
     TMap<int32, FUnitSaveData> UnitLevelMap;
 

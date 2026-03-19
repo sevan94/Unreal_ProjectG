@@ -60,4 +60,8 @@ public:
     // 유닛 해금 비용
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Cost")
     int32 UnitUnlock;
+
+    // 중복 획득 시 획득 재화
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Cost")
+    int32 DuplicateUnitReward;
 };

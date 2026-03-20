@@ -29,10 +29,10 @@ struct FSkillActionRow
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FGameplayTag WaitEventTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::SpawnActor"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::SpawnActor", EditConditionHides))
     FHeroSpawnableConfig SpawnableConfig;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::MeleeTrace"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::MeleeTrace", EditConditionHides))
     FHeroMeleeTraceConfig MeleeTraceConfig;
 };
 

@@ -29,6 +29,9 @@ class UNREAL_PROJECTG_API UPGGameplayAbility : public UGameplayAbility
 public:
     UPGGameplayAbility();
 
+    // EffectConfig 배열을 기반으로 게임플레이 이펙트 스펙핸들 배열 생성
+    TArray<FGameplayEffectSpecHandle> MakeOutgoingEffectSpecsFromEffectConfigs(const TArray<FEffectConfig>& EffectConfigs);
+
 protected:
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -54,9 +57,9 @@ protected:
     UFUNCTION(BlueprintPure, Category = "PG|Ability")
     FGameplayEffectSpecHandle MakeOutgoingEffectSpecWithMultiplier(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier);
 
-    // Duration 기반 상태형 버프 스펙핸들 생성(상태형 버프에 사용)
-    UFUNCTION(BlueprintPure)
-    FGameplayEffectSpecHandle MakeDurationStatusEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float Duration);
+    // EffectConfig을 기반으로 게임플레이 이펙트 스펙핸들 생성
+    UFUNCTION(BlueprintPure, Category = "PG|Ability")
+    FGameplayEffectSpecHandle MakeOutgoingEffectSpecFromEffectConfig(const FEffectConfig& EffectConfig);
 
 public:
     // 일단은 UI 사용 용도로 Public하게 두었음, 추후 로직에 들어가면 위치 변경 가능

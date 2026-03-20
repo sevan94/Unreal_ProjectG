@@ -32,6 +32,7 @@ public:
     
     // 인페이스 구현
     UEquipmentsStorageComponent* GetEquipmentsStorageComponent() const override { return EquipmentsStorageComponent; }
+    UHeroCombatComponent* GetHeroCombatComponent() const override { return HeroCombatComponent; }
     virtual float GetBasicAttackSpeed_Implementation() const override;
     virtual float GetBasicAttackRange_Implementation() const override;
     virtual bool TryExecuteBasicAttack_Implementation() override;
@@ -64,7 +65,6 @@ public:
     void BroadCastAttributeSet();
 
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
-    FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
 protected:
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

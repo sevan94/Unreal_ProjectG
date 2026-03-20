@@ -33,12 +33,14 @@ private:
     UFUNCTION()
     void OnActionCancelled(FGameplayAbilityTargetDataHandle TargetData);
 
+private:
     // InstancedPerActor이므로, 활성화마다 초기화
     int32 CurrentActionIndex;                           // 현재 실행 중인 액션의 인덱스
     FGameplayAbilityTargetDataHandle CurrentTargetData; // 현재 액션의 타겟 데이터
 
     //SourceObject에서 스킬 데이터 가져와 할당할 변수
     UPROPERTY()
-    TObjectPtr<UDataAsset_HeroSkillData> HeroSkillData;
-	
+    TObjectPtr<UDataAsset_HeroSkillData> SkillData;
+
+    bool bAutoMode; // 자동 모드 여부 (자동 모드인 경우 타겟팅 없이 자기 위치 기준으로 액션 실행)
 };

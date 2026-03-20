@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "HeroCombatInterface.generated.h"
 
+class UHeroCombatComponent;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UHeroCombatInterface : public UInterface
@@ -21,6 +23,9 @@ class UNREAL_PROJECTG_API IHeroCombatInterface
 	GENERATED_BODY()
 
 public:
+    // GetHeroComponent 함수 선언
+    virtual UHeroCombatComponent* GetHeroCombatComponent() const = 0;
+
     // 기본 공격 속도 반환 함수
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     float GetBasicAttackSpeed() const;

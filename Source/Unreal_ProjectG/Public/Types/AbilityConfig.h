@@ -15,7 +15,6 @@ class UPGGameplayAbility;
 class APetCharacter;
 class AAOESkillActor;
 class APGMageMagicBase;
-class UDataAsset_SkillVisualData;
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
@@ -70,30 +69,30 @@ struct FAbilityConfig
 //==========================================================================================================
 // 히어로 어빌리티 설정 구조체들
 //==========================================================================================================
-// AOE 어빌리티 설정 구조체
-USTRUCT(BlueprintType)
-struct FHeroAOECommonConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-    TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
-};
+//// AOE 어빌리티 설정 구조체
+//USTRUCT(BlueprintType)
+//struct FHeroAOECommonConfig : public FAbilityConfig
+//{
+//    GENERATED_BODY()
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
+//    TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
+//
+//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+//    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
+//};
 
 USTRUCT(BlueprintType)
 struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
@@ -246,6 +245,39 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class ESpawnLocation : uint8
+{
+    AtCaster,       // 캐릭터 위치에서 즉시 소환
+    AtTargetPoint,  // 타겟 포인트에 소환
+};
+
+UENUM(BlueprintType)
+enum class ESkillTargetPolicy : uint8
+{
+    Enemy,
+    Ally,
+    Self
+};
+
+USTRUCT(BlueprintType)
+struct FEffectConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UGameplayEffect> EffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Multiplier (0 = 설정 안함)"))
+    float Multiplier = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "Duration (0 = 설정 안함)"))
+    float Duration = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "Base Amount (0 = 설정 안함)"))
+    float BaseAmount = 0.f;
+};
+
 USTRUCT(BlueprintType)
 struct FHeroSpawnableConfig : public FAbilityConfig
 {
@@ -270,24 +302,29 @@ struct FHeroSpawnableConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Radius = 0.f;
 
-    // 틱/단발 데미지 계산을 위한 GE 클래스
-    TSubclassOf<UGameplayEffect> DamageEffectClass;
-
-    // SetByCaller 태그
+    // 적용할 이펙트 배열
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGameplayTag DamageTag;
+    TArray<FEffectConfig> Effects;
 
-    // 데미지 배수
+    // 스폰 위치 정책
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float DamageMultiplier = 1.f;
+    ESpawnLocation SpawnLocationPolicy = ESpawnLocation::AtCaster;
+
+    // 스킬 타겟팅 정책
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Enemy;
+
+    // AtTargetPoint일 때, 사용할 데칼  머티리얼
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "SpawnLocationPolicy == ESpawnLocation::AtTargetPoint", EditConditionHides))
+    TObjectPtr<UMaterialInterface> IndicatorDecalMaterial;
 
     // 액터가 재생할 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UAnimMontage> Montage;
 
-    // 시각 연출을 위한 에셋
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
+    //// 시각 연출을 위한 에셋
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    //TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
 };
 
 USTRUCT(BlueprintType)
@@ -301,23 +338,15 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
 
     // 근접 공격 트레이스 사거리
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float Range = 150.f;
+    float TraceOffsetRange = 150.f;
 
-    // 데미지 계산을 위한 GE 클래스
+    // 최대 공격 가능한 적의 수
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 MaxHitTargets = 1;
 
-    // 데미지 계산 클래스
+    // 적용할 이펙트 배열
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; 
-
-    // SetByCaller 태그
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGameplayTag DamageTag;
-
-    // 데미지 배수
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float DamageMultiplier = 1.f;
+    TArray<FEffectConfig> Effects;
 
     // 액터가 재생할 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite)

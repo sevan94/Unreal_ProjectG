@@ -37,6 +37,7 @@ private:
     // 트레이스 활성화 동안 반복 호출
     void ExecuteTrace();
 
+    bool IsValidTarget(AActor* Target) const;
 private:
     FSkillActionRow CachedActionRow; // 액션 데이터 캐싱
 
@@ -50,6 +51,6 @@ private:
     TSet<TObjectPtr<AActor>> HitActors;
 
     // 이전 프레임 소켓 위치 캐싱(스윕)
-    FVector PreviousSocketStart = FVector::ZeroVector;
-    FVector PreviousSocketEnd = FVector::ZeroVector;
+    FVector PreviousTraceStart = FVector::ZeroVector;
+    FVector PreviousTraceEnd = FVector::ZeroVector;
 };

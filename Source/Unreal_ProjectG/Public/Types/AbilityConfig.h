@@ -342,7 +342,7 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
 
     // 최대 공격 가능한 적의 수
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 MaxHitTargets = 1;
+    int32 MaxHit = 1;
 
     // 적용할 이펙트 배열
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

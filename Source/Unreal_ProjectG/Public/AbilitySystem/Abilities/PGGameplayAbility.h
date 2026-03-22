@@ -32,6 +32,9 @@ public:
     // EffectConfig 배열을 기반으로 게임플레이 이펙트 스펙핸들 배열 생성
     TArray<FGameplayEffectSpecHandle> MakeOutgoingEffectSpecsFromEffectConfigs(const TArray<FEffectConfig>& EffectConfigs);
 
+    // 타깃 액터에게 게임플레이 이펙트를 적용하는 네이티브 함수
+    FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
+
 protected:
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -39,9 +42,6 @@ protected:
     // ActorInfo에서 PGAbilitySystemComponent을 가져오는 헬퍼 함수
     UFUNCTION(BlueprintPure, Category = "PGGameplayAbility")
     UPGAbilitySystemComponent* GetPGAbilitySystemComponentFromActorInfo() const;
-
-    // 타깃 액터에게 게임플레이 이펙트를 적용하는 네이티브 함수
-    FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
 
     UFUNCTION(BlueprintCallable, Category = "PG|Ability", meta = (DisplayName = "Apply Gameplay Effect Spec Handle To Target Actor", ExpandEnumAsExecs = "OutSuccessType"))
     FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType);

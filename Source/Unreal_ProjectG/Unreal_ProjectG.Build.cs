@@ -8,7 +8,7 @@ public class Unreal_ProjectG : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem", "AIModule",
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem",
         "UMG", "GameplayTags", "GameplayAbilities", "GameplayTasks", "Niagara", "Slate", "SlateCore"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

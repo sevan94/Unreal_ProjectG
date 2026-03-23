@@ -4,6 +4,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "GameFramework/Character.h"
+#include "Components/SkeletalMeshComponent.h"
 
 void UUnitAbility_SpawnMagic::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -60,9 +62,17 @@ void UUnitAbility_SpawnMagic::EndAbility(const FGameplayAbilitySpecHandle Handle
 void UUnitAbility_SpawnMagic::SpawnMagic(FGameplayEventData InEventData)
 {
     FVector SpawnLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
-    FRotator SpawnRotation = GetAvatarActorFromActorInfo()->GetActorForwardVector().Rotation();
+    FRotator SpawnRotation = GetAvatarActorFromActorInfo()->GetActorRotation();
 
-    // APGMageMagicBase 타입으로 스폰
+    if (ACharacter* AvatarChar = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+    {
+        SpawnLocation = AvatarChar->GetMesh()->GetSocketLocation(FName("MagicSpawnSocket"));
+        SpawnRotation = AvatarChar->GetMesh()->GetSocketRotation(FName("MagicSpawnSocket"));
+    }
+    else if (APawn* AvatarPawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
+    {
+        SpawnRotation = AvatarPawn->GetBaseAimRotation();
+    }
     APGMageMagicBase* SpawnedMagic = GetWorld()->SpawnActorDeferred<APGMageMagicBase>(
         UnitSpawnMagicConfig.SpawnedMagicClass.Get(),
         FTransform(SpawnRotation, SpawnLocation),

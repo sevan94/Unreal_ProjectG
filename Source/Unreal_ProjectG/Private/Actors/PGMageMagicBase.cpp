@@ -21,7 +21,7 @@ APGMageMagicBase::APGMageMagicBase()
 
     MagicNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MagicNiagaraComponent"));
     MagicNiagaraComponent->SetupAttachment(RootSceneComponent);
-    MagicNiagaraComponent->SetUsingAbsoluteRotation(true);
+    MagicNiagaraComponent->SetUsingAbsoluteRotation(false);
 }
 
 void APGMageMagicBase::BeginPlay()

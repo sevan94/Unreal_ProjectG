@@ -59,6 +59,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     int32 CurrentStageIndex = 0;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    int32 OldIndex = 0;
+
     FTimerHandle SpawnTimerHandle;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawn")

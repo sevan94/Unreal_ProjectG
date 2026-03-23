@@ -26,7 +26,8 @@ public:
     static USkillAbilityTask_SpawnActor* Create(
         UGameplayAbility* OwningAbility,
         const FSkillActionRow& ActionRow,
-        bool bIsAutoMode);
+        bool bIsAutoMode,
+        const FGameplayAbilityTargetDataHandle& InPreviousTargetData);
 
     virtual void Activate() override;
     virtual void OnDestroy(bool bInOwnerFinished) override;
@@ -78,4 +79,6 @@ private:
     // 소환된 액터 참조
     // 정리 용도
     TWeakObjectPtr<ASkillActor> SpawnedActor;
+
+    FGameplayAbilityTargetDataHandle PreviousTargetDataHandle; // WaitTargetData로 확보한 위치 정보 캐싱
 };

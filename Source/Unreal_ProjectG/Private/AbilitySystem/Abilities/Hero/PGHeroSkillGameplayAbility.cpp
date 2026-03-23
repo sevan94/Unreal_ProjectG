@@ -64,7 +64,7 @@ void UPGHeroSkillGameplayAbility::ExecuteNextAction()
     }
     case ESkillActionType::SpawnActor:
     {
-        auto* Task = USkillAbilityTask_SpawnActor::Create(this, CurrentAction, bAutoMode);
+        auto* Task = USkillAbilityTask_SpawnActor::Create(this, CurrentAction, bAutoMode, CurrentTargetData);
         Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
         Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
         Task->ReadyForActivation();

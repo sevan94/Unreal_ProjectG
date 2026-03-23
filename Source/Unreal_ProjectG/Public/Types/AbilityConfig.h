@@ -250,6 +250,7 @@ enum class ESpawnLocation : uint8
 {
     AtCaster,       // 캐릭터 위치에서 즉시 소환
     AtTargetPoint,  // 타겟 포인트에 소환
+    AtPreviousActionLocation, // 이전 액션의 위치에 소환 (예: 이전 액션이 장판 생성이면 장판 위치, 이전 액션이 투사체 생성이면 투사체 위치)
 };
 
 UENUM(BlueprintType)

@@ -28,6 +28,7 @@ ASkillActor::ASkillActor()
 
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->bAutoActivate = false; // 필요할 때 활성화
+    ProjectileMovement->UpdatedComponent = RootComponent;
 
     ActorVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ActorVFXComponent"));
     ActorVFXComponent->SetupAttachment(SceneRoot);
@@ -54,12 +55,22 @@ void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TAr
         ProjectileMovement->InitialSpeed = Config.Speed;
         ProjectileMovement->MaxSpeed = Config.Speed;
         ProjectileMovement->bRotationFollowsVelocity = true;
+        ProjectileMovement->Velocity = GetActorForwardVector() * Config.Speed;
         ProjectileMovement->Activate();
     }
 
     if (Config.LifeSpan > 0.f)
     {
         SetLifeSpan(Config.LifeSpan);
+    }
+
+    if (VisualAsset)
+    {
+        if (VisualAsset->ProjectileVFX)
+        {
+            ActorVFXComponent->SetAsset(VisualAsset->ProjectileVFX);
+            ActorVFXComponent->Activate();
+        }
     }
 }
 
@@ -215,6 +226,11 @@ void ASkillActor::PlayImpactVFX(const FVector& Location)
 {
     if (!VisualAsset) return;
 
+    if (VisualAsset->ProjectileVFX)
+    {
+        ActorVFXComponent->Deactivate();
+    }
+
     if (VisualAsset->HitVFX)
     {
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), VisualAsset->HitVFX, Location);
@@ -240,18 +256,21 @@ void ASkillActor::NotifyAndDestroy()
         ActorSFXComponent->Stop();
     }
 
+    // 데이터 전달
+    FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
+
+    FHitResult HitResult;
+    HitResult.Location = GetActorLocation(); // 파괴 위치
+    
+    Data->HitResult = HitResult;
+
+    FGameplayEventData Payload;
+    Payload.TargetData.Add(Data);
+
+    UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), DestroyedEventTag, Payload);
+
     // BP 이벤트 핀 호출
     OnSkillActorDestroyed();
-
-    FGameplayEventData EventData;
-    EventData.TargetData =
-        UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(this);
-
-    // 파괴 이벤트 전송
-    UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-        GetOwner(),
-        DestroyedEventTag,
-        EventData);
 }
 
 void ASkillActor::EndPlay(const EEndPlayReason::Type EndPlayReason)

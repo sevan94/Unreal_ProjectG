@@ -20,12 +20,13 @@ namespace SkillTaskConstatns
 }
 
 
-USkillAbilityTask_SpawnActor* USkillAbilityTask_SpawnActor::Create(UGameplayAbility* OwningAbility, const FSkillActionRow& ActionRow, bool bIsAutoMode)
+USkillAbilityTask_SpawnActor* USkillAbilityTask_SpawnActor::Create(UGameplayAbility* OwningAbility, const FSkillActionRow& ActionRow, bool bIsAutoMode, const FGameplayAbilityTargetDataHandle& InPreviousTargetData)
 {
     // Task 생성 및 초기화
     USkillAbilityTask_SpawnActor* Task = NewAbilityTask<USkillAbilityTask_SpawnActor>(OwningAbility);
     Task->CachedActionRow = ActionRow;
     Task->bAutoMode = bIsAutoMode;
+    Task->PreviousTargetDataHandle = InPreviousTargetData;
     return Task;
 }
 
@@ -43,26 +44,54 @@ void USkillAbilityTask_SpawnActor::Activate()
     }
 
     // 소환 위치 정책에 따라 타겟 데이터 대기 시작
-    if(Config.SpawnLocationPolicy == ESpawnLocation::AtTargetPoint)
+    switch (Config.SpawnLocationPolicy)
     {
-        if (bAutoMode)
-        {
-            CachedSpawnLocation = ResolveAutoTargetLocation();
+    case ESpawnLocation::AtCaster:
+            // 캐스터 위치에서 즉시 소환
+            CachedSpawnLocation = AvatarActor->GetActorLocation();
             CachedSpawnRotation = AvatarActor->GetActorRotation();
             PlayMontageOrSpawn();
-        }
-        else
-        {
-            // 수동 모드 -> WaitTargetData로 위치 확보
-            StartWaitTargetData();
-        }
-    }
-    else
-    {
-        // 즉시 소환 위치 결정
-        CachedSpawnLocation = AvatarActor->GetActorLocation();
-        CachedSpawnRotation = AvatarActor->GetActorRotation();
-        PlayMontageOrSpawn();
+            break;
+
+    case ESpawnLocation::AtTargetPoint:
+            // 타겟 포인트에 소환 -> 자동 모드면 TargetPolicy에 따라 위치 계산, 수동 모드면 WaitTargetData로 위치 확보
+            if (bAutoMode)
+            {
+                CachedSpawnLocation = ResolveAutoTargetLocation();
+                CachedSpawnRotation = AvatarActor->GetActorRotation();
+                PlayMontageOrSpawn();
+            }
+            else
+            {
+                StartWaitTargetData();
+            }
+            break;
+
+    case ESpawnLocation::AtPreviousActionLocation:
+            // 이전 액션 위치에 소환 -> 이전 액션이 장판이면 장판 위치, 투사체면 투사체 위치
+            if (PreviousTargetDataHandle.IsValid(0))
+            {
+                if (const FGameplayAbilityTargetData* Data = PreviousTargetDataHandle.Get(0))
+                {
+                    if (const FHitResult* Hit = Data->GetHitResult())
+                    {
+                        CachedSpawnLocation = Hit->Location;
+                    }
+                }
+            }
+            else
+            {
+                // 만약에 데이터가 없다면 캐스터 위치에서 소환
+                CachedSpawnLocation = AvatarActor->GetActorLocation();
+            }
+            CachedSpawnRotation = AvatarActor->GetActorRotation();
+            PlayMontageOrSpawn();
+            break;
+            
+    default:
+        OnCancelled.Broadcast({});
+        EndTask();
+        break;
     }
 }
 

@@ -24,11 +24,6 @@ struct FSkillActionRow
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ESkillActionType ActionType;
 
-    // 비어있다면 이전 액션 완료 후 즉시 실행
-    // 이 액션이 실행될 때 필요한 태그
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGameplayTag WaitEventTag;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::SpawnActor", EditConditionHides))
     FHeroSpawnableConfig SpawnableConfig;
 

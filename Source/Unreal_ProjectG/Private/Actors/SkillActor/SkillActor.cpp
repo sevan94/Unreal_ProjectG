@@ -1,6 +1,5 @@
-#include "Actors/SkillActor.h"
+#include "Actors/SkillActor/SkillActor.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "NiagaraComponent.h"
 #include "Components/AudioComponent.h"
 #include "AbilitySystemComponent.h"
@@ -26,17 +25,11 @@ ASkillActor::ASkillActor()
     CollisionComponent->SetupAttachment(SceneRoot);
     CollisionComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
-    ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-    ProjectileMovement->bAutoActivate = false; // 필요할 때 활성화
-    ProjectileMovement->UpdatedComponent = RootComponent;
-
     ActorVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ActorVFXComponent"));
     ActorVFXComponent->SetupAttachment(SceneRoot);
-    ActorVFXComponent->SetAutoActivate(false); // 필요할 때 활성화
 
     ActorSFXComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ActorSFXComponent"));
     ActorSFXComponent->SetupAttachment(SceneRoot);
-    ActorSFXComponent->SetAutoActivate(false); // 필요할 때 활성화
 }
 
 // 초기화
@@ -49,28 +42,10 @@ void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TAr
     {
         CollisionComponent->SetSphereRadius(Config.Radius);
     }
-    
-    if(Config.Speed > 0.f)
-    {
-        ProjectileMovement->InitialSpeed = Config.Speed;
-        ProjectileMovement->MaxSpeed = Config.Speed;
-        ProjectileMovement->bRotationFollowsVelocity = true;
-        ProjectileMovement->Velocity = GetActorForwardVector() * Config.Speed;
-        ProjectileMovement->Activate();
-    }
 
     if (Config.LifeSpan > 0.f)
     {
         SetLifeSpan(Config.LifeSpan);
-    }
-
-    if (VisualAsset)
-    {
-        if (VisualAsset->ProjectileVFX)
-        {
-            ActorVFXComponent->SetAsset(VisualAsset->ProjectileVFX);
-            ActorVFXComponent->Activate();
-        }
     }
 }
 
@@ -217,28 +192,6 @@ void ASkillActor::ApplyEffectsToTarget(AActor* TargetActor)
     {
         if (!SpecHandle.IsValid()) continue;
         SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
-    }
-
-    PlayImpactVFX(TargetActor->GetActorLocation());
-}
-
-void ASkillActor::PlayImpactVFX(const FVector& Location)
-{
-    if (!VisualAsset) return;
-
-    if (VisualAsset->ProjectileVFX)
-    {
-        ActorVFXComponent->Deactivate();
-    }
-
-    if (VisualAsset->HitVFX)
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), VisualAsset->HitVFX, Location);
-    }
-
-    if (VisualAsset->HitSFX)
-    {
-        UGameplayStatics::PlaySoundAtLocation(GetWorld(), VisualAsset->HitSFX, Location);
     }
 }
 

@@ -14,6 +14,7 @@ class UGameplayEffect;
 class UPGGameplayAbility;
 class APetCharacter;
 class AAOESkillActor;
+class UDataAsset_SkillVisualData;
 class APGMageMagicBase;
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
@@ -248,17 +249,26 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
 UENUM(BlueprintType)
 enum class ESpawnLocation : uint8
 {
-    AtCaster,       // 캐릭터 위치에서 즉시 소환
-    AtTargetPoint,  // 타겟 포인트에 소환
-    AtPreviousActionLocation, // 이전 액션의 위치에 소환 (예: 이전 액션이 장판 생성이면 장판 위치, 이전 액션이 투사체 생성이면 투사체 위치)
+    AtCaster                    UMETA(DisplayName = "시전자위치"),       // 캐릭터 위치에서 즉시 소환
+    AtTargetPoint               UMETA(DisplayName = "타겟 포인트"),  // 타겟 포인트에 소환
+    AtPreviousActionLocation    UMETA(DisplayName = "이전 액션 위치"), // 이전 액션의 위치에 소환 (예: 이전 액션이 장판 생성이면 장판 위치, 이전 액션이 투사체 생성이면 투사체 위치)
 };
 
 UENUM(BlueprintType)
 enum class ESkillTargetPolicy : uint8
 {
-    Enemy,
-    Ally,
-    Self
+    Enemy   UMETA(DisplayName = "적"),
+    Ally    UMETA(DisplayName = "아군"),
+    Self    UMETA(DisplayName = "자신")
+};
+
+UENUM(BlueprintType)
+enum class ESkillActorType : uint8
+{
+    None            UMETA(DisplayName = "없음"),
+    Projectile      UMETA(DisplayName = "투사체"),
+    InstantAOE      UMETA(DisplayName = "즉시 범위"),
+    PersistentAOE   UMETA(DisplayName = "지속 범위"),
 };
 
 USTRUCT(BlueprintType)
@@ -284,48 +294,54 @@ struct FHeroSpawnableConfig : public FAbilityConfig
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "액터 클래스"))
     TSubclassOf<AActor> ActorClass;
 
-    // 액터 속도, 0이면 고정(장판/폭발)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float Speed = 0.f;
-
-    // 액터가 존재하는 시간
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float LifeSpan = 0.1f;
-
-    // 0이면 단발성, 0초과면 장형 틱 데미지
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float TickInterval = 0.f;
-
-    // 콜리전 반경(0이면 기본 콜리전 사용)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float Radius = 0.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 타입"))
+    ESkillActorType ActorType = ESkillActorType::None;
 
     // 적용할 이펙트 배열
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
     TArray<FEffectConfig> Effects;
 
     // 스폰 위치 정책
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 위치 정책"))
     ESpawnLocation SpawnLocationPolicy = ESpawnLocation::AtCaster;
 
     // 스킬 타겟팅 정책
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
     ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Enemy;
 
+    // 액터 속도, 0이면 고정(장판/폭발)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "속도", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float Speed = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "최대 사거리", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float MaxRange = 0.f;
+
+    // 액터가 존재하는 시간
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 시간", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float LifeSpan = 0.1f;
+
+    // 0이면 단발성, 0초과면 장형 틱 데미지
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "틱 간격", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float TickInterval = 0.f;
+
+    // 콜리전 반경(0이면 기본 콜리전 사용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))
+    float Radius = 0.f;
+
     // AtTargetPoint일 때, 사용할 데칼  머티리얼
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "SpawnLocationPolicy == ESpawnLocation::AtTargetPoint", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "범위 지정 데칼", EditCondition = "SpawnLocationPolicy == ESpawnLocation::AtTargetPoint", EditConditionHides))
     TObjectPtr<UMaterialInterface> IndicatorDecalMaterial;
 
     // 액터가 재생할 몽타주
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
     TObjectPtr<UAnimMontage> Montage;
 
     //// 시각 연출을 위한 에셋
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    //TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
+    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
 };
 
 USTRUCT(BlueprintType)

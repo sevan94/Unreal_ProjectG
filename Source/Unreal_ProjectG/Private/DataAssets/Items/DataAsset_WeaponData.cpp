@@ -18,6 +18,7 @@ void UDataAsset_WeaponData::GrantWeaponAbilityToAbilityComponent(UPGAbilitySyste
                 ApplyLevel);
 
             // SourceObject로 스킬 데이터 에셋을 전달하여 어빌리티가 해당 데이터를 참조할 수 있도록 함
+            // TODO : 비동기 로드로 변경 필요 (비동기 로드 완료 후 어빌리티에 데이터 에셋 할당)
             BasicAttackAbilitySpec.SourceObject = BasicAttackAbility.AbilityData.LoadSynchronous();
             BasicAttackAbilitySpec.GetDynamicSpecSourceTags().AddTag(PGGameplayTags::Input_BasicAttack);
             

@@ -33,7 +33,7 @@ public:
 	ASkillActor();
 
     // Beginplay보다 먼저 호출을 보장 받아야 함
-    void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles);
+    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles);
 
     // Task가 파괴 이벤트 수신에 사욯할 태그
     FGameplayTag GetDestroyedEventTag() const;
@@ -68,10 +68,6 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "SkillActor")
     void NotifyAndDestroy();
 
-    // VFX 트리거
-    UFUNCTION(BlueprintCallable, Category = "SkillActor")
-    void PlayImpactVFX(const FVector& Location);
-
 private:
     // 충돌 이벤트 콜백
     UFUNCTION()
@@ -100,18 +96,12 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillActor|Components")
     TObjectPtr<USphereComponent> CollisionComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillActor|Components")
-    TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
-
     // 날아가는 동안 재생할 프로젝타일 이펙트 컴포넌트 (없을 수도 있음)
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillActor|Components")
     TObjectPtr<UNiagaraComponent> ActorVFXComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillActor|Components")
     TObjectPtr<UAudioComponent> ActorSFXComponent;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillActor|Visual")
-    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
 
     UPROPERTY(BlueprintReadOnly, Category = "SkillActor")
     FHeroSpawnableConfig Config;

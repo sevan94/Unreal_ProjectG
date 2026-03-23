@@ -5,7 +5,7 @@
 #include "AbilitySystem/TargetActor/GATargetActor_AOEGroundTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "Actors/SkillActor.h"
+#include "Actors/SkillActor/SkillActor.h"
 #include "PGGameplayTags.h"
 
 #include "PGFunctionLibrary.h"

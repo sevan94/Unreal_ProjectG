@@ -1,5 +1,0 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "DataAssets/Ability/DataAsset_SkillVisualData.h"
-

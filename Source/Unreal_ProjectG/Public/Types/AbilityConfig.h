@@ -15,9 +15,11 @@ class UPGGameplayAbility;
 class APetCharacter;
 class AAOESkillActor;
 class APGMageMagicBase;
+
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
+
 
  // 어빌리티 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)

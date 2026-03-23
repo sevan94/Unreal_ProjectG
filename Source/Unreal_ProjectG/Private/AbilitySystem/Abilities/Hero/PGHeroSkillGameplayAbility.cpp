@@ -10,7 +10,7 @@
 
 UPGHeroSkillGameplayAbility::UPGHeroSkillGameplayAbility()
 {
-    ActivationBlockedTags.AddTag(PGGameplayTags::Player_Ability_Die);
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 }
 
 void UPGHeroSkillGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

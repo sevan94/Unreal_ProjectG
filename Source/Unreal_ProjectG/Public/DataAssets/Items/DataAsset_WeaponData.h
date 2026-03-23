@@ -4,13 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/Abilities/Hero/PGHeroSkillGameplayAbility.h"
 #include "Engine/DataAsset.h"
 #include "DataAsset_WeaponData.generated.h"
 
 class UPGHeroLinkedAnimLayer;
-class UDataAsset_SkillData;
+class UDataAsset_HeroSkillData;
 class UPGAbilitySystemComponent;
 
+USTRUCT(BlueprintType)
+struct FInputAbilityTag
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSubclassOf<UPGHeroSkillGameplayAbility> AbilityClass; // 스킬 혹은 기본 공격 어빌리티 클래스
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TSoftObjectPtr<UDataAsset_HeroSkillData> AbilityData; // 어빌리티 데이터 에셋
+
+    bool IsValid() const
+    {
+        return AbilityClass != nullptr && AbilityData.IsValid();
+    }
+};
 /**
  * 
  */
@@ -43,11 +60,14 @@ public:
 
     // 무기 기본 공격 어빌리티
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UDataAsset_SkillData> WeaponBasicAttackData;
+    FInputAbilityTag BasicAttackAbility; // 어빌리티 클래스 + 데이터 에셋
 
     // 무기 스킬 어빌리티(1번 슬롯 : 무기 공통 스킬, 2번 슬롯 : 무기 고유 스킬)
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UDataAsset_SkillData>> WeaponSkillDataArray;
+    FInputAbilityTag SubSkillAbility; // 어빌리티 클래스 + 데이터 에셋
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FInputAbilityTag MainSkillAbility; // 어빌리티 클래스 + 데이터 에셋
 
     // 무기 공격력
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

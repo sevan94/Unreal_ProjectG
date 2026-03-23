@@ -79,7 +79,7 @@ bool AHeroCharacter::TryExecuteBasicAttack_Implementation()
 {
     if (PGAbilitySystemComponent)
     {
-        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Combat_BasicAttack);
+        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Input_BasicAttack);
     }
     return false;
 }
@@ -88,7 +88,7 @@ bool AHeroCharacter::TryExecuteActiveSkill_Implementation()
 {
     if (PGAbilitySystemComponent)
     {
-        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Combat_Skill);
+        return PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Input_ActiveSkill);
     }
     return false;
 }

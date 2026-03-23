@@ -71,26 +71,8 @@ void UUnitSpawnComponent::SpawnRandomUnit()
     {
         return;
     }
-
-    //const FStageInfo* CurrentStageInfo = nullptr;
-    //for (const FStageInfo& Info : StageUnitDataAsset->Stage)
-    //{
-    //    if (Info.StageIndex == CurrentStageIndex)
-    //    {
-    //        CurrentStageInfo = &Info;
-    //        break;
-    //    }
-    //}
-
-    // 배열이 비어있는지 먼저 확인하여 크래시 방지
-    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.IsEmpty())
-    //{
-    //    return;
-    //}
-
     const TArray<FUnitSpawnDataInfo>& UnitSpawnList = StageUnitDataAsset->UnitSpawnList;
 
-    // 가중치를 무시하고 0부터 (배열 크기 - 1) 사이에서 무작위 인덱스 추출
     int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
 
     TSubclassOf<AUnitCharacter> SelectedUnitClass;
@@ -101,6 +83,32 @@ void UUnitSpawnComponent::SpawnRandomUnit()
 
     if (SelectedUnitClass)
     {
+        if (AUnitCharacter* DefaultUnit = SelectedUnitClass->GetDefaultObject<AUnitCharacter>())
+        {
+            // 이 유닛이 보스라면
+            if (DefaultUnit->bIsBoss || DefaultUnit->bIsMiddleBoss)
+            {
+                if (bHasSpawnedBoss)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("이미나옴"));
+                    int32 NextIndex = (RandomIndex + 1) % UnitSpawnList.Num();
+                    if (UnitSpawnList[NextIndex].UnitData)
+                    {
+                        SelectedUnitClass = UnitSpawnList[NextIndex].UnitData->EnemyClass;
+                    }
+                    else
+                    {
+                        return; 
+                    }
+                }
+                else
+                {
+                    bHasSpawnedBoss = true;
+                    UE_LOG(LogTemp, Warning, TEXT("보스 스폰"));
+                }
+            }
+        }
+
         if (UWorld* World = GetWorld())
         {
             if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
@@ -114,55 +122,12 @@ void UUnitSpawnComponent::SpawnRandomUnit()
             }
         }
     }
-    //if (!StageUnitDataAsset)
-    //{
-    //    return;
-    //}
-
-    //const FStageInfo* CurrentStageInfo = nullptr;
-    //for (const FStageInfo& Info : StageUnitDataAsset->Stage)
-    //{
-    //    if (Info.StageIndex == CurrentStageIndex)
-    //    {
-    //        CurrentStageInfo = &Info;
-    //        break;
-    //    }
-    //}
-
-    //if (!CurrentStageInfo || CurrentStageInfo->UnitSpawnList.Num() == 0)
-    //{
-    //    return;
-    //}
-
-    //const TArray<FUnitSpawnDataInfo>& UnitSpawnList = CurrentStageInfo->UnitSpawnList;
-
-    //int32 RandomIndex = FMath::RandRange(0, UnitSpawnList.Num() - 1);
-    //TSubclassOf<AUnitCharacter> SelectedUnitClass;
-    //if (UnitSpawnList[RandomIndex].UnitData)
-    //{
-    //    SelectedUnitClass = UnitSpawnList[RandomIndex].UnitData->UnitClass;
-    //}
-
-    //if (SelectedUnitClass)
-    //{
-    //    if (UWorld* World = GetWorld())
-    //    {
-    //        if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
-    //        {
-    //            SpawnSystem->SpawnUnit(
-    //                SelectedUnitClass,
-    //                GetComponentLocation(),
-    //                GetComponentRotation(),
-    //                AttackTarget
-    //            );
-    //        }
-    //    }
-    //}
 }
 
 void UUnitSpawnComponent::StartWave()
 {
     SpawnInterval = 5.0f;
+    bHasSpawnedBoss = false;
 
     if (GetWorld())
     {

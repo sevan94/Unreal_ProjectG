@@ -195,13 +195,21 @@ void AUnitCharacter::InitUnitStartUpData()
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
                     {
                         Subsystem->RegisterUnit(this, TeamTag);
+
+                        if (bIsBoss)
+                        {
+                            Subsystem->OnBossSpawnDelegate.Broadcast(TeamTag);
+                        }
+
                     }
+
 
                     //데이터 삽입이 끝나면 델리게이트를 브로드캐스트해서 블랙보드가 값을 받기 시작함
                     if (OnUnitStartUpDataLoadedDelegate.IsBound())
                     {
                         OnUnitStartUpDataLoadedDelegate.Broadcast();
                     }
+
 
 
                 }
@@ -253,6 +261,14 @@ void AUnitCharacter::OnDie()
     }
 
     bIsDead = true;
+
+    if (bIsBoss)
+    {
+        if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+        {
+            Subsystem->OnBossDeadDelegate.Broadcast(TeamTag);
+        }
+    }
 
     if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
     {

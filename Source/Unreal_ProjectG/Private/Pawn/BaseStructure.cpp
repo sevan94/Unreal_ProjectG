@@ -117,7 +117,7 @@ void ABaseStructure::DeActivateInvincible(FGameplayTag InTeamTag)
         return;
     }
     FGameplayTag InvincibleTag = PGGameplayTags::Unit_State_Invincible;
-    PGAbilitySystemComponent->AddLooseGameplayTag(InvincibleTag);
+    PGAbilitySystemComponent->RemoveLooseGameplayTag(InvincibleTag);
     BP_OnToggleInvincibleEffect(false);
 
 }

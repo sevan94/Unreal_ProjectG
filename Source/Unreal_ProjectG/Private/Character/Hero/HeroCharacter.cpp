@@ -15,15 +15,15 @@
 #include "PGGameplayTags.h"
 #include "EnhancedInputComponent.h"
 #include "Mode/PGBaseGameMode.h"
+#include "Character/Unit/SubSystem/UnitSubsystem.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
 
-//#include "DataAssets/Items/DataAsset_WeaponData.h"
-//#include "DataAssets/Items/DataAsset_ArmorData.h"
-//#include "DataAssets/Items/DataAsset_AccessoryData.h"
-//#include "Components/Resource/HeroResourceComponent.h"
-//#include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
-//#include "Kismet/KismetMathLibrary.h"
-//#include "Components/SphereComponent.h"
-//#include "AbilitySystemBlueprintLibrary.h"
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit.Side.Ally");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -51,10 +51,10 @@ AHeroCharacter::AHeroCharacter()
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     
     //ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
-    //AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
-    //AggroCollision->SetupAttachment(RootComponent);
-    //AggroCollision->SetSphereRadius(500.f);
-    //AggroCollision->SetGenerateOverlapEvents(true);
+    AggroCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AggroCollision"));
+    AggroCollision->SetupAttachment(RootComponent);
+    AggroCollision->SetSphereRadius(500.f);
+    AggroCollision->SetGenerateOverlapEvents(true);
 }
 
 float AHeroCharacter::GetBasicAttackSpeed_Implementation() const
@@ -237,12 +237,17 @@ void AHeroCharacter::BeginPlay()
     //    }
     //}
 
-    //if (AggroCollision)
-    //{
-    //    AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
-    //    AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
-    //    UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
-    //}
+    if (AggroCollision)
+    {
+        AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
+        AggroCollision->OnComponentEndOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapEnd);
+        UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
+    }
+
+    if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+    {
+        Subsystem->RegisterUnit(this, TAG_Unit_Side_Ally);
+    }
 
     //ABP 가져오기
     //AnimInstance = GetMesh()->GetAnimInstance();
@@ -374,43 +379,39 @@ void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
 //    Accessory = nullptr;
 //}
 
-//void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//    UE_LOG(LogTemp, Log, TEXT("Overlap"));
-//
-//    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
-//
-//    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
-//
-//    if (Unit)
-//    {
-//        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
-//        {
-//            PotentialTargets.AddUnique(Unit);
-//        }
-//        else
-//        {
-//            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
-//            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
-//        }
-//    }
-//}
-//
-//void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-//{
-//    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
-//    //AUnitCharacter* Unit = Cast<AUnitCharacter>(OtherActor);
-//
-//    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
-//
-//    if (Unit)
-//    {
-//        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
-//        {
-//            PotentialTargets.RemoveSwap(Unit);
-//        }
-//    }
-//}
+void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    UE_LOG(LogTemp, Log, TEXT("Overlap"));
+
+    AUnitCharacter* Unit = Cast<APGCharacterBase>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        {
+            PotentialTargets.AddUnique(Unit);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("not enemy\n"));
+            UE_LOG(LogTemp, Warning, TEXT("Unit BP Tag: %s"), *Unit->GetTeamTag().ToString());
+        }
+    }
+}
+
+void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
+    AUnitCharacter* Unit = Cast<APGCharacterBase>(OtherActor);
+
+    if (Unit)
+    {
+        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        {
+            PotentialTargets.RemoveSwap(Unit);
+        }
+    }
+}
 //
 //void AHeroCharacter::ActivateAttack()
 //{
@@ -528,3 +529,34 @@ void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
 //    }
 //}
 #pragma endregion
+
+void AHeroCharacter::UnEquipWeapon()
+{
+    if (PGAbilitySystemComponent)
+    {
+        if (AttackHandle.IsValid())
+        {
+            PGAbilitySystemComponent->ClearAbility(AttackHandle);
+            AttackHandle = FGameplayAbilitySpecHandle();
+        }
+        if (!(SkillHandle.IsEmpty()))
+        {
+            for (FGameplayAbilitySpecHandle handle : SkillHandle)
+            {
+                PGAbilitySystemComponent->ClearAbility(handle);
+                SkillHandle.RemoveSwap(handle);
+            }
+        }
+    }
+    Weapon = nullptr;
+}
+
+void AHeroCharacter::UnEquipArmor()
+{
+    Armor = nullptr;
+}
+
+void AHeroCharacter::UnEquipAccessory()
+{
+    Accessory = nullptr;
+}

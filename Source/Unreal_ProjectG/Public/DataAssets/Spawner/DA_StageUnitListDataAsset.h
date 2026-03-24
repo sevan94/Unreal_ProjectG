@@ -18,7 +18,7 @@ struct FUnitSpawnDataInfo
     TObjectPtr<UEnemyUIDataAsset> UnitData;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    int32 Spawnweight;
+    int32 Spawnweight = 1;
 };
 
 UCLASS()

@@ -18,13 +18,16 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     UnitData = InDataAsset;
 
     // 텍스트 설정
-    if (UnitCost)
+    if (UnitCost && UnitData)
     {
         UnitCost->SetText(FText::AsNumber(UnitData->UnitCost));
     }
 
     // 버튼 이미지 설정
-    UnitImage->SetBrushFromTexture(UnitData->UnitImage);
+    if(UnitData)
+    {
+        UnitImage->SetBrushFromTexture(UnitData->UnitImage);
+    }
 }
 
 void UUnitSlotWidget::UpdateSlot(float InCost)

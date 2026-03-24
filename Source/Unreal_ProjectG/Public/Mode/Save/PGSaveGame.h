@@ -52,4 +52,14 @@ public:
     // 스테이지 정보 맵
     UPROPERTY()
     TMap<int32, int32> StageDataMap;
+
+    // --- [환경설정: 사운드] ---
+    UPROPERTY(VisibleAnywhere, Category = "Settings|Sound")
+    float MasterVolume = 1.0f; // 0.0 ~ 1.0
+
+    UPROPERTY(VisibleAnywhere, Category = "Settings|Sound")
+    float BGMVolume = 1.0f;
+
+    UPROPERTY(VisibleAnywhere, Category = "Settings|Sound")
+    float SFXVolume = 1.0f;
 };

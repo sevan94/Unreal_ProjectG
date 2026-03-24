@@ -6,6 +6,9 @@
 #include "Character/PGCharacterBase.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayAbilitySpecHandle.h"
+#include "Interfaces/EquipmentsStorageInterface.h"
+#include "Interfaces/HeroCombatInterface.h"
+#include "Types/PGEnumTypes.h"
 #include "HeroCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDied);
@@ -22,7 +25,7 @@ class UDataAsset_ArmorData;
 class UDataAsset_AccessoryData;
 
 UCLASS()
-class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase
+class UNREAL_PROJECTG_API AHeroCharacter : public APGCharacterBase, public IEquipmentsStorageInterface, public IHeroCombatInterface
 {
     GENERATED_BODY()
 
@@ -30,7 +33,10 @@ public:
     // Sets default values for this character's properties
     AHeroCharacter();
 
-    virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
+    UHeroCombatComponent* GetHeroCombatComponent() const override { return HeroCombatComponent; }
+    UEquipmentsStorageComponent* GetEquipmentsStorageComponent() const override { return EquipmentsStorageComponent; }
+
+    void ChangeCombatMode(EHeroCombatMode NewMode);
 
     //캐릭터 스폰(시작 혹은 부활 시)
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
@@ -48,16 +54,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "HeroCharacter")
     void InitializeHero();
 
-    //무기 장착
-    UFUNCTION(BlueprintCallable, Category = "Equipment")
-    void EquipWeapon(UDataAsset_WeaponData* WeaponData);
-    //방어구 장착
-    UFUNCTION(BlueprintCallable, Category = "Equipment")
-    void EquipArmor(UDataAsset_ArmorData* ArmorData);
-    //악세 장착
-    UFUNCTION(BlueprintCallable, Category = "Equipment")
-    void EquipAccessory(UDataAsset_AccessoryData* AccessoryData);
-
     //무기 해제
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void UnEquipWeapon();
@@ -68,9 +64,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     void UnEquipAccessory();
 
-    //스킬 사용
-    UFUNCTION(BlueprintCallable, Category = "Battle")
-    void ActivateSkill();
+    // 코스트 소모
+    bool ConsumeCost(float InCost);
 
     //자동전투 상태로 만듦
     UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -83,11 +78,9 @@ public:
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
-    FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
     virtual void BeginPlay() override;
-    virtual void Tick(float DeltaTime) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     // UI 알림용 함수
@@ -97,12 +90,6 @@ protected:
     void MaxCostChange(const FOnAttributeChangeData& Data) const;
 
 private:
-    //이동
-    UFUNCTION()
-    void OnMovementInput(const FInputActionValue& InValue);
-    //공격
-    UFUNCTION()
-    void OnAttackInput();
 
     //공격 범위 안에 유닛이 들어옴
     UFUNCTION()
@@ -112,17 +99,19 @@ private:
     UFUNCTION()
     void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-    //공격 실행
+    // 기본 공격 실행
     UFUNCTION()
-    void ActivateAttack();
+    bool TryExecuteBasicAttack_Implementation() override;
+    // 스킬 실행
+    UFUNCTION()
+    bool TryExecuteActiveSkill_Implementation() override;
 
-    //자동전투 실행
+    // 공격 범위/속도
     UFUNCTION()
-    void AutoBattle();
+    float GetBasicAttackSpeed_Implementation() const override;
+    UFUNCTION()
+    float GetBasicAttackRange_Implementation() const override;
 
-    //가장 가까운 적 산출(공격 대상 판별용)
-    UFUNCTION()
-    AActor* GetClosestTarget(const TArray<AActor*>& TargetArray);
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -154,6 +143,9 @@ protected:
     //움직임 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<class UCharacterMovementComponent> MovementComponent = nullptr;
+    // 아이템 장착 상태 저장용 컴포넌트
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+    TObjectPtr<UEquipmentsStorageComponent> EquipmentsStorageComponent = nullptr;
     // 컴뱃 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
     TObjectPtr<UHeroCombatComponent> HeroCombatComponent = nullptr;

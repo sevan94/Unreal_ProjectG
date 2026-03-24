@@ -4,6 +4,10 @@
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/Battle/BattleHUD.h"
 #include "UI/DataTable/UnitUIDataTable.h"
+#include "Mode/Save/PGGameInstance.h"
+#include "GameFramework/GameUserSettings.h"
+#include "Sound/SoundClass.h"
+#include "Sound/SoundMix.h"
 
 
 //------- 구현 방식 ----------
@@ -68,6 +72,11 @@ void UPGGameInstance::LoadGameData()
 
     // 클리어 스테이지 데이터 로드
     StageClearData = CachedSaveData->StageDataMap;
+
+    // [환경설정] 사운드 설정 로드 (SaveGame에 이 변수들이 있어야 함)
+    CurrentMasterVolume = CachedSaveData->MasterVolume;
+    CurrentBGMVolume = CachedSaveData->BGMVolume;
+    CurrentSFXVolume = CachedSaveData->SFXVolume;
 }
 
 void UPGGameInstance::AddGoods(EGoodsCategory InCategory, int32 InValue)
@@ -132,6 +141,59 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
     if (OnGoodsChanged.IsBound())
     {
         OnGoodsChanged.Broadcast(InCategory, OutValue);
+    }
+}
+
+void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX)
+{
+    // 볼륨 값을 0.0 ~ 1.0 사이 설정
+    CurrentMasterVolume = FMath::Clamp(InMaster, 0.0f, 1.0f);
+    CurrentBGMVolume = FMath::Clamp(InBGM, 0.0f, 1.0f);
+    CurrentSFXVolume = FMath::Clamp(InSFX, 0.0f, 1.0f);
+
+    // 언리얼 엔진 사운드 믹스에 오버라이드 (적용)
+    if (MainSoundMix)
+    {
+        if (MasterSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, MasterSoundClass, CurrentMasterVolume, 1.0f, 0.0f, true);
+        if (BGMSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, BGMSoundClass, CurrentBGMVolume, 1.0f, 0.0f, true);
+        if (SFXSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, SFXSoundClass, CurrentSFXVolume, 1.0f, 0.0f, true);
+    }
+
+    // 볼륨이 바뀔 때마다 세이브 파일에 덮어쓰기
+    SaveGameData();
+}
+
+void UPGGameInstance::SetScreenMode(int32 ModeIndex)
+{
+    if (UGameUserSettings* UserSettings = GEngine->GetGameUserSettings())
+    {
+        EWindowMode::Type NewMode = EWindowMode::Windowed;
+
+        if (ModeIndex == 0) NewMode = EWindowMode::Fullscreen;               // 전체화면
+        else if (ModeIndex == 1) NewMode = EWindowMode::WindowedFullscreen;  // 비율화면 (테두리 없는 창모드)
+        else if (ModeIndex == 2) NewMode = EWindowMode::Windowed;            // 창모드
+
+        UserSettings->SetFullscreenMode(NewMode);
+        UserSettings->ApplySettings(false); // 해상도 및 모드 즉시 적용
+
+        //.ini 파일에 즉시 기록하여 영구 저장
+        UserSettings->SaveSettings();
+    }
+}
+
+void UPGGameInstance::SetGraphicQuality(int32 QualityIndex)
+{
+    if (UGameUserSettings* UserSettings = GEngine->GetGameUserSettings())
+    {
+        // QualityIndex (0: 저, 1: 중, 2: 고)
+        int32 SafeQuality = FMath::Clamp(QualityIndex, 0, 3);
+
+        // 안티앨리어싱, 그림자, 텍스처 등 모든 품질을 일괄 변경
+        UserSettings->SetOverallScalabilityLevel(SafeQuality);
+        UserSettings->ApplySettings(false);
+
+        //.ini 파일에 즉시 기록하여 영구 저장
+        UserSettings->SaveSettings();
     }
 }
 
@@ -225,6 +287,11 @@ void UPGGameInstance::SaveGameData()
     CachedSaveData->PlayerGold = CurrentPlayerGold;
     CachedSaveData->PlayerGem = CurrentPlayerGem;
     CachedSaveData->PlayerUnlock = CurrentPlayerUnlock;
+
+    // [환경설정] 사운드 설정 디스크에 저장
+    CachedSaveData->MasterVolume = CurrentMasterVolume;
+    CachedSaveData->BGMVolume = CurrentBGMVolume;
+    CachedSaveData->SFXVolume = CurrentSFXVolume;
 
     CachedSaveData->EquippedUnitPaths.Empty();
     for (const auto& UnitPtr : CurrentUnits)

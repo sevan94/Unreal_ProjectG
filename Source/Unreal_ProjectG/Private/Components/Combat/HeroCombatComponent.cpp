@@ -279,3 +279,31 @@ bool UHeroCombatComponent::CanUseCombatInterface() const
 {
     return OwningCharacter && OwningCharacter->GetClass()->ImplementsInterface(UHeroCombatInterface::StaticClass());
 }
+
+//AActor* UHeroCombatComponent::GetClosestTarget(const TArray<AActor*>& TargetArray)
+//{
+//    if (TargetArray.IsEmpty())
+//    {
+//        return nullptr;
+//    }
+//
+//    AActor* ClosestActor = nullptr;
+//
+//    float MinDistanceSq = MAX_flt;
+//
+//    for (AActor* Target : TargetArray)
+//    {
+//        if (IsValid(Target))
+//        {
+//            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
+//
+//            if (CurrentDistanceSq < MinDistanceSq)
+//            {
+//                MinDistanceSq = CurrentDistanceSq;
+//                ClosestActor = Target;
+//            }
+//        }
+//    }
+//
+//    return ClosestActor;
+//}

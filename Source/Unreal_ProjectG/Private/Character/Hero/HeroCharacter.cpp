@@ -415,7 +415,7 @@ void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 //
 //void AHeroCharacter::ActivateAttack()
 //{
-//    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
+//    AActor* AttackTarget = GetClosestTargetGetClosestTarget(PotentialTargets);
 //
 //    FGameplayEventData EventData;
 //    EventData.Instigator = this;

@@ -17,6 +17,7 @@
 #include "DataAssets/Unit/BranchDataAsset.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "Components/Visual/CharacterVisualEffectComponent.h"
+#include "BrainComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -240,18 +241,6 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 
 }
 
-//void AUnitCharacter::Attack()
-//{
-//    UE_LOG(LogTemp, Warning, TEXT("Attack"));
-//
-//    //attack에서는 몽타주만 재생함, 노티파이랑 GAS를 이용해서 UGEExecCalc_DefaultDamageTaken에서 데미지 처리
-//    if (UnitAttackMontage)
-//    {
-//        PlayAnimMontage(UnitAttackMontage);
-//        UE_LOG(LogTemp, Warning, TEXT("PlayMontage"));
-//
-//    }
-//}
 
 void AUnitCharacter::OnDie()
 {
@@ -261,6 +250,28 @@ void AUnitCharacter::OnDie()
     }
 
     bIsDead = true;
+
+    if (AIController)
+    {
+        if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+        {
+            BrainComp->StopLogic(TEXT("Unit is Dead"));
+        }
+
+        AIController->StopMovement();
+        AIController->ClearFocus(EAIFocusPriority::Gameplay);
+    }
+
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->StopMovementImmediately();
+        MovementComp->DisableMovement();
+    }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
 
     if (bIsBoss)
     {
@@ -275,7 +286,7 @@ void AUnitCharacter::OnDie()
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (AnimInstance && UnitDeadMontage)
         {
-            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)-0.2f;
+            float Duration = AnimInstance->Montage_Play(UnitDeadMontage) - 0.2f;
 
             FTimerHandle TimerHandle;
             GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
@@ -294,24 +305,31 @@ void AUnitCharacter::OnDie()
     }
 }
 
-//오브젝트 풀링을 위한 함수들, 아직 미구현
 
 void AUnitCharacter::ActivateUnit()
 {
     bIsDead = false;
-    SetActorHiddenInGame(false); // 보이게 하기
-    SetActorEnableCollision(true); // 충돌 켜기
-    SetActorTickEnabled(true); // 로직 다시 돌리기
+    SetActorHiddenInGame(false);
+    SetActorEnableCollision(true);
+    SetActorTickEnabled(true);
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    }
+
+    // 3. 무브먼트 복구
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->SetMovementMode(MOVE_Walking);
+    }
+
+    InitUnitStartUpData();
 
     if (Controller == nullptr && AIControllerClass)
     {
         SpawnDefaultController();
     }
-    else
-    {
-        InitUnitStartUpData();
-    }
-    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
     if (TargetActor)
     {
@@ -321,27 +339,32 @@ void AUnitCharacter::ActivateUnit()
 
 void AUnitCharacter::DeactivateUnit()
 {
+    bIsDead = true; // 상태 변경
 
-    //OnUnitStartUpDataLoadedDelegate.Clear();
-
-    if (AController* OldController = GetController())
+    if (AIController)
     {
-        OldController->StopMovement();
-        OldController->UnPossess(); 
-        OldController->Destroy();   
+        if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+        {
+            BrainComp->StopLogic(TEXT("Unit Deactivated"));
+        }
+        AIController->StopMovement();
+        AIController->ClearFocus(EAIFocusPriority::Gameplay);
     }
 
+    // 2. 유닛 서브시스템 팀 해제
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
-        //유닛 서브시스템에서 정한 팀을 해제함 
         Subsystem->UnregisterUnit(this, TeamTag);
     }
 
-    // 2. 물리/이동 초기화
-    GetCharacterMovement()->StopMovementImmediately();
-    GetCharacterMovement()->SetMovementMode(MOVE_None);
+    // 3. 물리/이동 초기화
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->StopMovementImmediately();
+        MovementComp->DisableMovement(); // 바닥으로 꺼지거나 미끄러짐 방지
+    }
 
-    // 3. 시각적 숨김
+    // 4. 시각적 숨김 및 충돌 해제
     SetActorEnableCollision(false);
     SetActorHiddenInGame(true);
     SetActorTickEnabled(false);

@@ -94,9 +94,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsBoss = false;
 
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsMiddleBoss = false;
+
+    bool bIsAbilitiesInitialized = false;
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCharacterVisualEffectComponent> UnitVisualEffectComponent;

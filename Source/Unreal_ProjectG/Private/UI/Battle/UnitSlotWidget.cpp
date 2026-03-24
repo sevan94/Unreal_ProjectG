@@ -73,7 +73,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                 }
             }
         }
-        float RandomRange = FMath::RandRange(-100.0f, 100.0f);
+        float RandomRange = FMath::RandRange(-250.0f, 250.0f);
         FVector RandomLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
         FActorSpawnParameters SpawnParams;
@@ -83,7 +83,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
             UnitData->UnitClass,
             FTransform(SpawnRotation, RandomLocation),
             nullptr, nullptr,
-            ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+            ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
         );
 
         if (NewUnit)

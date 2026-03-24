@@ -67,13 +67,18 @@ void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass,
 
     if (SpawnedUnit)
     {
-        SpawnedUnit->SetActorLocationAndRotation(Location, Rotation);
+       // SpawnedUnit->UnitLevel = InUnitLevel;
+
+        SpawnedUnit->ActivateUnit();
+
+        SpawnedUnit->TeleportTo(Location, Rotation);
+
         if (InTargetActor)
         {
             SpawnedUnit->SetAttackTarget(InTargetActor);
         }
+
         ActiveUnits.Add(SpawnedUnit);
-        SpawnedUnit->ActivateUnit();
     }
 }
 

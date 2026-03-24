@@ -41,16 +41,6 @@ bool UPGFunctionLibrary::NativeDoesActorHaveTag(AActor* InActor, FGameplayTag Ta
     return ASC->HasMatchingGameplayTag(TagToCheck);
 }
 
-bool UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
-{
-    UPGAbilitySystemComponent* TargetASC = NativeGetPGASCFromActor(InTargetActor);
-    UPGAbilitySystemComponent* SourceASC = NativeGetPGASCFromActor(InInstigator);
-
-    FActiveGameplayEffectHandle ActivateGameplayEffectHandle = SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data, TargetASC);
-
-    return ActivateGameplayEffectHandle.WasSuccessfullyApplied();
-}
-
 bool UPGFunctionLibrary::IsTargetCharacterHostile(AActor* InInstigator, AActor* InTargetActor)
 {
     // 두 태그가 다르면 적대 관계로 간주
@@ -104,28 +94,133 @@ FGameplayTag UPGFunctionLibrary::GetSetByCallerTagForAttribute(const FGameplayAt
     return FGameplayTag();
 }
 
+// ====================================================================================================
+// Effect 관련 헬퍼 함수들
+// ====================================================================================================
 
-//UPawnCombatComponent* UPGFunctionLibrary::NativeGetCombatComponentFromActor(AActor* InActor)
-//{
-//    check(InActor);
-//
-//    if (IPawnCombatInterface* PawnCombatInterface = Cast<IPawnCombatInterface>(InActor))
-//    {
-//        return PawnCombatInterface->GetPawnCombatComponent();
-//    }
-//
-//    if (UPawnCombatComponent* PawnCombatComp = InActor->FindComponentByClass<UPawnCombatComponent>())
-//    {
-//        return PawnCombatComp;
-//    }
-//
-//    return nullptr;
-//}
-//
-//UPawnCombatComponent* UPGFunctionLibrary::BP_GetCombatComponentFromActor(AActor* InActor, EPGValidType& OutValidType)
-//{
-//    UPawnCombatComponent* EquipComp = NativeGetCombatComponentFromActor(InActor);
-//
-//    OutValidType = EquipComp ? EPGValidType::Valid : EPGValidType::InValid;
-//    return EquipComp;
-//}
+FActiveGameplayEffectHandle UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
+{
+    UPGAbilitySystemComponent* TargetASC = NativeGetPGASCFromActor(InTargetActor);
+    UPGAbilitySystemComponent* SourceASC = NativeGetPGASCFromActor(InInstigator);
+
+    checkf(TargetASC, TEXT("TargetActor의 AbilitySystemComponent가 없습니다. TargetActor : %s"), *GetNameSafe(InTargetActor));
+    checkf(SourceASC, TEXT("InstigatorActor의 AbilitySystemComponent가 없습니다. InstigatorActor : %s"), *GetNameSafe(InInstigator)); 
+    checkf(InSpecHandle.IsValid(), TEXT("InSpecHandle가 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(InTargetActor));
+
+    FActiveGameplayEffectHandle ActivateGameplayEffectHandle = SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data, TargetASC);
+
+    return ActivateGameplayEffectHandle;
+}
+
+FActiveGameplayEffectHandle UPGFunctionLibrary::BP_ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType)
+{
+	FActiveGameplayEffectHandle ActivateGameplayEffectHandle = ApplyGameplayEffectSpecHandleToTargetActor(InInstigator, InTargetActor, InSpecHandle);
+
+    OutSuccessType = ActivateGameplayEffectHandle.IsValid() ? EPGSuccessType::Successful : EPGSuccessType::Failed;
+
+	return ActivateGameplayEffectHandle;
+}
+
+void UPGFunctionLibrary::NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle)
+{
+    // TargetActor의 AbilitySystemComponent 가져오기
+    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+
+    checkf(TargetASC, TEXT("TargetActor의 AbilitySystemComponent가 없습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
+    checkf(EffectHandle.IsValid(), TEXT("EffectHandle이 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
+
+    TargetASC->RemoveActiveGameplayEffect(EffectHandle);
+}
+
+FGameplayEffectSpecHandle UPGFunctionLibrary::MakeOutgoingGameplayEffectSpec(UAbilitySystemComponent* SourceASC, TSubclassOf<UGameplayEffect> InEffectClass, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel)
+{
+    check(InEffectClass);
+
+    // 게임 플레이 이펙트 컨텍스트 생성
+    // 게임 플레이 이펙트 컨텍스트는 이펙트가 어디서 왔는지, 누가 적용했는지 등의 정보를 담고 있음
+    FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
+    ContextHandle.AddSourceObject(SourceObject);
+    ContextHandle.AddInstigator(Instigator, Instigator);
+
+    // 게임 플레이 이펙트 스펙 생성
+    // 게임 플레이 이펙트 스펙은 이펙트의 구체적인 속성들을 담고 있음
+    FGameplayEffectSpecHandle EffectSpecHandle = SourceASC->MakeOutgoingSpec(
+        InEffectClass,
+        InAbilityLevel,
+        ContextHandle);
+
+    return EffectSpecHandle;
+}
+
+FGameplayEffectSpecHandle UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecWithMultiplier(UAbilitySystemComponent* SourceASC, TSubclassOf<UGameplayEffect> InEffectClass, float InSkillMultiplier, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel)
+{
+    check(InEffectClass);
+
+    // 게임 플레이 이펙트 스펙 생성
+    // 게임 플레이 이펙트 스펙은 이펙트의 구체적인 속성들을 담고 있음
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(SourceASC, InEffectClass, Instigator, SourceObject, InAbilityLevel);
+
+    // 이펙트 스펙에 SetByCaller 매개변수 설정하여 스킬 배율값을 전달
+    EffectSpecHandle.Data->SetSetByCallerMagnitude(
+        PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
+        InSkillMultiplier
+    );
+
+    return EffectSpecHandle;
+}
+
+FGameplayEffectSpecHandle UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecFromEffectConfig(UAbilitySystemComponent* SourceASC, const FEffectConfig& InEffectConfig, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel)
+{
+    checkf(InEffectConfig.EffectClass, TEXT("EffectConfig의 EffectClass가 유효하지 않습니다."));
+
+    // 게임 플레이 이펙트 스펙 생성
+    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(SourceASC, InEffectConfig.EffectClass, Instigator, SourceObject, InAbilityLevel);
+
+    // EffectConfig에서 설정된 값들을 스펙에 적용
+    if (!FMath::IsNearlyZero(InEffectConfig.Multiplier))
+    {
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(
+            PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
+            InEffectConfig.Multiplier
+        );
+    }
+
+    if (InEffectConfig.BaseAmount > 0.f)
+    {
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(
+            PGGameplayTags::Shared_SetByCaller_BaseAmount,
+            InEffectConfig.BaseAmount
+        );
+    }
+
+    if (InEffectConfig.Duration > 0.f)
+    {
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(
+            PGGameplayTags::Shared_SetByCaller_Duration,
+            InEffectConfig.Duration
+        );
+    }
+
+    return EffectSpecHandle;
+}
+
+TArray<FGameplayEffectSpecHandle> UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(UPGAbilitySystemComponent* SourceASC, const TArray<FEffectConfig>& EffectConfigs, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel)
+{
+    // 서버 체크
+    //if(!SourceASC || !SourceASC->IsOwnerActorAuthoritative())
+    //{
+    //    return TArray<FGameplayEffectSpecHandle>();
+    //}
+
+    TArray<FGameplayEffectSpecHandle> EffectSpecHandles;
+
+    for (const FEffectConfig& EffectConfig : EffectConfigs)
+    {
+        FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpecFromEffectConfig(SourceASC, EffectConfig, Instigator, SourceObject, InAbilityLevel);
+        if (EffectSpecHandle.IsValid())
+        {
+            EffectSpecHandles.Add(EffectSpecHandle);
+        }
+    }
+    return EffectSpecHandles;
+}

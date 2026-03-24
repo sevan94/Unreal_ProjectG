@@ -23,6 +23,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip|Data")
     int32 UnlockCost;
 
+    // 중복 획득 시 획득 재화
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip|Data")
+    int32 DuplicateEquipReward;
+
     // 장비 데이터 에셋
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip|Data")
     TSoftObjectPtr<UPrimaryDataAsset> EquipDataAsset;

@@ -87,6 +87,9 @@ public:
     
     // 뽑기를 위한 유닛 데이터 테이블을 리턴하는 함수
     UDataTable* GetUnitDataTable() { return UnitDataTable; }
+    UDataTable* GetWeaponDataTable() { return WeaponDataTable; }
+    UDataTable* GetArmorDataTable() { return ArmorDataTable; }
+    UDataTable* GetAccessoryDataTable() { return AccessoryDataTable; }
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")

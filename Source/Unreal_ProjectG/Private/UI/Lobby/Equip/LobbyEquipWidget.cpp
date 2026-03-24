@@ -120,6 +120,11 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
             SetEquipList(CurrentActiveCategory);
             return;
         }
+        else
+        {
+            // 재화 부족
+            return;
+        }
     }
 
     // 장착 후 처리

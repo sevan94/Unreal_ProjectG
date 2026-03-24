@@ -7,9 +7,11 @@
 #include "Mode/PGLobbyMode.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "Mode/Save/PGUnitCollectionSubsystem.h"
+#include "Mode/Save/PGEquipCollectionSubsystem.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
 #include "UI/Lobby/Gacha/GachaActor.h"
+#include "UI/Lobby/Gacha/EquipGachaActor.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
 void ULobbyGachaWidget::NativeConstruct()
@@ -52,7 +54,7 @@ void ULobbyGachaWidget::OnUnitGachaClick()
         if (ResultWidget)
         {
             // 데이터 초기화
-            ResultWidget->InitData(PickupUnit);
+            ResultWidget->InitUnitData(PickupUnit);
         }
     }
 
@@ -60,16 +62,40 @@ void ULobbyGachaWidget::OnUnitGachaClick()
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
 
     APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
-    if (GM && GM->GachaActor)
+    if (GM && GM->UnitGachaActor)
     {
-        GM->GachaActor->GachaReset();
-        GM->PlayGacha(PickupUnit);
+        GM->UnitGachaActor->GachaReset();
+        GM->PlayUnitGacha(PickupUnit);
     }
 }
 
 void ULobbyGachaWidget::OnEquipGachaClick()
 {
     if (GI->CurrentPlayerGem < 100) return;
+    UPGEquipCollectionSubsystem* Subsystem = GI->GetSubsystem<UPGEquipCollectionSubsystem>();
+    UEquipUIDataAsset* PickupEquip = Subsystem->RollSingleGacha();
+    GI->ConsumeGoods(EGoodsCategory::Gem, 100);
+
+    if (PickupEquip)
+    {
+        UGachaResultWidget* ResultWidget = Cast<UGachaResultWidget>(WidgetSwitcher->GetWidgetAtIndex(5));
+
+        if (ResultWidget)
+        {
+            // 데이터 초기화
+            ResultWidget->InitEquipData(PickupEquip);
+        }
+    }
+
+    // 화면 전환
+    if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
+
+    APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
+    if (GM && GM->EquipGachaActor)
+    {
+        GM->EquipGachaActor->ChestReset();
+        GM->PlayEquipGacha();
+    }
 }
 
 void ULobbyGachaWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)

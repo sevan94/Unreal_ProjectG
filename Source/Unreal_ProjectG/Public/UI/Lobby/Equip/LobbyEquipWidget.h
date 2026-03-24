@@ -35,6 +35,7 @@ protected:
 
     void IntializeEquipSlots();
 
+    UFUNCTION()
     void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
 private:

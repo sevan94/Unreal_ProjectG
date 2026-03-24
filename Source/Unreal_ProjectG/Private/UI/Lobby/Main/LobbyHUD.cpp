@@ -6,7 +6,7 @@
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
 #include "Components/WidgetSwitcher.h"
 
-void ALobbyHUD::ShowGachaResultUI()
+void ALobbyHUD::ShowUnitGachaResultUI()
 {
     if (UISwitcherInstance && UISwitcherInstance->WidgetSwitcher)
     {
@@ -15,6 +15,19 @@ void ALobbyHUD::ShowGachaResultUI()
         if (ResultWidget)
         {
             ResultWidget->PlayGachaAnim();
+        }
+    }
+}
+
+void ALobbyHUD::ShowEquipGachaResultUI()
+{
+    if (UISwitcherInstance && UISwitcherInstance->WidgetSwitcher)
+    {
+        // UISwitcherWidget 내부의 함수를 호출하여 결과창 핸들링
+        UGachaResultWidget* ResultWidget = Cast<UGachaResultWidget>(UISwitcherInstance->WidgetSwitcher->GetWidgetAtIndex(5));
+        if (ResultWidget)
+        {
+            ResultWidget->ShowEquipResult();
         }
     }
 }

@@ -9,13 +9,28 @@
 #include "NiagaraSystemWidget.h"
 #include "Animation/WidgetAnimation.h"
 
-void UGachaResultWidget::InitData(UUnitUIDataAsset* InData)
+void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
 {
     if(InData) PickupUnit = InData;
 
     if (PickupUnit)
     {
+        UnitImage->SetVisibility(ESlateVisibility::Visible);
         UnitImage->SetBrushFromTexture(PickupUnit->UnitImage);
+    }
+}
+
+void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
+{
+    bCanExit = false;
+    if (InData) PickupEquip = InData;
+
+    if (PickupEquip)
+    {
+        GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
+        EquipGachaTarget->SetVisibility(ESlateVisibility::Visible);
+        SkipButton->SetVisibility(ESlateVisibility::Hidden);
+        EquipImage->SetBrushFromTexture(PickupEquip->EquipImage);
     }
 }
 
@@ -33,9 +48,18 @@ void UGachaResultWidget::PlayGachaAnim()
     GachaEffect->ActivateSystem(false);
 }
 
+void UGachaResultWidget::ShowEquipResult()
+{
+    EquipImage->SetVisibility(ESlateVisibility::Visible);
+    bCanExit = true;
+}
+
 void UGachaResultWidget::NativeConstruct()
 {
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
+    UnitImage->SetVisibility(ESlateVisibility::Hidden);
+    EquipImage->SetVisibility(ESlateVisibility::Hidden);
+    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
 
     if (SkipButton) SkipButton->OnClicked.AddDynamic(this, &UGachaResultWidget::OnSkipButtonClicked);
 }
@@ -88,6 +112,9 @@ void UGachaResultWidget::ResetGachaResult()
     // 상태 초기화
     bCanExit = false;
     UnitImage->SetColorAndOpacity(FLinearColor::Black);
+    UnitImage->SetVisibility(ESlateVisibility::Hidden);
+    EquipImage->SetVisibility(ESlateVisibility::Hidden);
+    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
     GachaEffect->DeactivateSystem();
     SkipButton->SetVisibility(ESlateVisibility::Visible);

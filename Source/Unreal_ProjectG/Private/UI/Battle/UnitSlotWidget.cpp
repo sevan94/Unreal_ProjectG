@@ -101,7 +101,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                 }
             }
             NewUnit->UnitLevel = TargetLevel;
-
+            //지금은 spawnactor인데 오브젝트 풀링 적용해야 함 게임모드 인스턴스에서 유닛 목록 받아와서 미리 스폰시켜야 함
             // 인스턴스를 바탕으로 유닛 스폰
             NewUnit->FinishSpawning(FTransform(SpawnRotation, RandomLocation));
 

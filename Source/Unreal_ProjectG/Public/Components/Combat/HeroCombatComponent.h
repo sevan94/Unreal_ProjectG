@@ -19,7 +19,8 @@ public:
     UHeroCombatComponent();
 
     void SetCombatMode(EHeroCombatMode NewCombatMode); // 전투 모드 설정 함수
-
+    EHeroCombatMode GetCombatMode() const { return CombatMode; } // 전투 모드 반환 함수
+    bool IsAutoMode() const { return CombatMode == EHeroCombatMode::Auto; } // 자동 모드 여부 반환 함수
 protected:
     virtual void BeginPlay() override;
     void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

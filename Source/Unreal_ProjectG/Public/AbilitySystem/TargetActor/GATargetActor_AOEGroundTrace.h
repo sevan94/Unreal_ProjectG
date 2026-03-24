@@ -40,9 +40,6 @@ public:
     float PreviewRadius;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
-    float PreviewDecalSize;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
     TObjectPtr<UMaterialInterface> AOETraceDecalMaterial;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))

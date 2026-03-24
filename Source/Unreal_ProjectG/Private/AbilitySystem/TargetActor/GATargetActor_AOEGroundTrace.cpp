@@ -42,7 +42,7 @@ void AGATargetActor_AOEGroundTrace::StartTargeting(UGameplayAbility* InAbility)
     AOEDecalComponent->SetDecalMaterial(AOETraceDecalMaterial);
     AOEDecalComponent->SetWorldRotation(AOEDecalRotation);
     AOEDecalComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    AOEDecalComponent->DecalSize = FVector(10, PreviewDecalSize, PreviewDecalSize);
+    AOEDecalComponent->DecalSize = FVector(10, PreviewRadius, PreviewRadius);
 
     AOERadiusSphere->SetSphereRadius(PreviewRadius);
 }

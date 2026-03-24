@@ -5,9 +5,17 @@
 
 namespace PGGameplayTags
 {
+    // 인풋 태그
+    UE_DEFINE_GAMEPLAY_TAG(Input_BasicAttack, "Input.BasicAttack");
+    UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill, "Input.ActiveSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_SubSkill, "Input.ActiveSkill.SubSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_MainSkill, "Input.ActiveSkill.MainSkill");
+
     // 플레이어 어빌리티 태그
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Skill, "Player.Ability.Skill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill, "Player.Ability.Combat.Skill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponSharedSkill, "Player.Ability.Combat.Skill.WeaponSharedSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponUniqueSkill, "Player.Ability.Combat.Skill.WeaponUniqueSkill");   
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
 
@@ -26,9 +34,11 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_SpecialAttack, "Unit.Ability.SpecialAttack");
 
     // 이벤트 태그
-    UE_DEFINE_GAMEPLAY_TAG(Shared_Event_AttackTraceToggle, "Shared.Event.AttackTraceToggle");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_Event_MeleeTraceStart, "Shared.Event.MeleeTraceStart");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_Event_MeleeTraceEnd, "Shared.Event.MeleeTraceEnd");
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_ProjectileSpawn, "Shared.Event.ProjectileSpawn");
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_ActorSpawn, "Shared.Event.ActorSpawn");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_Event_ActorDestroy, "Shared.Event.ActorDestroy");
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_MeleeHit, "Shared.Event.MeleeHit");
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_AOEExecute, "Shared.Event.AOEExecute");
     UE_DEFINE_GAMEPLAY_TAG(Shared_Event_HitReact, "Shared.Event.HitReact");

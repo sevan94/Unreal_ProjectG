@@ -25,7 +25,7 @@ void UANS_ToggleNotifyCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, U
     // 게임 플레이 이벤트 전송
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
         OwnerActor,
-        PGGameplayTags::Shared_Event_AttackTraceToggle,
+        PGGameplayTags::Shared_Event_MeleeTraceStart,
         Data
     );
 }
@@ -45,7 +45,7 @@ void UANS_ToggleNotifyCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
     // 게임 플레이 이벤트 전송
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
         OwnerActor,
-        PGGameplayTags::Shared_Event_AttackTraceToggle,
+        PGGameplayTags::Shared_Event_MeleeTraceEnd,
         Data
     );
 

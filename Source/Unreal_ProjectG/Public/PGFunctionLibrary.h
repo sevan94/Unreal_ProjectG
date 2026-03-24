@@ -9,7 +9,7 @@
 #include "PGFunctionLibrary.generated.h"
 
 class UPGAbilitySystemComponent;
-class UPawnCombatComponent;
+class UHeroCombatComponent;
 struct FGameplayEffectSpecHandle;
 class APGCharacterBase;
 struct FGameplayAttribute;
@@ -23,6 +23,8 @@ class UNREAL_PROJECTG_API UPGFunctionLibrary : public UBlueprintFunctionLibrary
 	
 public:
     static UPGAbilitySystemComponent* NativeGetPGASCFromActor(AActor* InActor);
+
+    static UHeroCombatComponent* NativeGetCombatComponentFromActor(AActor* InActor);
 
     // 타겟 액터가 특정 태그를 가지고 있는지 확인하는 네이티브 함수
     static bool NativeDoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck);

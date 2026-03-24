@@ -6,6 +6,7 @@
 #include "ScalableFloat.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
+#include "Engine/DataTable.h"
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
@@ -14,12 +15,11 @@ class UGameplayEffect;
 class UPGGameplayAbility;
 class APetCharacter;
 class AAOESkillActor;
+class UDataAsset_SkillVisualData;
 class APGMageMagicBase;
-
 /**
  * 유닛과 캐릭터의 어빌리티의 변수들을 담는 구조체
  */
-
 
  // 어빌리티 클래스와 그에 대한 설정을 담는 구조체
 USTRUCT(BlueprintType)
@@ -66,79 +66,6 @@ struct FAbilityConfig
 	GENERATED_BODY()
 
     virtual ~FAbilityConfig() = default;
-};
-
-//==========================================================================================================
-// 히어로 어빌리티 설정 구조체들
-//==========================================================================================================
-USTRUCT(BlueprintType)
-struct FHeroMeleeAttackAbilityConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 MaxHitTargets = 1; // 최대 공격 가능한 적의 수
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    float WeaponTraceRadius = 50.f; // 무기 트레이스 반경
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UAnimMontage>> MeleeAttackMontages; // 공격 애니메이션 몽타주들
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag HitImpactCueTag; // 공격이 적중했을 때 재생할 이펙트 태그
-};
-
-USTRUCT(BlueprintType)
-struct FHeroSpawnProjectileAbilityConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FScalableFloat SkillMultiplier; // 스킬 계수
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftClassPtr<APGProjectileBase> SpawnedProjectileClass; // 스폰할 프로젝타일 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TArray<TSoftObjectPtr<UAnimMontage>> SpawnProjectileMontages; // 공격 애니메이션 몽타주들
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag SpawnCueTag; // 스폰할때, 재생할 이펙트 태그
-};
-
-// AOE 어빌리티 설정 구조체
-USTRUCT(BlueprintType)
-struct FHeroAOECommonConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-    TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
 };
 
 USTRUCT(BlueprintType)
@@ -289,4 +216,133 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
     FGameplayTag SpawnCueTag; // 스폰 시 재생할 이펙트 태그 (필요시)
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class ESpawnLocation : uint8
+{
+    AtCaster                    UMETA(DisplayName = "시전자위치"),       // 캐릭터 위치에서 즉시 소환
+    AtTargetPoint               UMETA(DisplayName = "타겟 포인트"),  // 타겟 포인트에 소환
+    AtPreviousActionLocation    UMETA(DisplayName = "이전 액션 위치"), // 이전 액션의 위치에 소환 (예: 이전 액션이 장판 생성이면 장판 위치, 이전 액션이 투사체 생성이면 투사체 위치)
+};
+
+UENUM(BlueprintType)
+enum class ESkillTargetPolicy : uint8
+{
+    Enemy   UMETA(DisplayName = "적"),
+    Ally    UMETA(DisplayName = "아군"),
+    Self    UMETA(DisplayName = "자신")
+};
+
+UENUM(BlueprintType)
+enum class ESkillActorType : uint8
+{
+    None            UMETA(DisplayName = "없음"),
+    Projectile      UMETA(DisplayName = "투사체"),
+    InstantAOE      UMETA(DisplayName = "즉시 범위"),
+    PersistentAOE   UMETA(DisplayName = "지속 범위"),
+};
+
+USTRUCT(BlueprintType)
+struct FEffectConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UGameplayEffect> EffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
+    float Multiplier = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
+    float BaseAmount = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
+    float Duration = 0.f;
+};
+
+USTRUCT(BlueprintType)
+struct FHeroSpawnableConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "액터 클래스"))
+    TSubclassOf<AActor> ActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 타입"))
+    ESkillActorType ActorType = ESkillActorType::None;
+
+    // 적용할 이펙트 배열
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
+    TArray<FEffectConfig> Effects;
+
+    // 스폰 위치 정책
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 위치 정책"))
+    ESpawnLocation SpawnLocationPolicy = ESpawnLocation::AtCaster;
+
+    // 스킬 타겟팅 정책
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
+    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Enemy;
+
+    // 액터 속도, 0이면 고정(장판/폭발)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "속도", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float Speed = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "최대 사거리", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float MaxRange = 0.f;
+
+    // 액터가 존재하는 시간
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 시간", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float LifeSpan = 0.1f;
+
+    // 0이면 단발성, 0초과면 장형 틱 데미지
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "시간 동안 히트 횟수", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float HitsPerLifeSpan = 1.f;
+
+    // 콜리전 반경(0이면 기본 콜리전 사용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))
+    float Radius = 0.f;
+
+    // AtTargetPoint일 때, 사용할 데칼  머티리얼
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "범위 지정 데칼", EditCondition = "SpawnLocationPolicy == ESpawnLocation::AtTargetPoint", EditConditionHides))
+    TObjectPtr<UMaterialInterface> IndicatorDecalMaterial;
+
+    // 액터가 재생할 몽타주
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
+    TObjectPtr<UAnimMontage> Montage;
+
+    // 시각 연출을 위한 에셋
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
+    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
+
+    // 소환 위치 조정을 위한 오프셋
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "소환 오프셋"))
+    FDataTableRowHandle SpawnOffsetRow;
+};
+
+USTRUCT(BlueprintType)
+struct FHeroMeleeTraceConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    // 근접 공격 트레이스 반경
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Radius = 100.f;
+
+    // 근접 공격 트레이스 사거리
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float TraceOffsetRange = 150.f;
+
+    // 최대 공격 가능한 적의 수
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 MaxHit = 1;
+
+    // 적용할 이펙트 배열
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<FEffectConfig> Effects;
+
+    // 액터가 재생할 몽타주
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UAnimMontage> Montage;
 };

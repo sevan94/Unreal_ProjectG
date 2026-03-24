@@ -7,12 +7,31 @@
 #include "Character/PGCharacterBase.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGGameplayTags.h"
+#include "Interfaces/HeroCombatInterface.h"
+#include "Components/Combat/HeroCombatComponent.h"
 
 UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetPGASCFromActor(AActor* InActor)
 {
     check(InActor);
 
     return CastChecked<UPGAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InActor));
+}
+
+UHeroCombatComponent* UPGFunctionLibrary::NativeGetCombatComponentFromActor(AActor* InActor)
+{
+    check(InActor);
+
+    if (IHeroCombatInterface* HeroCombatInterface = Cast<IHeroCombatInterface>(InActor))
+    {
+        return HeroCombatInterface->GetHeroCombatComponent();
+    }
+
+    if (UHeroCombatComponent* HeroCombatComp = InActor->FindComponentByClass<UHeroCombatComponent>())
+    {
+        return HeroCombatComp;
+    }
+
+    return nullptr;
 }
 
 bool UPGFunctionLibrary::NativeDoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck)

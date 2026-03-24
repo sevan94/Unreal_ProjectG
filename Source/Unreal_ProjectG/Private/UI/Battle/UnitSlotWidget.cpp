@@ -30,14 +30,6 @@ void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
     {
         UnitImage->SetBrushFromTexture(UnitData->UnitImage);
     }
-
-    if (UWorld* World = GetWorld())
-    {
-        if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
-        {
-            SpawnSystem->PrewarmPool(UnitData->UnitClass, 8);
-        }
-    }
 }
 
 void UUnitSlotWidget::UpdateSlot(float InCost)
@@ -85,7 +77,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
         }
         float RandomRange = FMath::RandRange(-250.0f, 250.0f);
         FVector FinalLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
-        FRotator FinalRotation = FRotator::ZeroRotator;
+        FRotator SpawnRotation = FRotator::ZeroRotator;
 
         UUnitSpawnSubsystem* SpawnSystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>();
         if (!SpawnSystem) return;
@@ -94,11 +86,12 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 
         if (ReusedUnit)
         {
-            ReusedUnit->SetActorLocationAndRotation(FinalLocation, FinalRotation);
+            ReusedUnit->SetActorLocationAndRotation(FinalLocation, SpawnRotation);
 
             int32 TargetLevel = 1;
+            UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
 
-            if (UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()))
+            if (GI)
             {
                 if (FUnitSaveData* FoundData = GI->UnitLevelMap.Find(UnitData->UnitID))
                 {
@@ -108,11 +101,11 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                     }
                 }
             }
-
             ReusedUnit->UnitLevel = TargetLevel;
 
             ReusedUnit->ActivateUnit();
 
+            UE_LOG(LogTemp, Log, TEXT("Spawned(Reused) Unit: %d with Level: %d"), UnitData->UnitID, TargetLevel);
         }
     }
 }

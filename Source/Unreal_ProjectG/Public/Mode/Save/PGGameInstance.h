@@ -98,6 +98,8 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")
     void InitializeEquipMap();
 
+    void SetupDefaultSetting();
+
 public:
     FUnitSaveData GetUnitSaveData(int32 UnitID);
     bool GetEquipOwned(int32 EquipID);
@@ -193,4 +195,7 @@ private:
     TObjectPtr<UPGSaveGame> CachedSaveData;
 
     FString SaveSlotName = TEXT("PG_SaveSlot_01");
+
+    // 최초 게임 시작시 기본값 세팅을 위한 변수
+    bool bIsNewGame = false;
 };

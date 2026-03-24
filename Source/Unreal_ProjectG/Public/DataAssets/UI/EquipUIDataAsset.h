@@ -15,6 +15,10 @@ class UNREAL_PROJECTG_API UEquipUIDataAsset : public UPrimaryDataAsset
 	GENERATED_BODY()
 	
 public:
+    // 장비 구분용 ID
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Data")
+    int32 EquipID;
+
     // 장비 데이터 에셋
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip")
     TSoftObjectPtr<UPrimaryDataAsset> EquipDataAsset;

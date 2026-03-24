@@ -4,7 +4,7 @@
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/Battle/BattleHUD.h"
 #include "UI/DataTable/UnitUIDataTable.h"
-#include "Mode/Save/PGGameInstance.h"
+#include "UI/DataTable/EquipUIDataTable.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
@@ -45,11 +45,15 @@ void UPGGameInstance::LoadGameData()
         this->UnitLevelMap = CachedSaveData->UnitLevelMap;
         if (CachedSaveData->UnitLevelMap.IsEmpty())
             InitializeUnitMap();
+        this->EquipMap = CachedSaveData->EquipMap;
+        if (this->EquipMap.IsEmpty()) 
+            InitializeEquipMap();
     }
     else
     {
         CachedSaveData = Cast<UPGSaveGame>(UGameplayStatics::CreateSaveGameObject(UPGSaveGame::StaticClass()));
         InitializeUnitMap();
+        InitializeEquipMap();
     }
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
@@ -257,6 +261,51 @@ void UPGGameInstance::InitializeUnitMap()
     UE_LOG(LogTemp, Log, TEXT("UnitLevelMap 초기화 완료: %d개의 유닛 로드됨"), UnitLevelMap.Num());
 }
 
+void UPGGameInstance::InitializeEquipMap()
+{
+    // 이미 데이터가 있다면 중복 초기화 방지
+    if (EquipMap.Num() > 0) return;
+
+    // 순회할 데이터 테이블 배열 (에디터에서 할당된 변수들)
+    TArray<UDataTable*> TargetTables;
+    if (WeaponDataTable) TargetTables.Add(WeaponDataTable);
+    if (ArmorDataTable) TargetTables.Add(ArmorDataTable);
+    if (AccessoryDataTable) TargetTables.Add(AccessoryDataTable);
+
+    static const FString ContextString(TEXT("EquipMapRef"));
+
+    for (UDataTable* Table : TargetTables)
+    {
+        if (!Table) continue;
+
+        // FEquipUIDataTable 형식으로 모든 행을 가져옴
+        TArray<FEquipUIDataTable*> AllRows;
+        Table->GetAllRows<FEquipUIDataTable>(ContextString, AllRows);
+
+        for (FEquipUIDataTable* Row : AllRows)
+        {
+            if (Row)
+            {
+                // 특정 ID만 시작 시 해금 상태로 설정
+                bool bIsUnlocked = (
+                    Row->EquipID == 1001 || // 기본 무기
+                    Row->EquipID == 1003 || // 기본 무기
+                    Row->EquipID == 2001 || // 기본 방어구
+                    Row->EquipID == 3002    // 기본 악세서리
+                    );
+
+                // EquipMap에 추가
+                if (!EquipMap.Contains(Row->EquipID))
+                {
+                    EquipMap.Add(Row->EquipID, bIsUnlocked);
+                }
+            }
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("EquipMap 초기화 완료: 총 %d개의 장비 로드됨"), EquipMap.Num());
+}
+
 FUnitSaveData UPGGameInstance::GetUnitSaveData(int32 UnitID)
 {
     if (FUnitSaveData* FoundData = UnitLevelMap.Find(UnitID))
@@ -267,12 +316,24 @@ FUnitSaveData UPGGameInstance::GetUnitSaveData(int32 UnitID)
     return FUnitSaveData();
 }
 
+bool UPGGameInstance::GetEquipOwned(int32 EquipID)
+{
+    if (bool* bIsOwned = EquipMap.Find(EquipID))
+    {
+        return *bIsOwned;
+    }
+    return false;
+}
+
 void UPGGameInstance::SaveGameData()
 {
     if (!CachedSaveData) return;
 
     // 현재 보유 유닛 리스트 저장
     CachedSaveData->UnitLevelMap = this->UnitLevelMap;
+
+    // 현재 보유 장비 리스트 저장
+    CachedSaveData->EquipMap = this->EquipMap;
 
     // 현재 스테이지 데이터 저장
     CachedSaveData->StageDataMap = this->StageClearData;

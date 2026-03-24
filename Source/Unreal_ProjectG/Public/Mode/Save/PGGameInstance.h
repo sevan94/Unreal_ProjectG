@@ -92,8 +92,12 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")
     void InitializeUnitMap();
 
+    UFUNCTION(BlueprintCallable, Category = "SaveData")
+    void InitializeEquipMap();
+
 public:
     FUnitSaveData GetUnitSaveData(int32 UnitID);
+    bool GetEquipOwned(int32 EquipID);
 
     // --- [런타임 장착 데이터] ---
     // 로비 UI에서 이 변수들을 수정하고, 전투 맵에서 이 변수들을 읽어 적용
@@ -138,6 +142,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
     TMap<int32, FUnitSaveData> UnitLevelMap;
 
+    // 장비 도감 형식 데이터(장비 코드, 보유 현황)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
+    TMap<int32, bool> EquipMap;
+
     FOnGoodsChanged OnGoodsChanged;
 
     // --- [환경설정 런타임 변수 (사운드)] ---
@@ -166,6 +174,16 @@ public:
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
     TObjectPtr<UDataTable> UnitDataTable;
+
+    // 장비 데이터 테이블들
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+    TObjectPtr<UDataTable> WeaponDataTable;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+    TObjectPtr<UDataTable> ArmorDataTable;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+    TObjectPtr<UDataTable> AccessoryDataTable;
 
 private:
     UPROPERTY()

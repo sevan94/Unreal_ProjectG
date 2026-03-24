@@ -49,6 +49,10 @@ public:
     UPROPERTY()
     TMap<int32, FUnitSaveData> UnitLevelMap;
 
+    // 장비 정보 맵
+    UPROPERTY()
+    TMap<int32, bool> EquipMap;
+
     // 스테이지 정보 맵
     UPROPERTY()
     TMap<int32, int32> StageDataMap;

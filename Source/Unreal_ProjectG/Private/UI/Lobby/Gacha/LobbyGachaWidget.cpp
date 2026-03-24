@@ -69,6 +69,7 @@ void ULobbyGachaWidget::OnUnitGachaClick()
 
 void ULobbyGachaWidget::OnEquipGachaClick()
 {
+    if (GI->CurrentPlayerGem < 100) return;
 }
 
 void ULobbyGachaWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)

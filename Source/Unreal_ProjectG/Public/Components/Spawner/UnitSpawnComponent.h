@@ -2,24 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h" 
+#include "Types/PGEnumTypes.h"
 #include "UnitSpawnComponent.generated.h"
 
 class AUnitCharacter;
 class UDataAsset_UnitStartupData;
-
-
-USTRUCT(BlueprintType)
-struct FUnitSpawnInfo
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TSubclassOf<AUnitCharacter> UnitClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TSoftObjectPtr<UDataAsset_UnitStartupData> UnitData;
-};
-
+class UDA_StageUnitListDataAsset;
 
 // [변경] UCLASS 설정에 ClassGroup, meta 추가 (에디터 컴포넌트 목록에 뜨게 함)
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -37,23 +25,41 @@ protected:
 public:
     void SpawnRandomUnit();
 
+    UFUNCTION(BlueprintCallable, Category = "Wave")
+    void StartWave();
+
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void SetAttackTarget(AActor* InTargetActor);
+
+    UFUNCTION(BlueprintCallable, Category = "Spawner")
+    void StopWave();
+
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    TArray<FUnitSpawnInfo> SpawnList;
+    UFUNCTION()
+    void OnTargetBaseDestroyed(ETeamType DestroyedTeam);
+protected:
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
+    //TArray<FUnitSpawnInfo> SpawnList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    float SpawnInterval = 3.0f;
+    float SpawnInterval = 0.0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
     bool bLoopSpawning = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
-    int32 PoolSize = 10;
+    int32 PoolSize = 5;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     TObjectPtr<AActor> AttackTarget;
-private:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    UDA_StageUnitListDataAsset* StageUnitDataAsset;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    int32 CurrentStageIndex = 0;
+
     FTimerHandle SpawnTimerHandle;
+
+
 };

@@ -8,6 +8,7 @@
 
 class UUnitUIDataAsset;
 class UUnitSlotWidget;
+class ABaseStructure;
 
 /**
  * 
@@ -17,8 +18,13 @@ class UNREAL_PROJECTG_API UUnitPanelWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+    void UpdateAllSlots(float InCost);
+
 protected:
     virtual void NativeConstruct() override;
+
+    void SetUnitSlot();
 
 public:
     // 에디터에서 5개의 유닛 데이터를 넣을 수 있는 배열

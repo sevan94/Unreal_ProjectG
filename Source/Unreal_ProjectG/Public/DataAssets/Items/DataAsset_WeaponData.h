@@ -18,6 +18,11 @@ class UNREAL_PROJECTG_API UDataAsset_WeaponData : public UPrimaryDataAsset
 public:
     FORCEINLINE const FPGHeroWeaponData& GetHeroWeaponData() const { return HeroWeaponData; }
 
+public:
+    // 세트 구분을 위한 태그
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
+    FGameplayTag SetTag;
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FPGHeroWeaponData HeroWeaponData;

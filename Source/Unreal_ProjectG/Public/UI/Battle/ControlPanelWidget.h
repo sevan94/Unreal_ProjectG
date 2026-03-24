@@ -10,6 +10,7 @@
 class UImage;
 class UBarWidget;
 class UBaseHpWidget;
+class UUnitPanelWidget;
 class UActiveSkillWidget;
 class AHeroCharacter;
 
@@ -43,6 +44,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle();
 
+    UFUNCTION(BlueprintCallable)
+    UActiveSkillWidget* GetActiveSkillWidget() { return WeaponSkill; }
+
 protected:
     // 블루프린트 이벤트를 C++에서 오버라이드
     virtual void NativeConstruct() override;
@@ -53,6 +57,12 @@ protected:
     // 마우스 버튼 클릭 해제 시
     virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+private:
+    // 영웅 바인딩 함수
+    void BindHero();
+
+    // 기지 바인딩 함수
+    void BindBase();
 
 protected:
     TObjectPtr<AHeroCharacter> HeroCharacter = nullptr;
@@ -71,6 +81,12 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBarWidget> CostBar;
 
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TObjectPtr<UTexture2D> HPIcon;
+
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TObjectPtr<UTexture2D> CostIcon;
+
     // 기지 체력 바
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBaseHpWidget> PlayerHP;
@@ -81,6 +97,9 @@ protected:
     // 액티브 스킬
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UActiveSkillWidget> WeaponSkill;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UUnitPanelWidget> UnitPanel;
     
 private:
     // 내부 변수

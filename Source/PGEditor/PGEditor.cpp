@@ -4,7 +4,12 @@
 #include "PGEditor.h"
 #include "PropertyEditorModule.h"
 #include "Customization/AbilityEntryCustomization.h"
+#include "Customization/AttributeModEntryCustomization.h"
 #include "Types/PGStructTypes.h"
+#include "Types/PGGasTypes.h"
+
+#include "Customization/SetBonusDataCustomization.h"
+#include "DataAssets/Items/DataAsset_SetBonusData.h"
 
 IMPLEMENT_MODULE(FPGEditorModule, PGEditor)
 
@@ -21,6 +26,18 @@ void FPGEditorModule::StartupModule()
         FOnGetPropertyTypeCustomizationInstance::CreateStatic(
             &FAbilityEntryCustomization::MakeInstance));
 
+    // FAttributeModEntry 커스터마이저 등록
+    PropertyModule.RegisterCustomPropertyTypeLayout(
+        FPGAttributeModifierEntry::StaticStruct()->GetFName(), //Struct의 FName을 가져와서 등록
+        FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+            &FAttributeModEntryCustomization::MakeInstance));
+
+    // UDataAssets_SetBonusData 디테일 커스터 마이저 등록
+    PropertyModule.RegisterCustomClassLayout(
+        UDataAsset_SetBonusData::StaticClass()->GetFName(),
+        FOnGetDetailCustomizationInstance::CreateStatic(
+            &FSetBonusDataCustomization::MakeInstance));
+
     PropertyModule.NotifyCustomizationModuleChanged();
 }
 
@@ -34,5 +51,13 @@ void FPGEditorModule::ShutdownModule()
         // FAbilityEntry 커스터마이저 등록 해제
         PropertyModule.UnregisterCustomPropertyTypeLayout(
             FAbilityEntry::StaticStruct()->GetFName());
+        
+        // FAttributeModEntry 커스터마이저 등록 해제
+        PropertyModule.UnregisterCustomPropertyTypeLayout(
+            FPGAttributeModifierEntry::StaticStruct()->GetFName());
+
+        // UDataAssets_SetBonusData 디테일 커스터마이저 등록 해제
+        PropertyModule.UnregisterCustomClassLayout(
+            UDataAsset_SetBonusData::StaticClass()->GetFName());
     }
 }

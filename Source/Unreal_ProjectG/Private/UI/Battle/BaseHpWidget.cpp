@@ -5,14 +5,12 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
-void UBaseHpWidget::InitHPBar(float InCurrent, float InMax)
+void UBaseHpWidget::UpdateMaxHP(float InMax)
 {
     MaxValue = InMax;
-    CurrentValue = InCurrent;
     MaxHP->SetText(FText::AsNumber(FMath::RoundToInt(InMax)));
-    CurrentHP->SetText(FText::AsNumber(FMath::RoundToInt(InCurrent)));
-
-    HPBar->SetPercent(CurrentValue / MaxValue);
+    CurrentHP->SetText(FText::AsNumber(FMath::RoundToInt(InMax)));
+    HPBar->SetPercent(MaxValue / MaxValue);
 }
 
 void UBaseHpWidget::UpdateCurrentHP(float InCurrent)

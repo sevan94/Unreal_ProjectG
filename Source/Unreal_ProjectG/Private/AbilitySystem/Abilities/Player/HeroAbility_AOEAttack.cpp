@@ -9,20 +9,37 @@
 #include "Character/Unit/UnitCharacter.h"
 #include "PGFunctionLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
+#include "DataAssets/Ability/AbilityConfig.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 UHeroAbility_AOEAttack::UHeroAbility_AOEAttack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UHeroAbility_AOEAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+    Super::OnGiveAbility(ActorInfo, Spec);
+
+    UAOEAttackAbilityConfig* Data = Cast<UAOEAttackAbilityConfig>(GetCurrentAbilitySpec()->SourceObject.Get());
+    if (Data)
     {
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-        return;
+        AOEAttackMontage = Data->AbilityMontage;
+        AOEAttackSkillMultiplier = Data->DamageMultiplier;
+        AOEImpactCueTag = Data->AOEImpactCueTag;
+        AOEAttackRadius = Data->AOEAttackRadius;
+        MaxHitTargets = Data->MaxHitTargets;
     }
 }
+
+//void UHeroAbility_AOEAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+//{
+//    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+//    {
+//        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+//        return;
+//    }
+//}
 
 void UHeroAbility_AOEAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -85,9 +102,10 @@ void UHeroAbility_AOEAttack::OnApplyAOEDamage(FGameplayEventData EventData)
 
     for (AActor* HitActor : HitActors)
     {
-        if (UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitActor))
+        if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitActor))
         {
             NativeApplyEffectSpecHandleToTarget(HitActor, EffectSpecHandle);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
         }
     }
 }

@@ -21,11 +21,16 @@
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
+#include "Mode/PGBaseGameMode.h"
+#include "Character/Unit/SubSystem/UnitSubsystem.h"
+#include "Engine/SkeletalMeshSocket.h"
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit.Side.Ally");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -49,7 +54,6 @@ AHeroCharacter::AHeroCharacter()
     WeaponStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponStaticMesh"));
     WeaponStaticMesh->SetupAttachment(GetMesh());
     WeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    ResourceAttribute = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("ResourceAttribute"));
     
     HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
     ResourceManager = CreateDefaultSubobject<UHeroResourceComponent>(TEXT("ResourceManager"));
@@ -80,6 +84,8 @@ void AHeroCharacter::SpawnHero()
     MovementComponent->SetComponentTickEnabled(true);
     MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
     MovementComponent->Activate();
+
+
 }
 
 void AHeroCharacter::MakeHeroDead()
@@ -122,7 +128,7 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
         {
             if(Data.BaseAttackAbility)
             {
-                   AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
+                AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
             }
             if (!(Data.WeaponSkillAbilities.IsEmpty()))
             {
@@ -134,9 +140,14 @@ void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
         }
 
         WeaponStaticMesh->SetStaticMesh(Weapon->GetHeroWeaponData().SoftWeaponMesh.Get());
-        //차후 에셋이 정해지면 소켓으로 붙일 예정
+        
+        const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName("RightHand");
+
+        if (WeaponStaticMesh && RightHandSocket)
+        {
+            WeaponStaticMesh->SetupAttachment(GetMesh(), FName("RightHand"));
+        }
     }
-    
 }
 
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
@@ -188,6 +199,28 @@ void AHeroCharacter::UnEquipAccessory()
     Accessory = nullptr;
 }
 
+bool AHeroCharacter::ConsumeCost(float InCost)
+{
+    if (CharacterAttributeSet)
+    {
+        float CurrentCost = CharacterAttributeSet->GetCost();
+        CharacterAttributeSet->SetCost(CurrentCost - InCost);
+        if (UWorld* World = GetWorld())
+        {
+            // 서버 측에서 실행되는 GameMode를 가져옴
+            APGBaseGameMode* GM = Cast<APGBaseGameMode>(World->GetAuthGameMode());
+            if (GM)
+            {
+                // 소모한 코스트만큼 누적 (정수형일 경우 형변환)
+                GM->SpentCost += FMath::RoundToInt(InCost);
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
 void AHeroCharacter::ActivateSkill()
 {
     if (PGAbilitySystemComponent)
@@ -201,16 +234,17 @@ void AHeroCharacter::ActivateSkill()
 
 void AHeroCharacter::BroadCastAttributeSet()
 {
-    if (ResourceAttribute)
+    if (CharacterAttributeSet)
     {
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
+            CharacterAttributeSet->GetHealthAttribute()).AddUObject(this, &AHeroCharacter::CurrentHealthChange);
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+            CharacterAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &AHeroCharacter::MaxHealthChange);
+
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
+            CharacterAttributeSet->GetCostAttribute()).AddUObject(this, &AHeroCharacter::CurrentCostChange);
         PGAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-            ResourceAttribute->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
+            CharacterAttributeSet->GetMaxCostAttribute()).AddUObject(this, &AHeroCharacter::MaxCostChange);
     }
 }
 
@@ -231,6 +265,8 @@ void AHeroCharacter::BeginPlay()
 
     //ABP 가져오기
     AnimInstance = GetMesh()->GetAnimInstance();
+
+    BroadCastAttributeSet();
 
     if (!CharacterStartupData.IsNull())
     {
@@ -263,7 +299,10 @@ void AHeroCharacter::BeginPlay()
         UE_LOG(LogTemp, Log, TEXT("Overlap bind"));
     }
 
-    BroadCastAttributeSet();
+    if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+    {
+        Subsystem->RegisterUnit(this, TAG_Unit_Side_Ally);
+    }
 }
 
 // Called every frame

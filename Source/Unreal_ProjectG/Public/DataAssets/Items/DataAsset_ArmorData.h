@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayEffectTypes.h"
-#include "ScalableFloat.h"
+#include "Types/PGGasTypes.h"
 #include "DataAsset_ArmorData.generated.h"
 
 class UGameplayEffect;
@@ -23,9 +23,10 @@ public:
     void MakeOutgoingArmorEffectSpecHandle(UPGAbilitySystemComponent* InASC, int32 InLevel = 1) const;
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Data")
-    TSoftClassPtr<UGameplayEffect> ArmorGameplayEffectClass;
+    // 세트 구분을 위한 태그
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Set"))
+    FGameplayTag SetTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Data")
-    TMap<FGameplayTag, FScalableFloat> AttributeModifiers;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<FPGAttributeModifierEntry> AttributeModifiers;
 };

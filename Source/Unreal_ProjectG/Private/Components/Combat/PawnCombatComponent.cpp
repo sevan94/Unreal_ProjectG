@@ -10,23 +10,3 @@ UPawnCombatComponent::UPawnCombatComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
 }
-
-void UPawnCombatComponent::SetbWeaponEquipped(bool InBoolean)
-{
-    bWeaponEquipped = InBoolean;
-}
-
-void UPawnCombatComponent::AssignSkillAbilitySpecHandle(const TArray<FGameplayAbilitySpecHandle>& InHandle)
-{
-    GrantedSkillAbilitySpecHandles = InHandle;
-}
-
-void UPawnCombatComponent::AssignBaseAttackAbilitySpecHandle(const FGameplayAbilitySpecHandle& InHandle)
-{
-    GrantedBaseAttackAbilitySpecHandle = InHandle;
-}
-
-void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
-{
-    return;
-}

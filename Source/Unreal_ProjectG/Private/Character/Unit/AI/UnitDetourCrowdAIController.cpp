@@ -122,9 +122,15 @@ void AUnitDetourCrowdAIController::SetUnitState(EUnitState NewState)
         UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
         if (CrowdComp)
         {
-            if (NewState == EUnitState::Combat || NewState == EUnitState::Move)
+            if (NewState == EUnitState::Move)
             {
-                //CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::Low);
+                CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High);
+            }
+            else if (NewState == EUnitState::Combat)
+            {
+                CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High);
+
+                //CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::Disabled);
             }
             else if (NewState == EUnitState::Dead)
             {

@@ -19,25 +19,10 @@ public:
     UPawnCombatComponent();
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
-    void SetbWeaponEquipped(bool InBoolean);
-
-    // 스킬 어빌리티 핸들 할당
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void AssignSkillAbilitySpecHandle(const TArray<FGameplayAbilitySpecHandle>& InHandle);
-
-    // 기본 공격 어빌리티 핸들 할당
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    void AssignBaseAttackAbilitySpecHandle(const FGameplayAbilitySpecHandle& InHandle);
-
-    UFUNCTION(BlueprintCallable, Category = "Combat")
     const FGameplayAbilitySpecHandle& GetBaseAttackAbilitySpecHandle() const { return GrantedBaseAttackAbilitySpecHandle; }
     
     UFUNCTION(BlueprintCallable, Category = "Combat")
     TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedSkillAbilitySpecHandles; }
-
-protected:
-    UFUNCTION(BlueprintCallable, Category = "Combat")
-    virtual void OnHitTargetActor(AActor* HitActor);
 
 public:
     // 나중에 태그나 다른 타입도 고려
@@ -52,7 +37,4 @@ protected:
     // 기본 공격 어빌리티를 위한 어빌리티 스펙 핸들
     UPROPERTY(VisibleAnywhere, Category = "Combat|Data")
     FGameplayAbilitySpecHandle GrantedBaseAttackAbilitySpecHandle;
-
-    //// 무기 충돌에 겹쳐있는 액터들
-    //TArray<AActor*> OverlappedActors;
 };

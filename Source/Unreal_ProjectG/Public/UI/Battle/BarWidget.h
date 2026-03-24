@@ -7,6 +7,7 @@
 #include "BarWidget.generated.h"
 
 class UTextBlock;
+class UImage;
 class UProgressBar;
 
 /**
@@ -19,13 +20,17 @@ class UNREAL_PROJECTG_API UBarWidget : public UUserWidget
 
 public:
     UFUNCTION(BlueprintCallable)
-    void InitProgressBar(FLinearColor InColor, FText InName, float InMax);
+    void InitProgressBar(UTexture2D* Icon, FLinearColor InColor, FText InName);
 
     void UpdateCurrent(float InCurrent);
+    void UpdateMax(float InMax);
 	
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UProgressBar> StatusBar = nullptr;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> StatusIcon = nullptr;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> StatusName = nullptr;
@@ -38,5 +43,4 @@ protected:
 
 private:
     float MaxValue = 1.0f;
-    float CurrentValue = 1.0f;
 };

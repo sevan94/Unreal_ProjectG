@@ -23,6 +23,7 @@ class UNREAL_PROJECTG_API UActiveSkillWidget : public UUserWidget
 
 public:
     // 어빌리티 스펙 핸들을 이용하여 어빌리티 오브젝트 레퍼런스 할당
+    UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandle);
 
     // 쿨타임 태그가 변경될 때 호출될 함수

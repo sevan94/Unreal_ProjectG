@@ -14,6 +14,10 @@ APGCharacterBase::APGCharacterBase()
 
     PGAbilitySystemComponent = CreateDefaultSubobject<UPGAbilitySystemComponent>(TEXT("PGAbilitySystemComponent"));
     CharacterAttributeSet = CreateDefaultSubobject<UPGCharacterAttributeSet>(TEXT("CharacterAttributeSet"));
+
+    GetMesh()->SetRenderCustomDepth(true);
+
+    GetMesh()->SetCustomDepthStencilValue(1);
 }
 
 UAbilitySystemComponent* APGCharacterBase::GetAbilitySystemComponent() const

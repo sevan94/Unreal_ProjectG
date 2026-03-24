@@ -1,0 +1,11 @@
+
+
+#include "Mode/Save/PGSaveGame.h"
+
+
+UPGSaveGame::UPGSaveGame()
+{
+    // 여기서 기본값을 초기화
+    PlayerName = TEXT("Player");
+    PlayerGold = 0;
+}

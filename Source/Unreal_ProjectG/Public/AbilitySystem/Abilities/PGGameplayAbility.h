@@ -25,13 +25,18 @@ class UNREAL_PROJECTG_API UPGGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
+public:
+    UPGGameplayAbility();
+
 protected:
     virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+    // 액터에서 PawnCombatComponent을 가져오는 헬퍼 함수
     UFUNCTION(BlueprintPure, Category = "PGGameplayAbility")
     UPawnCombatComponent* GetPawnCombatComponent() const;
 
+    // ActorInfo에서 PGAbilitySystemComponent을 가져오는 헬퍼 함수
     UFUNCTION(BlueprintPure, Category = "PGGameplayAbility")
     UPGAbilitySystemComponent* GetPGAbilitySystemComponentFromActorInfo() const;
 

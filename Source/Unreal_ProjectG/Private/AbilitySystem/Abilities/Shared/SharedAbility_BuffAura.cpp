@@ -4,6 +4,9 @@
 #include "AbilitySystem/Abilities/Shared/SharedAbility_BuffAura.h"
 #include "AbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/DecalComponent.h"
+#include "PGFunctionLibrary.h"
+#include "Character/PGCharacterBase.h"
 
 void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -11,10 +14,28 @@ void USharedAbility_BuffAura::ActivateAbility(const FGameplayAbilitySpecHandle H
     BuffAuraSphere->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
     BuffAuraSphere->SetSphereRadius(BuffAuraRadius);
     BuffAuraSphere->RegisterComponent(); // 컴포넌트 등록
+    BuffAuraSphere->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
+    BuffAuraSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-    //// 오버랩 이벤트 바인딩
+    // 오버랩 이벤트 바인딩
     BuffAuraSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraBeginOverlap);
     BuffAuraSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &USharedAbility_BuffAura::OnAuraEndOverlap);
+
+    if (bShowDebugSphere)
+    {
+        BuffAuraSphere->ShapeColor = FColor::Green;
+    }
+
+    // 오라 범위를 시각적으로 보여주는 데칼 생성
+    if (AuraRadiusDecalMaterial)
+    {
+        BuffAuraDecal = NewObject<UDecalComponent>(GetAvatarActorFromActorInfo());
+        BuffAuraDecal->SetupAttachment(GetAvatarActorFromActorInfo()->GetRootComponent());
+        BuffAuraDecal->SetDecalMaterial(AuraRadiusDecalMaterial);
+        BuffAuraDecal->DecalSize = FVector(200.f, BuffAuraRadius, BuffAuraRadius);
+        BuffAuraDecal->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
+        BuffAuraDecal->RegisterComponent();
+    }
 }
 
 void USharedAbility_BuffAura::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -38,14 +59,23 @@ void USharedAbility_BuffAura::EndAbility(const FGameplayAbilitySpecHandle Handle
         BuffAuraSphere = nullptr;
     }
 
+    // 데칼 컴포넌트 제거
+    if(BuffAuraDecal)
+    {
+        BuffAuraDecal->DestroyComponent();
+        BuffAuraDecal = nullptr;
+    }
+
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USharedAbility_BuffAura::OnAuraBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    // 전방 검사
+    // 이미 버프가 적용된 액터이거나, 적대적인 대상이 아니라면 무시
     if (ActiveBuffsOnTargets.Contains(OtherActor)) return;
-
+    //if(OtherActor<APGCharacterBase>(OtherActor))
+    if (UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), OtherActor)) return;
+    
     ApplyBuffAuraEffectToTarget(OtherActor);
 }
 

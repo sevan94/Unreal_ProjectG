@@ -6,6 +6,7 @@
 #include "GameplayCueFunctionLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PGFunctionLibrary.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "DataAssets/Ability/AbilityConfig.h"
 
@@ -25,6 +26,7 @@ void UUnitAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo
         MeleeAttackMontage = Data->AbilityMontage;
         MeleeAttackSkillMultiplier = Data->DamageMultiplier;
         MaxHitTargets = Data->MaxHitTargets;
+        HitImpactTag = Data->HitImpactTag;
     }
 }
 
@@ -49,7 +51,7 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
         {
             break;
         }
-        if(UPGFunctionLibrary::IsTargetCharacterIsHostile(GetAvatarActorFromActorInfo(), HitResult.GetActor()))
+        if(UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitResult.GetActor()))
         {
             CachedTargetActors.AddUnique(HitResult.GetActor());
             CurrentHitTargets++;
@@ -93,10 +95,6 @@ void UUnitAbility_BaseMeleeAttack::EndAbility(const FGameplayAbilitySpecHandle H
 
 void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventData)
 {
-    //// 게임플레이 큐 실행
-    //UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(GetAvatarActorFromActorInfo(), MeleeAttackCueTag, FGameplayCueParameters());
-
-
     // 데미지 적용
     // TODO : 스킬의 데미지 Multiflier를 변수화
     float SkillMultiplierValue = MeleeAttackSkillMultiplier.GetValueAtLevel(GetAbilityLevel());
@@ -105,7 +103,15 @@ void UUnitAbility_BaseMeleeAttack::HandleApplyDamage(FGameplayEventData InEventD
     {
         if (TargetActor.IsValid())
         {
+            // TargetActor에게 게임플레이 큐 실행
+            if (HitImpactTag.IsValid())
+            {
+                UE_LOG(LogTemp, Log, TEXT("Executing GameplayCue %s on Actor %s"), *HitImpactTag.ToString(), *TargetActor->GetName());
+                UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(TargetActor.Get(), HitImpactTag, FGameplayCueParameters());
+            }
+
             NativeApplyEffectSpecHandleToTarget(TargetActor.Get(), EffectSpecHandle);
+            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor.Get(), PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
         }
     }
 }

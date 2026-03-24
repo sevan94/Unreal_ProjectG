@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/PGGameplayAbility.h"
+#include "Types/PGGasTypes.h"
 #include "SharedAbility_BuffAura.generated.h"
 
 /**
@@ -18,7 +19,6 @@ public:
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-
 protected:
     UFUNCTION(BlueprintCallable, Category = "Ability|Buff Aura")
     void ApplyBuffAuraEffectToTarget(AActor* TargetActor);
@@ -32,12 +32,21 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
     TSubclassOf<UGameplayEffect> BuffAuraEffectClass;
 
-    UPROPERTY(EditDefaulTSoNLY, BlueprintReadOnly, Category = "Ability|Buff Aura")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
     float BuffAuraRadius;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Buff Aura")
+    TObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Debug")
+    bool bShowDebugSphere = false;
 
 private:
     UPROPERTY()
     TObjectPtr<class USphereComponent> BuffAuraSphere;
+
+    UPROPERTY()
+    TObjectPtr<class UDecalComponent> BuffAuraDecal;
 
     UPROPERTY()
     TMap<AActor*, FActiveGameplayEffectHandle> ActiveBuffsOnTargets;

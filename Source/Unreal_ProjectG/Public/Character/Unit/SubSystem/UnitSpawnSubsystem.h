@@ -50,7 +50,6 @@ public:
     UPROPERTY()
     TMap<TSubclassOf<AUnitCharacter>, FUnitPoolList> PoolStorage;
 
-private:
     AUnitCharacter* GetUnitInstance(TSubclassOf<AUnitCharacter> UnitClass);
 
 private:

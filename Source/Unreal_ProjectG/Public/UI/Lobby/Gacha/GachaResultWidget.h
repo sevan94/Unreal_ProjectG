@@ -9,6 +9,7 @@
 
 class UButton;
 class UImage;
+class UCanvasPanel;
 class UNiagaraSystemWidget;
 class UWidgetSwitcher;
 
@@ -34,7 +35,10 @@ protected:
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
-	
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> GachaReaultPanel;
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> SkipButton;

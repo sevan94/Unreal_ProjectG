@@ -3,6 +3,7 @@
 
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "NiagaraSystemWidget.h"
@@ -25,6 +26,8 @@ void UGachaResultWidget::PlayGachaAnim()
 
 void UGachaResultWidget::NativeConstruct()
 {
+    GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
+
     if (SkipButton) SkipButton->OnClicked.AddDynamic(this, &UGachaResultWidget::OnSkipButtonClicked);
 }
 

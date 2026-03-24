@@ -4,6 +4,7 @@
 #include "UI/Lobby/Gacha/LobbyGachaWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
+#include "Mode/PGLobbyMode.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "Mode/Save/PGUnitCollectionSubsystem.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
@@ -42,6 +43,12 @@ void ULobbyGachaWidget::OnUnitGachaClick()
 
     // 화면 전환
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
+
+    APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
+    if (GM && GM->GachaActor)
+    {
+        GM->PlayGacha();
+    }
 
     if (PickupUnit)
     {

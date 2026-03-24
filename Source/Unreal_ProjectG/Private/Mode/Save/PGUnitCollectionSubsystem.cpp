@@ -3,18 +3,34 @@
 #include "Mode/Save/PGUnitCollectionSubsystem.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "UI/DataTable/UnitUIDataTable.h"
 
 
 // -------------------------------------------------------------------
 // [1. 뽑기 (가챠) 굴리기 로직]
 // -------------------------------------------------------------------
-UUnitUIDataAsset* UPGUnitCollectionSubsystem::RollSingleGacha(const TArray<UUnitUIDataAsset*>& GachaPool)
+UUnitUIDataAsset* UPGUnitCollectionSubsystem::RollSingleGacha()
 {
-    if (GachaPool.Num() == 0) return nullptr;
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (!GI || !GI->GetUnitDataTable()) return nullptr;
 
-    // 단순 배열 기반 랜덤 뽑기
-    int32 RandomIndex = FMath::RandRange(0, GachaPool.Num() - 1);
-    return GachaPool[RandomIndex];
+    // DataTable에서 모든 행(Row)을 가져옴
+    TArray<FUnitUIDataTable*> AllUnitRows;
+    GI->GetUnitDataTable()->GetAllRows<FUnitUIDataTable>(TEXT("GachaRoll"), AllUnitRows);
+
+    if (AllUnitRows.Num() == 0) return nullptr;
+
+    // 랜덤 인덱스 선택
+    int32 RandomIndex = FMath::RandRange(0, AllUnitRows.Num() - 1);
+    FUnitUIDataTable* SelectedRow = AllUnitRows[RandomIndex];
+
+    UUnitUIDataAsset* PickedUnit = SelectedRow->UnitData;
+    if (PickedUnit)
+    {
+        ProcessGachaResult(PickedUnit);
+    }
+
+    return PickedUnit;
 }
 
 TArray<UUnitUIDataAsset*> UPGUnitCollectionSubsystem::RollMultiGacha(const TArray<UUnitUIDataAsset*>& GachaPool, int32 PullCount)
@@ -22,7 +38,7 @@ TArray<UUnitUIDataAsset*> UPGUnitCollectionSubsystem::RollMultiGacha(const TArra
     TArray<UUnitUIDataAsset*> Results;
     for (int32 i = 0; i < PullCount; ++i)
     {
-        if (UUnitUIDataAsset* PickedUnit = RollSingleGacha(GachaPool))
+        if (UUnitUIDataAsset* PickedUnit = RollSingleGacha())
         {
             Results.Add(PickedUnit);
         }
@@ -47,8 +63,6 @@ void UPGUnitCollectionSubsystem::ProcessGachaResult(UUnitUIDataAsset* PickedUnit
     {
         // [중복 획득] 보상량 가져오기 (UnitUIDataAsset에 추가한 변수를 가져옴 )
         int32 RewardToGive = PickedUnitData->DuplicateUnitReward;
-
-       
 
         // AddGoods 델리게이트 시스템 호출 
         // 이렇게 하면 CurrentPlayerUnlock이 오르면서 UI(상단바 등)도 자동 갱신

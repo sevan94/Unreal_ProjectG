@@ -8,6 +8,7 @@
 #include "UI/Lobby/Equip/LobbyEquipWidget.h"
 #include "UI/Lobby/Stage/LobbyStageWidget.h"
 #include "UI/Lobby/Gacha/LobbyGachaWidget.h"
+#include "UI/Lobby/Gacha/GachaResultWidget.h"
 
 void UUISwitcherWidget::NativeConstruct()
 {
@@ -18,6 +19,7 @@ void UUISwitcherWidget::NativeConstruct()
         EquipWidget->WidgetSwitcher = WidgetSwitcher;
         StageWidget->WidgetSwitcher = WidgetSwitcher;
         GachaWidget->WidgetSwitcher = WidgetSwitcher;
+        GachaResultWidget->WidgetSwitcher = WidgetSwitcher;
 
         // 기본 페이지 설정
         WidgetSwitcher->SetActiveWidgetIndex(0);

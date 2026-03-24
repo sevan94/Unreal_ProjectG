@@ -12,6 +12,7 @@ class ULobbyUnitWidget;
 class ULobbyEquipWidget;
 class ULobbyStageWidget;
 class ULobbyGachaWidget;
+class UGachaResultWidget;
 
 /**
  * 
@@ -43,4 +44,7 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<ULobbyGachaWidget> GachaWidget;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGachaResultWidget> GachaResultWidget;
 };

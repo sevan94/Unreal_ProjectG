@@ -24,7 +24,7 @@ public:
 
     // 단일 뽑기: 기획자가 설정한 유닛 풀(배열)에서 1개를 무작위로 뽑아 반환
     UFUNCTION(BlueprintCallable, Category = "UnitCollection|Gacha")
-    UUnitUIDataAsset* RollSingleGacha(const TArray<UUnitUIDataAsset*>& GachaPool);
+    UUnitUIDataAsset* RollSingleGacha();
 
     // 연속 뽑기(10연뽑 등): 지정한 횟수만큼 뽑아 배열로 반환
     UFUNCTION(BlueprintCallable, Category = "UnitCollection|Gacha")

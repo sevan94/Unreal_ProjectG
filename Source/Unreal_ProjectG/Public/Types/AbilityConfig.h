@@ -6,6 +6,7 @@
 #include "ScalableFloat.h"
 #include "GameplayTagContainer.h"
 #include "Types/PGEnumTypes.h"
+#include "Engine/DataTable.h"
 #include "AbilityConfig.generated.h"
 
 class APGProjectileBase;
@@ -66,34 +67,6 @@ struct FAbilityConfig
 
     virtual ~FAbilityConfig() = default;
 };
-
-//==========================================================================================================
-// 히어로 어빌리티 설정 구조체들
-//==========================================================================================================
-//// AOE 어빌리티 설정 구조체
-//USTRUCT(BlueprintType)
-//struct FHeroAOECommonConfig : public FAbilityConfig
-//{
-//    GENERATED_BODY()
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    EAOETargetPolicy TargetPolicy = EAOETargetPolicy::HostileOnly; // AOE 공격의 타겟팅 정책
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly) // 아군에게 데미지를 입힐일은 없으니 데미지 계산 클래스는 아군 공격이 아닐 때만 보이도록
-//    TSubclassOf<UGameplayEffect> InstantEffectClass; // 데미지 계산 클래스
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TSubclassOf<UGameplayEffect> BuffDebuffClass; // 버프/디버프 클래스
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TSubclassOf<AAOESkillActor> SpawnedActorClass; // 스폰할 액터 클래스
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TSoftObjectPtr<UAnimMontage> Montage; // 캐스팅 애니메이션 몽타주들
-//
-//    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-//    TObjectPtr<UMaterialInterface> AOEIndicatorDecalMaterial; // AOE 범위를 보여주는 데칼 머티리얼
-//};
 
 USTRUCT(BlueprintType)
 struct FHeroSpawnPetAbilityConfig : public FAbilityConfig
@@ -339,9 +312,13 @@ struct FHeroSpawnableConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
     TObjectPtr<UAnimMontage> Montage;
 
-    //// 시각 연출을 위한 에셋
+    // 시각 연출을 위한 에셋
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
     TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
+
+    // 소환 위치 조정을 위한 오프셋
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "소환 오프셋"))
+    FDataTableRowHandle SpawnOffsetRow;
 };
 
 USTRUCT(BlueprintType)

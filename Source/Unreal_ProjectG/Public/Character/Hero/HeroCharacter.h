@@ -39,6 +39,7 @@ public:
     virtual bool TryExecuteActiveSkill_Implementation() override;
 
     // 전투 모드 변경 함수
+    UFUNCTION(BlueprintCallable)
     void ChangeCombatMode(EHeroCombatMode NewMode);
 
     //캐릭터 스폰(시작 혹은 부활 시)

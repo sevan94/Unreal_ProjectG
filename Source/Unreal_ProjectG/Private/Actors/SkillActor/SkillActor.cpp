@@ -26,10 +26,10 @@ ASkillActor::ASkillActor()
     CollisionComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
     ActorVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ActorVFXComponent"));
-    ActorVFXComponent->SetupAttachment(SceneRoot);
+    ActorVFXComponent->SetupAttachment(CollisionComponent);
 
     ActorSFXComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ActorSFXComponent"));
-    ActorSFXComponent->SetupAttachment(SceneRoot);
+    ActorSFXComponent->SetupAttachment(CollisionComponent);
 }
 
 // 초기화
@@ -70,7 +70,7 @@ void ASkillActor::BeginPlay()
             &ASkillActor::HandleTickEffects,
             TickInterval,
             true,
-            0.f);
+            -1.f);
     }
 }
 
@@ -102,7 +102,7 @@ void ASkillActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
     // TargetPolicy 기반 필터링
     if (!IsValidTarget(OtherActor)) return;
 
-    if (TickInterval > 0.f)
+    if (Config.HitsPerLifeSpan > 1.f)
     {
         // TickInterval > 0인 경우, 타이머 기반 효과 적용을 위해 타겟 목록에 추가
         OverlappingTargets.AddUnique(OtherActor);

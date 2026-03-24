@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Actors/SkillActor/SkillActor.h"
 #include "PGGameplayTags.h"
+#include "Types/PGDataTableStruct.h"
 
 #include "PGFunctionLibrary.h"
 #include "Components/Combat/HeroCombatComponent.h"
@@ -276,7 +277,14 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
     const FHeroSpawnableConfig& Config = CachedActionRow.SpawnableConfig;
     AActor* AvatarActor = Ability->GetAvatarActorFromActorInfo();
 
-    const FTransform SpawnTransform(Rotation, Location);
+    // Config에서 SpawnOffset이 있다면 위치에 반영
+    FVector SpawnOffset = FVector::ZeroVector;
+    if (const FSpawnOffsetRow* Row = Config.SpawnOffsetRow.GetRow<FSpawnOffsetRow>(TEXT("SpawnOffset")))
+    {
+        SpawnOffset = Row->SpawnOffset;
+    }
+
+    const FTransform SpawnTransform(Rotation, Location + SpawnOffset);
 
     // Deferred 스폰으로 액터의 초기화 보장
     ASkillActor* Spawned = GetWorld()->SpawnActorDeferred<ASkillActor>(

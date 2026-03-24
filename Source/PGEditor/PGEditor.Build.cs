@@ -11,7 +11,7 @@ public class PGEditor : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "Unreal_ProjectG"});
 
 		// Uncomment if you are using Slate UI
-		 PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "Slate", "SlateCore", "GameplayAbilities", "ToolWidgets", "GameplayAbilitiesEditor" });
+		 PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "Slate", "SlateCore", "GameplayAbilities", "ToolWidgets", "GameplayAbilitiesEditor", "DataTableEditor", });
 		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");

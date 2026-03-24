@@ -119,4 +119,5 @@ protected:
 private:
     bool bDestroyNotified = false; // 파괴 통보 여부 (중복 방지)
     static const FGameplayTag DestroyedEventTag; // 파괴 이벤트 태그
+    float TickInterval = 0.f; // 타이머 기반 효과 적용 간격 (LifeSpan / HitsPerLifeSpan)
 };

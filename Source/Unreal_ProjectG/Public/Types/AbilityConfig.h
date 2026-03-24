@@ -279,14 +279,14 @@ struct FEffectConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TSubclassOf<UGameplayEffect> EffectClass;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Multiplier (0 = 설정 안함)"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
     float Multiplier = 1.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "Duration (0 = 설정 안함)"))
-    float Duration = 0.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "Base Amount (0 = 설정 안함)"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
     float BaseAmount = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
+    float Duration = 0.f;
 };
 
 USTRUCT(BlueprintType)
@@ -324,8 +324,8 @@ struct FHeroSpawnableConfig : public FAbilityConfig
     float LifeSpan = 0.1f;
 
     // 0이면 단발성, 0초과면 장형 틱 데미지
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "틱 간격", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
-    float TickInterval = 0.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "시간 동안 히트 횟수", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float HitsPerLifeSpan = 1.f;
 
     // 콜리전 반경(0이면 기본 콜리전 사용)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))

@@ -61,13 +61,14 @@ void ASkillActor::BeginPlay()
     CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ASkillActor::OnSphereBeginOverlap);
     CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ASkillActor::OnSphereEndOverlap);
 
-    if (Config.TickInterval > 0.f)
+    if (Config.HitsPerLifeSpan > 0.f)
     {
+        TickInterval = Config.LifeSpan / Config.HitsPerLifeSpan;
         GetWorldTimerManager().SetTimer(
             TickEffectTimerHandle,
             this,
             &ASkillActor::HandleTickEffects,
-            Config.TickInterval,
+            TickInterval,
             true,
             0.f);
     }
@@ -101,7 +102,7 @@ void ASkillActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
     // TargetPolicy 기반 필터링
     if (!IsValidTarget(OtherActor)) return;
 
-    if (Config.TickInterval > 0.f)
+    if (TickInterval > 0.f)
     {
         // TickInterval > 0인 경우, 타이머 기반 효과 적용을 위해 타겟 목록에 추가
         OverlappingTargets.AddUnique(OtherActor);
@@ -139,7 +140,7 @@ void ASkillActor::HandleTickEffects()
         // 중복 히트 방지
         if(const float* LastHitTime = HitCooldownMap.Find(WeakTarget.Get()))
         {
-            if (CurrentTime - *LastHitTime < Config.TickInterval)
+            if (CurrentTime - *LastHitTime < TickInterval)
             {
                 continue; // 아직 쿨타임이 끝나지 않았다면 무시
             }

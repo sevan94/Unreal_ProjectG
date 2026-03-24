@@ -130,19 +130,19 @@ FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpecFromEffectCo
         );
     }
 
-    if (EffectConfig.Duration > 0.f)
-    {
-        EffectSpecHandle.Data->SetSetByCallerMagnitude(
-            PGGameplayTags::Shared_SetByCaller_Duration,
-            EffectConfig.Duration
-        );
-    }
-
     if(EffectConfig.BaseAmount > 0.f)
     {
         EffectSpecHandle.Data->SetSetByCallerMagnitude(
             PGGameplayTags::Shared_SetByCaller_BaseAmount,
             EffectConfig.BaseAmount
+        );
+    }
+
+    if (EffectConfig.Duration > 0.f)
+    {
+        EffectSpecHandle.Data->SetSetByCallerMagnitude(
+            PGGameplayTags::Shared_SetByCaller_Duration,
+            EffectConfig.Duration
         );
     }
 

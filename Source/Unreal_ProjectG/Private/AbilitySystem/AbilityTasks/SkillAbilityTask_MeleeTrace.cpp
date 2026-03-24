@@ -170,6 +170,7 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                         {
                             if(SpecHandle.IsValid())
                                 PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+                            HitActors.Add(HitActor);
                         }
                     }
                 }

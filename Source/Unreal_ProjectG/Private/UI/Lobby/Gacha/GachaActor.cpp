@@ -25,7 +25,7 @@ AGachaActor::AGachaActor()
 
 void AGachaActor::GachaMove()
 {
-    GachaColor = FLinearColor::White;
+    //GachaColor = FLinearColor::White;
     if (MoveTimeline)
     {
         MoveTimeline->PlayFromStart();

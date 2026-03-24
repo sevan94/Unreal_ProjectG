@@ -33,7 +33,7 @@ public:
 	ASkillActor();
 
     // Beginplay보다 먼저 호출을 보장 받아야 함
-    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles);
+    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel = 1);
 
     // Task가 파괴 이벤트 수신에 사욯할 태그
     FGameplayTag GetDestroyedEventTag() const;
@@ -89,6 +89,15 @@ private:
     // TargetPolicy에 따라 타겟이 유효한지 검사
     bool IsValidTarget(AActor* TargetActor) const;
 
+    // 파괴 핸들러: 이벤트 호출 및 GA 이벤트 트리거, 후속 액터 스폰
+    void HandlePreDestroy();
+
+    // 후속 액터 스폰: Config.NextSpawn이 유효하면 해당 설정으로 액터 스폰
+    void SpawnFollowUpActor();
+
+    FHeroSpawnableConfig MakeSpawnableConfigFromFollowUp(const FSkillActorFollowUpSpawnConfig& FollowUpConfig) const;
+    TArray<FGameplayEffectSpecHandle> BuildEffectSpecsFromConfigs(const TArray<FEffectConfig>& EffectConfigs) const;
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillActor|Components")
     TObjectPtr<USceneComponent> SceneRoot;
@@ -116,8 +125,9 @@ protected:
 
     TMap <TWeakObjectPtr<AActor>, float> HitCooldownMap; // TickInterval > 0인 경우, 타겟별로 히트 쿨타임 관리
 
-private:
     bool bDestroyNotified = false; // 파괴 통보 여부 (중복 방지)
-    static const FGameplayTag DestroyedEventTag; // 파괴 이벤트 태그
     float TickInterval = 0.f; // 타이머 기반 효과 적용 간격 (LifeSpan / HitsPerLifeSpan)
+    int32 CachedAbilityLevel = 1; // GA 레벨에 따른 효과 적용을 위해 캐싱
+
+    static const FGameplayTag DestroyedEventTag; // 파괴 이벤트 태그
 };

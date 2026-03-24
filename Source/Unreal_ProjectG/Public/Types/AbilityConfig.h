@@ -224,7 +224,6 @@ enum class ESpawnLocation : uint8
 {
     AtCaster                    UMETA(DisplayName = "시전자위치"),       // 캐릭터 위치에서 즉시 소환
     AtTargetPoint               UMETA(DisplayName = "타겟 포인트"),  // 타겟 포인트에 소환
-    AtPreviousActionLocation    UMETA(DisplayName = "이전 액션 위치"), // 이전 액션의 위치에 소환 (예: 이전 액션이 장판 생성이면 장판 위치, 이전 액션이 투사체 생성이면 투사체 위치)
 };
 
 UENUM(BlueprintType)
@@ -289,7 +288,7 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
 };
 
 USTRUCT(BlueprintType)
-struct FChainSpawnConfig
+struct FSkillActorFollowUpSpawnConfig
 {
     GENERATED_BODY()
 
@@ -393,6 +392,6 @@ struct FHeroSpawnableConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "소환 오프셋"))
     FDataTableRowHandle SpawnOffsetRow;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "체인 스폰 설정 배열"))
-    TArray<FChainSpawnConfig> NextSpawns; // 체인 스폰을 위한 다음 스폰 설정 배열
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "연속된 스폰 액터 배열"))
+    FSkillActorFollowUpSpawnConfig NextSpawn; // 체인 스폰을 위한 다음 스폰 설정 배열
 };

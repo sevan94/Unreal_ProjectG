@@ -70,7 +70,7 @@ void USharedAbility_BuffAura::EndAbility(const FGameplayAbilitySpecHandle Handle
             {
                 if (Elem.Key.IsValid())
                 {
-                    NativeRemoveActiveGameplayEffectFromTarget(Elem.Key.Get(), EffectHandle);
+                    NativeRemoveActiveEffectFromTarget(Elem.Key.Get(), EffectHandle);
 
                 }
             }
@@ -115,7 +115,7 @@ void USharedAbility_BuffAura::OnAuraEndOverlap(UPrimitiveComponent* OverlappedCo
         {
             for(const FActiveGameplayEffectHandle& EffectHandle : *Handles)
             {
-                NativeRemoveActiveGameplayEffectFromTarget(OtherActor, EffectHandle);
+                NativeRemoveActiveEffectFromTarget(OtherActor, EffectHandle);
             }
             ActiveBuffsOnTargets.Remove(Key);
         }

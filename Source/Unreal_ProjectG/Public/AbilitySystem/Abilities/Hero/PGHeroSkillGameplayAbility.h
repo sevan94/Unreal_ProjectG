@@ -36,7 +36,6 @@ private:
 private:
     // InstancedPerActor이므로, 활성화마다 초기화
     int32 CurrentActionIndex;                           // 현재 실행 중인 액션의 인덱스
-    FGameplayAbilityTargetDataHandle CurrentTargetData; // 현재 액션의 타겟 데이터
 
     //SourceObject에서 스킬 데이터 가져와 할당할 변수
     UPROPERTY()

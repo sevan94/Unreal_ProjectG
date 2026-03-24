@@ -9,6 +9,7 @@
 #include "Mode/Save/PGUnitCollectionSubsystem.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
+#include "UI/Lobby/Gacha/GachaActor.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
 void ULobbyGachaWidget::NativeConstruct()
@@ -38,17 +39,11 @@ void ULobbyGachaWidget::OnExitButtonClick()
 
 void ULobbyGachaWidget::OnUnitGachaClick()
 {
+    if (GI->CurrentPlayerGem < 100) return;
+
     UPGUnitCollectionSubsystem* Subsystem = GI->GetSubsystem<UPGUnitCollectionSubsystem>();
     UUnitUIDataAsset* PickupUnit = Subsystem->RollSingleGacha();
-
-    // 화면 전환
-    if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
-
-    APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
-    if (GM && GM->GachaActor)
-    {
-        GM->PlayGacha();
-    }
+    GI->ConsumeGoods(EGoodsCategory::Gem, 100);
 
     if (PickupUnit)
     {
@@ -56,10 +51,19 @@ void ULobbyGachaWidget::OnUnitGachaClick()
 
         if (ResultWidget)
         {
-            // 데이터 초기화 및 애니메이션 재생
+            // 데이터 초기화
             ResultWidget->InitData(PickupUnit);
-            ResultWidget->PlayGachaAnim();
         }
+    }
+
+    // 화면 전환
+    if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
+
+    APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
+    if (GM && GM->GachaActor)
+    {
+        GM->GachaActor->GachaReset();
+        GM->PlayGacha(PickupUnit);
     }
 }
 

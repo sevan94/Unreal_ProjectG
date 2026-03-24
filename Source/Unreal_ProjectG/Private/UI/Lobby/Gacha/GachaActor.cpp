@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "NiagaraComponent.h"
 #include "TimerManager.h"
+#include "Types/PGEnumTypes.h"
 
 // Sets default values
 AGachaActor::AGachaActor()
@@ -23,9 +24,16 @@ AGachaActor::AGachaActor()
 
 }
 
-void AGachaActor::GachaMove()
+void AGachaActor::GachaMove(UUnitUIDataAsset* InData)
 {
-    //GachaColor = FLinearColor::White;
+    switch (InData->UnitRank)
+    {
+    case(EUnitRank::Normal): GachaColor = FLinearColor::White; break;
+    case(EUnitRank::Rare) : GachaColor = FLinearColor::Green; break;
+    case(EUnitRank::SuperRare) : GachaColor = FLinearColor::Blue; break;
+    default: GachaColor = FLinearColor::White; break;
+    }
+
     if (MoveTimeline)
     {
         MoveTimeline->PlayFromStart();
@@ -36,7 +44,6 @@ void AGachaActor::GachaOpen(FLinearColor InColor)
 {
     // 이미 열렸다면 실행하지 않음
     if (bHasOpened) return;
-
     bHasOpened = true;
 
     // 가챠 컬러 변경
@@ -51,7 +58,13 @@ void AGachaActor::GachaOpen(FLinearColor InColor)
         {
             if (Mesh && OpenMontage)
             {
-                Mesh->GetAnimInstance()->Montage_Play(OpenMontage);
+                UAnimInstance* AnimInst = Mesh->GetAnimInstance();
+                AnimInst->Montage_Play(OpenMontage);
+
+                // 몽타주가 끝나는 시점에 실행될 바인딩
+                FOnMontageEnded EndDelegate;
+                EndDelegate.BindUObject(this, &AGachaActor::OnGachaeEnded);
+                AnimInst->Montage_SetEndDelegate(EndDelegate, OpenMontage);
             }
         }, 0.5f, false);
 }
@@ -62,10 +75,19 @@ void AGachaActor::GachaReset()
     SetActorLocation(StartLocation);
 
     // 가챠 효과 초기화
+    GachaColor = FLinearColor::White;
     if (GachaEffect)
     {
         GachaEffect->Deactivate();
     }
+
+    bHasOpened = false;
+}
+
+void AGachaActor::OnGachaeEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+    // 애니메이션이 끝나면 브로드캐스트
+    OnGachaOpenFinished.Broadcast();
 }
 
 // Called when the game starts or when spawned

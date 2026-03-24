@@ -3,6 +3,21 @@
 
 #include "UI/Lobby/Main/LobbyHUD.h"
 #include "UI/Lobby/Main/UISwitcherWidget.h"
+#include "UI/Lobby/Gacha/GachaResultWidget.h"
+#include "Components/WidgetSwitcher.h"
+
+void ALobbyHUD::ShowGachaResultUI()
+{
+    if (UISwitcherInstance && UISwitcherInstance->WidgetSwitcher)
+    {
+        // UISwitcherWidget 내부의 함수를 호출하여 결과창 핸들링
+        UGachaResultWidget* ResultWidget = Cast<UGachaResultWidget>(UISwitcherInstance->WidgetSwitcher->GetWidgetAtIndex(5));
+        if (ResultWidget)
+        {
+            ResultWidget->PlayGachaAnim();
+        }
+    }
+}
 
 void ALobbyHUD::BeginPlay()
 {

@@ -29,8 +29,15 @@ public:
 protected:
     virtual void NativeConstruct() override;
 
+    virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
     UFUNCTION()
     void OnSkipButtonClicked();
+
+    UFUNCTION()
+    void OnGachaAnimFinished();
+
+    void ResetGachaResult();
 
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -52,6 +59,7 @@ protected:
     UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
     UWidgetAnimation* UnitGacha;
 
+    bool bCanExit = false;
 private:
     TObjectPtr<UUnitUIDataAsset> PickupUnit;
 };

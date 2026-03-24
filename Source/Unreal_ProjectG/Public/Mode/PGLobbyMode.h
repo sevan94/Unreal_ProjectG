@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "DataAssets/UI/UnitUIDataAsset.h"
 #include "PGLobbyMode.generated.h"
 
 class AGachaActor;
@@ -17,10 +18,13 @@ class UNREAL_PROJECTG_API APGLobbyMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-    void PlayGacha();
+    void PlayGacha(UUnitUIDataAsset* InData);
 	
 protected:
     virtual void BeginPlay() override;
+
+    UFUNCTION()
+    void OnGachaAnimationFinished();
 
 public:
     // 스폰할 가챠 액터 클래스 (에디터에서 할당)

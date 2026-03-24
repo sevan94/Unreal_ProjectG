@@ -289,6 +289,53 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
 };
 
 USTRUCT(BlueprintType)
+struct FChainSpawnConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "액터 클래스"))
+    TSubclassOf<AActor> ActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 타입"))
+    ESkillActorType ActorType = ESkillActorType::None;
+
+    // 적용할 이펙트 배열
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
+    TArray<FEffectConfig> Effects;
+
+    // 스킬 타겟팅 정책
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
+    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Enemy;
+
+    // 액터 속도, 0이면 고정(장판/폭발)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "속도", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float Speed = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "최대 사거리", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
+    float MaxRange = 0.f;
+
+    // 액터가 존재하는 시간
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 시간", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float LifeSpan = 0.1f;
+
+    // 0이면 단발성, 0초과면 장형 틱 데미지
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "시간 동안 히트 횟수", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
+    float HitsPerLifeSpan = 1.f;
+
+    // 콜리전 반경(0이면 기본 콜리전 사용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))
+    float Radius = 0.f;
+
+    // 시각 연출을 위한 에셋
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
+    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
+
+    // 소환 위치 조정을 위한 오프셋
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "소환 오프셋"))
+    FDataTableRowHandle SpawnOffsetRow;
+};
+
+USTRUCT(BlueprintType)
 struct FHeroSpawnableConfig : public FAbilityConfig
 {
     GENERATED_BODY()
@@ -348,54 +395,4 @@ struct FHeroSpawnableConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "체인 스폰 설정 배열"))
     TArray<FChainSpawnConfig> NextSpawns; // 체인 스폰을 위한 다음 스폰 설정 배열
-};
-
-USTRUCT(BlueprintType)
-struct FChainSpawnConfig : public FAbilityConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "액터 클래스"))
-    TSubclassOf<AActor> ActorClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스폰 타입"))
-    ESkillActorType ActorType = ESkillActorType::None;
-
-    // 적용할 이펙트 배열
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
-    TArray<FEffectConfig> Effects;
-
-    // 스킬 타겟팅 정책
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
-    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Enemy;
-
-    // 액터 속도, 0이면 고정(장판/폭발)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "속도", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
-    float Speed = 0.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "최대 사거리", EditCondition = "ActorType == ESkillActorType::Projectile", EditConditionHides))
-    float MaxRange = 0.f;
-
-    // 액터가 존재하는 시간
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 시간", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
-    float LifeSpan = 0.1f;
-
-    // 0이면 단발성, 0초과면 장형 틱 데미지
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "시간 동안 히트 횟수", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
-    float HitsPerLifeSpan = 1.f;
-
-    // 콜리전 반경(0이면 기본 콜리전 사용)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))
-    float Radius = 0.f;
-
-    // 시각 연출을 위한 에셋
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
-    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset;
-
-    // 소환 위치 조정을 위한 오프셋
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "소환 오프셋"))
-    FDataTableRowHandle SpawnOffsetRow;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "체인 스폰 설정 배열"))
-    FChainSpawnConfig& NextSpawns; // 체인 스폰을 위한 다음 스폰 설정 배열
 };

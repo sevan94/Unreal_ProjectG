@@ -23,6 +23,7 @@
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Mode/PGBaseGameMode.h"
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
@@ -116,33 +117,38 @@ void AHeroCharacter::InitializeHero()
     }
 }
 
-//void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
-//{
-//    Weapon = WeaponData;
-//
-//    if(Weapon)
-//    {
-//        const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
-//        if (PGAbilitySystemComponent)
-//        {
-//            if(Data.BaseAttackAbility)
-//            {
-//                   AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
-//            }
-//            if (!(Data.WeaponSkillAbilities.IsEmpty()))
-//            {
-//                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
-//                {
-//                    SkillHandle.AddUnique(PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1)));
-//                }
-//            }
-//        }
-//
-//        WeaponStaticMesh->SetStaticMesh(Weapon->GetHeroWeaponData().SoftWeaponMesh.Get());
-//        //차후 에셋이 정해지면 소켓으로 붙일 예정
-//    }
-//    
-//}
+void AHeroCharacter::EquipWeapon(UDataAsset_WeaponData* WeaponData)
+{
+    Weapon = WeaponData;
+
+    if(Weapon)
+    {
+        const FPGHeroWeaponData& Data = Weapon->GetHeroWeaponData();
+        if (PGAbilitySystemComponent)
+        {
+            if(Data.BaseAttackAbility)
+            {
+                AttackHandle = PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Data.BaseAttackAbility, 1));
+            }
+            if (!(Data.WeaponSkillAbilities.IsEmpty()))
+            {
+                for (const TSubclassOf<UGameplayAbility>& ability : Data.WeaponSkillAbilities)
+                {
+                    SkillHandle.AddUnique(PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(ability, 1)));
+                }
+            }
+        }
+
+        WeaponStaticMesh->SetStaticMesh(Weapon->GetHeroWeaponData().SoftWeaponMesh.Get());
+        
+        const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName("RightHand");
+
+        if (WeaponStaticMesh && RightHandSocket)
+        {
+            WeaponStaticMesh->SetupAttachment(GetMesh(), FName("RightHand"));
+        }
+    }
+}
 
 void AHeroCharacter::EquipArmor(UDataAsset_ArmorData* ArmorData)
 {

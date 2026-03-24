@@ -8,6 +8,7 @@
 #include "UI/Lobby/Equip/CurrentEquipWidget.h"
 #include "UI/Lobby/Equip/EquipListWidget.h"
 #include "UI/Lobby/Equip/EquipDescriptionWidget.h"
+#include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 #include "Mode/Save/PGGameInstance.h"
 
@@ -27,6 +28,15 @@ void ULobbyEquipWidget::NativeConstruct()
 {
     GI = Cast<UPGGameInstance>(GetGameInstance());
     //GI->LoadGameData();
+    if (GI)
+    {
+        GI->LoadGameData();
+        GI->OnGoodsChanged.AddDynamic(this, &ULobbyEquipWidget::UpdateGoodsBar);
+
+        if(Unlock) Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
+    }
+    UnlockCostWidget->SetVisibility(ESlateVisibility::Hidden);
+    UnlockCostWidget->InitializeGoodsBar(0);
 
     if (ExitButton) ExitButton->OnClicked.AddDynamic(this, &ULobbyEquipWidget::OnExitButtonClick); 
     if (WeaponEquip) WeaponEquip->OnSelected.AddDynamic(this, &ULobbyEquipWidget::SetEquipList);
@@ -50,6 +60,14 @@ void ULobbyEquipWidget::IntializeEquipSlots()
     WeaponEquip->UpdateEquipSlot(GI->CurrentWeapon.LoadSynchronous());
     ArmorEquip->UpdateEquipSlot(GI->CurrentArmor.LoadSynchronous());
     AccesoryEquip->UpdateEquipSlot(GI->CurrentAccessory.LoadSynchronous());
+}
+
+void ULobbyEquipWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
+{
+    switch (InCategory)
+    {
+    case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
+    }
 }
 
 void ULobbyEquipWidget::OnExitButtonClick()
@@ -134,10 +152,13 @@ void ULobbyEquipWidget::HandleEquipSelected(UEquipUIDataAsset* InData)
         if (bIsOwned)
         {
             EquipButtonText->SetText(FText::FromString(TEXT("장착")));
+            UnlockCostWidget->SetVisibility(ESlateVisibility::Hidden);
         }
         else
         {
             EquipButtonText->SetText(FText::FromString(TEXT("해금")));
+            UnlockCostWidget->UpdateGoodsText(InData->UnlockCost);
+            UnlockCostWidget->SetVisibility(ESlateVisibility::Visible);
         }
     }
 }

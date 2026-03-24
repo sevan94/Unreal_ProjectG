@@ -383,7 +383,7 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 {
     UE_LOG(LogTemp, Log, TEXT("Overlap"));
 
-    AUnitCharacter* Unit = Cast<APGCharacterBase>(OtherActor);
+    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
 
     if (Unit)
     {
@@ -402,7 +402,7 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
     UE_LOG(LogTemp, Log, TEXT("UnOverlap"));
-    AUnitCharacter* Unit = Cast<APGCharacterBase>(OtherActor);
+    APGCharacterBase* Unit = Cast<APGCharacterBase>(OtherActor);
 
     if (Unit)
     {
@@ -415,7 +415,7 @@ void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 //
 //void AHeroCharacter::ActivateAttack()
 //{
-//    AActor* AttackTarget = GetClosestTarget(PotentialTargets);
+//    AActor* AttackTarget = GetClosestTargetGetClosestTarget(PotentialTargets);
 //
 //    FGameplayEventData EventData;
 //    EventData.Instigator = this;

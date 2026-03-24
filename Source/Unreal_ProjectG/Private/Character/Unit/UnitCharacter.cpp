@@ -286,6 +286,7 @@ void AUnitCharacter::OnDie()
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (AnimInstance && UnitDeadMontage)
         {
+            checkf(UnitDeadMontage, TEXT("Actor : %s Die Error"), *GetName());
             float Duration = AnimInstance->Montage_Play(UnitDeadMontage) - 0.2f;
 
             FTimerHandle TimerHandle;

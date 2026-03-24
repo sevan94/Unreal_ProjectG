@@ -13,6 +13,9 @@ class UPGSaveGame;
 class UUnitUIDataAsset;
 class UEquipUIDataAsset;
 class AHeroCharacter;
+class UGameUserSettings;
+class USoundMix;
+class USoundClass;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoodsChanged, EGoodsCategory, InCategory, int32, InValue);
 
@@ -50,6 +53,21 @@ public:
     // 재화 소비
     UFUNCTION(BlueprintCallable, Category = "SaveGame")
     void ConsumeGoods(EGoodsCategory InCategory, int32 InValue);
+
+    // ==========================================================
+    // --- [환경설정 (옵션) 시스템] ---
+    // ==========================================================
+    // 1. 사운드 볼륨 조절 (0.0 ~ 1.0)
+    UFUNCTION(BlueprintCallable, Category = "Settings|Sound")
+    void SetSoundVolumes(float InMaster, float InBGM, float InSFX);
+
+    // 2. 화면 모드 설정 (0: 전체화면, 1: 비율(테두리없는)화면, 2: 창모드)
+    UFUNCTION(BlueprintCallable, Category = "Settings|Display")
+    void SetScreenMode(int32 ModeIndex);
+
+    // 3. 그래픽 품질 설정 (0: 저, 1: 중, 2: 고)
+    UFUNCTION(BlueprintCallable, Category = "Settings|Graphic")
+    void SetGraphicQuality(int32 QualityIndex);
 
     // 스테이지 결과 정보 저장
     void UpdateStageClearData(int32 StageCode, int32 InStarCount);
@@ -121,6 +139,29 @@ public:
     TMap<int32, FUnitSaveData> UnitLevelMap;
 
     FOnGoodsChanged OnGoodsChanged;
+
+    // --- [환경설정 런타임 변수 (사운드)] ---
+    UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
+    float CurrentMasterVolume = 1.0f;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
+    float CurrentBGMVolume = 1.0f;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
+    float CurrentSFXVolume = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
+    TObjectPtr<USoundMix> MainSoundMix;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
+    TObjectPtr<USoundClass> MasterSoundClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
+    TObjectPtr<USoundClass> BGMSoundClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
+    TObjectPtr<USoundClass> SFXSoundClass;
+
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")

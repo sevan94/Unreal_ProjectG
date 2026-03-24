@@ -7,6 +7,10 @@
 #include "GameplayTagContainer.h"
 #include "UnitSubsystem.generated.h"
 
+//보스 관련 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, FGameplayTag, TeamTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossDie, FGameplayTag, TeamTag);
+
 USTRUCT(BlueprintType)
 struct FUnitList
 {
@@ -29,6 +33,9 @@ public:
     void UnregisterUnit(AActor* Unit, FGameplayTag TeamTag);
 
     const TArray<TWeakObjectPtr<AActor>>& GetUnitsByTeam(FGameplayTag TeamTag) const;
+
+    FOnBossSpawned OnBossSpawnDelegate;
+    FOnBossDie OnBossDeadDelegate;
 
 private:
     UPROPERTY()

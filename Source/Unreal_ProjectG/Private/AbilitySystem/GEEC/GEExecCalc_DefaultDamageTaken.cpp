@@ -71,6 +71,11 @@ float UGEExecCalc_DefaultDamageTaken::GetElementMultiplier(const FGameplayTagCon
     return 1.0f;
 }
 
+bool UGEExecCalc_DefaultDamageTaken::IsInvincible(const FGameplayTagContainer& TargetTags)
+{
+    return TargetTags.HasTag(PGGameplayTags::Unit_State_Invincible);
+}
+
 void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
     const FGameplayEffectSpec& EffectSpec = ExecutionParams.GetOwningSpec();
@@ -79,6 +84,12 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
     FAggregatorEvaluateParameters EvaluationParameters;
     EvaluationParameters.SourceTags = EffectSpec.CapturedSourceTags.GetAggregatedTags();
     EvaluationParameters.TargetTags = EffectSpec.CapturedTargetTags.GetAggregatedTags();
+
+    if (EvaluationParameters.TargetTags && IsInvincible(*EvaluationParameters.TargetTags))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Invincible"));
+        return;
+    }
 
     // ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(...)
     // 캡처된 어트리뷰트 중에서 우리가 원하는 값을 계산해서 가져와

@@ -19,6 +19,7 @@ class UCharacterVisualEffectComponent;
 */
 DECLARE_MULTICAST_DELEGATE(FOnUnitStartUpDataLoaded);
 
+
 /**
  * 
  */
@@ -90,6 +91,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     int32 UnitLevel = 1;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    bool bIsBoss = false;
+
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+    bool bIsMiddleBoss = false;
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCharacterVisualEffectComponent> UnitVisualEffectComponent;

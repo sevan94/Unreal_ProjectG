@@ -17,6 +17,7 @@
 #include "DataAssets/Unit/BranchDataAsset.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "Components/Visual/CharacterVisualEffectComponent.h"
+#include "BrainComponent.h"
 
 AUnitCharacter::AUnitCharacter()
 {
@@ -195,13 +196,23 @@ void AUnitCharacter::InitUnitStartUpData()
                     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
                     {
                         Subsystem->RegisterUnit(this, TeamTag);
+
+                        if (bIsBoss)
+                        {
+                            Subsystem->OnBossSpawnDelegate.Broadcast(TeamTag);
+                        }
+
                     }
+
 
                     //데이터 삽입이 끝나면 델리게이트를 브로드캐스트해서 블랙보드가 값을 받기 시작함
                     if (OnUnitStartUpDataLoadedDelegate.IsBound())
                     {
                         OnUnitStartUpDataLoadedDelegate.Broadcast();
                     }
+
+
+
                 }
             }
         )
@@ -211,44 +222,25 @@ void AUnitCharacter::InitUnitStartUpData()
 
 void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 {
-    //적 베이스로 돌격하기 위한 함수, 지금은 유닛 블루프린트의 beginplay에서만 호출하는데 + 여기서만 적 베이스를 정할 수 있는데 나중ㅇ 바꿀듯????
     TargetActor = InTargetActor;
 
-    if (!IsValid(TargetActor))
-    {
-        return;
-    }
+    if (!IsValid(TargetActor)) return;
 
-    if (!AIController)
+    if (!IsValid(AIController))
     {
         AIController = Cast<AAIController>(GetController());
     }
 
+    if (!IsValid(AIController)) return;
 
-
-    if (AIController)
+    UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+    if (IsValid(BBComp))
     {
-        UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
-        if (BBComp)
-        {
-            BBComp->SetValueAsObject(TEXT("AttackTargetBase"), InTargetActor);
-        }
+        BBComp->SetValueAsObject(TEXT("AttackTargetBase"), InTargetActor);
     }
 
 }
 
-//void AUnitCharacter::Attack()
-//{
-//    UE_LOG(LogTemp, Warning, TEXT("Attack"));
-//
-//    //attack에서는 몽타주만 재생함, 노티파이랑 GAS를 이용해서 UGEExecCalc_DefaultDamageTaken에서 데미지 처리
-//    if (UnitAttackMontage)
-//    {
-//        PlayAnimMontage(UnitAttackMontage);
-//        UE_LOG(LogTemp, Warning, TEXT("PlayMontage"));
-//
-//    }
-//}
 
 void AUnitCharacter::OnDie()
 {
@@ -259,12 +251,42 @@ void AUnitCharacter::OnDie()
 
     bIsDead = true;
 
+    if (AIController)
+    {
+        if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+        {
+            BrainComp->StopLogic(TEXT("Unit is Dead"));
+        }
+
+        AIController->StopMovement();
+        AIController->ClearFocus(EAIFocusPriority::Gameplay);
+    }
+
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->StopMovementImmediately();
+        MovementComp->DisableMovement();
+    }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+
+    if (bIsBoss)
+    {
+        if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+        {
+            Subsystem->OnBossDeadDelegate.Broadcast(TeamTag);
+        }
+    }
+
     if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
     {
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (AnimInstance && UnitDeadMontage)
         {
-            float Duration = AnimInstance->Montage_Play(UnitDeadMontage)-0.2f;
+            float Duration = AnimInstance->Montage_Play(UnitDeadMontage) - 0.2f;
 
             FTimerHandle TimerHandle;
             GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
@@ -283,24 +305,31 @@ void AUnitCharacter::OnDie()
     }
 }
 
-//오브젝트 풀링을 위한 함수들, 아직 미구현
 
 void AUnitCharacter::ActivateUnit()
 {
     bIsDead = false;
-    SetActorHiddenInGame(false); // 보이게 하기
-    SetActorEnableCollision(true); // 충돌 켜기
-    SetActorTickEnabled(true); // 로직 다시 돌리기
+    SetActorHiddenInGame(false);
+    SetActorEnableCollision(true);
+    SetActorTickEnabled(true);
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    }
+
+    // 3. 무브먼트 복구
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->SetMovementMode(MOVE_Walking);
+    }
+
+    InitUnitStartUpData();
 
     if (Controller == nullptr && AIControllerClass)
     {
         SpawnDefaultController();
     }
-    else
-    {
-        InitUnitStartUpData();
-    }
-    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
     if (TargetActor)
     {
@@ -310,27 +339,32 @@ void AUnitCharacter::ActivateUnit()
 
 void AUnitCharacter::DeactivateUnit()
 {
+    bIsDead = true; // 상태 변경
 
-    //OnUnitStartUpDataLoadedDelegate.Clear();
-
-    if (AController* OldController = GetController())
+    if (AIController)
     {
-        OldController->StopMovement();
-        OldController->UnPossess(); 
-        OldController->Destroy();   
+        if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+        {
+            BrainComp->StopLogic(TEXT("Unit Deactivated"));
+        }
+        AIController->StopMovement();
+        AIController->ClearFocus(EAIFocusPriority::Gameplay);
     }
 
+    // 2. 유닛 서브시스템 팀 해제
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
-        //유닛 서브시스템에서 정한 팀을 해제함 
         Subsystem->UnregisterUnit(this, TeamTag);
     }
 
-    // 2. 물리/이동 초기화
-    GetCharacterMovement()->StopMovementImmediately();
-    GetCharacterMovement()->SetMovementMode(MOVE_None);
+    // 3. 물리/이동 초기화
+    if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+    {
+        MovementComp->StopMovementImmediately();
+        MovementComp->DisableMovement(); // 바닥으로 꺼지거나 미끄러짐 방지
+    }
 
-    // 3. 시각적 숨김
+    // 4. 시각적 숨김 및 충돌 해제
     SetActorEnableCollision(false);
     SetActorHiddenInGame(true);
     SetActorTickEnabled(false);

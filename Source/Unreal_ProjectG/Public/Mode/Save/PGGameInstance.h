@@ -66,6 +66,9 @@ public:
         }
         return 0; // 데이터가 없으면 미클리어 상태
     }
+    
+    // 뽑기를 위한 유닛 데이터 테이블을 리턴하는 함수
+    UDataTable* GetUnitDataTable() { return UnitDataTable; }
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "SaveData")

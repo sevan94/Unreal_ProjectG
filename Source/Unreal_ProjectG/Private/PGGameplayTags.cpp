@@ -80,5 +80,6 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Move, "Unit.State.Move");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_State_Invincible, "Unit.State.Invincible");
 }
 

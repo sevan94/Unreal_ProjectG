@@ -51,15 +51,19 @@ protected:
     int32 PoolSize = 7;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    TObjectPtr<AActor> AttackTarget;
+    TObjectPtr<AActor> AttackTarget = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-    UDA_StageUnitListDataAsset* StageUnitDataAsset;
+    UDA_StageUnitListDataAsset* StageUnitDataAsset = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
     int32 CurrentStageIndex = 0;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    int32 OldIndex = 0;
+
     FTimerHandle SpawnTimerHandle;
 
-
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawn")
+    bool bHasSpawnedBoss = false;
 };

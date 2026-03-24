@@ -25,6 +25,10 @@ protected:
 
     UFUNCTION()
     void OnExitButtonClick();
+    UFUNCTION()
+    void OnUnitGachaClick();
+    UFUNCTION()
+    void OnEquipGachaClick();
 
     UFUNCTION()
     void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
@@ -42,6 +46,13 @@ protected:
     TObjectPtr<UGoodsBarWidget> Gem;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> Unlock;
+
+    // 뽑기 버튼
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> UnitGachaButton;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> EquipGachaButton;
+
 
     // 뽑기 소모 비용 위젯
     UPROPERTY(meta = (BindWidget))

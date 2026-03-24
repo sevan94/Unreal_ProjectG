@@ -15,5 +15,5 @@ struct FSkillUIDataTable : public FTableRowBase
 	
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    UTexture2D* SkillIcon;
+    UTexture2D* SkillIcon = nullptr;
 };

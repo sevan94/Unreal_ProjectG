@@ -9,6 +9,7 @@
 
 class UButton;
 class UImage;
+class UTextBlock;
 class UWidgetSwitcher;
 class UPGGameInstance;
 class UCurrentEquipWidget;
@@ -57,6 +58,9 @@ protected:
     // 장비 장착 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> EquipButton;
+    // 장착 버튼 텍스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> EquipButtonText;
 
     // 영웅 패널
     // 영웅 렌더 타깃

@@ -4,6 +4,7 @@
 #include "UI/Lobby/Equip/LobbyEquipWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "UI/Lobby/Equip/CurrentEquipWidget.h"
 #include "UI/Lobby/Equip/EquipListWidget.h"
 #include "UI/Lobby/Equip/EquipDescriptionWidget.h"
@@ -64,22 +65,43 @@ void ULobbyEquipWidget::OnExitButtonClick()
 void ULobbyEquipWidget::OnEquipButtonClicked()
 {
     if (!SelectedEquip) return;
+    int32 TargetID = SelectedEquip->EquipID;
 
-    // 현재 선택 카테고리에 따라 해당 부위 위젯 업데이트 및 인스턴스 저장
-    switch (CurrentActiveCategory)
+    if (GI->GetEquipOwned(TargetID))
     {
-    case EEquipCategory::Weapon:
-        if (WeaponEquip) WeaponEquip->UpdateEquipSlot(SelectedEquip);
-        GI->CurrentWeapon = SelectedEquip;
-        break;
-    case EEquipCategory::Armor:
-        if (ArmorEquip) ArmorEquip->UpdateEquipSlot(SelectedEquip);
-        GI->CurrentArmor = SelectedEquip;
-        break;
-    case EEquipCategory::Accessory:
-        if (AccesoryEquip) AccesoryEquip->UpdateEquipSlot(SelectedEquip);
-        GI->CurrentAccessory = SelectedEquip;
-        break;
+        // 현재 선택 카테고리에 따라 해당 부위 위젯 업데이트 및 인스턴스 저장
+        switch (CurrentActiveCategory)
+        {
+        case EEquipCategory::Weapon:
+            if (WeaponEquip) WeaponEquip->UpdateEquipSlot(SelectedEquip);
+            GI->CurrentWeapon = SelectedEquip;
+            break;
+        case EEquipCategory::Armor:
+            if (ArmorEquip) ArmorEquip->UpdateEquipSlot(SelectedEquip);
+            GI->CurrentArmor = SelectedEquip;
+            break;
+        case EEquipCategory::Accessory:
+            if (AccesoryEquip) AccesoryEquip->UpdateEquipSlot(SelectedEquip);
+            GI->CurrentAccessory = SelectedEquip;
+            break;
+        }
+    }
+    else
+    {
+        if (GI->CurrentPlayerUnlock >= SelectedEquip->UnlockCost)
+        {
+            GI->ConsumeGoods(EGoodsCategory::Unlock, SelectedEquip->UnlockCost);
+
+            // EquipMap 업데이트 및 저장
+            GI->EquipMap.Add(TargetID, true);
+            GI->SaveGameData();
+
+            if (EquipButtonText) EquipButtonText->SetText(FText::FromString(TEXT("장착")));
+
+            // 리스트 갱신 함수
+            SetEquipList(CurrentActiveCategory);
+            return;
+        }
     }
 
     // 장착 후 처리
@@ -104,8 +126,18 @@ void ULobbyEquipWidget::HandleEquipSelected(UEquipUIDataAsset* InData)
     SelectedEquip = InData;
 
     // 장착 버튼 활성화
-    if (EquipButton)
+    if (EquipButton && EquipButtonText)
     {
         EquipButton->SetIsEnabled(true);
+
+        bool bIsOwned = GI->GetEquipOwned(InData->EquipID);
+        if (bIsOwned)
+        {
+            EquipButtonText->SetText(FText::FromString(TEXT("장착")));
+        }
+        else
+        {
+            EquipButtonText->SetText(FText::FromString(TEXT("해금")));
+        }
     }
 }

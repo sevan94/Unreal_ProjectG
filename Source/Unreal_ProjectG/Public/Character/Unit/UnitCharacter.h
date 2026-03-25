@@ -105,11 +105,14 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
     bool bIsDead = false;
 private:
+    UPROPERTY()
     // AI 컨트롤러 캐싱
     class AAIController* AIController = nullptr;
 
+    UPROPERTY()
     UAnimMontage* UnitAttackMontage = nullptr;
 
+    UPROPERTY()
     UAnimMontage* UnitDeadMontage = nullptr;
 
     float DetectRangeKey = 0.0f;
@@ -120,5 +123,6 @@ private:
 
     bool IsActive;
 
+    UPROPERTY()
     TObjectPtr<UBehaviorTree> SubBTAssetKey = nullptr;
 };

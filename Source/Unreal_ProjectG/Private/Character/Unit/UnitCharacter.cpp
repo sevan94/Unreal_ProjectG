@@ -243,7 +243,6 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 
 }
 
-
 void AUnitCharacter::OnDie()
 {
     if (bIsDead)
@@ -253,7 +252,8 @@ void AUnitCharacter::OnDie()
 
     bIsDead = true;
 
-    if (AIController)
+    // 1. AIController 유효성 검사 강화
+    if (IsValid(AIController))
     {
         if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
         {
@@ -275,27 +275,45 @@ void AUnitCharacter::OnDie()
         Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
+    // 2. GetWorld() 유효성 검사 및 캐싱
+    UWorld* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return;
+    }
+
     if (bIsBoss)
     {
-        if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+        if (UUnitSubsystem* Subsystem = World->GetSubsystem<UUnitSubsystem>())
         {
             Subsystem->OnBossDeadDelegate.Broadcast(TeamTag);
         }
     }
 
-    if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
+    if (UUnitSpawnSubsystem* SpawnSubsystem = World->GetSubsystem<UUnitSpawnSubsystem>())
     {
-        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-        if (AnimInstance && UnitDeadMontage)
+        USkeletalMeshComponent* CharacterMesh = GetMesh();
+        UAnimInstance* AnimInstance = IsValid(CharacterMesh) ? CharacterMesh->GetAnimInstance() : nullptr;
+
+        if (IsValid(AnimInstance) && IsValid(UnitDeadMontage))
         {
-            checkf(UnitDeadMontage, TEXT("Actor : %s Die Error"), *GetName());
             float Duration = AnimInstance->Montage_Play(UnitDeadMontage) - 0.2f;
 
-            FTimerHandle TimerHandle;
-            GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
-                {
-                    SpawnSubsystem->OnUnitDied(this);
-                }, Duration, false);
+            if (Duration > 0.f)
+            {
+                FTimerHandle TimerHandle;
+                World->GetTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
+                    {
+                        if (IsValid(this) && IsValid(SpawnSubsystem))
+                        {
+                            SpawnSubsystem->OnUnitDied(this);
+                        }
+                    }, Duration, false);
+            }
+            else
+            {
+                SpawnSubsystem->OnUnitDied(this);
+            }
         }
         else
         {
@@ -307,7 +325,6 @@ void AUnitCharacter::OnDie()
         Destroy();
     }
 }
-
 
 void AUnitCharacter::ActivateUnit()
 {

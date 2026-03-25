@@ -15,7 +15,11 @@ UCLASS()
 class UNREAL_PROJECTG_API ALobbyHUD : public AHUD
 {
 	GENERATED_BODY()
-	
+
+public:
+    void ShowUnitGachaResultUI();
+    void ShowEquipGachaResultUI();
+
 protected:
     virtual void BeginPlay() override;
 

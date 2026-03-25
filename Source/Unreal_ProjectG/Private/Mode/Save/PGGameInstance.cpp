@@ -4,7 +4,7 @@
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "UI/Battle/BattleHUD.h"
 #include "UI/DataTable/UnitUIDataTable.h"
-#include "Mode/Save/PGGameInstance.h"
+#include "UI/DataTable/EquipUIDataTable.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
@@ -43,13 +43,36 @@ void UPGGameInstance::LoadGameData()
     {
         CachedSaveData = Cast<UPGSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
         this->UnitLevelMap = CachedSaveData->UnitLevelMap;
-        if (CachedSaveData->UnitLevelMap.IsEmpty())
-            InitializeUnitMap();
+        this->EquipMap = CachedSaveData->EquipMap;
     }
     else
     {
         CachedSaveData = Cast<UPGSaveGame>(UGameplayStatics::CreateSaveGameObject(UPGSaveGame::StaticClass()));
-        InitializeUnitMap();
+        bIsNewGame = true;
+    }
+
+    // 데이터가 비어있을 시 도감(Map) 초기화
+    if (this->UnitLevelMap.IsEmpty()) InitializeUnitMap();
+    if (this->EquipMap.IsEmpty()) InitializeEquipMap();
+
+    if (bIsNewGame)
+    {
+        SetupDefaultSetting();
+    }
+    else
+    {
+        // 새 게임이 아닐 시
+        // 유닛 데이터 로드
+        CurrentUnits.Empty();
+        for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
+        {
+            CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Path));
+        }
+
+        // 장비 로드
+        CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
+        CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
+        CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
     }
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
@@ -58,18 +81,6 @@ void UPGGameInstance::LoadGameData()
     CurrentPlayerGem = CachedSaveData->PlayerGem;
     CurrentPlayerUnlock = CachedSaveData->PlayerUnlock;
 
-    // 유닛 데이터 로드
-    CurrentUnits.Empty();
-    for (const FSoftObjectPath& Path : CachedSaveData->EquippedUnitPaths)
-    {
-        CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Path));
-    }
-
-    // 장비 로드
-    CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedWeaponPath);
-    CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedArmorPath);
-    CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(CachedSaveData->EquippedAccessoryPath);
-
     // 클리어 스테이지 데이터 로드
     StageClearData = CachedSaveData->StageDataMap;
 
@@ -77,6 +88,8 @@ void UPGGameInstance::LoadGameData()
     CurrentMasterVolume = CachedSaveData->MasterVolume;
     CurrentBGMVolume = CachedSaveData->BGMVolume;
     CurrentSFXVolume = CachedSaveData->SFXVolume;
+
+    if (bIsNewGame) SaveGameData();
 }
 
 void UPGGameInstance::AddGoods(EGoodsCategory InCategory, int32 InValue)
@@ -257,6 +270,91 @@ void UPGGameInstance::InitializeUnitMap()
     UE_LOG(LogTemp, Log, TEXT("UnitLevelMap 초기화 완료: %d개의 유닛 로드됨"), UnitLevelMap.Num());
 }
 
+void UPGGameInstance::InitializeEquipMap()
+{
+    // 이미 데이터가 있다면 중복 초기화 방지
+    if (EquipMap.Num() > 0) return;
+
+    // 순회할 데이터 테이블 배열 (에디터에서 할당된 변수들)
+    TArray<UDataTable*> TargetTables;
+    if (WeaponDataTable) TargetTables.Add(WeaponDataTable);
+    if (ArmorDataTable) TargetTables.Add(ArmorDataTable);
+    if (AccessoryDataTable) TargetTables.Add(AccessoryDataTable);
+
+    static const FString ContextString(TEXT("EquipMapRef"));
+
+    for (UDataTable* Table : TargetTables)
+    {
+        if (!Table) continue;
+
+        // FEquipUIDataTable 형식으로 모든 행을 가져옴
+        TArray<FEquipUIDataTable*> AllRows;
+        Table->GetAllRows<FEquipUIDataTable>(ContextString, AllRows);
+
+        for (FEquipUIDataTable* Row : AllRows)
+        {
+            if (Row)
+            {
+                // 특정 ID만 시작 시 해금 상태로 설정
+                bool bIsUnlocked = (
+                    Row->EquipID == 1001 || // 기본 무기
+                    Row->EquipID == 1003 || // 기본 무기
+                    Row->EquipID == 2001 || // 기본 방어구
+                    Row->EquipID == 3002    // 기본 악세서리
+                    );
+
+                // EquipMap에 추가
+                if (!EquipMap.Contains(Row->EquipID))
+                {
+                    EquipMap.Add(Row->EquipID, bIsUnlocked);
+                }
+            }
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("EquipMap 초기화 완료: 총 %d개의 장비 로드됨"), EquipMap.Num());
+}
+
+void UPGGameInstance::SetupDefaultSetting()
+{
+    // --- 유닛 초기 장착 ---
+    if (UnitDataTable)
+    {
+        static const FString ContextString(TEXT("DefaultUnitSetup"));
+        TArray<FUnitUIDataTable*> Rows;
+        UnitDataTable->GetAllRows<FUnitUIDataTable>(ContextString, Rows);
+
+        for (FUnitUIDataTable* Row : Rows)
+        {
+            if (Row->UnitID == 101 ||
+                Row->UnitID == 102 ||
+                Row->UnitID == 201 ||
+                Row->UnitID == 202 ||
+                Row->UnitID == 301
+                )
+            {
+                CurrentUnits.Add(TSoftObjectPtr<UUnitUIDataAsset>(Row->UnitData));
+            }
+        }
+    }
+
+    // -- - 장비 초기 장착-- -
+    TArray<UDataTable*> Tables = { WeaponDataTable, ArmorDataTable, AccessoryDataTable };
+    for (UDataTable* Table : Tables)
+    {
+        if (!Table) continue;
+        TArray<FEquipUIDataTable*> Rows;
+        Table->GetAllRows<FEquipUIDataTable>(TEXT("DefaultEquipSetup"), Rows);
+
+        for (FEquipUIDataTable* Row : Rows)
+        {
+            if (Row->EquipID == 1001) CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
+            if (Row->EquipID == 2001) CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
+            if (Row->EquipID == 3002) CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
+        }
+    }
+}
+
 FUnitSaveData UPGGameInstance::GetUnitSaveData(int32 UnitID)
 {
     if (FUnitSaveData* FoundData = UnitLevelMap.Find(UnitID))
@@ -267,12 +365,24 @@ FUnitSaveData UPGGameInstance::GetUnitSaveData(int32 UnitID)
     return FUnitSaveData();
 }
 
+bool UPGGameInstance::GetEquipOwned(int32 EquipID)
+{
+    if (bool* bIsOwned = EquipMap.Find(EquipID))
+    {
+        return *bIsOwned;
+    }
+    return false;
+}
+
 void UPGGameInstance::SaveGameData()
 {
     if (!CachedSaveData) return;
 
     // 현재 보유 유닛 리스트 저장
     CachedSaveData->UnitLevelMap = this->UnitLevelMap;
+
+    // 현재 보유 장비 리스트 저장
+    CachedSaveData->EquipMap = this->EquipMap;
 
     // 현재 스테이지 데이터 저장
     CachedSaveData->StageDataMap = this->StageClearData;

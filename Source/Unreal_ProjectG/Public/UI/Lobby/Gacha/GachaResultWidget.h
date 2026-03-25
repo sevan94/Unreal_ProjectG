@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "DataAssets/UI/EquipUIDataAsset.h"
 #include "GachaResultWidget.generated.h"
 
 class UButton;
@@ -22,15 +23,24 @@ class UNREAL_PROJECTG_API UGachaResultWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void InitData(UUnitUIDataAsset* InData);
+    void InitUnitData(UUnitUIDataAsset* InData);
+    void InitEquipData(UEquipUIDataAsset* InData);
 
     void PlayGachaAnim();
+    void ShowEquipResult();
 
 protected:
     virtual void NativeConstruct() override;
 
+    virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
     UFUNCTION()
     void OnSkipButtonClicked();
+
+    UFUNCTION()
+    void OnGachaAnimFinished();
+
+    void ResetGachaResult();
 
 public:
     UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -47,11 +57,19 @@ protected:
     TObjectPtr<UImage> UnitImage;
 
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> EquipImage;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> EquipGachaTarget;
+
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UNiagaraSystemWidget> GachaEffect;
 
     UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
     UWidgetAnimation* UnitGacha;
 
+    bool bCanExit = false;
 private:
     TObjectPtr<UUnitUIDataAsset> PickupUnit;
+    TObjectPtr<UEquipUIDataAsset> PickupEquip;
 };

@@ -252,7 +252,6 @@ void AUnitCharacter::OnDie()
 
     bIsDead = true;
 
-    // 1. AIController 유효성 검사 강화
     if (IsValid(AIController))
     {
         if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
@@ -275,7 +274,6 @@ void AUnitCharacter::OnDie()
         Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
-    // 2. GetWorld() 유효성 검사 및 캐싱
     UWorld* World = GetWorld();
     if (!IsValid(World))
     {

@@ -88,14 +88,14 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<class UStaticMeshComponent> WeaponMesh;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    int32 UnitLevel = 1;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsBoss = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsMiddleBoss = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"), Category = "Unit|Stats")
+    int32 UnitLevel = 1;
 
     bool bIsAbilitiesInitialized = false;
 protected:

@@ -406,3 +406,49 @@ struct FHeroSpawnableConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "연속된 스폰 액터 배열"))
     FSkillActorFollowUpSpawnConfig NextSpawn; // 체인 스폰을 위한 다음 스폰 설정 배열
 };
+
+UENUM(BlueprintType)
+enum class EHeroBuffCenterPolicy : uint8
+{
+    AtCaster        UMETA(DisplayName = "시전자 위치"),
+    AtTriggerPoint  UMETA(DisplayName = "트리거 위치"),
+};
+
+UENUM(BlueprintType)
+enum class EHeroBuffSelectRule : uint8
+{
+    AllInRange      UMETA(DisplayName = "범위 내 전체"),
+    NearestN        UMETA(DisplayName = "가까운 순"),
+    LowestHealthN   UMETA(DisplayName = "체력 낮은 순"),
+};
+
+USTRUCT(BlueprintType)
+struct FHeroBuffConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
+    TArray<FEffectConfig> Effects;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
+    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Ally;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "중심 위치", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    EHeroBuffCenterPolicy CenterPolicy = EHeroBuffCenterPolicy::AtCaster;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "범위", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    float Radius = 500.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "적용 정책", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    EHeroBuffSelectRule SelectRule = EHeroBuffSelectRule::AllInRange;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,
+        meta = (ClampMin = "1", DisplayName = "최대 적용 대상 수", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self && SelectRule != EHeroBuffSelectRule::AllInRange", EditConditionHides))
+    int32 MaxTargets = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
+    TObjectPtr<UAnimMontage> Montage = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
+    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset = nullptr;
+};

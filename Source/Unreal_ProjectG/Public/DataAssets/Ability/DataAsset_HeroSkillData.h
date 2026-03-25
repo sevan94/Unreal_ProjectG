@@ -11,7 +11,8 @@ UENUM(BlueprintType)
 enum class ESkillActionType : uint8
 {
     SpawnActor      UMETA(DisplayName = "SpawnActor"),
-    MeleeTrace      UMETA(DisplayName = "MeleeTrace")
+    MeleeTrace      UMETA(DisplayName = "MeleeTrace"),
+    Buff            UMETA(DisplayName = "Buff"),
 };
 
 UENUM(BlueprintType)
@@ -41,6 +42,8 @@ enum class EHeroSkillActionScalarField : uint8
     TraceRadius,
     TraceOffsetRange,
     TraceMaxHit,
+    BuffRadius,
+    BuffMaxTargets,
 };
 
 UENUM(BlueprintType)
@@ -77,6 +80,10 @@ struct FSkillActionRow
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|MeleeTrace",
         meta=(DisplayName="MeleeTrace 설정", EditCondition="ActionType == ESkillActionType::MeleeTrace", EditConditionHides))
     FHeroMeleeTraceConfig MeleeTraceConfig;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "액션|Buff",
+        meta = (DisplayName = "Buff 설정", EditCondition = "ActionType == ESkillActionType::Buff", EditConditionHides))
+    FHeroBuffConfig BuffConfig;
 };
 
 USTRUCT(BlueprintType)

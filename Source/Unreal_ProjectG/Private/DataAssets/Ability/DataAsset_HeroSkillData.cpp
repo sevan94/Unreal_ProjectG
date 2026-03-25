@@ -399,6 +399,8 @@ TArray<FEffectConfig>* UDataAsset_HeroSkillData::GetMutableEffects(FSkillActionR
         return &Action.SpawnableConfig.Effects;
     case ESkillActionType::MeleeTrace:
         return &Action.MeleeTraceConfig.Effects;
+    case ESkillActionType::Buff:
+        return &Action.BuffConfig.Effects;
     default:
         return nullptr;
     }
@@ -436,6 +438,21 @@ void UDataAsset_HeroSkillData::OverrideActionScalar(FSkillActionRow& Action, EHe
             return;
         case EHeroSkillActionScalarField::TraceMaxHit:
             Action.MeleeTraceConfig.MaxHit = FMath::Max(1, FMath::RoundToInt(Value));
+            return;
+        default:
+            return;
+        }
+    }
+
+    if (Action.ActionType == ESkillActionType::Buff)
+    {
+        switch (Field)
+        {
+        case EHeroSkillActionScalarField::BuffRadius:
+            Action.BuffConfig.Radius = Value;
+            return;
+        case EHeroSkillActionScalarField::BuffMaxTargets:
+            Action.BuffConfig.MaxTargets = FMath::Max(1, FMath::RoundToInt(Value));
             return;
         default:
             return;

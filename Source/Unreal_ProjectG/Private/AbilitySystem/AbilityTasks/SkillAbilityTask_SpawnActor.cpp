@@ -339,13 +339,33 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
     const FHeroSpawnableConfig& Config = CachedActionRow.SpawnableConfig;
     AActor* AvatarActor = Ability->GetAvatarActorFromActorInfo();
 
+    FVector FinalLocation = Location;
+    FRotator FinalRotation = Rotation;
+
+    // At Caster 정책이라면 이 시점에서 스폰될 위치를 결정
+    if (Config.SpawnLocationPolicy == ESpawnLocation::AtCaster && AvatarActor)
+    {
+        FinalLocation = AvatarActor->GetActorLocation();
+        FinalRotation = AvatarActor->GetActorRotation();
+    }
+
     FVector SpawnOffset = FVector::ZeroVector;
     if (const FSpawnOffsetRow* Row = Config.SpawnOffsetRow.GetRow<FSpawnOffsetRow>(TEXT("SpawnOffset")))
     {
         SpawnOffset = Row->SpawnOffset;
     }
 
-    const FTransform SpawnTransform(Rotation, Location + SpawnOffset);
+    // X/Y 오프셋은 캐릭터의 로컬 좌표계를 따름, Z 오프셋은 항상 월드 좌표계를 따름
+    FVector RotatedOffset = SpawnOffset;
+    if (AvatarActor)
+    {
+        const FRotator YawOnlyRotation(0.0f, AvatarActor->GetActorRotation().Yaw, 0.0f);
+        const FVector XYOffset = FVector(SpawnOffset.X, SpawnOffset.Y, 0.0f);
+        const FVector RotatedXYOffset = YawOnlyRotation.RotateVector(XYOffset);
+        RotatedOffset = FVector(RotatedXYOffset.X, RotatedXYOffset.Y, SpawnOffset.Z);
+    }
+
+    const FTransform SpawnTransform(FinalRotation, FinalLocation + RotatedOffset);
 
     ASkillActor* Spawned = GetWorld()->SpawnActorDeferred<ASkillActor>(
         Config.ActorClass,

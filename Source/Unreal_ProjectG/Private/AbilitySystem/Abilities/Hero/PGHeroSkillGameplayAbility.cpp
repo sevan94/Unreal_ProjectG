@@ -2,6 +2,7 @@
 
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_MeleeTrace.h"
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_SpawnActor.h"
+#include "AbilitySystem/AbilityTasks/SkillAbilityTask_Buff.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "DataAssets/Ability/DataAsset_HeroSkillData.h"
 #include "PGFunctionLibrary.h"
@@ -90,6 +91,15 @@ void UPGHeroSkillGameplayAbility::ExecuteNextAction()
         break;
     }
 
+    case ESkillActionType::Buff:
+    {
+        USkillAbilityTask_Buff* Task = USkillAbilityTask_Buff::Create(this, CurrentAction);
+        Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
+        Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
+        Task->ReadyForActivation();
+        break;
+    }
+
     default:
         ++CurrentActionIndex;
         ExecuteNextAction();
@@ -166,6 +176,13 @@ void UPGHeroSkillGameplayAbility::ExecuteEventAction(const FSkillActionRow& Acti
     case ESkillActionType::MeleeTrace:
     {
         USkillAbilityTask_MeleeTrace* Task = USkillAbilityTask_MeleeTrace::Create(this, ActionRow);
+        Task->ReadyForActivation();
+        break;
+    }
+
+    case ESkillActionType::Buff:
+    {
+        USkillAbilityTask_Buff* Task = USkillAbilityTask_Buff::Create(this, ActionRow, TargetData);
         Task->ReadyForActivation();
         break;
     }

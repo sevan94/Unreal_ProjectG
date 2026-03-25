@@ -18,7 +18,7 @@ public:
     AProjectileSkillActor();
 
 protected:
-    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles) override;
+    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel) override;
 
 
 protected:

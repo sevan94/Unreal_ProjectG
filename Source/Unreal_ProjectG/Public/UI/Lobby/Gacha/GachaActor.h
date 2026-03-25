@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
+#include "DataAssets/UI/UnitUIDataAsset.h"
 #include "GachaActor.generated.h"
 
 class UNiagaraComponent;
 class USkeletalMeshComponent;
 class UAnimMontage;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGachaOpenFinished);
 UCLASS()
 class UNREAL_PROJECTG_API AGachaActor : public AActor
 {
@@ -21,13 +24,16 @@ public:
 	AGachaActor();
 
     UFUNCTION(BlueprintCallable, Category = "Gacha|Actions")
-    void GachaMove();
+    void GachaMove(UUnitUIDataAsset* InData);
 
     UFUNCTION(BlueprintCallable, Category = "Gacha|Actions")
     void GachaOpen(FLinearColor InColor);
 
     UFUNCTION(BlueprintCallable, Category = "Gacha|Actions")
     void GachaReset();
+
+    // 몽타주 종료를 감지하기 위한 함수
+    void OnGachaeEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,6 +52,10 @@ private:
 
     UFUNCTION()
     void HandleTimelineFinished();
+
+public:
+    UPROPERTY(BlueprintAssignable, Category = "Events")
+    FOnGachaOpenFinished OnGachaOpenFinished;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gacha")

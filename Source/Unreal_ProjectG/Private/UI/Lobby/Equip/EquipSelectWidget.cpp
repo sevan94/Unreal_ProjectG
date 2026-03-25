@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/Button.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UEquipSelectWidget::NativeConstruct()
 {
@@ -44,6 +45,7 @@ void UEquipSelectWidget::UpdateWidget(UEquipEntryObject* InEntryObject)
 
     // EntryObject 내부의 데이터 에셋 가져오기
     UEquipUIDataAsset* UIData = InEntryObject->GetEquipUIData();
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
 
     if (UIData && EquipImage)
     {
@@ -54,7 +56,10 @@ void UEquipSelectWidget::UpdateWidget(UEquipEntryObject* InEntryObject)
     // 소유 여부에 따른 잠금 표시 처리
     if (LockOverlay)
     {
-        ESlateVisibility LockVisibility = InEntryObject->IsOwned() ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
+        bool bIsOwned = GI->GetEquipOwned(UIData->EquipID);
+
+        ESlateVisibility LockVisibility = bIsOwned ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
+
         LockOverlay->SetVisibility(LockVisibility);
     }
 }

@@ -21,13 +21,13 @@ namespace SkillTaskConstatns
 }
 
 
-USkillAbilityTask_SpawnActor* USkillAbilityTask_SpawnActor::Create(UGameplayAbility* OwningAbility, const FSkillActionRow& ActionRow, bool bIsAutoMode, const FGameplayAbilityTargetDataHandle& InPreviousTargetData)
+USkillAbilityTask_SpawnActor* USkillAbilityTask_SpawnActor::Create(UGameplayAbility* OwningAbility, const FSkillActionRow& ActionRow, bool bIsAutoMode)
 {
     // Task 생성 및 초기화
     USkillAbilityTask_SpawnActor* Task = NewAbilityTask<USkillAbilityTask_SpawnActor>(OwningAbility);
     Task->CachedActionRow = ActionRow;
     Task->bAutoMode = bIsAutoMode;
-    Task->PreviousTargetDataHandle = InPreviousTargetData;
+
     return Task;
 }
 
@@ -68,27 +68,6 @@ void USkillAbilityTask_SpawnActor::Activate()
             }
             break;
 
-    case ESpawnLocation::AtPreviousActionLocation:
-            // 이전 액션 위치에 소환 -> 이전 액션이 장판이면 장판 위치, 투사체면 투사체 위치
-            if (PreviousTargetDataHandle.IsValid(0))
-            {
-                if (const FGameplayAbilityTargetData* Data = PreviousTargetDataHandle.Get(0))
-                {
-                    if (const FHitResult* Hit = Data->GetHitResult())
-                    {
-                        CachedSpawnLocation = Hit->Location;
-                    }
-                }
-            }
-            else
-            {
-                // 만약에 데이터가 없다면 캐스터 위치에서 소환
-                CachedSpawnLocation = AvatarActor->GetActorLocation();
-            }
-            CachedSpawnRotation = AvatarActor->GetActorRotation();
-            PlayMontageOrSpawn();
-            break;
-            
     default:
         OnCancelled.Broadcast({});
         EndTask();
@@ -301,44 +280,25 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
         return;
     }
 
-    // Spawn된 액터 캐싱
-    SpawnedActor = Spawned;
-
     // 액터 초기화
     UPGGameplayAbility* PGAbility = Cast<UPGGameplayAbility>(Ability);
+    TArray<FGameplayEffectSpecHandle> SpecHandles;
     if (PGAbility && !Config.Effects.IsEmpty())
     {
-        TArray<FGameplayEffectSpecHandle> SpecHandles = PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
-    
-        Spawned->InitFromConfig(Config, SpecHandles);
+        SpecHandles = PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
     }
 
     // Deferred 스폰 완료
+    Spawned->InitFromConfig(Config, SpecHandles, Ability->GetAbilityLevel());
     Spawned->FinishSpawning(SpawnTransform);
 
-    // 액터의 파괴 이벤트 대기
-    UAbilityTask_WaitGameplayEvent* DestroyEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-        Ability, Spawned->GetDestroyedEventTag());
-    DestroyEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnActorDestroyedEvent);
-    DestroyEventTask->ReadyForActivation();
-}
-
-void USkillAbilityTask_SpawnActor::OnActorDestroyedEvent(FGameplayEventData Payload)
-{
-    OnCompleted.Broadcast(Payload.TargetData);
+    OnCompleted.Broadcast({});
     EndTask();
 }
-
 //=================================================
 // 정리
 //=================================================
 void USkillAbilityTask_SpawnActor::OnDestroy(bool bInOwnerFinished)
 {
-    if (SpawnedActor.IsValid())
-    {
-        SpawnedActor->Destroy();
-        SpawnedActor = nullptr;
-    }
-
     Super::OnDestroy(bInOwnerFinished);
 }

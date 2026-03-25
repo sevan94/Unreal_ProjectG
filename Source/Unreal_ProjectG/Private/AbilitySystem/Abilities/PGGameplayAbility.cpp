@@ -5,6 +5,8 @@
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "PGGameplayTags.h"
+#include "PGFunctionLibrary.h"
+
 
 UPGGameplayAbility::UPGGameplayAbility()
 {
@@ -39,6 +41,11 @@ void UPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
     }
 }
 
+
+// ====================================================================================================
+// 랩핑 함수들 
+// ====================================================================================================
+
 UPGAbilitySystemComponent* UPGGameplayAbility::GetPGAbilitySystemComponentFromActorInfo() const
 {
     return Cast<UPGAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
@@ -46,14 +53,9 @@ UPGAbilitySystemComponent* UPGGameplayAbility::GetPGAbilitySystemComponentFromAc
 
 FActiveGameplayEffectHandle UPGGameplayAbility::NativeApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle)
 {
-    // TargetActor의 AbilitySystemComponent 가져오기
-    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-
-    checkf(TargetASC, TEXT("TargetActor의 AbilitySystemComponent가 없습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
     checkf(InSpecHandle.IsValid(), TEXT("InSpecHandle가 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
 
-    return GetPGAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(
-        *InSpecHandle.Data, TargetASC);
+    return UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetAvatarActorFromActorInfo(), TargetActor, InSpecHandle);
 }
 
 FActiveGameplayEffectHandle UPGGameplayAbility::BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, EPGSuccessType& OutSuccessType)
@@ -65,102 +67,35 @@ FActiveGameplayEffectHandle UPGGameplayAbility::BP_ApplyEffectSpecHandleToTarget
     return ActivateGameplayEffectHandle;
 }
 
-void UPGGameplayAbility::NativeRemoveActiveGameplayEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle)
+void UPGGameplayAbility::NativeRemoveActiveEffectFromTarget(AActor* TargetActor, const FActiveGameplayEffectHandle& EffectHandle)
 {
-    // TargetActor의 AbilitySystemComponent 가져오기
-    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-    
-    checkf(TargetASC, TEXT("TargetActor의 AbilitySystemComponent가 없습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
     checkf(EffectHandle.IsValid(), TEXT("EffectHandle이 유효하지 않습니다. TargetActor : %s"), *GetNameSafe(TargetActor));
-    
-    TargetASC->RemoveActiveGameplayEffect(EffectHandle);
+    UPGFunctionLibrary::NativeRemoveActiveGameplayEffectFromTarget(TargetActor, EffectHandle);
 }
 
 FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpec(TSubclassOf<UGameplayEffect> EffectClass)
 {
     check(EffectClass);
 
-    // 게임 플레이 이펙트 컨텍스트 생성
-    // 게임 플레이 이펙트 컨텍스트는 이펙트가 어디서 왔는지, 누가 적용했는지 등의 정보를 담고 있음
-    FGameplayEffectContextHandle ContextHandle = GetPGAbilitySystemComponentFromActorInfo()->MakeEffectContext();
-    ContextHandle.SetAbility(this);
-    ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
-    ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
-
-    // 게임 플레이 이펙트 스펙 생성
-    // 게임 플레이 이펙트 스펙은 이펙트의 구체적인 속성들을 담고 있음
-    FGameplayEffectSpecHandle EffectSpecHandle = GetPGAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(
-        EffectClass,
-        GetAbilityLevel(),
-        ContextHandle);
-
-    return EffectSpecHandle;
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpec(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
 }
 
 FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpecWithMultiplier(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier)
 {
     check(EffectClass);
 
-    // 게임 플레이 이펙트 스펙 생성
-    // 게임 플레이 이펙트 스펙은 이펙트의 구체적인 속성들을 담고 있음
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpec(EffectClass);
-
-    // 이펙트 스펙에 SetByCaller 매개변수 설정하여 스킬 배율값을 전달
-    EffectSpecHandle.Data->SetSetByCallerMagnitude(
-        PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
-        SkillMultiflier
-    );
-
-    return EffectSpecHandle;
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecWithMultiplier(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, SkillMultiflier, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
 }
 
 FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpecFromEffectConfig(const FEffectConfig& EffectConfig)
 {
     checkf(EffectConfig.EffectClass, TEXT("EffectConfig의 EffectClass가 유효하지 않습니다."));
-    
-    // 게임 플레이 이펙트 스펙 생성
-    FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpec(EffectConfig.EffectClass);
 
-    // EffectConfig에서 설정된 값들을 스펙에 적용
-    if (!FMath::IsNearlyZero(EffectConfig.Multiplier))
-    {
-        EffectSpecHandle.Data->SetSetByCallerMagnitude(
-            PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
-            EffectConfig.Multiplier
-        );
-    }
-
-    if(EffectConfig.BaseAmount > 0.f)
-    {
-        EffectSpecHandle.Data->SetSetByCallerMagnitude(
-            PGGameplayTags::Shared_SetByCaller_BaseAmount,
-            EffectConfig.BaseAmount
-        );
-    }
-
-    if (EffectConfig.Duration > 0.f)
-    {
-        EffectSpecHandle.Data->SetSetByCallerMagnitude(
-            PGGameplayTags::Shared_SetByCaller_Duration,
-            EffectConfig.Duration
-        );
-    }
-
-    return EffectSpecHandle;
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecFromEffectConfig(GetPGAbilitySystemComponentFromActorInfo(), EffectConfig, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
 }
 
 TArray<FGameplayEffectSpecHandle> UPGGameplayAbility::MakeOutgoingEffectSpecsFromEffectConfigs(const TArray<FEffectConfig>& EffectConfigs)
 {
-    TArray<FGameplayEffectSpecHandle> EffectSpecHandles;
-    
-    for (const FEffectConfig& EffectConfig : EffectConfigs)
-    {
-        FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingEffectSpecFromEffectConfig(EffectConfig);
-        if (EffectSpecHandle.IsValid())
-        {
-            EffectSpecHandles.Add(EffectSpecHandle);
-        }
-    }
-    return EffectSpecHandles;
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(GetPGAbilitySystemComponentFromActorInfo(), EffectConfigs, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
 }
 

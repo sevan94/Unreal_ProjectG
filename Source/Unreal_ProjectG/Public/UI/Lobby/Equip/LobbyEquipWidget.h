@@ -9,12 +9,14 @@
 
 class UButton;
 class UImage;
+class UTextBlock;
 class UWidgetSwitcher;
 class UPGGameInstance;
 class UCurrentEquipWidget;
 class UEquipListWidget;
 class UEquipUIDataAsset;
 class UEquipDescriptionWidget;
+class UGoodsBarWidget;
 
 /**
  * 
@@ -32,6 +34,9 @@ protected:
     virtual void NativeConstruct() override;
 
     void IntializeEquipSlots();
+
+    UFUNCTION()
+    void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
 private:
     UFUNCTION()
@@ -57,6 +62,13 @@ protected:
     // 장비 장착 버튼
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> EquipButton;
+    // 장착 버튼 텍스트
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> EquipButtonText;
+
+    // 해금 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Unlock;
 
     // 영웅 패널
     // 영웅 렌더 타깃
@@ -81,6 +93,10 @@ protected:
     // 장비 정보 위젯
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UEquipDescriptionWidget> EquipDescription;
+
+    // 해금 소모 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> UnlockCostWidget;
 
 private:
     // 현재 선택된 카테고리

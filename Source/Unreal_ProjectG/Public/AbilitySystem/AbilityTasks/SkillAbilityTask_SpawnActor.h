@@ -26,8 +26,7 @@ public:
     static USkillAbilityTask_SpawnActor* Create(
         UGameplayAbility* OwningAbility,
         const FSkillActionRow& ActionRow,
-        bool bIsAutoMode,
-        const FGameplayAbilityTargetDataHandle& InPreviousTargetData);
+        bool bIsAutoMode);
 
     virtual void Activate() override;
     virtual void OnDestroy(bool bInOwnerFinished) override;
@@ -64,9 +63,6 @@ private:
     // 실제 소환 처리
     void SpawnActorAtLocation(const FVector& Location, const FRotator& Rotation);
     
-    // 액터 파괴 이벤트
-    UFUNCTION()
-    void OnActorDestroyedEvent(FGameplayEventData Payload);
 
 private:
     FSkillActionRow CachedActionRow;
@@ -75,10 +71,4 @@ private:
     // 소환 위치 및 회전
     FVector CachedSpawnLocation = FVector::ZeroVector;
     FRotator CachedSpawnRotation = FRotator::ZeroRotator;
-
-    // 소환된 액터 참조
-    // 정리 용도
-    TWeakObjectPtr<ASkillActor> SpawnedActor;
-
-    FGameplayAbilityTargetDataHandle PreviousTargetDataHandle; // WaitTargetData로 확보한 위치 정보 캐싱
 };

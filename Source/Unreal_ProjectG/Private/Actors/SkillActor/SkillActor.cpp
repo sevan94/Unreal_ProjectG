@@ -10,6 +10,7 @@
 #include "PGFunctionLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Types/PGDataTableStruct.h"
 
 const FGameplayTag ASkillActor::DestroyedEventTag = PGGameplayTags::Shared_Event_ActorDestroy;
 
@@ -33,10 +34,11 @@ ASkillActor::ASkillActor()
 }
 
 // 초기화
-void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles)
+void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel)
 {
     Config = InConfig;
     EffectSpecHandles = InSpecHandles;
+    CachedAbilityLevel = InAbilityLevel;
 
     if(Config.Radius > 0.f)
     {
@@ -196,26 +198,24 @@ void ASkillActor::ApplyEffectsToTarget(AActor* TargetActor)
     }
 }
 
-// ==================================================
-// 파괴
-// ==================================================
-void ASkillActor::NotifyAndDestroy()
+//===================================================
+// 헬퍼 함수
+//===================================================
+void ASkillActor::HandlePreDestroy()
 {
     if (bDestroyNotified) return;
     bDestroyNotified = true;
 
-    // 루프 사운드 정지
-    if (ActorSFXComponent->IsPlaying())
+    if (ActorSFXComponent && ActorSFXComponent->IsPlaying())
     {
         ActorSFXComponent->Stop();
     }
 
-    // 데이터 전달
+    // 파괴 위치 전달
     FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
 
     FHitResult HitResult;
-    HitResult.Location = GetActorLocation(); // 파괴 위치
-    
+    HitResult.Location = GetActorLocation();
     Data->HitResult = HitResult;
 
     FGameplayEventData Payload;
@@ -223,16 +223,93 @@ void ASkillActor::NotifyAndDestroy()
 
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), DestroyedEventTag, Payload);
 
-    // BP 이벤트 핀 호출
+    // 후속 스폰
+    SpawnFollowUpActor();
+
+    // BP 이벤트 호출
     OnSkillActorDestroyed();
+}
+
+FHeroSpawnableConfig ASkillActor::MakeSpawnableConfigFromFollowUp(const FSkillActorFollowUpSpawnConfig& FollowUpConfig) const
+{
+    FHeroSpawnableConfig OutConfig;
+    OutConfig.ActorClass = FollowUpConfig.ActorClass;
+    OutConfig.ActorType = FollowUpConfig.ActorType;
+    OutConfig.Effects = FollowUpConfig.Effects;
+    OutConfig.SpawnLocationPolicy = ESpawnLocation::AtCaster; // 액터는 항상 현재 액터 위치에 스폰이기에 큰 의미 없음
+    OutConfig.TargetPolicy = FollowUpConfig.TargetPolicy;
+    OutConfig.Speed = FollowUpConfig.Speed;
+    OutConfig.MaxRange = FollowUpConfig.MaxRange;
+    OutConfig.LifeSpan = FollowUpConfig.LifeSpan;
+    OutConfig.HitsPerLifeSpan = FollowUpConfig.HitsPerLifeSpan;
+    OutConfig.Radius = FollowUpConfig.Radius;
+    OutConfig.VisualAsset = FollowUpConfig.VisualAsset;
+    OutConfig.SpawnOffsetRow = FollowUpConfig.SpawnOffsetRow;
+    return OutConfig;
+}
+
+TArray<FGameplayEffectSpecHandle> ASkillActor::BuildEffectSpecsFromConfigs(const TArray<FEffectConfig>& EffectConfigs) const
+{
+    UPGAbilitySystemComponent* SourceASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
+
+    if (!SourceASC) return {};
+
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(
+        SourceASC,
+        EffectConfigs,
+        GetOwner(),
+        GetOwner(),
+        CachedAbilityLevel);
+}
+
+void ASkillActor::SpawnFollowUpActor()
+{
+    if (!Config.NextSpawn.ActorClass) return;
+
+    AActor* OwnerActor = GetOwner();
+    if (!OwnerActor || !GetWorld()) return;
+
+    FVector SpawnOffset = FVector::ZeroVector;
+    if (const FSpawnOffsetRow* Row = Config.NextSpawn.SpawnOffsetRow.GetRow<FSpawnOffsetRow>(TEXT("SpawnOffset")))
+    {
+        SpawnOffset = Row->SpawnOffset;
+    }
+
+    const FTransform SpawnTransform(GetActorRotation(), GetActorLocation() + SpawnOffset);
+
+    ASkillActor* Spawned = GetWorld()->SpawnActorDeferred<ASkillActor>(
+        Config.NextSpawn.ActorClass,
+        SpawnTransform,
+        OwnerActor,
+        Cast<APawn>(OwnerActor),
+        ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+    if (!Spawned) return;
+
+    FHeroSpawnableConfig FollowUpConfig = MakeSpawnableConfigFromFollowUp(Config.NextSpawn);
+    TArray<FGameplayEffectSpecHandle> FollowUpSpecs = BuildEffectSpecsFromConfigs(Config.NextSpawn.Effects);
+
+    Spawned->InitFromConfig(FollowUpConfig, FollowUpSpecs, CachedAbilityLevel);
+    Spawned->FinishSpawning(SpawnTransform);
+}
+
+// ==================================================
+// 파괴
+// ==================================================
+void ASkillActor::NotifyAndDestroy()
+{
+    if (bDestroyNotified) return;
+    
+    HandlePreDestroy();
+    Destroy(); // TODO: 나중에 풀링 시스템 고려
 }
 
 void ASkillActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     GetWorldTimerManager().ClearTimer(TickEffectTimerHandle);
 
-    if (!bDestroyNotified)
-        NotifyAndDestroy();
+    HandlePreDestroy();
 
     Super::EndPlay(EndPlayReason);
 }
+

@@ -28,7 +28,6 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 
     // InstancedPerActor이므로, 활성화마다 초기화
     CurrentActionIndex = 0;
-    CurrentTargetData.Clear();
 
     // 자동 모드 여부 확인
     UHeroCombatComponent* CombatComp = UPGFunctionLibrary::NativeGetCombatComponentFromActor(GetAvatarActorFromActorInfo());
@@ -64,7 +63,7 @@ void UPGHeroSkillGameplayAbility::ExecuteNextAction()
     }
     case ESkillActionType::SpawnActor:
     {
-        auto* Task = USkillAbilityTask_SpawnActor::Create(this, CurrentAction, bAutoMode, CurrentTargetData);
+        auto* Task = USkillAbilityTask_SpawnActor::Create(this, CurrentAction, bAutoMode);
         Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
         Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
         Task->ReadyForActivation();
@@ -82,7 +81,6 @@ void UPGHeroSkillGameplayAbility::OnActionCompleted(FGameplayAbilityTargetDataHa
 {
     // Task에서 타겟 데이터를 받아와서 저장
     // 다음 액션에서 CurrentTargetData 활용 가능
-    CurrentTargetData = TargetData;
     CurrentActionIndex++;
     ExecuteNextAction();
 }

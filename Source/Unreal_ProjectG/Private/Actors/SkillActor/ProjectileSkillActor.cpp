@@ -9,7 +9,7 @@ AProjectileSkillActor::AProjectileSkillActor()
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 }
 
-void AProjectileSkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles)
+void AProjectileSkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel)
 {
     Super::InitFromConfig(InConfig, InSpecHandles);
 

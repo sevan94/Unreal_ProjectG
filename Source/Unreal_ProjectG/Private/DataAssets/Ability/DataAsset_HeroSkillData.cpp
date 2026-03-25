@@ -1,87 +1,279 @@
 #include "DataAssets/Ability/DataAsset_HeroSkillData.h"
+
+#include "Algo/Sort.h"
 #include "AbilitySystemComponent.h"
+#include "HAL/PlatformTime.h"
 #include "PGFunctionLibrary.h"
 
-void UDataAsset_HeroSkillData::BuildRuntimeActionSequence(const UAbilitySystemComponent* InASC, int32 InAbilityLevel, TArray<FSkillActionRow>& OutRuntimeActions, EHeroSkillRuntimeTrigger InTrigger) const
+namespace HeroSkillDataRuntime
 {
-    OutRuntimeActions = ActionSequence; // 기본 액션 시퀀스 복사
-    if (OutRuntimeActions.IsEmpty()) return;
-
-    TArray<const FHeroSkillSetBonusModifier*> ActiveNoneExclusive; // 동일 세트 최고 단계만 적용하는 규칙이 아닌, 또는 요구 세트 태그가 유효하지 않은 규칙을 저장할 배열
-    TMap<FGameplayTag, const FHeroSkillSetBonusModifier*> ActiveHighestTierBySet; // 요구 세트 태그별로, 동일 세트 최고 단계만 적용하는 규칙 중 가장 높은 단계의 규칙을 저장할 맵
-    
-    for (const FHeroSkillSetBonusModifier& Modifier : SetBonusModifiers)
+    struct FActiveEventModifierRef
     {
-        if (Modifier.Trigger != InTrigger) continue; // 트리거 조건에 맞지 않는 규칙은 무시
+        const FHeroSkillEventActionModifier* Modifier = nullptr;
+        int32 SourceIndex = INDEX_NONE;
+    };
 
-        const int32 CurrentPiece = UPGFunctionLibrary::ResolveSetPieceCount(InASC, Modifier.RequiredSetTag);
-        if (CurrentPiece < Modifier.RequiredSetPieceCount) continue; // 요구 세트 개수 조건을 충족하지 못하는 규칙은 무시
-		if (!Modifier.RequiredSetTag.IsValid()) continue; // 요구 세트 태그가 유효하지 않은 규칙은 무시
+    static TMap<uint64, double> GEventModifierLastProcTime;
 
-        if (!Modifier.bUseHighestTierOnly)
+    static bool IsSetConditionSatisfied(
+        const UAbilitySystemComponent* AbilitySystem,
+        const FGameplayTag& RequiredSetTag,
+        int32 RequiredSetPieceCount)
+    {
+        if (!RequiredSetTag.IsValid())
         {
-            ActiveNoneExclusive.Add(&Modifier); // 동일 세트 최고 단계만 적용하지 않는 규칙은 무조건 추가
+            return true;
+        }
+
+        if (!AbilitySystem)
+        {
+            return false;
+        }
+
+        const int32 CurrentPieceCount = UPGFunctionLibrary::ResolveSetPieceCount(AbilitySystem, RequiredSetTag);
+        return CurrentPieceCount >= RequiredSetPieceCount;
+    }
+
+    static bool IsSourceTagConditionSatisfied(const FHeroSkillEventActionModifier& Modifier, const FGameplayTag& SourceEventTag)
+    {
+        if (Modifier.RequiredSourceEventTags.IsEmpty())
+        {
+            return true;
+        }
+
+        if (!SourceEventTag.IsValid())
+        {
+            return false;
+        }
+
+        return Modifier.RequiredSourceEventTags.HasTagExact(SourceEventTag);
+    }
+
+    static void GatherActiveBuildModifiers(
+        const UDataAsset_HeroSkillData* SkillData,
+        const UAbilitySystemComponent* AbilitySystem,
+        TArray<const FHeroSkillBuildModifier*>& OutActiveModifiers)
+    {
+        OutActiveModifiers.Reset();
+
+        TArray<const FHeroSkillBuildModifier*> NonExclusive;
+        TMap<FGameplayTag, const FHeroSkillBuildModifier*> HighestTierBySet;
+
+        for (const FHeroSkillBuildModifier& Modifier : SkillData->SetBonusModifiers)
+        {
+            if (!IsSetConditionSatisfied(AbilitySystem, Modifier.RequiredSetTag, Modifier.RequiredSetPieceCount))
+            {
+                continue;
+            }
+
+            if (!Modifier.RequiredSetTag.IsValid() || !Modifier.bUseHighestTierOnly)
+            {
+                NonExclusive.Add(&Modifier);
+                continue;
+            }
+
+            const FHeroSkillBuildModifier* const* Found = HighestTierBySet.Find(Modifier.RequiredSetTag);
+            if (!Found || ((*Found)->RequiredSetPieceCount < Modifier.RequiredSetPieceCount))
+            {
+                HighestTierBySet.Add(Modifier.RequiredSetTag, &Modifier);
+            }
+        }
+
+        OutActiveModifiers = MoveTemp(NonExclusive);
+        for (const TPair<FGameplayTag, const FHeroSkillBuildModifier*>& Pair : HighestTierBySet)
+        {
+            OutActiveModifiers.Add(Pair.Value);
+        }
+
+        Algo::SortBy(OutActiveModifiers, [](const FHeroSkillBuildModifier* Modifier)
+        {
+            return Modifier ? Modifier->RequiredSetPieceCount : 0;
+        });
+    }
+
+    static void GatherActiveEventModifiers(
+        const UDataAsset_HeroSkillData* SkillData,
+        const UAbilitySystemComponent* AbilitySystem,
+        EHeroSkillEventTrigger Trigger,
+        const FGameplayTag& SourceEventTag,
+        TArray<FActiveEventModifierRef>& OutActiveModifiers)
+    {
+        OutActiveModifiers.Reset();
+
+        TArray<FActiveEventModifierRef> NonExclusive;
+        TMap<FGameplayTag, FActiveEventModifierRef> HighestTierBySet;
+
+        for (int32 Index = 0; Index < SkillData->EventActionModifiers.Num(); ++Index)
+        {
+            const FHeroSkillEventActionModifier& Modifier = SkillData->EventActionModifiers[Index];
+
+            if (Modifier.Trigger != Trigger)
+            {
+                continue;
+            }
+
+            if (!IsSetConditionSatisfied(AbilitySystem, Modifier.RequiredSetTag, Modifier.RequiredSetPieceCount))
+            {
+                continue;
+            }
+
+            if (!IsSourceTagConditionSatisfied(Modifier, SourceEventTag))
+            {
+                continue;
+            }
+
+            const FActiveEventModifierRef Ref{ &Modifier, Index };
+            if (!Modifier.RequiredSetTag.IsValid() || !Modifier.bUseHighestTierOnly)
+            {
+                NonExclusive.Add(Ref);
+                continue;
+            }
+
+            const FActiveEventModifierRef* Found = HighestTierBySet.Find(Modifier.RequiredSetTag);
+            if (!Found || (!Found->Modifier || Found->Modifier->RequiredSetPieceCount < Modifier.RequiredSetPieceCount))
+            {
+                HighestTierBySet.Add(Modifier.RequiredSetTag, Ref);
+            }
+        }
+
+        OutActiveModifiers = MoveTemp(NonExclusive);
+        for (const TPair<FGameplayTag, FActiveEventModifierRef>& Pair : HighestTierBySet)
+        {
+            OutActiveModifiers.Add(Pair.Value);
+        }
+
+        OutActiveModifiers.Sort([](const FActiveEventModifierRef& A, const FActiveEventModifierRef& B)
+        {
+            const int32 ACount = A.Modifier ? A.Modifier->RequiredSetPieceCount : 0;
+            const int32 BCount = B.Modifier ? B.Modifier->RequiredSetPieceCount : 0;
+            return ACount < BCount;
+        });
+    }
+
+    static uint64 MakeCooldownKey(
+        const UDataAsset_HeroSkillData* SkillData,
+        const UAbilitySystemComponent* AbilitySystem,
+        EHeroSkillEventTrigger Trigger,
+        const FGameplayTag& SourceEventTag,
+        int32 ModifierSourceIndex,
+        EHeroSkillEventCooldownScope Scope)
+    {
+        uint64 Key = HashCombineFast(GetTypeHash(SkillData), GetTypeHash(AbilitySystem));
+        Key = HashCombineFast(Key, GetTypeHash(ModifierSourceIndex));
+
+        if (Scope == EHeroSkillEventCooldownScope::PerTrigger || Scope == EHeroSkillEventCooldownScope::PerSourceTag)
+        {
+            Key = HashCombineFast(Key, GetTypeHash(static_cast<uint8>(Trigger)));
+        }
+
+        if (Scope == EHeroSkillEventCooldownScope::PerSourceTag)
+        {
+            Key = HashCombineFast(Key, GetTypeHash(SourceEventTag));
+        }
+
+        return Key;
+    }
+
+    static bool PassEventProcAndCooldown(
+        const UDataAsset_HeroSkillData* SkillData,
+        const UAbilitySystemComponent* AbilitySystem,
+        EHeroSkillEventTrigger Trigger,
+        const FGameplayTag& SourceEventTag,
+        const FActiveEventModifierRef& Ref)
+    {
+        if (!Ref.Modifier)
+        {
+            return false;
+        }
+
+        if (Ref.Modifier->ProcChance < 1.f && FMath::FRand() > Ref.Modifier->ProcChance)
+        {
+            return false;
+        }
+
+        if (Ref.Modifier->InternalCooldown <= 0.f)
+        {
+            return true;
+        }
+
+        const uint64 Key = MakeCooldownKey(
+            SkillData,
+            AbilitySystem,
+            Trigger,
+            SourceEventTag,
+            Ref.SourceIndex,
+            Ref.Modifier->CooldownScope);
+
+        const double Now = FPlatformTime::Seconds();
+        if (const double* LastProcTime = GEventModifierLastProcTime.Find(Key))
+        {
+            if ((Now - *LastProcTime) < static_cast<double>(Ref.Modifier->InternalCooldown))
+            {
+                return false;
+            }
+        }
+
+        GEventModifierLastProcTime.Add(Key, Now);
+        return true;
+    }
+}
+
+void UDataAsset_HeroSkillData::BuildRuntimeActionSequence(
+    const UAbilitySystemComponent* AbilitySystem,
+    int32 AbilityLevel,
+    TArray<FSkillActionRow>& OutRuntimeActions) const
+{
+    OutRuntimeActions = ActionSequence;
+    if (OutRuntimeActions.IsEmpty())
+    {
+        return;
+    }
+
+    TArray<const FHeroSkillBuildModifier*> ActiveModifiers;
+    HeroSkillDataRuntime::GatherActiveBuildModifiers(this, AbilitySystem, ActiveModifiers);
+
+    for (const FHeroSkillBuildModifier* Modifier : ActiveModifiers)
+    {
+        if (!Modifier)
+        {
             continue;
         }
 
-        const FHeroSkillSetBonusModifier* const* Found = ActiveHighestTierBySet.Find(Modifier.RequiredSetTag); // 동일 세트 최고 단계만 적용하는 규칙인 경우, 해당 세트 태그에 이미 등록된 규칙이 있는지 확인
-        if (!Found || ((*Found)->RequiredSetPieceCount < Modifier.RequiredSetPieceCount))
+        const float CoefMultiplier = Modifier->EffectCoefficientMultiplier.GetValueAtLevel(AbilityLevel);
+        MultiplyAllEffectMultipliers(OutRuntimeActions, CoefMultiplier, AbilityLevel);
+
+        for (const FHeroSkillBuildOp& Op : Modifier->Ops)
         {
-            ActiveHighestTierBySet.Add(Modifier.RequiredSetTag, &Modifier); // 등록된 규칙이 없거나, 현재 규칙이 더 높은 단계인 경우에만 등록
-        }
-    }
-
-    TArray<const FHeroSkillSetBonusModifier*> ActiveModifiers = ActiveNoneExclusive; // 최종적으로 적용할 규칙 배열 초기화
-    for(const TPair<FGameplayTag, const FHeroSkillSetBonusModifier*>& Pair : ActiveHighestTierBySet)
-    {
-        ActiveModifiers.Add(Pair.Value); // 동일 세트 최고 단계만 적용하는 규칙 중에서 가장 높은 단계의 규칙을 최종적으로 적용할 규칙 배열에 추가
-    }
-
-    ActiveModifiers.Sort([](const FHeroSkillSetBonusModifier& A, const FHeroSkillSetBonusModifier& B)
-        {
-            return A.RequiredSetPieceCount < B.RequiredSetPieceCount; // 요구 세트 개수 기준 오름 정렬 (개수가 적은 규칙이 먼저 적용되도록)
-        });
-
-    for (const FHeroSkillSetBonusModifier* Modifier : ActiveModifiers)
-    {
-        if (!Modifier) continue;
-
-        const float CoefMultiplier = Modifier->EffectCoefficientMultiplier.GetValueAtLevel(InAbilityLevel);
-        MultiplyAllEffectMultipliers(OutRuntimeActions, CoefMultiplier); // 보정 계수만큼 모든 액션의 효과 계수를 곱해주는 함수 호출
-        
-        for (const FHeroSkillRuntimeOp& Op : Modifier->Ops)
-        {
-            if(!IsOpSupportedByTrigger(InTrigger, Op.OpType)) continue; // 이 트리거에서 지원되지 않는 오퍼레이션은 무시
-
             switch (Op.OpType)
             {
-            case EHeroSkillRuntimeOpType::AddAction:
+            case EHeroSkillBuildOpType::AddAction:
                 if (OutRuntimeActions.Num() < MaxRuntimeActionCount)
                 {
-                    OutRuntimeActions.Add(Op.ActionToInject); // 액션 추가
+                    OutRuntimeActions.Add(Op.ActionToInject);
                 }
                 break;
 
-            case EHeroSkillRuntimeOpType::InsertActionBefore:
+            case EHeroSkillBuildOpType::InsertActionBefore:
             {
                 const int32 TargetIndex = FindUniqueActionIndexById(OutRuntimeActions, Op.TargetActionID);
                 if (TargetIndex != INDEX_NONE && OutRuntimeActions.Num() < MaxRuntimeActionCount)
                 {
-                    OutRuntimeActions.Insert(Op.ActionToInject, TargetIndex); // 액션 삽입(앞)
+                    OutRuntimeActions.Insert(Op.ActionToInject, TargetIndex);
                 }
                 break;
             }
 
-            case EHeroSkillRuntimeOpType::InsertActionAfter:
+            case EHeroSkillBuildOpType::InsertActionAfter:
             {
                 const int32 TargetIndex = FindUniqueActionIndexById(OutRuntimeActions, Op.TargetActionID);
                 if (TargetIndex != INDEX_NONE && OutRuntimeActions.Num() < MaxRuntimeActionCount)
                 {
-                    OutRuntimeActions.Insert(Op.ActionToInject, TargetIndex + 1); // 액션 삽입(뒤)
+                    OutRuntimeActions.Insert(Op.ActionToInject, TargetIndex + 1);
                 }
                 break;
             }
-            case EHeroSkillRuntimeOpType::OverrideAction:
+
+            case EHeroSkillBuildOpType::OverrideAction:
             {
                 const int32 TargetIndex = FindUniqueActionIndexById(OutRuntimeActions, Op.TargetActionID);
                 if (TargetIndex != INDEX_NONE)
@@ -96,33 +288,30 @@ void UDataAsset_HeroSkillData::BuildRuntimeActionSequence(const UAbilitySystemCo
                 break;
             }
 
-            case EHeroSkillRuntimeOpType::OverrideActionValue:
+            case EHeroSkillBuildOpType::OverrideActionValue:
             {
                 const int32 TargetIndex = FindUniqueActionIndexById(OutRuntimeActions, Op.TargetActionID);
                 if (TargetIndex != INDEX_NONE)
                 {
-                    const float Value = Op.ActionScalarValue.GetValueAtLevel(InAbilityLevel);
-                    OverrideActionScalar(OutRuntimeActions[TargetIndex], Op.ActionScalarField, Value); // 액션 값 덮어쓰기
+                    const float Value = Op.ActionScalarValue.GetValueAtLevel(AbilityLevel);
+                    OverrideActionScalar(OutRuntimeActions[TargetIndex], Op.ActionScalarField, Value);
                 }
                 break;
             }
 
-            case EHeroSkillRuntimeOpType::OverrideEffectValue:
+            case EHeroSkillBuildOpType::OverrideEffectValue:
             {
                 const int32 TargetIndex = FindUniqueActionIndexById(OutRuntimeActions, Op.TargetActionID);
                 if (TargetIndex != INDEX_NONE)
                 {
                     if (TArray<FEffectConfig>* Effects = GetMutableEffects(OutRuntimeActions[TargetIndex]))
                     {
-                        const float Value = Op.EffectScalarValue.GetValueAtLevel(InAbilityLevel);
-                        OverrideEffectScalar(*Effects, Op.EffectIndex, Op.EffectScalarField, Value); // 이펙트 값 덮어쓰기
+                        const float Value = Op.EffectScalarValue.GetValueAtLevel(AbilityLevel);
+                        OverrideEffectScalar(*Effects, Op.EffectIndex, Op.EffectScalarField, Value);
                     }
                 }
                 break;
             }
-
-            case EHeroSkillRuntimeOpType::ApplyEffects:
-                break; // 이펙트 적용은 런타임에 처리되어야 하므로, 스킬 데이터 단계에서는 처리하지 않음
 
             default:
                 break;
@@ -130,28 +319,75 @@ void UDataAsset_HeroSkillData::BuildRuntimeActionSequence(const UAbilitySystemCo
         }
     }
 
-    if(OutRuntimeActions.Num() > MaxRuntimeActionCount)
+    if (OutRuntimeActions.Num() > MaxRuntimeActionCount)
     {
-        OutRuntimeActions.SetNum(MaxRuntimeActionCount); // 최대 런타임 액션 수를 초과하는 경우, 초과분 제거
+        OutRuntimeActions.SetNum(MaxRuntimeActionCount);
+    }
+}
+
+void UDataAsset_HeroSkillData::BuildRuntimeEventActionSequence(
+    const UAbilitySystemComponent* AbilitySystem,
+    int32 AbilityLevel,
+    TArray<FSkillActionRow>& OutEventActions,
+    EHeroSkillEventTrigger Trigger,
+    const FGameplayTag& SourceEventTag) const
+{
+    OutEventActions.Reset();
+
+    TArray<HeroSkillDataRuntime::FActiveEventModifierRef> ActiveModifiers;
+    HeroSkillDataRuntime::GatherActiveEventModifiers(this, AbilitySystem, Trigger, SourceEventTag, ActiveModifiers);
+
+    for (const HeroSkillDataRuntime::FActiveEventModifierRef& Ref : ActiveModifiers)
+    {
+        if (!Ref.Modifier)
+        {
+            continue;
+        }
+
+        if (!HeroSkillDataRuntime::PassEventProcAndCooldown(this, AbilitySystem, Trigger, SourceEventTag, Ref))
+        {
+            continue;
+        }
+
+        const float CoefMultiplier = Ref.Modifier->EffectCoefficientMultiplier.GetValueAtLevel(AbilityLevel);
+        for (const FSkillActionRow& SourceAction : Ref.Modifier->EventActions)
+        {
+            if (OutEventActions.Num() >= MaxEventActionCount)
+            {
+                return;
+            }
+
+            FSkillActionRow RuntimeAction = SourceAction;
+            TArray<FSkillActionRow> TempActions;
+            TempActions.Add(RuntimeAction);
+            MultiplyAllEffectMultipliers(TempActions, CoefMultiplier, AbilityLevel);
+            RuntimeAction = TempActions[0];
+
+            OutEventActions.Add(RuntimeAction);
+        }
     }
 }
 
 int32 UDataAsset_HeroSkillData::FindUniqueActionIndexById(const TArray<FSkillActionRow>& Actions, const FName& ActionId)
 {
-    if (ActionId.IsNone()) return INDEX_NONE;
+    if (ActionId.IsNone())
+    {
+        return INDEX_NONE;
+    }
 
     int32 FoundIndex = INDEX_NONE;
-    for(int32 i = 0; i< Actions.Num(); ++i)
+    for (int32 i = 0; i < Actions.Num(); ++i)
     {
         if (Actions[i].ActionID == ActionId)
         {
             if (FoundIndex != INDEX_NONE)
             {
-                return INDEX_NONE; // 중복된 ID 발견 시, 유효하지 않은 인덱스 반환
+                return INDEX_NONE;
             }
             FoundIndex = i;
         }
     }
+
     return FoundIndex;
 }
 
@@ -188,7 +424,7 @@ void UDataAsset_HeroSkillData::OverrideActionScalar(FSkillActionRow& Action, EHe
         }
     }
 
-    if(Action.ActionType == ESkillActionType::MeleeTrace)
+    if (Action.ActionType == ESkillActionType::MeleeTrace)
     {
         switch (Field)
         {
@@ -207,7 +443,11 @@ void UDataAsset_HeroSkillData::OverrideActionScalar(FSkillActionRow& Action, EHe
     }
 }
 
-void UDataAsset_HeroSkillData::OverrideEffectScalar(TArray<FEffectConfig>& Effects, int32 EffectIndex, EHeroSkillEffectScalarField Field, float Value)
+void UDataAsset_HeroSkillData::OverrideEffectScalar(
+    TArray<FEffectConfig>& Effects,
+    int32 EffectIndex,
+    EHeroSkillEffectScalarField Field,
+    float Value)
 {
     auto ApplyScalar = [&](FEffectConfig& Effect)
     {
@@ -229,7 +469,6 @@ void UDataAsset_HeroSkillData::OverrideEffectScalar(TArray<FEffectConfig>& Effec
 
     if (EffectIndex < 0)
     {
-        // EffectIndex가 음수이면, 모든 이펙트에 대해 적용
         for (FEffectConfig& Effect : Effects)
         {
             ApplyScalar(Effect);
@@ -243,39 +482,25 @@ void UDataAsset_HeroSkillData::OverrideEffectScalar(TArray<FEffectConfig>& Effec
     }
 }
 
-void UDataAsset_HeroSkillData::MultiplyAllEffectMultipliers(TArray<FSkillActionRow>& Actions, float MultiplierAtLevel)
+void UDataAsset_HeroSkillData::MultiplyAllEffectMultipliers(TArray<FSkillActionRow>& Actions, float MultiplierAtLevel, int32 AbilityLevel)
 {
-    if (FMath::IsNearlyEqual(MultiplierAtLevel, 1.f)) return;
+    if (FMath::IsNearlyEqual(MultiplierAtLevel, 1.f))
+    {
+        return;
+    }
 
     for (FSkillActionRow& Action : Actions)
     {
         TArray<FEffectConfig>* Effects = GetMutableEffects(Action);
-        if (!Effects) continue;
+        if (!Effects)
+        {
+            continue;
+        }
 
         for (FEffectConfig& Effect : *Effects)
         {
-            const float Current = Effect.Multiplier.GetValueAtLevel(1.f); // TODO: 레벨에 따른 보정이 필요한 경우, 적절한 레벨을 전달하도록 수정
+            const float Current = Effect.Multiplier.GetValueAtLevel(AbilityLevel);
             Effect.Multiplier = FScalableFloat(Current * MultiplierAtLevel);
         }
-    }
-}
-
-bool UDataAsset_HeroSkillData::IsOpSupportedByTrigger(EHeroSkillRuntimeTrigger Trigger, EHeroSkillRuntimeOpType OpType)
-{
-    // 시작 시점: 시퀀스 패치 + 즉시 실행형 모두 허용
-    if (Trigger == EHeroSkillRuntimeTrigger::OnSkillStart)
-    {
-        return true;
-    }
-
-    // 실행 중 트리거: 실행형만 허용
-    switch (Trigger)
-    {
-    case EHeroSkillRuntimeTrigger::OnHit:
-    case EHeroSkillRuntimeTrigger::OnKill:
-    case EHeroSkillRuntimeTrigger::OnSkillEnd:
-        return OpType == EHeroSkillRuntimeOpType::ApplyEffects;
-    default:
-        return false;
     }
 }

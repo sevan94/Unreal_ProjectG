@@ -15,7 +15,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill, "Player.Ability.Combat.Skill");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponSharedSkill, "Player.Ability.Combat.Skill.WeaponSharedSkill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponUniqueSkill, "Player.Ability.Combat.Skill.WeaponUniqueSkill");   
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponUniqueSkill, "Player.Ability.Combat.Skill.WeaponUniqueSkill");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
 
@@ -29,6 +29,7 @@ namespace PGGameplayTags
 
     // 이벤트 트리거
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
 
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
@@ -52,10 +53,10 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseAmount, "Shared.SetByCaller.BaseAmount");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_Duration, "Shared.SetByCaller.Duration");
 
-    // 스탯 관련 SetByCaller 태그
+     // 스탯 관련 SetByCaller 태그
     UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MaxHealth, "Attribute.SetByCaller.MaxHealth");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_AttackPower, "Attribute.SetByCaller.AttackPower");
-    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed"); 
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed");
 
     //유닛 등급 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Tier_Normal, "Unit.Tier.Normal");
@@ -85,4 +86,3 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Invincible, "Unit.State.Invincible");
 }
-

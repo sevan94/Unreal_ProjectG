@@ -32,5 +32,9 @@ protected:
 
     // 캐릭터의 지상 이동 속도
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimData|LocomotionData")
-    float GroundSpeed;
+    float GroundSpeed = 0.0f;
+
+    // 캐릭터 기준 이동 방향 각도(-180 ~ 180)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimData|LocomotionData")
+    float Direction = 0.0f;
 };

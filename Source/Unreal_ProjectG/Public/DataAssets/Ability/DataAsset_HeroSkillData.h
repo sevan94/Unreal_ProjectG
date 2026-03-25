@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,168 +7,212 @@
 
 class UAbilitySystemComponent;
 
-// 스킬 액션 타입
 UENUM(BlueprintType)
 enum class ESkillActionType : uint8
 {
-    SpawnActor      UMETA(DisplayName = "액터 소환"),
-    MeleeTrace      UMETA(DisplayName = "근접 공격(트레이스)")
-};
-
-//==========================================================================================================
-// HeroAbility 관련 Enum
-//==========================================================================================================
-
-UENUM(BlueprintType)
-enum class EHeroSkillRuntimeTrigger : uint8
-{
-    None                    UMETA(DisplayName = "없음"),
-    OnSkillStart            UMETA(DisplayName = "스킬 시작 시"),
-    OnHit                   UMETA(DisplayName = "히트 시"),
-    OnKill                  UMETA(DisplayName = "킬 시"),
-    OnSkillEnd              UMETA(DisplayName = "스킬 종료 시"),
+    SpawnActor      UMETA(DisplayName = "SpawnActor"),
+    MeleeTrace      UMETA(DisplayName = "MeleeTrace")
 };
 
 UENUM(BlueprintType)
-enum class EHeroSkillRuntimeOpType : uint8
+enum class EHeroSkillEventTrigger : uint8
 {
-    AddAction               UMETA(DisplayName = "액션 추가(뒤)"),
+    OnHit           UMETA(DisplayName = "히트 시"),
+    OnKill          UMETA(DisplayName = "킬 시"),
+};
+
+UENUM(BlueprintType)
+enum class EHeroSkillBuildOpType : uint8
+{
+    AddAction               UMETA(DisplayName = "액션 추가(끝)"),
     InsertActionBefore      UMETA(DisplayName = "액션 삽입(앞)"),
     InsertActionAfter       UMETA(DisplayName = "액션 삽입(뒤)"),
-    OverrideAction          UMETA(DisplayName = "액션 완전 덮어쓰기"),
-    OverrideActionValue     UMETA(DisplayName = "액션 값 덮어쓰기"),
-    OverrideEffectValue     UMETA(DisplayName = "이펙트 값 덮어쓰기"),
-    ApplyEffects            UMETA(DisplayName = "이펙트 적용"),
+    OverrideAction          UMETA(DisplayName = "액션 교체"),
+    OverrideActionValue     UMETA(DisplayName = "액션 수치 덮어쓰기"),
+    OverrideEffectValue     UMETA(DisplayName = "이펙트 수치 덮어쓰기"),
 };
 
 UENUM(BlueprintType)
 enum class EHeroSkillActionScalarField : uint8
 {
-    SpawnRadius             UMETA(DisplayName = "소환 반경"),
-    SpawnLifeSpan           UMETA(DisplayName = "소환 지속 시간"),
-    SpawnHtisPerLifeSpan    UMETA(DisplayName = "소환 지속 시간 동안 히트 횟수"),
-    TraceRadius             UMETA(DisplayName = "트레이스 반경"),
-    TraceOffsetRange        UMETA(DisplayName = "트레이스 사거리"),
-    TraceMaxHit             UMETA(DisplayName = "최대 히트 수"),
+    SpawnRadius,
+    SpawnLifeSpan,
+    SpawnHtisPerLifeSpan,
+    TraceRadius,
+    TraceOffsetRange,
+    TraceMaxHit,
 };
 
 UENUM(BlueprintType)
 enum class EHeroSkillEffectScalarField : uint8
 {
-    EffectMultiplier        UMETA(DisplayName = "이펙트 배수"),
-    EffectBaseAmount        UMETA(DisplayName = "이펙트 기본 수치"),
-    EffectDuration          UMETA(DisplayName = "이펙트 지속 시간"),
+    EffectMultiplier,
+    EffectBaseAmount,
+    EffectDuration,
 };
 
-// 기본 액션 하나에 대한 단위
+UENUM(BlueprintType)
+enum class EHeroSkillEventCooldownScope : uint8
+{
+    Global          UMETA(DisplayName = "전역"),
+    PerTrigger      UMETA(DisplayName = "트리거별"),
+    PerSourceTag    UMETA(DisplayName = "소스 태그별"),
+};
+
 USTRUCT(BlueprintType)
 struct FSkillActionRow
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "기본 액션", meta = (DisplayName = "액션 ID"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|기본", meta=(DisplayName="액션 ID"))
     FName ActionID = NAME_None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "기본 액션", meta = (DisplayName = "액션 타입"))
-    ESkillActionType ActionType;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|기본", meta=(DisplayName="액션 타입"))
+    ESkillActionType ActionType = ESkillActionType::SpawnActor;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "기본 액션", meta = (DisplayName = "소환 액션 설정", EditCondition = "ActionType == ESkillActionType::SpawnActor", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|SpawnActor",
+        meta=(DisplayName="SpawnActor 설정", EditCondition="ActionType == ESkillActionType::SpawnActor", EditConditionHides))
     FHeroSpawnableConfig SpawnableConfig;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "기본 액션", meta = (DisplayName = "근접 액션 설정", EditCondition = "ActionType == ESkillActionType::MeleeTrace", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|MeleeTrace",
+        meta=(DisplayName="MeleeTrace 설정", EditCondition="ActionType == ESkillActionType::MeleeTrace", EditConditionHides))
     FHeroMeleeTraceConfig MeleeTraceConfig;
 };
 
-// 런타임 오퍼레이터
 USTRUCT(BlueprintType)
-struct FHeroSkillRuntimeOp
+struct FHeroSkillBuildOp
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "오퍼레이터 타입"))
-    EHeroSkillRuntimeOpType OpType = EHeroSkillRuntimeOpType::AddAction;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|기본", meta=(DisplayName="오퍼레이터 타입"))
+    EHeroSkillBuildOpType OpType = EHeroSkillBuildOpType::AddAction;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", 
-        meta = (DisplayName = "대상 액션 ID", EditCondition = "OpType == EHeroSkillRuntimeOpType::InsertActionBefore || OpType == EHeroSkillRuntimeOpType::InsertActionAfter || OpType == EHeroSkillRuntimeOpType::OverrideActionValue", EditConditionHides)) // 이 Op가 대상 액션이 필요한 타입일 때만 보이는 설정
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|타겟",
+        meta=(DisplayName="대상 액션 ID",
+        EditCondition="OpType == EHeroSkillBuildOpType::InsertActionBefore || OpType == EHeroSkillBuildOpType::InsertActionAfter || OpType == EHeroSkillBuildOpType::OverrideAction || OpType == EHeroSkillBuildOpType::OverrideActionValue || OpType == EHeroSkillBuildOpType::OverrideEffectValue",
+        EditConditionHides))
     FName TargetActionID = NAME_None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "삽입/추가 액션", EditCondition = "OpType == EHeroSkillRuntimeOpType::AddAction || OpType == EHeroSkillRuntimeOpType::InsertActionBefore || OpType == EHeroSkillRuntimeOpType::InsertActionAfter", EditConditionHides)) // OverrideActionValue 타입이 아닐 때만 보이는 설정
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|구조변경",
+        meta=(DisplayName="삽입/추가 액션",
+        EditCondition="OpType == EHeroSkillBuildOpType::AddAction || OpType == EHeroSkillBuildOpType::InsertActionBefore || OpType == EHeroSkillBuildOpType::InsertActionAfter",
+        EditConditionHides))
     FSkillActionRow ActionToInject;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "런타임 오퍼레이션", meta = (DisplayName = "교체 액션", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideAction", EditConditionHides))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|구조변경",
+        meta=(DisplayName="교체 액션", EditCondition="OpType == EHeroSkillBuildOpType::OverrideAction", EditConditionHides))
     FSkillActionRow OverrideActionRow;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "액션 수치 항목", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideActionValue", EditConditionHides)) // OverrideActionValue 타입일 때만 보이는 설정
-    EHeroSkillActionScalarField ActionScalarField = EHeroSkillActionScalarField::SpawnRadius; // 덮어쓰기할 값의 종류
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "덮어쓰기할 값", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideActionValue", EditConditionHides)) // OverrideActionValue 타입일 때만 보이는 설정
-    FScalableFloat ActionScalarValue = FScalableFloat(0.f); // 덮어쓰기할 값
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "이펙트 인덱스(-1이면 전체)", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideEffectValue", EditConditionHides)) // OverrideEffectValue 타입일 때만 보이는 설정
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|수치",
+        meta=(DisplayName="액션 수치 항목", EditCondition="OpType == EHeroSkillBuildOpType::OverrideActionValue", EditConditionHides))
+    EHeroSkillActionScalarField ActionScalarField = EHeroSkillActionScalarField::SpawnRadius;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|수치",
+        meta=(DisplayName="액션 수치 값", EditCondition="OpType == EHeroSkillBuildOpType::OverrideActionValue", EditConditionHides))
+    FScalableFloat ActionScalarValue = FScalableFloat(0.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|수치",
+        meta=(DisplayName="이펙트 인덱스(-1 전체)", EditCondition="OpType == EHeroSkillBuildOpType::OverrideEffectValue", EditConditionHides))
     int32 EffectIndex = -1;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "이펙트 수치 항목", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideEffectValue", EditConditionHides)) // OverrideEffectValue 타입일 때만 보이는 설정
-    EHeroSkillEffectScalarField EffectScalarField = EHeroSkillEffectScalarField::EffectMultiplier; // 덮어쓰기할 값의 종류
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|수치",
+        meta=(DisplayName="이펙트 수치 항목", EditCondition="OpType == EHeroSkillBuildOpType::OverrideEffectValue", EditConditionHides))
+    EHeroSkillEffectScalarField EffectScalarField = EHeroSkillEffectScalarField::EffectMultiplier;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "이펙트 수치 값", EditCondition = "OpType == EHeroSkillRuntimeOpType::OverrideEffectValue", EditConditionHides)) // OverrideEffectValue 타입일 때만 보이는 설정
-    FScalableFloat EffectScalarValue = FScalableFloat(0.f); // 덮어쓰기할 값
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스|오퍼레이터", meta = (DisplayName = "적용할 이펙트 목록", EditCondition = "OpType == EHeroSkillRuntimeOpType::ApplyEffects", EditConditionHides)) // ApplyEffects 타입일 때만 보이는 설정
-    TArray<FEffectConfig> Effects;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|수치",
+        meta=(DisplayName="이펙트 수치 값", EditCondition="OpType == EHeroSkillBuildOpType::OverrideEffectValue", EditConditionHides))
+    FScalableFloat EffectScalarValue = FScalableFloat(0.f);
 };
 
-// 세트 보너스 규칙
 USTRUCT(BlueprintType)
-struct FHeroSkillSetBonusModifier
+struct FHeroSkillBuildModifier
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "발동 트리거"))
-    EHeroSkillRuntimeTrigger Trigger = EHeroSkillRuntimeTrigger::OnHit;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "요구 세트 태그", Categories = "Equipment.Set"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|조건", meta=(DisplayName="요구 세트 태그", Categories="Equipment.Set"))
     FGameplayTag RequiredSetTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "요구 세트 개수", ClampMin = "1", ClampMax = "3"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|조건", meta=(DisplayName="요구 세트 개수", ClampMin="1", ClampMax="99"))
     int32 RequiredSetPieceCount = 3;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "동일 세트 최고 단계만 적용"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|조건", meta=(DisplayName="동일 세트 최고 단계만 적용"))
     bool bUseHighestTierOnly = true;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "보정 계수(커브/테이블)"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|실행", meta=(DisplayName="이펙트 계수 배율"))
     FScalableFloat EffectCoefficientMultiplier = FScalableFloat(1.f);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "오퍼레이션 목록"))
-    TArray<FHeroSkillRuntimeOp> Ops;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="업그레이드|실행", meta=(DisplayName="오퍼레이터 목록"))
+    TArray<FHeroSkillBuildOp> Ops;
 };
 
-/**
- * 
- */
+USTRUCT(BlueprintType)
+struct FHeroSkillEventActionModifier
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|조건", meta=(DisplayName="이벤트 트리거"))
+    EHeroSkillEventTrigger Trigger = EHeroSkillEventTrigger::OnHit;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|조건", meta=(DisplayName="요구 세트 태그", Categories="Equipment.Set"))
+    FGameplayTag RequiredSetTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|조건", meta=(DisplayName="요구 세트 개수", ClampMin="1", ClampMax="99"))
+    int32 RequiredSetPieceCount = 3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|조건", meta=(DisplayName="동일 세트 최고 단계만 적용"))
+    bool bUseHighestTierOnly = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|조건", meta=(DisplayName="소스 이벤트 태그 필터"))
+    FGameplayTagContainer RequiredSourceEventTags;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|제어", meta=(DisplayName="발동 확률", ClampMin="0.0", ClampMax="1.0"))
+    float ProcChance = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|제어", meta=(DisplayName="내부 쿨다운(초)", ClampMin="0.0"))
+    float InternalCooldown = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|제어", meta=(DisplayName="쿨다운 스코프", EditCondition="InternalCooldown > 0.0", EditConditionHides))
+    EHeroSkillEventCooldownScope CooldownScope = EHeroSkillEventCooldownScope::PerTrigger;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|실행", meta=(DisplayName="이펙트 계수 배율"))
+    FScalableFloat EffectCoefficientMultiplier = FScalableFloat(1.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="이벤트 액션|실행", meta=(DisplayName="실행 액션 목록"))
+    TArray<FSkillActionRow> EventActions;
+};
+
 UCLASS()
 class UNREAL_PROJECTG_API UDataAsset_HeroSkillData : public UPrimaryDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "기본", meta = (DisplayName = "기본 액션 시퀀스"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|메인 시퀀스", meta=(DisplayName="기본 액션 시퀀스"))
     TArray<FSkillActionRow> ActionSequence;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "세트 보너스", meta = (DisplayName = "세트 보너스 규칙"))
-    TArray<FHeroSkillSetBonusModifier> SetBonusModifiers;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|업그레이드(시작/종료)", meta=(DisplayName="세트 보너스 모디파이어"))
+    TArray<FHeroSkillBuildModifier> SetBonusModifiers;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "런타임 제한", meta = (DisplayName = "최대 런타임 액션 수", ClampMin = "1"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|이벤트 액션(히트/킬)", meta=(DisplayName="이벤트 액션 모디파이어"))
+    TArray<FHeroSkillEventActionModifier> EventActionModifiers;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|제한", meta=(DisplayName="최대 런타임 액션 수", ClampMin="1"))
     int32 MaxRuntimeActionCount = 64;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|제한", meta=(DisplayName="최대 이벤트 액션 수", ClampMin="1"))
+    int32 MaxEventActionCount = 32;
+
 public:
-    UFUNCTION(BlueprintCallable, Category = "스킬 데이터")
-    void BuildRuntimeActionSequence(const UAbilitySystemComponent* AbilitySystem, int32 InAbilityLevel, TArray<FSkillActionRow>& OutRuntimeActions, EHeroSkillRuntimeTrigger InTrigger = EHeroSkillRuntimeTrigger::OnSkillStart) const;
+    UFUNCTION(BlueprintCallable, Category="스킬 데이터")
+    void BuildRuntimeActionSequence(const UAbilitySystemComponent* AbilitySystem, int32 AbilityLevel, TArray<FSkillActionRow>& OutRuntimeActions) const;
+
+    UFUNCTION(BlueprintCallable, Category="스킬 데이터")
+    void BuildRuntimeEventActionSequence(const UAbilitySystemComponent* AbilitySystem, int32 AbilityLevel, TArray<FSkillActionRow>& OutEventActions, EHeroSkillEventTrigger Trigger, const FGameplayTag& SourceEventTag = FGameplayTag()) const;
 
 private:
     static int32 FindUniqueActionIndexById(const TArray<FSkillActionRow>& Actions, const FName& ActionId);
     static TArray<FEffectConfig>* GetMutableEffects(FSkillActionRow& Action);
     static void OverrideActionScalar(FSkillActionRow& Action, EHeroSkillActionScalarField Field, float Value);
     static void OverrideEffectScalar(TArray<FEffectConfig>& Effects, int32 EffectIndex, EHeroSkillEffectScalarField Field, float Value);
-    static void MultiplyAllEffectMultipliers(TArray<FSkillActionRow>& Actions, float MultiplierAtLevel);
-    static bool IsOpSupportedByTrigger(EHeroSkillRuntimeTrigger Trigger, EHeroSkillRuntimeOpType OpType);
+    static void MultiplyAllEffectMultipliers(TArray<FSkillActionRow>& Actions, float MultiplierAtLevel, int32 AbilityLevel);
 };

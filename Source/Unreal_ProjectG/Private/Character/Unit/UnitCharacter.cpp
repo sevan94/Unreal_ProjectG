@@ -144,10 +144,12 @@ void AUnitCharacter::InitUnitStartUpData()
 
                 if (UDataAsset_StartupDataBase* LoadedData = CharacterStartupData.Get())
                 {
-                    if (PGAbilitySystemComponent)
+                    if (!bIsAbilitiesInitialized && PGAbilitySystemComponent)
                     {
                         LoadedData->GiveToAbilitySystemComponent(PGAbilitySystemComponent, UnitLevel);
+                        bIsAbilitiesInitialized = true; 
                     }
+
                     UDataAsset_UnitStartupData* StartUpData = Cast<UDataAsset_UnitStartupData>(LoadedData);
 
                     if (StartUpData->BranchData)
@@ -319,23 +321,43 @@ void AUnitCharacter::ActivateUnit()
         Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     }
 
-    // 3. 무브먼트 복구
     if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
     {
         MovementComp->SetMovementMode(MOVE_Walking);
     }
-
-    InitUnitStartUpData();
 
     if (Controller == nullptr && AIControllerClass)
     {
         SpawnDefaultController();
     }
 
+    if (!AIController)
+    {
+        AIController = Cast<AAIController>(GetController());
+    }
+
+    if (AIController)
+    {
+        if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+        {
+            BrainComp->RestartLogic();
+        }
+    }
+
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        if (UAnimInstance* AnimInstance = CharacterMesh->GetAnimInstance())
+        {
+            AnimInstance->StopAllMontages(0.0f);
+        }
+    }
+
     if (TargetActor)
     {
         SetAttackTarget(TargetActor);
     }
+
+    InitUnitStartUpData();
 }
 
 void AUnitCharacter::DeactivateUnit()

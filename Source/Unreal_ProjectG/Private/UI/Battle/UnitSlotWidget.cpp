@@ -10,6 +10,8 @@
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "UI/Battle/UnitSlotWidget.h"
+#include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -52,7 +54,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 {
     if (!UnitData || !UnitData->UnitClass)
     {
-        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없습니다."));
+        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없음"));
         return;
     }
 
@@ -73,39 +75,37 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                 }
             }
         }
-        float RandomRange = FMath::RandRange(-100.0f, 100.0f);
-        FVector RandomLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
+        float RandomRange = FMath::RandRange(-250.0f, 250.0f);
+        FVector FinalLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
-        FActorSpawnParameters SpawnParams;
 
-        // 유닛 인스턴스 생성
-        AUnitCharacter* NewUnit = GetWorld()->SpawnActorDeferred<AUnitCharacter>(
-            UnitData->UnitClass,
-            FTransform(SpawnRotation, RandomLocation),
-            nullptr, nullptr,
-            ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-        );
+        UUnitSpawnSubsystem* SpawnSystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>();
+        if (!SpawnSystem) return;
 
-        if (NewUnit)
+        AUnitCharacter* ReusedUnit = SpawnSystem->GetUnitInstance(UnitData->UnitClass);
+
+        if (ReusedUnit)
         {
-            int32 TargetID = UnitData->UnitID;
+            ReusedUnit->SetActorLocationAndRotation(FinalLocation, SpawnRotation);
+
             int32 TargetLevel = 1;
             UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-          
-            if (FUnitSaveData* FoundData = GI->UnitLevelMap.Find(TargetID))
+
+            if (GI)
             {
-                // 유닛이 해금된 상태인지 확인 후 레벨 적용
-                if (FoundData->bIsUnlocked)
+                if (FUnitSaveData* FoundData = GI->UnitLevelMap.Find(UnitData->UnitID))
                 {
-                    TargetLevel = FoundData->Level;
+                    if (FoundData->bIsUnlocked)
+                    {
+                        TargetLevel = FoundData->Level;
+                    }
                 }
             }
-            NewUnit->UnitLevel = TargetLevel;
+            ReusedUnit->UnitLevel = TargetLevel;
 
-            // 인스턴스를 바탕으로 유닛 스폰
-            NewUnit->FinishSpawning(FTransform(SpawnRotation, RandomLocation));
+            ReusedUnit->ActivateUnit();
 
-            UE_LOG(LogTemp, Log, TEXT("Spawned Unit: %d with Level: %d"), UnitData->UnitID, TargetLevel);
+            UE_LOG(LogTemp, Log, TEXT("Spawned(Reused) Unit: %d with Level: %d"), UnitData->UnitID, TargetLevel);
         }
     }
 }

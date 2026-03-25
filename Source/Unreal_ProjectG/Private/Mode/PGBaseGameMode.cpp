@@ -7,6 +7,8 @@
 #include "Mode/Save/PGGameInstance.h"
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BattleHUD.h"
+#include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "DataAssets/UI/UnitUIDataAsset.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {
@@ -16,6 +18,26 @@ APGBaseGameMode::APGBaseGameMode()
 void APGBaseGameMode::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (UWorld* World = GetWorld())
+    {
+        if (UUnitSpawnSubsystem* SpawnSystem = World->GetSubsystem<UUnitSpawnSubsystem>())
+        {
+            if (UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance()))
+            {
+                for (TSoftObjectPtr<UUnitUIDataAsset> SoftUnitData : GI->CurrentUnits)
+                {
+                    if (UUnitUIDataAsset* LoadedUnitData = SoftUnitData.LoadSynchronous())
+                    {
+                        if (LoadedUnitData->UnitClass)
+                        {
+                            SpawnSystem->PrewarmPool(LoadedUnitData->UnitClass, 5);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // --- [2] 게임 시작 시간 기록 ---
     GameStartTime = GetWorld()->GetTimeSeconds();
@@ -37,6 +59,8 @@ void APGBaseGameMode::BeginPlay()
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
+
+
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

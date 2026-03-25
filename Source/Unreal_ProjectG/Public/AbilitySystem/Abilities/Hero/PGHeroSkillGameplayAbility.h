@@ -19,12 +19,24 @@ class UNREAL_PROJECTG_API UPGHeroSkillGameplayAbility : public UPGHeroGameplayAb
 public:
     UPGHeroSkillGameplayAbility();
 
+
 protected:
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 private:
     void ExecuteNextAction();
+
+    // 런타임 트리거 처리 함수들
+    void ExecuteRuntimeTrigger(EHeroSkillRuntimeTrigger Trigger, const FGameplayAbilityTargetDataHandle& TargetData);
+    void ApplyRuntimeEffects(const TArray<FEffectConfig>& Effects, const FGameplayAbilityTargetDataHandle& TargetData, float CoefMultiplier);
+
+    // 런타임 트리거 변환 및 타겟 수집 헬퍼 함수들
+    static EHeroSkillRuntimeTrigger ConvertRuntimeTriggerFromEventTag(const FGameplayTag& EventTag);
+    static void CollectTargetActorsFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, TArray<AActor*>& OutActors);
+
+    UFUNCTION()
+    void OnTaskRuntimeEvent(FGameplayTag EventTag, FGameplayAbilityTargetDataHandle TargetData);
 
     // Task 콜백 함수들
     UFUNCTION()
@@ -39,7 +51,10 @@ private:
 
     //SourceObject에서 스킬 데이터 가져와 할당할 변수
     UPROPERTY()
-    TObjectPtr<UDataAsset_HeroSkillData> SkillData;
+    TObjectPtr<UDataAsset_HeroSkillData> SkillData = nullptr;
 
-    bool bAutoMode; // 자동 모드 여부 (자동 모드인 경우 타겟팅 없이 자기 위치 기준으로 액션 실행)
+    UPROPERTY()
+    TArray<FSkillActionRow> RuntimeActionSequence; // 런타임 액션 시퀀스 (SkillData의 ActionSequence를 기반으로, 실행 중에 변경될 수 있음)
+
+    bool bAutoMode = false; // 자동 모드 여부 (자동 모드인 경우 타겟팅 없이 자기 위치 기준으로 액션 실행)
 };

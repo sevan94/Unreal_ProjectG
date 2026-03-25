@@ -11,6 +11,7 @@
 #include "PGGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "PGFunctionLibrary.h"
 
 namespace MeleeTraceConstants
@@ -168,9 +169,19 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
 
                         for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
                         {
-                            if(SpecHandle.IsValid())
+                            if (SpecHandle.IsValid())
+                            {
                                 PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
-                            HitActors.Add(HitActor);
+                                HitActors.Add(HitActor);
+                                HitCount++;
+
+                                FGameplayAbilityTargetDataHandle RuntimeTargetData;
+                                FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
+                                HitData->HitResult = HitResult;
+                                RuntimeTargetData.Add(HitData);
+
+                                EmitRuntimeEvent(PGGameplayTags::Shared_Event_MeleeHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                            }
                         }
                     }
                 }

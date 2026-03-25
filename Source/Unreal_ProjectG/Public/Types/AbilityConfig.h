@@ -218,11 +218,36 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
     FGameplayTag SpawnCueTag; // 스폰 시 재생할 이펙트 태그 (필요시)
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
+//==========================================================================================================
+// EffectConfig
+//==========================================================================================================
+
+USTRUCT(BlueprintType)
+struct FEffectConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 클래스"))
+    TSubclassOf<UGameplayEffect> EffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
+    FScalableFloat Multiplier = FScalableFloat(1.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
+    FScalableFloat BaseAmount = FScalableFloat(0.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
+    FScalableFloat Duration = FScalableFloat(0.f);
+};
+
+//==========================================================================================================
+// AOE 스킬용 Enum
+//==========================================================================================================
+
 UENUM(BlueprintType)
 enum class ESpawnLocation : uint8
 {
-    AtCaster                    UMETA(DisplayName = "시전자위치"),       // 캐릭터 위치에서 즉시 소환
+    AtCaster                    UMETA(DisplayName = "시전자위치"),   // 캐릭터 위치에서 즉시 소환
     AtTargetPoint               UMETA(DisplayName = "타겟 포인트"),  // 타겟 포인트에 소환
 };
 
@@ -243,23 +268,9 @@ enum class ESkillActorType : uint8
     PersistentAOE   UMETA(DisplayName = "지속 범위"),
 };
 
-USTRUCT(BlueprintType)
-struct FEffectConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<UGameplayEffect> EffectClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
-    float Multiplier = 1.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
-    float BaseAmount = 0.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
-    float Duration = 0.f;
-};
+//==========================================================================================================
+// 캐릭터 어빌리티 태스크의 설정 구조체들
+//==========================================================================================================
 
 USTRUCT(BlueprintType)
 struct FHeroMeleeTraceConfig : public FAbilityConfig

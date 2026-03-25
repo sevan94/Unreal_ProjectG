@@ -292,6 +292,18 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
     Spawned->InitFromConfig(Config, SpecHandles, Ability->GetAbilityLevel());
     Spawned->FinishSpawning(SpawnTransform);
 
+    // 스폰 완료 이벤트 전송
+    FGameplayAbilityTargetDataHandle SpawnTargetData;
+    FGameplayAbilityTargetData_SingleTargetHit* SpawnData = new FGameplayAbilityTargetData_SingleTargetHit();
+
+    FHitResult SpawnHit;
+    SpawnHit.Location = SpawnTransform.GetLocation();
+    SpawnData->HitResult = SpawnHit;
+    SpawnTargetData.Add(SpawnData);
+
+    // Task 내부 이벤트 버스 전달
+    EmitRuntimeEvent(PGGameplayTags::Shared_Event_ActorSpawn, SpawnTargetData);
+
     OnCompleted.Broadcast({});
     EndTask();
 }

@@ -23,9 +23,9 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Defender, "Equipment.Set.Defender");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Thunder, "Equipment.Set.Thunder");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_PetsAssemble, "Equipment.Set.PetsAssemble");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Crasher, "Equipment.Set.Crasher");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_FireballMaster, "Equipment.Set.FireballMaster");
 
     // 이벤트 트리거
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");

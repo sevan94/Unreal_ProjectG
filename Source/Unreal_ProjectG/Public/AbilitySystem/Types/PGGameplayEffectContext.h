@@ -5,6 +5,7 @@
 #include "GameplayEffectTypes.h"
 #include "Types/PGEnumTypes.h"
 #include "CoreMinimal.h"
+#include "PGGameplayEffectContext.generated.h"
 
 /**
  * 

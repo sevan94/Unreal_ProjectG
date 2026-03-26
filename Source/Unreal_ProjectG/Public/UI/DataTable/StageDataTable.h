@@ -18,7 +18,7 @@ struct FStageDataTable : public FTableRowBase
 
     // 스테이지 코드
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
-    int32 StageCode;
+    int32 StageCode = 0;
 
     // 출력할 스테이지 단계
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
@@ -26,7 +26,7 @@ struct FStageDataTable : public FTableRowBase
 
     // 지도에 배치될 좌표
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
-    FVector2D MapPosition;
+    FVector2D MapPosition = FVector2D::ZeroVector;
 
     // 오픈할 레벨
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
@@ -38,25 +38,23 @@ struct FStageDataTable : public FTableRowBase
 
     // 스테이지 달성도 분류
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
-    ERewardCategory RewardType;
+    ERewardCategory RewardType = ERewardCategory::Cost;
 
     // 2별 조건
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
-    float Star2;
-
+    float Star2 = 0.0f;
     // 3별 조건
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
-    float Star3;
+    float Star3 = 0.0f;
 
     // 보상 젬
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
-    int32 RewardGem;
-
+    int32 RewardGem = 0;
     // 보상 골드
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
-    int32 RewardGold;
+    int32 RewardGold = 0;
 
     // 테스트용 달성도 개수
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Test")
-    int32 StarCount;
+    int32 StarCount = 0;
 };

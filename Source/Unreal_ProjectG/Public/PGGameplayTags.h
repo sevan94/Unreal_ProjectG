@@ -57,6 +57,7 @@ namespace PGGameplayTags
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_MaxHealth);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_AttackPower);
     UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_SetByCaller_MoveSpeed);
+    UNREAL_PROJECTG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseBuffAmount);
 
     //유닛 상태(State) 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_State_Idle);

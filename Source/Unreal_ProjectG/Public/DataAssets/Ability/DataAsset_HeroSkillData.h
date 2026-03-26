@@ -22,7 +22,7 @@ struct FSkillActionRow
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ESkillActionType ActionType;
+    ESkillActionType ActionType = ESkillActionType::MeleeTrace;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "ActionType == ESkillActionType::SpawnActor", EditConditionHides))
     FHeroSpawnableConfig SpawnableConfig;

@@ -17,7 +17,7 @@ struct FEquipUIDataTable : public FTableRowBase
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 EquipID;
+    int32 EquipID = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TObjectPtr<UEquipUIDataAsset> EquipData;

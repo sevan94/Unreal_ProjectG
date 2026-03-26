@@ -28,7 +28,7 @@ struct FPGAttributeModifierEntry
     FGameplayAttribute Attribute;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    EPGEffectModOp ModifierOp;
+    EPGEffectModOp ModifierOp = EPGEffectModOp::Additive;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FScalableFloat ModifierValue;

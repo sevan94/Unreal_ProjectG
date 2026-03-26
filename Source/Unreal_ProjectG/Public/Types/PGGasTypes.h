@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameplayEffectTypes.h"
+#include "Types/PGEnumTypes.h"
 #include "ScalableFloat.h"
 #include "PGGasTypes.generated.h"
 

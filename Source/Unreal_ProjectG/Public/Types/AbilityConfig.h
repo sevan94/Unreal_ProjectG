@@ -252,14 +252,6 @@ enum class ESpawnLocation : uint8
 };
 
 UENUM(BlueprintType)
-enum class ESkillTargetPolicy : uint8
-{
-    Enemy   UMETA(DisplayName = "적"),
-    Ally    UMETA(DisplayName = "아군"),
-    Self    UMETA(DisplayName = "자신")
-};
-
-UENUM(BlueprintType)
 enum class ESkillActorType : uint8
 {
     None            UMETA(DisplayName = "없음"),
@@ -432,6 +424,9 @@ struct FHeroBuffConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
     TArray<FEffectConfig> Effects;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "버프/디버프"))
+    EPolarity Polarity = EPolarity::Buff;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
     ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Ally;

@@ -41,7 +41,6 @@ private:
     bool IsTargetAllowed(AActor* Candidate) const;
     float GetTargetHealth(const AActor* Target) const;
     void ApplyEffectsToTargets(const TArray<AActor*>& Targets) const;
-    void SpawnCueToTarget(AActor* Target, const FGameplayEffectSpecHandle& EffectSpecHandle) const;
 
 private:
     FSkillActionRow ActionRowData;

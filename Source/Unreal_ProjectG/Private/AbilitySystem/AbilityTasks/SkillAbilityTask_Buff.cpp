@@ -310,21 +310,10 @@ void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Target
         {
             if (SpecHandle.IsValid())
             {
-                SpawnCueToTarget(TargetActor, SpecHandle);
                 PGAbility->NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
             }
         }
     }
-}
-
-void USkillAbilityTask_Buff::SpawnCueToTarget(AActor* Target, const FGameplayEffectSpecHandle& EffectSpecHandle) const
-{
-    if (EffectSpecHandle.Data->Def == nullptr) return;
-
-    // DurationPolicy 확인
-    EGameplayEffectDurationType Policy = EffectSpecHandle.Data->Def->DurationPolicy;
-
-    if(Policy == EGameplayEffectDurationType::Instant)
 }
 
 void USkillAbilityTask_Buff::CompleteTask()

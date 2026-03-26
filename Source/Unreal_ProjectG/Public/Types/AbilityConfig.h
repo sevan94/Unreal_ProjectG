@@ -296,6 +296,9 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
     // 액터가 재생할 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UAnimMontage> Montage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "디버그용 트레이스 시작화"))
+    bool bDrawDebugTrace = false;
 };
 
 USTRUCT(BlueprintType)
@@ -449,6 +452,6 @@ struct FHeroBuffConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
     TObjectPtr<UAnimMontage> Montage = nullptr;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "FX 에셋"))
-    TObjectPtr<UDataAsset_SkillVisualData> VisualAsset = nullptr;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "적용할 큐", Categories = "GameplayCue"))
+    FGameplayTagContainer AppliedCueTags;
 };

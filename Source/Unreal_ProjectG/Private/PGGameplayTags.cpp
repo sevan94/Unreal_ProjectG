@@ -31,6 +31,14 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
 
+    // 어트리뷰트 태그
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_Cost, "Attribute.Cost");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_AttackPower, "Attribute.AttackPower");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_MoveSpeed, "Attribute.MoveSpeed");
+
+
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_Buff, "Unit.Ability.Buff");

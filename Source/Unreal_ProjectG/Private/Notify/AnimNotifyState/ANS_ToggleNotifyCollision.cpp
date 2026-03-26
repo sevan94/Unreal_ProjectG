@@ -20,7 +20,6 @@ void UANS_ToggleNotifyCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 
     AActor* OwnerActor = MeshComp->GetOwner();
     FGameplayEventData Data;
-    Data.EventMagnitude = static_cast<float>(EPGToggleType::On);
 
     // 게임 플레이 이벤트 전송
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
@@ -40,7 +39,6 @@ void UANS_ToggleNotifyCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 
     AActor* OwnerActor = MeshComp->GetOwner();
     FGameplayEventData Data;
-    Data.EventMagnitude = static_cast<float>(EPGToggleType::Off);
 
     // 게임 플레이 이벤트 전송
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(

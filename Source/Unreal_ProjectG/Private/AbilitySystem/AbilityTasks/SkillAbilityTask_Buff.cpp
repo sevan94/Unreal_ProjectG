@@ -120,8 +120,6 @@ bool USkillAbilityTask_Buff::ApplyBuffOnce()
         return false;
     }
 
-    PlayVisualAt(CenterLocation);
-
     TArray<AActor*> Targets;
     GatherTargets(CenterLocation, Targets);
     ApplyEffectsToTargets(Targets);
@@ -312,51 +310,21 @@ void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Target
         {
             if (SpecHandle.IsValid())
             {
+                SpawnCueToTarget(TargetActor, SpecHandle);
                 PGAbility->NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
             }
         }
     }
 }
 
-void USkillAbilityTask_Buff::PlayVisualAt(const FVector& CenterLocation) const
+void USkillAbilityTask_Buff::SpawnCueToTarget(AActor* Target, const FGameplayEffectSpecHandle& EffectSpecHandle) const
 {
-    if (!Ability)
-    {
-        return;
-    }
+    if (EffectSpecHandle.Data->Def == nullptr) return;
 
-    AActor* AvatarActor = Ability->GetAvatarActorFromActorInfo();
-    if (!AvatarActor)
-    {
-        return;
-    }
+    // DurationPolicy 확인
+    EGameplayEffectDurationType Policy = EffectSpecHandle.Data->Def->DurationPolicy;
 
-    const UDataAsset_SkillVisualData* VisualAsset = ActionRowData.BuffConfig.VisualAsset;
-    if (!VisualAsset)
-    {
-        return;
-    }
-
-    UNiagaraSystem* VFX = VisualAsset->PersistentVFX ? VisualAsset->PersistentVFX : VisualAsset->ImpactVFX;
-    if (VFX)
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            AvatarActor,
-            VFX,
-            CenterLocation,
-            FRotator::ZeroRotator,
-            FVector::OneVector,
-            true,
-            true,
-            ENCPoolMethod::AutoRelease,
-            true);
-    }
-
-    USoundBase* SFX = VisualAsset->PersistentSFX ? VisualAsset->PersistentSFX : VisualAsset->ImpactSFX;
-    if (SFX)
-    {
-        UGameplayStatics::PlaySoundAtLocation(AvatarActor, SFX, CenterLocation);
-    }
+    if(Policy == EGameplayEffectDurationType::Instant)
 }
 
 void USkillAbilityTask_Buff::CompleteTask()

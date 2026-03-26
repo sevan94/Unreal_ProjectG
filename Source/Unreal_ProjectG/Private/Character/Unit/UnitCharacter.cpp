@@ -34,7 +34,7 @@ AUnitCharacter::AUnitCharacter()
 
     if (UCapsuleComponent* Capsule = GetCapsuleComponent())
     {
-        Capsule->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+        Capsule->SetRelativeScale3D(FVector(0.7f, 0.7f, 0.7f));
     }
 
     if (USkeletalMeshComponent* CharacterMesh = GetMesh())
@@ -269,6 +269,12 @@ void AUnitCharacter::OnDie()
         MovementComp->DisableMovement();
     }
 
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        CharacterMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        CharacterMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+    }
+
     if (UCapsuleComponent* Capsule = GetCapsuleComponent())
     {
         Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -328,6 +334,7 @@ void AUnitCharacter::ActivateUnit()
 {
     bIsDead = false;
     SetActorHiddenInGame(false);
+    SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 10.f), false, nullptr, ETeleportType::TeleportPhysics);
     SetActorEnableCollision(true);
     SetActorTickEnabled(true);
 
@@ -338,6 +345,8 @@ void AUnitCharacter::ActivateUnit()
 
     if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
     {
+        MovementComp->Velocity = FVector::ZeroVector;
+        MovementComp->ClearAccumulatedForces();
         MovementComp->SetMovementMode(MOVE_Walking);
     }
 
@@ -400,6 +409,7 @@ void AUnitCharacter::DeactivateUnit()
     {
         MovementComp->StopMovementImmediately();
         MovementComp->DisableMovement(); // 바닥으로 꺼지거나 미끄러짐 방지
+        MovementComp->Velocity = FVector::ZeroVector;
     }
 
     // 4. 시각적 숨김 및 충돌 해제

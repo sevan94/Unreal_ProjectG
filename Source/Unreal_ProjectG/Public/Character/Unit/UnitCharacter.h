@@ -97,13 +97,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"), Category = "Unit|Stats")
     int32 UnitLevel = 1;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+    bool bIsDead = false;
+
     bool bIsAbilitiesInitialized = false;
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCharacterVisualEffectComponent> UnitVisualEffectComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-    bool bIsDead = false;
 private:
     UPROPERTY()
     // AI 컨트롤러 캐싱

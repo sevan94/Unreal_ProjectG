@@ -2,6 +2,7 @@
 #include "AbilitySystem/Abilities/Unit/UnitAbility_HitReact.h"
 #include "TimerManager.h"
 #include "Interfaces/VisualEffectTargetInterface.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 
 void UUnitAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -13,12 +14,12 @@ void UUnitAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Han
         }
     }
 
-    FTimerHandle TimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-        {
-            EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-        },
-        HitFXDuration, false);
+    UAbilityTask_WaitDelay* WaitTask = UAbilityTask_WaitDelay::WaitDelay(this, HitFXDuration);
+    if (WaitTask)
+    {
+        WaitTask->OnFinish.AddDynamic(this, &UUnitAbility_HitReact::OnDelayFinish);
+        WaitTask->ReadyForActivation();
+    }
 }
 
 void UUnitAbility_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -32,4 +33,9 @@ void UUnitAbility_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, 
     }
 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UUnitAbility_HitReact::OnDelayFinish()
+{
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }

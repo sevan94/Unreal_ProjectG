@@ -9,6 +9,8 @@
 
 // 모든 스킬 Task 공통 델리게이트 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillTaskDelegate, FGameplayAbilityTargetDataHandle, TargetData);
+// 스킬 런타임 이벤트 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSkillRuntimeEventDelegate, FGameplayTag, EventTag, FGameplayAbilityTargetDataHandle, TargetData);
 
 /**
  * 
@@ -27,4 +29,10 @@ public:
     UPROPERTY(BlueprintAssignable)
     FSkillTaskDelegate OnCancelled;
 
+    // 스킬 런타임 이벤트(히트, 액터 틱 등) 수신용 델리게이트
+    UPROPERTY(BlueprintAssignable)
+    FSkillRuntimeEventDelegate OnRuntimeEvent;
+
+protected:
+    void EmitRuntimeEvent(const FGameplayTag& EventTag, const FGameplayAbilityTargetDataHandle& TargetData = FGameplayAbilityTargetDataHandle());
 };

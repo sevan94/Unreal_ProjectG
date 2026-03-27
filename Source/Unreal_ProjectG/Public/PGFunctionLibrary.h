@@ -40,6 +40,8 @@ public:
     // Attribute와 매핑된 SetByCaller 태그를 반환하는 함수
     static FGameplayTag GetSetByCallerTagForAttribute(const FGameplayAttribute& Attribute);
 
+    // ASC에서 SetTag의 갯수를 조회하는 함수
+    static const int32 ResolveSetPieceCount(const UAbilitySystemComponent* InASC, const FGameplayTag& RequiredSetTag);
 
     // ====================================================================================================
     // Effect 관련 헬퍼 함수들

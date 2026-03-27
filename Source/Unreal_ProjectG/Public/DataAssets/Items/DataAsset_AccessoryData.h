@@ -7,8 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "DataAsset_AccessoryData.generated.h"
 
-class UPGGameplayAbility;
-class UDataAsset_SkillData;
+class UPGHeroSkillGameplayAbility;
+class UDataAsset_HeroSkillData;
 /**
  * 
  */
@@ -19,6 +19,7 @@ class UNREAL_PROJECTG_API UDataAsset_AccessoryData : public UPrimaryDataAsset
 
 public:
     //FORCEINLINE const TSubclassOf<UPGGameplayAbility>& GetGrantedAbility() const { return AbilityToGrant; }
+    bool IsValid() const;
 
 public:
     // 세트 구분을 위한 태그
@@ -26,5 +27,8 @@ public:
     FGameplayTag SetTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    TSoftObjectPtr<UDataAsset_SkillData> AccessoryAbilityData;
+    TSubclassOf<UPGHeroSkillGameplayAbility> AccessoryAbilityClass;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+    TSoftObjectPtr<UDataAsset_HeroSkillData> AccessoryAbilityData;
 };

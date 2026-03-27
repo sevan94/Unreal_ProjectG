@@ -4,6 +4,7 @@
 #include "AnimInstance/PGCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/PGCharacterBase.h"
+#include "Math/RotationMatrix.h"
 
 void UPGCharacterAnimInstance::NativeInitializeAnimation()
 {
@@ -23,5 +24,17 @@ void UPGCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSecond
         return;
     }
 
-    GroundSpeed = OwningCharacter->GetVelocity().Size2D();
+    const FVector Velocity = OwningCharacterMovement->Velocity;
+    GroundSpeed = Velocity.Size2D();
+
+
+    //Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, OwningCharacter->GetActorRotation()); // <= KismetAnimationLibrary를 포함 시켜야함 
+    const FRotator ActorRotation = OwningCharacter->GetActorRotation();
+    const FVector Forward = FRotationMatrix(ActorRotation).GetScaledAxis(EAxis::X);
+    const FVector Right = FRotationMatrix(ActorRotation).GetScaledAxis(EAxis::Y);
+    const FVector MoveDir = Velocity.GetSafeNormal2D();
+
+    const float ForwardCos = FVector::DotProduct(Forward, MoveDir);
+    const float RightCos = FVector::DotProduct(Right, MoveDir);
+    Direction = FMath::RadiansToDegrees(FMath::Atan2(RightCos, ForwardCos));
 }

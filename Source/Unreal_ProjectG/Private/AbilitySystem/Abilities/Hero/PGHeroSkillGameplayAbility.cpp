@@ -1,10 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AbilitySystem/Abilities/Hero/PGHeroSkillGameplayAbility.h"
-#include "AbilitySystem/AbilityTasks/SkillAbilityTask_SpawnActor.h"
+
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_MeleeTrace.h"
+#include "AbilitySystem/AbilityTasks/SkillAbilityTask_SpawnActor.h"
+#include "AbilitySystem/AbilityTasks/SkillAbilityTask_Buff.h"
 #include "Components/Combat/HeroCombatComponent.h"
+#include "AbilitySystemComponent.h"
+#include "DataAssets/Ability/DataAsset_HeroSkillData.h"
+#include "AbilitySystem/Effects/GEffect_Cooldown.h"
 #include "PGFunctionLibrary.h"
 #include "PGGameplayTags.h"
 
@@ -13,75 +15,194 @@ UPGHeroSkillGameplayAbility::UPGHeroSkillGameplayAbility()
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 }
 
-void UPGHeroSkillGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UPGHeroSkillGameplayAbility::ActivateAbility(
+    const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo,
+    const FGameplayEventData* TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    SkillData = Cast<UDataAsset_HeroSkillData>(GetCurrentSourceObject());
+    if(!CommitCheck(Handle, ActorInfo, ActivationInfo))
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+        return;
+    }
 
-    // 스킬 데이터가 없거나, 액션 시퀀스가 비어있다면 어빌리티 종료
+    SkillData = Cast<UDataAsset_HeroSkillData>(GetCurrentSourceObject());
     if (!SkillData || SkillData->ActionSequence.IsEmpty())
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
         return;
     }
 
-    // InstancedPerActor이므로, 활성화마다 초기화
+    RuntimeActionSequence.Reset();
+
+    if (const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+    {
+        SkillData->BuildRuntimeActionSequence(ASC, GetAbilityLevel(), RuntimeActionSequence);
+    }
+
+    if (RuntimeActionSequence.IsEmpty())
+    {
+        RuntimeActionSequence = SkillData->ActionSequence;
+    }
+
+    if (RuntimeActionSequence.IsEmpty())
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+        return;
+    }
+
     CurrentActionIndex = 0;
 
-    // 자동 모드 여부 확인
     UHeroCombatComponent* CombatComp = UPGFunctionLibrary::NativeGetCombatComponentFromActor(GetAvatarActorFromActorInfo());
     bAutoMode = CombatComp ? CombatComp->IsAutoMode() : false;
 
     ExecuteNextAction();
 }
 
-// 실행 루프
-// GA는 Task 생성과 콜백 바인딩만 담당, 실제 로직은 Task에서 구현
 void UPGHeroSkillGameplayAbility::ExecuteNextAction()
 {
-    if (!SkillData->ActionSequence.IsValidIndex(CurrentActionIndex))
+    if (!RuntimeActionSequence.IsValidIndex(CurrentActionIndex))
     {
-        // 모든 액션 완료 -> 어빌리티 정상 종료
         EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
         return;
     }
 
-    const FSkillActionRow& CurrentAction = SkillData->ActionSequence[CurrentActionIndex];
+    const FSkillActionRow& CurrentAction = RuntimeActionSequence[CurrentActionIndex];
 
-    // Task 생성 => 콜백 바인딩 => Task 실행
-    // TODO: 새 액션 추가 시 여기에 케이스 추가
     switch (CurrentAction.ActionType)
     {
     case ESkillActionType::MeleeTrace:
     {
-        auto* Task = USkillAbilityTask_MeleeTrace::Create(this, CurrentAction);
+        USkillAbilityTask_MeleeTrace* Task = USkillAbilityTask_MeleeTrace::Create(this, CurrentAction);
         Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
         Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
+        Task->OnRuntimeEvent.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnTaskRuntimeEvent);
         Task->ReadyForActivation();
         break;
     }
+
     case ESkillActionType::SpawnActor:
     {
-        auto* Task = USkillAbilityTask_SpawnActor::Create(this, CurrentAction, bAutoMode);
+        // SpawnActor 계열 반응은 SkillActor 내부에서 처리하므로 Ability로 RuntimeEvent를 올리지 않는다.
+        USkillAbilityTask_SpawnActor* Task = USkillAbilityTask_SpawnActor::Create(
+            this,
+            CurrentAction,
+            bAutoMode,
+            FGameplayAbilityTargetDataHandle(),
+            false);
         Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
         Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
         Task->ReadyForActivation();
         break;
     }
+
+    case ESkillActionType::Buff:
+    {
+        USkillAbilityTask_Buff* Task = USkillAbilityTask_Buff::Create(this, CurrentAction);
+        Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
+        Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
+        Task->ReadyForActivation();
+        break;
+    }
+
     default:
-        // 알수 없는 액션 타입
-        CurrentActionIndex++;
+        ++CurrentActionIndex;
         ExecuteNextAction();
+        break;
+    }
+}
+
+bool UPGHeroSkillGameplayAbility::ConvertEventTagToTrigger(const FGameplayTag& EventTag, EHeroSkillEventTrigger& OutTrigger)
+{
+    if (EventTag.MatchesTagExact(PGGameplayTags::Shared_Event_MeleeHit) || EventTag.MatchesTagExact(PGGameplayTags::Event_Trigger_OnHit))
+    {
+        OutTrigger = EHeroSkillEventTrigger::OnHit;
+        return true;
+    }
+
+    if (EventTag.MatchesTagExact(PGGameplayTags::Event_Trigger_OnKill))
+    {
+        OutTrigger = EHeroSkillEventTrigger::OnKill;
+        return true;
+    }
+
+    return false;
+}
+
+void UPGHeroSkillGameplayAbility::OnTaskRuntimeEvent(FGameplayTag EventTag, FGameplayAbilityTargetDataHandle TargetData)
+{
+    EHeroSkillEventTrigger Trigger = EHeroSkillEventTrigger::OnHit;
+    if (!ConvertEventTagToTrigger(EventTag, Trigger))
+    {
+        return;
+    }
+
+    ExecuteEventTrigger(Trigger, EventTag, TargetData);
+}
+
+void UPGHeroSkillGameplayAbility::ExecuteEventTrigger(EHeroSkillEventTrigger Trigger, const FGameplayTag& SourceEventTag, const FGameplayAbilityTargetDataHandle& TargetData)
+{
+    if (!SkillData)
+    {
+        return;
+    }
+
+    const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+    if (!ASC)
+    {
+        return;
+    }
+
+    TArray<FSkillActionRow> EventActions;
+    SkillData->BuildRuntimeEventActionSequence(ASC, GetAbilityLevel(), EventActions, Trigger, SourceEventTag);
+
+    for (const FSkillActionRow& ActionRow : EventActions)
+    {
+        ExecuteEventAction(ActionRow, TargetData);
+    }
+}
+
+void UPGHeroSkillGameplayAbility::ExecuteEventAction(const FSkillActionRow& ActionRow, const FGameplayAbilityTargetDataHandle& TargetData)
+{
+    switch (ActionRow.ActionType)
+    {
+    case ESkillActionType::SpawnActor:
+    {
+        USkillAbilityTask_SpawnActor* Task = USkillAbilityTask_SpawnActor::Create(
+            this,
+            ActionRow,
+            bAutoMode,
+            TargetData,
+            false);
+        Task->ReadyForActivation();
+        break;
+    }
+
+    case ESkillActionType::MeleeTrace:
+    {
+        USkillAbilityTask_MeleeTrace* Task = USkillAbilityTask_MeleeTrace::Create(this, ActionRow);
+        Task->ReadyForActivation();
+        break;
+    }
+
+    case ESkillActionType::Buff:
+    {
+        USkillAbilityTask_Buff* Task = USkillAbilityTask_Buff::Create(this, ActionRow, TargetData);
+        Task->ReadyForActivation();
+        break;
+    }
+
+    default:
         break;
     }
 }
 
 void UPGHeroSkillGameplayAbility::OnActionCompleted(FGameplayAbilityTargetDataHandle TargetData)
 {
-    // Task에서 타겟 데이터를 받아와서 저장
-    // 다음 액션에서 CurrentTargetData 활용 가능
-    CurrentActionIndex++;
+    ++CurrentActionIndex;
     ExecuteNextAction();
 }
 
@@ -94,8 +215,98 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 {
     if (!bWasCancelled)
     {
-        CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
+        CommitAbility(Handle, ActorInfo, ActivationInfo);
     }
- 
+
+    RuntimeActionSequence.Reset();
+    SkillData = nullptr;
+    CurrentActionIndex = 0;
+    bAutoMode = false;
+    
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+
+// =========================================================================================
+// 쿨타임 관련 로직
+// 쿨타임을 Duration만 받아와서 어빌리티 내부에서 이펙트에 SetByCaller로 전달하도록 변경
+// 쿨타임 태그도 어빌리티의 태그를 보고 메인 스킬인지 서브 스킬인지 판단해서 적절한 태그를 반환하도록 변경
+// =========================================================================================
+EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
+{
+    const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
+    if (!Spec)
+    {
+        return EHeroSkillType::None;
+    }
+
+    const FGameplayTagContainer& DynamicTags = Spec->GetDynamicSpecSourceTags();
+    if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_MainSkill))
+    {
+        return EHeroSkillType::MainSkill;
+    }
+    else if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_SubSkill))
+    {
+        return EHeroSkillType::SubSkill;
+    }
+    else
+    {
+        return EHeroSkillType::None;
+    }
+}
+
+const FGameplayTagContainer* UPGHeroSkillGameplayAbility::GetCooldownTags() const
+{
+    static const FGameplayTagContainer MainSkillTagContainer = []()
+        {
+            FGameplayTagContainer Tags;
+            Tags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
+            return Tags;
+        }();
+
+    static const FGameplayTagContainer SubSkillTagContainer = []()
+        {
+            FGameplayTagContainer Tags;
+            Tags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
+            return Tags;
+        }();
+
+    // 현재 어빌리티의 태그 종류에 따라 적절한 태그 컨테이너 반환 
+    switch (GetHeroSkillType())
+    {
+    case EHeroSkillType::MainSkill:
+        return &MainSkillTagContainer;
+    case EHeroSkillType::SubSkill:
+        return &SubSkillTagContainer;
+    default:
+        return nullptr;
+    }
+}
+void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(UGEffect_Cooldown::StaticClass());
+    
+    if (!SpecHandle.IsValid()) return;
+
+    // 슬롯 태그 주입
+    switch (GetHeroSkillType())
+    {
+    case EHeroSkillType::MainSkill:
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
+        break;
+    case EHeroSkillType::SubSkill:
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
+        break;
+    default:    
+        return;
+    }
+
+    // 스킬 데이터에서 쿨타임 Value 가져와서 SetDuration에 설정
+    const float CooldownDuration = SkillData ? SkillData->SkillCooldown.GetValueAtLevel(GetAbilityLevel()) : 0.f;
+
+    UE_LOG(LogTemp, Log, TEXT("Applying Cooldown: %f seconds"), CooldownDuration);
+
+    SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_Duration, CooldownDuration);
+
+    ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 }

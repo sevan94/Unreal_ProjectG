@@ -25,7 +25,7 @@ class UNREAL_PROJECTG_API UActiveSkillWidget : public UUserWidget
 public:
     // 어빌리티 스펙 핸들을 이용하여 어빌리티 오브젝트 레퍼런스 할당
     UFUNCTION(BlueprintCallable)
-    void SetAbilitySpecHandle(FGameplayAbilitySpecHandle InHandle);
+    void SetAbilitySpec(FGameplayAbilitySpec InSpec);
 
     // 스킬 이미지 설정
     void SetSkillIcon(UTexture2D* InIcon);
@@ -71,8 +71,8 @@ private:
     // 영웅 어빌리티 시스템
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-    // 어빌리티 스펙 핸들
-    FGameplayAbilitySpecHandle AbilitySpec;
+    // 어빌리티 스펙
+    FGameplayAbilitySpecHandle AbilitySpecHandle;
 
     // 어빌리티 오브젝트 레퍼런스
     TObjectPtr<UGameplayAbility> AbilityObject;

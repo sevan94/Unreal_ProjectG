@@ -22,7 +22,7 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
     // 스킬 데이터가 없거나, 액션 시퀀스가 비어있다면 어빌리티 종료
     if (!SkillData || SkillData->ActionSequence.IsEmpty())
     {
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
         return;
     }
 
@@ -92,5 +92,10 @@ void UPGHeroSkillGameplayAbility::OnActionCancelled(FGameplayAbilityTargetDataHa
 
 void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+    if (!bWasCancelled)
+    {
+        CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
+    }
+ 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

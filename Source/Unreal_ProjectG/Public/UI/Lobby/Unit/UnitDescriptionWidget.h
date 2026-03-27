@@ -24,13 +24,13 @@ class UNREAL_PROJECTG_API UUnitDescriptionWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    virtual void NativeConstruct() override;
-
     // 유닛 데이터가 들어오면 UI를 갱신합니다.
     UFUNCTION(BlueprintCallable)
     void UpdateDescription(UUnitEntryObject* InEntryObject);
 
 protected:
+    virtual void NativeConstruct() override;
+
     // 버튼 클릭 함수
     UFUNCTION()
     void OnUpgradeButtonClicked();

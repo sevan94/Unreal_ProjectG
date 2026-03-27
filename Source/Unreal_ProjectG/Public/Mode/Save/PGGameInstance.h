@@ -129,6 +129,10 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "SaveData")
     TMap<int32, int32> StageClearData;
 
+    // 플레이어 레벨
+    UPROPERTY(BlueprintReadWrite, Category = "Player Info")
+    int32 CurrentPlayerLevel;
+
     // 소지 재화
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentPlayerGold;

@@ -3,7 +3,6 @@
 
 #include "UI/Battle/ControlPanelWidget.h"
 #include "Components/Image.h"
-#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
 #include "Components/Equipment/EquipmentsStorageComponent.h"
@@ -17,20 +16,23 @@
 #include "Pawn/BaseStructure.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
+#include "PGGameplayTags.h"
 
 void UControlPanelWidget::SetAbilitySpecHandle()
 {
-    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-    TArray<FGameplayAbilitySpecHandle> SpecHandleArray = HeroCharacter->GetEquipmentsStorageComponent()->GetSkillAbilitySpecHandles();
-    if (!SpecHandleArray.IsEmpty())
+    for (FGameplayAbilitySpec& Spec : HeroCharacter->GetAbilitySystemComponent()->GetActivatableAbilities())
     {
-        //UE_LOG(LogTemp, Log, TEXT("스펙 핸들 가져옴"));
-        if(SpecHandleArray[0].IsValid()) WeaponSkill1->SetAbilitySpecHandle(SpecHandleArray[1]);
-        //if(SpecHandleArray[1].IsValid()) WeaponSkill2->SetAbilitySpecHandle(SpecHandleArray[2]);
-        if (GI->CurrentWeapon)
+        UE_LOG(LogTemp, Log, TEXT("어빌리티 : %s"), *Spec.Ability.GetName());
+        // 해당 스펙이 유효한지 확인
+        if (!Spec.Ability) continue;
+
+        if (Spec.GetDynamicSpecSourceTags().HasTag(PGGameplayTags::Input_ActiveSkill_SubSkill))
         {
-            WeaponSkill1->SetSkillIcon(GI->CurrentWeapon->SkillImage1);
-            WeaponSkill2->SetSkillIcon(GI->CurrentWeapon->SkillImage2);
+            WeaponSkill1->SetAbilitySpec(Spec);
+        }
+        if (Spec.GetDynamicSpecSourceTags().HasTag(PGGameplayTags::Input_ActiveSkill_MainSkill))
+        {
+            WeaponSkill2->SetAbilitySpec(Spec);
         }
     }
 }
@@ -222,6 +224,13 @@ void UControlPanelWidget::BindHero()
         {
             EquipComp->OnWeaponAbilitiesActivate.AddDynamic(this, &UControlPanelWidget::SetAbilitySpecHandle);
         }
+    }
+
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (GI->CurrentWeapon)
+    {
+        WeaponSkill1->SetSkillIcon(GI->CurrentWeapon->SkillImage1);
+        WeaponSkill2->SetSkillIcon(GI->CurrentWeapon->SkillImage2);
     }
 }
 

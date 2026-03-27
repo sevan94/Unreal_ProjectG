@@ -76,6 +76,10 @@ void UPGGameInstance::LoadGameData()
     }
 
     // 디스크 데이터(Path) -> 런타임 데이터(SoftPtr) 로드
+    
+    // 플레이어 정보 로드 
+    CurrentPlayerLevel = CachedSaveData->PlayerLevel;
+
     // 재화 로드
     CurrentPlayerGold = CachedSaveData->PlayerGold;
     CurrentPlayerGem = CachedSaveData->PlayerGem;
@@ -377,6 +381,9 @@ bool UPGGameInstance::GetEquipOwned(int32 EquipID)
 void UPGGameInstance::SaveGameData()
 {
     if (!CachedSaveData) return;
+
+    // 플레이어 레벨 저장
+    CachedSaveData->PlayerLevel = this->CurrentPlayerLevel;
 
     // 현재 보유 유닛 리스트 저장
     CachedSaveData->UnitLevelMap = this->UnitLevelMap;

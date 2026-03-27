@@ -7,6 +7,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/Overlay.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "DataAssets/UI/EnemyUIDataAsset.h"
@@ -109,8 +110,25 @@ void UStageReadyWidget::InitializeReadyReward(const FStageDataTable& InStageData
     FText Star2Text = GetRewardText(InStageData.RewardType, InStageData.Star2);
     FText Star3Text = GetRewardText(InStageData.RewardType, InStageData.Star3);
 
+    // 초기 세팅
+    GemOverlay->SetVisibility(ESlateVisibility::Hidden);
+    Star1->SetBrushFromTexture(EmptyStarImage);
+    Star2->SetBrushFromTexture(EmptyStarImage);
+    Star3->SetBrushFromTexture(EmptyStarImage);
+
     if (Star2Description) Star2Description->SetText(Star2Text);
     if (Star3Description) Star3Description->SetText(Star3Text);
+    switch (GI->GetStageStarCount(InStageData.StageCode))
+    {
+    case(3):Star3->SetBrushFromTexture(StarImage);
+    case(2):Star2->SetBrushFromTexture(StarImage);
+    case(1):
+    {
+        GemOverlay->SetVisibility(ESlateVisibility::Visible);
+        Star1->SetBrushFromTexture(StarImage);
+        break;
+    }
+    }
     if (RewardGem) RewardGem->SetText(FText::AsNumber(InStageData.RewardGem));
     if (RewardGold) RewardGold->SetText(FText::AsNumber(InStageData.RewardGold));
 }

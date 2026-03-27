@@ -48,21 +48,18 @@ void UResultVictoryWidget::ShowResult(const FBattleResultData& ResultData)
     {
         switch (ResultData.StarCount)
         {
-        case 3: if (Star3)
+        case(3): if (Star3)
                 Star3->SetBrushFromTexture(StarImage);
-        case 2: if (Star2)
+        case(2): if (Star2)
                 Star2->SetBrushFromTexture(StarImage);
-        case 1: if (Star1)
+        case(1): if (Star1)
                 Star1->SetBrushFromTexture(StarImage);
             break;
         default:
             break;
         }
     }
-
-    int32* OldStars = GI->StageClearData.Find(Data.StageCode);
-    bool bFirstTime = (OldStars == nullptr || *OldStars == 0);
-    int32 DisplayGem = bFirstTime ? Data.RewardGem : 0;
+    int32 DisplayGem = ResultData.bIsFirstClear ? Data.RewardGem : 0;
 
     if (RewardGem) RewardGem->SetText(FText::AsNumber(DisplayGem));
     if (RewardGold) RewardGold->SetText(FText::AsNumber(Data.RewardGold * ResultData.StarCount));

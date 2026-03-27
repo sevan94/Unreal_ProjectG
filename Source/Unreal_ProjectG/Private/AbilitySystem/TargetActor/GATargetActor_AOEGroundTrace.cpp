@@ -174,6 +174,7 @@ void AGATargetActor_AOEGroundTrace::OnTouchReleased()
     HitResult.Location = LastTouchLocation;
     TargetData.Add(new FGameplayAbilityTargetData_SingleTargetHit(HitResult));
     TargetDataReadyDelegate.Broadcast(TargetData);
+    
 }
 
 void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)

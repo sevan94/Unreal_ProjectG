@@ -10,6 +10,7 @@ void UDataAsset_WeaponData::GrantWeaponAbilityToAbilityComponent(UPGAbilitySyste
 {
     if (InASCToGive)
     {
+        BasicAttackAbility.LoadData();
         // 무기 어빌리티 부여
         if (BasicAttackAbility.IsValid())
         {
@@ -25,6 +26,7 @@ void UDataAsset_WeaponData::GrantWeaponAbilityToAbilityComponent(UPGAbilitySyste
             OutWeaponAbilitySpecHandles.Add(InASCToGive->GiveAbility(BasicAttackAbilitySpec));
         }
 
+        SubSkillAbility.LoadData();
         if(SubSkillAbility.IsValid())
         {
             FGameplayAbilitySpec SubSkillAbilitySpec(
@@ -36,6 +38,7 @@ void UDataAsset_WeaponData::GrantWeaponAbilityToAbilityComponent(UPGAbilitySyste
             OutWeaponAbilitySpecHandles.Add(InASCToGive->GiveAbility(SubSkillAbilitySpec));
         }
 
+        MainSkillAbility.LoadData();
         if(MainSkillAbility.IsValid())
         {
             FGameplayAbilitySpec MainSkillAbilitySpec(

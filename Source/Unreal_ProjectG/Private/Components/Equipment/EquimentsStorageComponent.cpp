@@ -64,7 +64,12 @@ void UEquipmentsStorageComponent::EquipHeroAccessory(UDataAsset_AccessoryData* I
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
     UDataAsset_SkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
-    AccessoryAbilityAsset->AbilityEntry.AbilityClass;
+    //AccessoryAbilityAsset->AbilityEntry.AbilityClass;
+
+    if (!AccessoryAbilityAsset || !AccessoryAbilityAsset->AbilityEntry.AbilityClass)
+    {
+        return;
+    }
 
     FGameplayAbilitySpec AbilitySpec(
         AccessoryAbilityAsset->AbilityEntry.AbilityClass,

@@ -141,7 +141,7 @@ struct FUnitSpawnActorAbilityConfig : public FAbilityConfig
     TSoftClassPtr<AActor> SpawnedActorClass; 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 SpawnCount;
+    int32 SpawnCount=0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TArray<TSoftObjectPtr<UAnimMontage>> SpawnActorMontages;
@@ -159,7 +159,7 @@ struct FSharedBuffAuraAbilityConfig : public FAbilityConfig
     TArray<FBuffEffectConfig> Buffs; // 수치 버프량 계산을 위한 데이터 배열
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    float BuffAuraRadius; // 버프 오라의 반경
+    float BuffAuraRadius = 0.0; // 버프 오라의 반경
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UMaterialInterface> AuraRadiusDecalMaterial; // 버프 오라의 범위를 보여주는 데칼 머티리얼

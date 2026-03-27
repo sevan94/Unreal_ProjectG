@@ -21,6 +21,9 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Basic")
     FString PlayerName;
 
+    UPROPERTY(VisibleAnywhere, Category = "Basic")
+    int32 PlayerLevel;
+
     //재화 관련
     UPROPERTY(VisibleAnywhere, Category = "Basic")
     int32 PlayerGold;

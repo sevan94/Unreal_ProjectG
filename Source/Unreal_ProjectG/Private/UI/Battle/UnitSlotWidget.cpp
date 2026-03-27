@@ -49,7 +49,6 @@ void UUnitSlotWidget::NativeConstruct()
         UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
     }
 }
-
 void UUnitSlotWidget::OnUnitButtonClicked()
 {
     if (!UnitData || !UnitData->UnitClass)
@@ -68,16 +67,27 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 
             for (AActor* BaseActor : FoundBases)
             {
-                SpawnBase = Cast<ABaseStructure>(BaseActor);
-                if (SpawnBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
+                if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
                 {
+                    SpawnBase = TempBase;
                     SpawnLocation = SpawnBase->GetActorLocation();
+                    break; 
                 }
             }
         }
+
+        if (!SpawnBase) return; 
+
+        FVector BaseForward = SpawnBase->GetActorForwardVector();
+        FVector BaseRight = SpawnBase->GetActorRightVector();
         float RandomRange = FMath::RandRange(-250.0f, 250.0f);
-        FVector FinalLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
-        FRotator SpawnRotation = FRotator::ZeroRotator;
+
+        FVector FinalLocation = SpawnLocation + (BaseForward * 200.0f) + (BaseRight * RandomRange);
+
+        FinalLocation.Z += 50.0f;
+
+        FRotator SpawnRotation = SpawnBase->GetActorRotation();
 
         UUnitSpawnSubsystem* SpawnSystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>();
         if (!SpawnSystem) return;
@@ -104,9 +114,6 @@ void UUnitSlotWidget::OnUnitButtonClicked()
             ReusedUnit->UnitLevel = TargetLevel;
 
             ReusedUnit->ActivateUnit();
-
-            UE_LOG(LogTemp, Log, TEXT("Spawned(Reused) Unit: %d with Level: %d"), UnitData->UnitID, TargetLevel);
         }
     }
 }
-

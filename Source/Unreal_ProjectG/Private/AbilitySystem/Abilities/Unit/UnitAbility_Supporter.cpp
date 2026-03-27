@@ -90,7 +90,7 @@ void UUnitAbility_Supporter::HandleSupportEffect(FGameplayEventData InEventData)
 
     if (EffectSpecHandle.IsValid())
     {
-        FGameplayTag BaseBuffTag = FGameplayTag::RequestGameplayTag(FName("Shared.SetByCaller.BaseBuffAmount"));
+        FGameplayTag BaseBuffTag = FGameplayTag::RequestGameplayTag(FName("Shared.SetByCaller.BaseAmount"));
         EffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(BaseBuffTag, MultiplierValue);
     }
 

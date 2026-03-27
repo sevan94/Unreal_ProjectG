@@ -19,7 +19,7 @@ struct FUnitIconData
     FGameplayTag ElementTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    UTexture2D* IconTexture;
+    UTexture2D* IconTexture = nullptr;
 };
 /**
  * 

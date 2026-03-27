@@ -11,6 +11,7 @@ class UButton;
 class UImage;
 class UControlPanelWidget;
 class UResultVictoryWidget;
+class UPauseWidget;
 class UWidgetAnimation;
 class APGBaseGameMode;
 struct FBattleResultData;
@@ -40,6 +41,9 @@ protected:
 
     UFUNCTION()
     void OnAutoButtonClicked();
+
+    UFUNCTION()
+    void OnPauseButtonClicked();
 	
 protected:
     // 플레이타임 텍스트
@@ -75,6 +79,10 @@ protected:
     // 전투 패배 위젯
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (BindWidget))
     TObjectPtr<UUserWidget> ResultFail;
+
+    // 일시정지 위젯
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (BindWidget))
+    TObjectPtr<UPauseWidget> PauseWidget;
 
     // 게임 모드
     TWeakObjectPtr<APGBaseGameMode> PGGameMode;

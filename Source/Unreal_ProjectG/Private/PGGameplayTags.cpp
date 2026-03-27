@@ -64,6 +64,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_SkillMultiplier, "Shared.SetByCaller.SkillMultiplier");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseAmount, "Shared.SetByCaller.BaseAmount");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_Duration, "Shared.SetByCaller.Duration");
+    UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseBuffAmount, "Shared.SetByCaller.BaseBuffAmount");
 
      // 스탯 관련 SetByCaller 태그
     UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MaxHealth, "Attribute.SetByCaller.MaxHealth");

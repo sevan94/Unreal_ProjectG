@@ -36,8 +36,6 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
         return;
     }
 
-    UE_LOG(LogTemp, Log, TEXT("Activating Hero Skill: %s"), *GetNameSafe(SkillData));
-
     RuntimeActionSequence.Reset();
 
     if (const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
@@ -218,7 +216,6 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
     if (!bWasCancelled)
     {
         CommitAbility(Handle, ActorInfo, ActivationInfo);
-        UE_LOG(LogTemp, Log, TEXT("Ending Hero Skill: %s"), *GetNameSafe(SkillData));
     }
 
     RuntimeActionSequence.Reset();

@@ -16,7 +16,7 @@ struct FUnitUIDataTable : public FTableRowBase
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 UnitID;
+    int32 UnitID = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TObjectPtr<UUnitUIDataAsset> UnitData;

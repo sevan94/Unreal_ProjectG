@@ -8,6 +8,8 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "Character/Unit/UnitCharacter.h"
+#include "Pawn/BaseStructure.h"
 
 void UUnitAbility_BaseMeleeAttack::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -53,9 +55,28 @@ void UUnitAbility_BaseMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
         {
             break;
         }
-        if(UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitResult.GetActor()))
+
+        AActor* HitActor = HitResult.GetActor();
+        if (!IsValid(HitActor)) continue;
+
+        bool bIsAliveTarget = false;
+
+        if (AUnitCharacter* HitUnit = Cast<AUnitCharacter>(HitActor))
         {
-            CachedTargetActors.AddUnique(HitResult.GetActor());
+            bIsAliveTarget = !HitUnit->bIsDead;
+        }
+        else if (ABaseStructure* HitBase = Cast<ABaseStructure>(HitActor))
+        {
+            bIsAliveTarget = !HitBase->IsActorBeingDestroyed();
+        }
+        else
+        {
+            bIsAliveTarget = true;
+        }
+
+        if (bIsAliveTarget && UPGFunctionLibrary::IsTargetCharacterHostile(GetAvatarActorFromActorInfo(), HitActor))
+        {
+            CachedTargetActors.AddUnique(HitActor);
             CurrentHitTargets++;
         }
     }

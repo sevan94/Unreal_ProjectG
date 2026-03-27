@@ -88,28 +88,31 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<class UStaticMeshComponent> WeaponMesh;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    int32 UnitLevel = 1;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsBoss = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
     bool bIsMiddleBoss = false;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"), Category = "Unit|Stats")
+    int32 UnitLevel = 1;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+    bool bIsDead = false;
+
     bool bIsAbilitiesInitialized = false;
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCharacterVisualEffectComponent> UnitVisualEffectComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-    bool bIsDead = false;
 private:
+    UPROPERTY()
     // AI 컨트롤러 캐싱
     class AAIController* AIController = nullptr;
 
+    UPROPERTY()
     UAnimMontage* UnitAttackMontage = nullptr;
 
+    UPROPERTY()
     UAnimMontage* UnitDeadMontage = nullptr;
 
     float DetectRangeKey = 0.0f;
@@ -120,5 +123,6 @@ private:
 
     bool IsActive;
 
+    UPROPERTY()
     TObjectPtr<UBehaviorTree> SubBTAssetKey = nullptr;
 };

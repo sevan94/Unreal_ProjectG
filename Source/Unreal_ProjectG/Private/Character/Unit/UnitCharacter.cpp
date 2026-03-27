@@ -34,7 +34,7 @@ AUnitCharacter::AUnitCharacter()
 
     if (UCapsuleComponent* Capsule = GetCapsuleComponent())
     {
-        Capsule->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+        Capsule->SetRelativeScale3D(FVector(0.7f, 0.7f, 0.7f));
     }
 
     if (USkeletalMeshComponent* CharacterMesh = GetMesh())
@@ -243,7 +243,6 @@ void AUnitCharacter::SetAttackTarget(AActor* InTargetActor)
 
 }
 
-
 void AUnitCharacter::OnDie()
 {
     if (bIsDead)
@@ -253,7 +252,7 @@ void AUnitCharacter::OnDie()
 
     bIsDead = true;
 
-    if (AIController)
+    if (IsValid(AIController))
     {
         if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
         {
@@ -270,32 +269,55 @@ void AUnitCharacter::OnDie()
         MovementComp->DisableMovement();
     }
 
+    if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+    {
+        CharacterMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        CharacterMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+    }
+
     if (UCapsuleComponent* Capsule = GetCapsuleComponent())
     {
         Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
+    UWorld* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return;
+    }
+
     if (bIsBoss)
     {
-        if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
+        if (UUnitSubsystem* Subsystem = World->GetSubsystem<UUnitSubsystem>())
         {
             Subsystem->OnBossDeadDelegate.Broadcast(TeamTag);
         }
     }
 
-    if (UUnitSpawnSubsystem* SpawnSubsystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>())
+    if (UUnitSpawnSubsystem* SpawnSubsystem = World->GetSubsystem<UUnitSpawnSubsystem>())
     {
-        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-        if (AnimInstance && UnitDeadMontage)
+        USkeletalMeshComponent* CharacterMesh = GetMesh();
+        UAnimInstance* AnimInstance = IsValid(CharacterMesh) ? CharacterMesh->GetAnimInstance() : nullptr;
+
+        if (IsValid(AnimInstance) && IsValid(UnitDeadMontage))
         {
-            checkf(UnitDeadMontage, TEXT("Actor : %s Die Error"), *GetName());
             float Duration = AnimInstance->Montage_Play(UnitDeadMontage) - 0.2f;
 
-            FTimerHandle TimerHandle;
-            GetWorldTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
-                {
-                    SpawnSubsystem->OnUnitDied(this);
-                }, Duration, false);
+            if (Duration > 0.f)
+            {
+                FTimerHandle TimerHandle;
+                World->GetTimerManager().SetTimer(TimerHandle, [SpawnSubsystem, this]()
+                    {
+                        if (IsValid(this) && IsValid(SpawnSubsystem))
+                        {
+                            SpawnSubsystem->OnUnitDied(this);
+                        }
+                    }, Duration, false);
+            }
+            else
+            {
+                SpawnSubsystem->OnUnitDied(this);
+            }
         }
         else
         {
@@ -308,11 +330,11 @@ void AUnitCharacter::OnDie()
     }
 }
 
-
 void AUnitCharacter::ActivateUnit()
 {
     bIsDead = false;
     SetActorHiddenInGame(false);
+    SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 10.f), false, nullptr, ETeleportType::TeleportPhysics);
     SetActorEnableCollision(true);
     SetActorTickEnabled(true);
 
@@ -323,6 +345,8 @@ void AUnitCharacter::ActivateUnit()
 
     if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
     {
+        MovementComp->Velocity = FVector::ZeroVector;
+        MovementComp->ClearAccumulatedForces();
         MovementComp->SetMovementMode(MOVE_Walking);
     }
 
@@ -385,6 +409,7 @@ void AUnitCharacter::DeactivateUnit()
     {
         MovementComp->StopMovementImmediately();
         MovementComp->DisableMovement(); // 바닥으로 꺼지거나 미끄러짐 방지
+        MovementComp->Velocity = FVector::ZeroVector;
     }
 
     // 4. 시각적 숨김 및 충돌 해제

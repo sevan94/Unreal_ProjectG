@@ -23,6 +23,11 @@ struct FInputAbilityTag
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftObjectPtr<UDataAsset_HeroSkillData> AbilityData; // 어빌리티 데이터 에셋
 
+    void LoadData()
+    {
+        AbilityData.LoadSynchronous();
+    }
+
     bool IsValid() const
     {
         return AbilityClass != nullptr && AbilityData.IsValid();

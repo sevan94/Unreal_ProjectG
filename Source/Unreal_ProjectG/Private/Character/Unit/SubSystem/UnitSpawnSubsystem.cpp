@@ -68,10 +68,10 @@ void UUnitSpawnSubsystem::SpawnUnit(TSubclassOf<AUnitCharacter> UnitClass,
     if (SpawnedUnit)
     {
        // SpawnedUnit->UnitLevel = InUnitLevel;
+        SpawnedUnit->SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
 
         SpawnedUnit->ActivateUnit();
 
-        SpawnedUnit->TeleportTo(Location, Rotation);
 
         if (InTargetActor)
         {

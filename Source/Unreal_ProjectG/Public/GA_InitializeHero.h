@@ -30,4 +30,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
     TSubclassOf<UGameplayEffect> FullHeal = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+    TSubclassOf<UGameplayEffect> StartCost = nullptr;
+
 };

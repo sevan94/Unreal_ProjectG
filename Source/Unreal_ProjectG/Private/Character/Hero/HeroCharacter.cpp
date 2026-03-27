@@ -553,5 +553,6 @@ void AHeroCharacter::UnEquipArmor()
 
 void AHeroCharacter::UnEquipAccessory()
 {
-    Accessory = nullptr;
+    Accessory = nullptr;       
 }
+

@@ -194,6 +194,9 @@ class UNREAL_PROJECTG_API UDataAsset_HeroSkillData : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬|메인 시퀀스", meta = (DisplayName = "스킬 토글 여부"))
+    bool bIsToggleSkill = false; // UI용
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|메인 시퀀스", meta=(DisplayName="기본 액션 시퀀스"))
     TArray<FSkillActionRow> ActionSequence;
 

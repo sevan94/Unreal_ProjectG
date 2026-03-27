@@ -162,6 +162,7 @@ FText UStageReadyWidget::GetRewardText(ERewardCategory Category, float RewardVal
 void UStageReadyWidget::InitializeReadyWidget(const FStageDataTable& InStageData)
 {
     TargetLevel = InStageData.StageLevel;
+    GI->CurrentStageIndex = InStageData.StageCode;
     InitializeReadyUnit();
     InitializeReadyEquip();
     InitializeReadyEnemy(InStageData.EnemyList);

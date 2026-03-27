@@ -70,9 +70,9 @@ void UResultVictoryWidget::NativeConstruct()
     Super::NativeConstruct();
 
     // 다음 스테이지 버튼 클릭 시
-    if (NextStage)
+    if (OpenStage)
     {
-        NextStage->OnClicked.AddDynamic(this, &UResultVictoryWidget::OnNextStageClicked);
+        OpenStage->OnClicked.AddDynamic(this, &UResultVictoryWidget::OnOpenStageClicked);
     }
 
     // 스테이지 선택(로비) 버튼 클릭 시
@@ -82,9 +82,15 @@ void UResultVictoryWidget::NativeConstruct()
     }
 }
 
-void UResultVictoryWidget::OnNextStageClicked()
+void UResultVictoryWidget::OnOpenStageClicked()
 {
-    UGameplayStatics::OpenLevel(GetWorld(), TEXT("Stage"));
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (GI)
+    {
+        // 로비에 도착했을 때 스테이지 선택창을 바로 띄우도록 설정
+        GI->bStageSelect = true;
+    }
+    UGameplayStatics::OpenLevel(GetWorld(), TEXT("Lobby"));
 }
 
 void UResultVictoryWidget::OnStageButtonClicked()

@@ -14,10 +14,14 @@ namespace PGGameplayTags
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill, "Player.Ability.Combat.Skill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponSharedSkill, "Player.Ability.Combat.Skill.WeaponSharedSkill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponUniqueSkill, "Player.Ability.Combat.Skill.WeaponUniqueSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_SubSkill, "Player.Ability.Combat.Skill.SubSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_MainSkill, "Player.Ability.Combat.Skill.MainSkill");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
+
+    // 어빌리티 태그
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_MainSkill, "Ability.Cooldown.MainSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_SubSkill, "Ability.Cooldown.SubSkill");
 
     // 플레이어 세트 게임 플레이 태그 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Defender, "Equipment.Set.Defender");

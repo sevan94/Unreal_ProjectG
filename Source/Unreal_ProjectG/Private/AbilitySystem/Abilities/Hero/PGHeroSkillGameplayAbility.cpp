@@ -4,7 +4,9 @@
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_SpawnActor.h"
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_Buff.h"
 #include "Components/Combat/HeroCombatComponent.h"
+#include "AbilitySystemComponent.h"
 #include "DataAssets/Ability/DataAsset_HeroSkillData.h"
+#include "AbilitySystem/Effects/GEffect_Cooldown.h"
 #include "PGFunctionLibrary.h"
 #include "PGGameplayTags.h"
 
@@ -21,12 +23,20 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+    if(!CommitCheck(Handle, ActorInfo, ActivationInfo))
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+        return;
+    }
+
     SkillData = Cast<UDataAsset_HeroSkillData>(GetCurrentSourceObject());
     if (!SkillData || SkillData->ActionSequence.IsEmpty())
     {
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
         return;
     }
+
+    UE_LOG(LogTemp, Log, TEXT("Activating Hero Skill: %s"), *GetNameSafe(SkillData));
 
     RuntimeActionSequence.Reset();
 
@@ -203,17 +213,103 @@ void UPGHeroSkillGameplayAbility::OnActionCancelled(FGameplayAbilityTargetDataHa
     EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
 }
 
-void UPGHeroSkillGameplayAbility::EndAbility(
-    const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    bool bReplicateEndAbility,
-    bool bWasCancelled)
+void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+    if (!bWasCancelled)
+    {
+        CommitAbility(Handle, ActorInfo, ActivationInfo);
+        UE_LOG(LogTemp, Log, TEXT("Ending Hero Skill: %s"), *GetNameSafe(SkillData));
+    }
+
     RuntimeActionSequence.Reset();
     SkillData = nullptr;
     CurrentActionIndex = 0;
     bAutoMode = false;
-
+    
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+
+// =========================================================================================
+// 쿨타임 관련 로직
+// 쿨타임을 Duration만 받아와서 어빌리티 내부에서 이펙트에 SetByCaller로 전달하도록 변경
+// 쿨타임 태그도 어빌리티의 태그를 보고 메인 스킬인지 서브 스킬인지 판단해서 적절한 태그를 반환하도록 변경
+// =========================================================================================
+EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
+{
+    const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
+    if (!Spec)
+    {
+        return EHeroSkillType::None;
+    }
+
+    const FGameplayTagContainer& DynamicTags = Spec->GetDynamicSpecSourceTags();
+    if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_MainSkill))
+    {
+        return EHeroSkillType::MainSkill;
+    }
+    else if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_SubSkill))
+    {
+        return EHeroSkillType::SubSkill;
+    }
+    else
+    {
+        return EHeroSkillType::None;
+    }
+}
+
+const FGameplayTagContainer* UPGHeroSkillGameplayAbility::GetCooldownTags() const
+{
+    static const FGameplayTagContainer MainSkillTagContainer = []()
+        {
+            FGameplayTagContainer Tags;
+            Tags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
+            return Tags;
+        }();
+
+    static const FGameplayTagContainer SubSkillTagContainer = []()
+        {
+            FGameplayTagContainer Tags;
+            Tags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
+            return Tags;
+        }();
+
+    // 현재 어빌리티의 태그 종류에 따라 적절한 태그 컨테이너 반환 
+    switch (GetHeroSkillType())
+    {
+    case EHeroSkillType::MainSkill:
+        return &MainSkillTagContainer;
+    case EHeroSkillType::SubSkill:
+        return &SubSkillTagContainer;
+    default:
+        return nullptr;
+    }
+}
+void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+    FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(UGEffect_Cooldown::StaticClass());
+    
+    if (!SpecHandle.IsValid()) return;
+
+    // 슬롯 태그 주입
+    switch (GetHeroSkillType())
+    {
+    case EHeroSkillType::MainSkill:
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
+        break;
+    case EHeroSkillType::SubSkill:
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
+        break;
+    default:    
+        return;
+    }
+
+    // 스킬 데이터에서 쿨타임 Value 가져와서 SetDuration에 설정
+    const float CooldownDuration = SkillData ? SkillData->SkillCooldown.GetValueAtLevel(GetAbilityLevel()) : 0.f;
+
+    UE_LOG(LogTemp, Log, TEXT("Applying Cooldown: %f seconds"), CooldownDuration);
+
+    SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_Duration, CooldownDuration);
+
+    ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 }

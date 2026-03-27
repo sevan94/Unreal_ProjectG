@@ -106,5 +106,9 @@ void UHeroStatusWidget::SetHeroStatus()
     {
         float UpgradeCost = UpgradeCostCurve->Eval(GI->CurrentPlayerLevel);
         HeroUpgradeCost->InitializeGoodsBar(UpgradeCost);
+        if (UpgradeCost >= GI->CurrentPlayerGold)
+            UpgradeButton->SetIsEnabled(false);
+        else
+            UpgradeButton->SetIsEnabled(true);
     }
 }

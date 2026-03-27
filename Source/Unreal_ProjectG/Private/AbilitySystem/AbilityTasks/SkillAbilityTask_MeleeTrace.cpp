@@ -30,6 +30,7 @@ USkillAbilityTask_MeleeTrace* USkillAbilityTask_MeleeTrace::Create(UGameplayAbil
 
 void USkillAbilityTask_MeleeTrace::Activate()
 {
+    bHitEventFlag = false;
     const FHeroMeleeTraceConfig& Config = CachedActionRow.MeleeTraceConfig;
 
     UAbilityTask_WaitGameplayEvent* StartTraceEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(Ability, PGGameplayTags::Shared_Event_MeleeTraceStart);
@@ -173,16 +174,18 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                             {
                                 PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
                                 HitActors.Add(HitActor);
-                                UE_LOG(LogTemp, Log, TEXT("Current Hit Actors Count: %d"), HitActors.Num()); // Debug
 
-                                UE_LOG(LogTemp, Log, TEXT("MeleeTrace Hit: %s"), *HitActor->GetName());
+                                if (!bHitEventFlag)
+                                {
+                                    FGameplayAbilityTargetDataHandle RuntimeTargetData;
+                                    FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
+                                    HitData->HitResult = HitResult;
+                                    RuntimeTargetData.Add(HitData);
 
-                                FGameplayAbilityTargetDataHandle RuntimeTargetData;
-                                FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
-                                HitData->HitResult = HitResult;
-                                RuntimeTargetData.Add(HitData);
-
-                                EmitRuntimeEvent(PGGameplayTags::Shared_Event_MeleeHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnCommit, RuntimeTargetData);
+                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                                    bHitEventFlag = true;
+                                }
                             }
                         }
                     }

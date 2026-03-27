@@ -29,6 +29,10 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
         return;
     }
 
+    //==============================================================================
+    // 어빌리티 변수 초기화
+    bCommittedThisActivation = false;
+
     SkillData = Cast<UDataAsset_HeroSkillData>(GetCurrentSourceObject());
     if (!SkillData || SkillData->ActionSequence.IsEmpty())
     {
@@ -37,6 +41,7 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
     }
 
     RuntimeActionSequence.Reset();
+    //==============================================================================
 
     if (const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
     {
@@ -95,6 +100,7 @@ void UPGHeroSkillGameplayAbility::ExecuteNextAction()
             false);
         Task->OnCompleted.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCompleted);
         Task->OnCancelled.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnActionCancelled);
+        Task->OnRuntimeEvent.AddDynamic(this, &UPGHeroSkillGameplayAbility::OnTaskRuntimeEvent);
         Task->ReadyForActivation();
         break;
     }
@@ -134,6 +140,18 @@ bool UPGHeroSkillGameplayAbility::ConvertEventTagToTrigger(const FGameplayTag& E
 
 void UPGHeroSkillGameplayAbility::OnTaskRuntimeEvent(FGameplayTag EventTag, FGameplayAbilityTargetDataHandle TargetData)
 {
+    // 만약 이벤트가 Commit 이벤트라면 먼저 적용하고 return
+    if(EventTag.MatchesTagExact(PGGameplayTags::Event_Trigger_OnCommit))
+    {
+        if (!TryCommitAbilityOnce())
+        {
+            // 커밋에 실패했다면 어빌리티 종료, 커밋에 성공했다면 계속 진행
+            EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, true);
+        }
+        return;
+    }
+
+    //Trigger를 Tag에서 Enum타입으로 변환, 변환 실패 시(일치하는 태그를 잧지 못하 걍우) 무시
     EHeroSkillEventTrigger Trigger = EHeroSkillEventTrigger::OnHit;
     if (!ConvertEventTagToTrigger(EventTag, Trigger))
     {
@@ -215,14 +233,16 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 {
     if (!bWasCancelled)
     {
-        CommitAbility(Handle, ActorInfo, ActivationInfo);
+        // 스킬이 정상 종료라면 쿨타임 적용 시도
+        TryCommitAbilityOnce();
     }
 
     RuntimeActionSequence.Reset();
     SkillData = nullptr;
     CurrentActionIndex = 0;
     bAutoMode = false;
-    
+    bCommittedThisActivation = false;
+
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -232,6 +252,23 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 // 쿨타임을 Duration만 받아와서 어빌리티 내부에서 이펙트에 SetByCaller로 전달하도록 변경
 // 쿨타임 태그도 어빌리티의 태그를 보고 메인 스킬인지 서브 스킬인지 판단해서 적절한 태그를 반환하도록 변경
 // =========================================================================================
+bool UPGHeroSkillGameplayAbility::TryCommitAbilityOnce()
+{
+    // 이미 발동 했거나 커밋에 성공하면 true 반환, 커밋에 실패하면 false 반환
+    if (bCommittedThisActivation)
+    {
+        return true;
+    }
+
+    if(CommitAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo()))
+    {
+        bCommittedThisActivation = true;
+        return true;
+    }
+
+    return false;
+}
+
 EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
 {
     const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
@@ -282,8 +319,17 @@ const FGameplayTagContainer* UPGHeroSkillGameplayAbility::GetCooldownTags() cons
         return nullptr;
     }
 }
+
 void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
+    // 스킬 데이터에서 쿨타임 Value 가져와서 SetDuration에 설정
+    const float CooldownDuration = SkillData ? SkillData->SkillCooldown.GetValueAtLevel(GetAbilityLevel()) : 0.f;
+
+    if(CooldownDuration <= 0.f)
+    {
+        return;
+    }
+
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(UGEffect_Cooldown::StaticClass());
     
     if (!SpecHandle.IsValid()) return;
@@ -300,9 +346,6 @@ void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle
     default:    
         return;
     }
-
-    // 스킬 데이터에서 쿨타임 Value 가져와서 SetDuration에 설정
-    const float CooldownDuration = SkillData ? SkillData->SkillCooldown.GetValueAtLevel(GetAbilityLevel()) : 0.f;
 
     UE_LOG(LogTemp, Log, TEXT("Applying Cooldown: %f seconds"), CooldownDuration);
 

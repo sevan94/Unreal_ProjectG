@@ -392,10 +392,7 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
     Spawned->FinishSpawning(SpawnTransform);
     bActorSpawned = true;
 
-    if (bEmitRuntimeEvent)
-    {
-        EmitRuntimeEvent(PGGameplayTags::Shared_Event_ActorSpawn, FGameplayAbilityTargetDataHandle());
-    }
+    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnCommit, FGameplayAbilityTargetDataHandle());
 }
 
 void USkillAbilityTask_SpawnActor::OnDestroy(bool bInOwnerFinished)

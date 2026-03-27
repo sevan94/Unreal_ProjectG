@@ -34,6 +34,7 @@ namespace PGGameplayTags
     // 이벤트 트리거
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnCommit, "Event.Trigger.OnCommit");
 
     // 어트리뷰트 태그
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");

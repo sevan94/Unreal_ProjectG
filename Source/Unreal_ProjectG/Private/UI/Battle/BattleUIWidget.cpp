@@ -3,6 +3,7 @@
 
 #include "UI/Battle/BattleUIWidget.h"
 #include "UI/Battle/ResultVictoryWidget.h"
+#include "UI/Battle/PauseWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -23,6 +24,10 @@ void UBattleUIWidget::NativeConstruct()
     if (AutoButton)
     {
         AutoButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnAutoButtonClicked);
+    }
+    if (PauseButton)
+    {
+        PauseButton->OnClicked.AddDynamic(this, &UBattleUIWidget::OnPauseButtonClicked);
     }
 
     // 초기 텍스트 설정
@@ -107,5 +112,17 @@ void UBattleUIWidget::OnAutoButtonClicked()
         Hero->ChangeCombatMode(EHeroCombatMode::Manual);
         PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
+    }
+}
+
+void UBattleUIWidget::OnPauseButtonClicked()
+{
+    if (PauseWidget)
+    {
+        // 게임 일시정지 상태로 전환
+        UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+        // 일시정지 위젯 표시
+        PauseWidget->SetVisibility(ESlateVisibility::Visible);
     }
 }

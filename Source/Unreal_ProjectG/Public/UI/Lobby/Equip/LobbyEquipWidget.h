@@ -12,6 +12,7 @@ class UImage;
 class UTextBlock;
 class UWidgetSwitcher;
 class UPGGameInstance;
+class UHeroStatusWidget;
 class UCurrentEquipWidget;
 class UEquipListWidget;
 class UEquipUIDataAsset;
@@ -69,11 +70,17 @@ protected:
     // 해금 재화
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> Unlock;
+    // 업그레이드 재화
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGoodsBarWidget> Gold;
 
     // 영웅 패널
     // 영웅 렌더 타깃
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> HeroRender;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UHeroStatusWidget> HeroStatus;
 
     // 장착 장비 패널
     // 장착 무기

@@ -5,6 +5,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "UI/Lobby/Equip/HeroStatusWidget.h"
 #include "UI/Lobby/Equip/CurrentEquipWidget.h"
 #include "UI/Lobby/Equip/EquipListWidget.h"
 #include "UI/Lobby/Equip/EquipDescriptionWidget.h"
@@ -33,7 +34,8 @@ void ULobbyEquipWidget::NativeConstruct()
         GI->LoadGameData();
         GI->OnGoodsChanged.AddDynamic(this, &ULobbyEquipWidget::UpdateGoodsBar);
 
-        if(Unlock) Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
+        if (Unlock) Unlock->InitializeGoodsBar(GI->CurrentPlayerUnlock);
+        if (Gold) Gold->InitializeGoodsBar(GI->CurrentPlayerGold);
     }
     UnlockCostWidget->SetVisibility(ESlateVisibility::Hidden);
     UnlockCostWidget->InitializeGoodsBar(0);
@@ -48,6 +50,11 @@ void ULobbyEquipWidget::NativeConstruct()
     {
         EquipButton->SetIsEnabled(false);
         EquipButton->OnClicked.AddDynamic(this, &ULobbyEquipWidget::OnEquipButtonClicked);
+    }
+
+    if (HeroStatus)
+    {
+        HeroStatus->SetHeroStatus();
     }
 
     IntializeEquipSlots();
@@ -67,6 +74,7 @@ void ULobbyEquipWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
     switch (InCategory)
     {
     case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
+    case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
     }
 }
 

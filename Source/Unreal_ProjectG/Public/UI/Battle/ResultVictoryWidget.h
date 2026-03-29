@@ -27,7 +27,7 @@ protected:
     virtual void NativeConstruct() override;
 
     UFUNCTION()
-    void OnNextStageClicked();
+    void OnOpenStageClicked();
 
     UFUNCTION()
     void OnStageButtonClicked();
@@ -39,7 +39,7 @@ private:
 protected:
     // 다음 스테이지 버튼
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> NextStage;
+    TObjectPtr<UButton> OpenStage;
 
     // 스테이지 선택 버튼
     UPROPERTY(meta = (BindWidget))

@@ -118,6 +118,36 @@ void APGBaseGameMode::SetStageResult()
     }
 }
 
+int32 APGBaseGameMode::CalculateStarCount(const FBattleResultData& ResultData)
+{
+    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+    if (!GI) return 1;
+
+    float CurrentValue = 0.0f;
+    // 리워드 타입에 따른 현재 값 설정
+    switch (GI->CurrentStageData.RewardType)
+    {
+    case ERewardCategory::Time:   CurrentValue = ResultData.TotalPlayTime; break;
+    case ERewardCategory::Health: CurrentValue = ResultData.RemainingHealthPercent; break;
+    case ERewardCategory::Cost:   CurrentValue = ResultData.TotalSpentCost; break;
+    }
+
+    // 조건 비교
+    bool bLowerIsBetter = (GI->CurrentStageData.RewardType != ERewardCategory::Health);
+    if (bLowerIsBetter)
+    {
+        if (CurrentValue <= GI->CurrentStageData.Star3) return 3;
+        if (CurrentValue <= GI->CurrentStageData.Star2) return 2;
+    }
+    else
+    {
+        if (CurrentValue >= GI->CurrentStageData.Star3) return 3;
+        if (CurrentValue >= GI->CurrentStageData.Star2) return 2;
+    }
+
+    return 1;
+}
+
 // --- 시간 및 등급 관리 ---
 float APGBaseGameMode::GetCurrentPlayTime() const
 {
@@ -144,38 +174,29 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         Result.RemainingHealthPercent = (BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth()) * 100.0f;
     }
 
-    // 파괴된 팀이 'Enemy'라면 -> 플레이어 승리
-    if (DefeatedTeam == ETeamType::Enemy)
+    if (DefeatedTeam == ETeamType::Enemy) // 플레이어 승리
     {
         Result.bIsVictory = true;
 
-        // 클리어 시간 체크
-        float PlayTime = GetCurrentPlayTime();
-        UE_LOG(LogTemp, Warning, TEXT("Game Clear! PlayTime: %.2f sec"), PlayTime);
-
-        if (PlayTime <= ClearTimeLimit_3Stars)
+        UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+        if (GI)
         {
-            Result.StarCount = 3; // 3성 (빠른 클리어)
-        }
-        else if (PlayTime <= ClearTimeLimit_2Stars)
-        {
-            Result.StarCount = 2; // 2성 (보통)
-        }
-        else
-        {
-            Result.StarCount = 1; // 1성 (턱걸이)
-        }
+            // 최초 클리어 여부 판정
+            int32* OldStars = GI->StageClearData.Find(GI->CurrentStageData.StageCode);
+            Result.bIsFirstClear = (OldStars == nullptr || *OldStars == 0);
 
-        SetStageResult();
+            // 별 개수 계산
+            Result.StarCount = CalculateStarCount(Result);
 
-        UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
-
-        // 여기서 GameInstance를 불러와서 클리어 보상(골드 등)을 저장(Save)하는 로직을 추가 가능
+            // 스테이지 클리어 데이터 업데이트
+            GI->UpdateStageClearData(GI->CurrentStageData.StageCode, Result.StarCount);
+        }
     }
     else // 플레이어 기지 파괴 -> 패배
     {
         Result.bIsVictory = false;
         Result.StarCount = 0; // 패배 시 별 없음
+        Result.bIsFirstClear = false;
         UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
 

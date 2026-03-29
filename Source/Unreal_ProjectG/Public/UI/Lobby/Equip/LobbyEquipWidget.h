@@ -18,6 +18,7 @@ class UEquipListWidget;
 class UEquipUIDataAsset;
 class UEquipDescriptionWidget;
 class UGoodsBarWidget;
+class USetEffectWidget;
 
 /**
  * 
@@ -38,6 +39,9 @@ protected:
 
     UFUNCTION()
     void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
+
+    // 현재 활성화된 세트를 업데이트하는 함수
+    void UpdateSetEffects();
 
 private:
     UFUNCTION()
@@ -104,6 +108,14 @@ protected:
     // 해금 소모 재화
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> UnlockCostWidget;
+
+    // 세트 효과 데이터 테이블
+    UPROPERTY(EditAnywhere, Category = "Settings|Data")
+    TObjectPtr<UDataTable> SetEffectDataTable;
+
+    // 세트 효과 위젯
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USetEffectWidget> SetEffectWidget;
 
 private:
     // 현재 선택된 카테고리

@@ -18,6 +18,9 @@ struct FBattleResultData
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
+    bool bIsFirstClear = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
     bool bIsVictory = false;
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
@@ -82,6 +85,9 @@ protected:
 
     // 스테이지 결과 계산
     void SetStageResult();
+
+    // 별 개수 계산 로직
+    int32 CalculateStarCount(const FBattleResultData& ResultData);
 
 public:
     //기지 파괴 시 호출될 게임오버 함수

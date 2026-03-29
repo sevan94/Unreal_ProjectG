@@ -380,15 +380,10 @@ void USkillAbilityTask_SpawnActor::SpawnActorAtLocation(const FVector& Location,
         EndTask();
         return;
     }
+    Spawned->SetOwner(AvatarActor);
+    Spawned->SetInstigator(Cast<APawn>(AvatarActor));
 
-    UPGGameplayAbility* PGAbility = Cast<UPGGameplayAbility>(Ability);
-    TArray<FGameplayEffectSpecHandle> SpecHandles;
-    if (PGAbility && !Config.Effects.IsEmpty())
-    {
-        SpecHandles = PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
-    }
-
-    Spawned->InitFromConfig(Config, SpecHandles, Ability->GetAbilityLevel());
+    Spawned->InitFromConfig(Config, Ability->GetAbilityLevel());
     Spawned->FinishSpawning(SpawnTransform);
     bActorSpawned = true;
 

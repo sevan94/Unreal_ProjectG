@@ -33,10 +33,13 @@ public:
 	ASkillActor();
 
     // Beginplay보다 먼저 호출을 보장 받아야 함
-    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel = 1);
+    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, int32 InAbilityLevel = 1);
 
     // Task가 파괴 이벤트 수신에 사욯할 태그
     FGameplayTag GetDestroyedEventTag() const;
+
+    UFUNCTION(BlueprintPure, Category = "SkillActor|Runtime")
+    FORCEINLINE float GetRuntimeEffectMultiplier() const { return RuntimeEffectMultiplier; }
 
 protected:
     virtual void BeginPlay() override;
@@ -67,6 +70,18 @@ protected:
     // 파괴 트리거
     UFUNCTION(BlueprintCallable, Category = "SkillActor")
     void NotifyAndDestroy();
+
+
+    //==================================================
+    // 스케일 증가 멀티플라이어 함수( 나중에 분리 고려 )
+    //==================================================
+    UFUNCTION(BlueprintCallable, Category = "SkillActor|Runtime")
+    void SetRuntimeMultipliers(float InScaleMultiplier, float InEffectMultiplier);
+
+    UFUNCTION(BlueprintPure, Category = "SkillActor|Runtime")
+    FORCEINLINE float GetRuntimeScaleMultiplier() const { return RuntimeScaleMultiplier; }
+    
+    void RebuildEffectSpecsFromConfig();
 
 private:
     // 충돌 이벤트 콜백
@@ -130,4 +145,13 @@ protected:
     int32 CachedAbilityLevel = 1; // GA 레벨에 따른 효과 적용을 위해 캐싱
 
     static const FGameplayTag DestroyedEventTag; // 파괴 이벤트 태그
+
+    //==================================================
+    // 스케일 증가 멀티플라이어 함수( 나중에 분리 고려 )
+    //==================================================
+    UPROPERTY(BlueprintReadOnly, Category = "SkillActor|Runtime")
+    float RuntimeScaleMultiplier = 1.f;
+
+    UPROPERTY(BlueprintReadOnly, Category = "SkillActor|Runtime")
+    float RuntimeEffectMultiplier = 1.f;
 };

@@ -18,7 +18,7 @@ class UNREAL_PROJECTG_API ABuffAuraActor : public ASkillActor
 
 public:
     ABuffAuraActor();
-    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel = 1) override;
+    virtual void InitFromConfig(const FHeroSpawnableConfig& InConfig, int32 InAbilityLevel = 1) override;
 
 protected:
     virtual void BeginPlay() override;
@@ -37,7 +37,6 @@ private:
     void RemoveAllAuraEffects();
 
 private:
-    TArray<FGameplayEffectSpecHandle> AuraEffectSpecHandles;
     TMap<TWeakObjectPtr<AActor>, TArray<FActiveGameplayEffectHandle>> ActiveAuraEffectsByTarget;
 
 protected:

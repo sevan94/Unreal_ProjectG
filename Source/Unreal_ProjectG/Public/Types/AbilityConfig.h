@@ -218,20 +218,37 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
     FGameplayTag SpawnCueTag; // 스폰 시 재생할 이펙트 태그 (필요시)
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
+//==========================================================================================================
+// EffectConfig
+//==========================================================================================================
+
+USTRUCT(BlueprintType)
+struct FEffectConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 클래스"))
+    TSubclassOf<UGameplayEffect> EffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
+    FScalableFloat Multiplier = FScalableFloat(1.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
+    FScalableFloat BaseAmount = FScalableFloat(0.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
+    FScalableFloat Duration = FScalableFloat(0.f);
+};
+
+//==========================================================================================================
+// AOE 스킬용 Enum
+//==========================================================================================================
+
 UENUM(BlueprintType)
 enum class ESpawnLocation : uint8
 {
-    AtCaster                    UMETA(DisplayName = "시전자위치"),       // 캐릭터 위치에서 즉시 소환
+    AtCaster                    UMETA(DisplayName = "시전자위치"),   // 캐릭터 위치에서 즉시 소환
     AtTargetPoint               UMETA(DisplayName = "타겟 포인트"),  // 타겟 포인트에 소환
-};
-
-UENUM(BlueprintType)
-enum class ESkillTargetPolicy : uint8
-{
-    Enemy   UMETA(DisplayName = "적"),
-    Ally    UMETA(DisplayName = "아군"),
-    Self    UMETA(DisplayName = "자신")
 };
 
 UENUM(BlueprintType)
@@ -243,23 +260,9 @@ enum class ESkillActorType : uint8
     PersistentAOE   UMETA(DisplayName = "지속 범위"),
 };
 
-USTRUCT(BlueprintType)
-struct FEffectConfig
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<UGameplayEffect> EffectClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "스킬 배수 (0 = 설정 안함)"))
-    float Multiplier = 1.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "기본 수치 (버프만 사용)"))
-    float BaseAmount = 0.f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
-    float Duration = 0.f;
-};
+//==========================================================================================================
+// 캐릭터 어빌리티 태스크의 설정 구조체들
+//==========================================================================================================
 
 USTRUCT(BlueprintType)
 struct FHeroMeleeTraceConfig : public FAbilityConfig
@@ -285,6 +288,9 @@ struct FHeroMeleeTraceConfig : public FAbilityConfig
     // 액터가 재생할 몽타주
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UAnimMontage> Montage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "디버그용 트레이스 시작화"))
+    bool bDrawDebugTrace = false;
 };
 
 USTRUCT(BlueprintType)
@@ -394,4 +400,53 @@ struct FHeroSpawnableConfig : public FAbilityConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "연속된 스폰 액터 배열"))
     FSkillActorFollowUpSpawnConfig NextSpawn; // 체인 스폰을 위한 다음 스폰 설정 배열
+};
+
+UENUM(BlueprintType)
+enum class EHeroBuffCenterPolicy : uint8
+{
+    AtCaster        UMETA(DisplayName = "시전자 위치"),
+    AtTriggerPoint  UMETA(DisplayName = "트리거 위치"),
+};
+
+UENUM(BlueprintType)
+enum class EHeroBuffSelectRule : uint8
+{
+    AllInRange      UMETA(DisplayName = "범위 내 전체"),
+    NearestN        UMETA(DisplayName = "가까운 순"),
+    LowestHealthN   UMETA(DisplayName = "체력 낮은 순"),
+};
+
+USTRUCT(BlueprintType)
+struct FHeroBuffConfig : public FAbilityConfig
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
+    TArray<FEffectConfig> Effects;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "버프/디버프"))
+    EPolarity Polarity = EPolarity::Buff;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
+    ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Ally;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "중심 위치", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    EHeroBuffCenterPolicy CenterPolicy = EHeroBuffCenterPolicy::AtCaster;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "범위", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    float Radius = 500.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "적용 정책", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self", EditConditionHides))
+    EHeroBuffSelectRule SelectRule = EHeroBuffSelectRule::AllInRange;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,
+        meta = (ClampMin = "1", DisplayName = "최대 적용 대상 수", EditCondition = "TargetPolicy != ESkillTargetPolicy::Self && SelectRule != EHeroBuffSelectRule::AllInRange", EditConditionHides))
+    int32 MaxTargets = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "몽타주"))
+    TObjectPtr<UAnimMontage> Montage = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "적용할 큐", Categories = "GameplayCue"))
+    FGameplayTagContainer AppliedCueTags;
 };

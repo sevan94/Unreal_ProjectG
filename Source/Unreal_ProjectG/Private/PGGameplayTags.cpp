@@ -14,18 +14,35 @@ namespace PGGameplayTags
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill, "Player.Ability.Combat.Skill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponSharedSkill, "Player.Ability.Combat.Skill.WeaponSharedSkill");
-    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_WeaponUniqueSkill, "Player.Ability.Combat.Skill.WeaponUniqueSkill");   
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_SubSkill, "Player.Ability.Combat.Skill.SubSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_Skill_MainSkill, "Player.Ability.Combat.Skill.MainSkill");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
+
+    // 어빌리티 태그
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_MainSkill, "Ability.Cooldown.MainSkill");
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_SubSkill, "Ability.Cooldown.SubSkill");
 
     // 플레이어 세트 게임 플레이 태그 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Defender, "Equipment.Set.Defender");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Thunder, "Equipment.Set.Thunder");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_PetsAssemble, "Equipment.Set.PetsAssemble");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Crasher, "Equipment.Set.Crasher");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_FireballMaster, "Equipment.Set.FireballMaster");
+
+    // 이벤트 트리거
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnCommit, "Event.Trigger.OnCommit");
+
+    // 어트리뷰트 태그
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_Cost, "Attribute.Cost");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_AttackPower, "Attribute.AttackPower");
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_MoveSpeed, "Attribute.MoveSpeed");
+
 
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
@@ -50,10 +67,10 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_Duration, "Shared.SetByCaller.Duration");
     UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseBuffAmount, "Shared.SetByCaller.BaseBuffAmount");
 
-    // 스탯 관련 SetByCaller 태그
+     // 스탯 관련 SetByCaller 태그
     UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MaxHealth, "Attribute.SetByCaller.MaxHealth");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_AttackPower, "Attribute.SetByCaller.AttackPower");
-    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed"); 
+    UE_DEFINE_GAMEPLAY_TAG(Attribute_SetByCaller_MoveSpeed, "Attribute.SetByCaller.MoveSpeed");
 
     //유닛 등급 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Tier_Normal, "Unit.Tier.Normal");
@@ -83,4 +100,3 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Invincible, "Unit.State.Invincible");
 }
-

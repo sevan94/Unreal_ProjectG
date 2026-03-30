@@ -5,7 +5,7 @@
 #include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "DataAssets/Items/DataAsset_ArmorData.h"
 #include "DataAssets/Items/DataAsset_AccessoryData.h"
-#include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "DataAssets/Ability/DataAsset_HeroSkillData.h"
 #include "AbilitySystem/PGAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/PGHeroGameplayAbility.h"
 #include "Character/Hero/HeroCharacter.h"
@@ -62,21 +62,29 @@ void UEquipmentsStorageComponent::EquipHeroArmor(UDataAsset_ArmorData* InArmorDa
 
 void UEquipmentsStorageComponent::EquipHeroAccessory(UDataAsset_AccessoryData* InAccessoryData)
 {
-    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
-    UDataAsset_SkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
-    //AccessoryAbilityAsset->AbilityEntry.AbilityClass;
+    if (!InAccessoryData || !InAccessoryData->IsValid())
+    {
+        return;
+    }
 
-    if (!AccessoryAbilityAsset || !AccessoryAbilityAsset->AbilityEntry.AbilityClass)
+    UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
+    if (!ASC)
+    {
+        return;
+    }
+
+    UDataAsset_HeroSkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
+    if (!AccessoryAbilityAsset)
     {
         return;
     }
 
     FGameplayAbilitySpec AbilitySpec(
-        AccessoryAbilityAsset->AbilityEntry.AbilityClass,
+        InAccessoryData->AccessoryAbilityClass,
         1,
         INDEX_NONE,
         AccessoryAbilityAsset
     );
-    ASC->GiveAbility(AbilitySpec);
-    ASC->TryActivateAbility(AbilitySpec.Handle);
+    const FGameplayAbilitySpecHandle GivenHandle = ASC->GiveAbility(AbilitySpec);
+    ASC->TryActivateAbility(GivenHandle);
 }

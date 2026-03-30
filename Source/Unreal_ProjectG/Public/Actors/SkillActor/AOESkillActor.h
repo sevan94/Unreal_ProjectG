@@ -14,4 +14,5 @@ class UNREAL_PROJECTG_API AAOESkillActor : public ASkillActor
 {
 	GENERATED_BODY()
 	
+
 };

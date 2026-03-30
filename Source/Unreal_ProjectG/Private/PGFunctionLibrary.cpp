@@ -12,7 +12,7 @@
 
 UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetPGASCFromActor(AActor* InActor)
 {
-    check(InActor);
+    checkf(InActor, TEXT("InActor : %s"), *GetNameSafe(InActor));
 
     return CastChecked<UPGAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InActor));
 }
@@ -92,6 +92,17 @@ FGameplayTag UPGFunctionLibrary::GetSetByCallerTagForAttribute(const FGameplayAt
     }
     
     return FGameplayTag();
+}
+
+const int32 UPGFunctionLibrary::ResolveSetPieceCount(const UAbilitySystemComponent* InASC, const FGameplayTag& RequiredSetTag) 
+{
+    if (!InASC || !RequiredSetTag.IsValid())
+    {
+        return 0;
+    }
+    
+    // TODO : 세트 효과각 세분과 된다면 교체 지금은 세트 효과가 하나의 태그로 표현된다고 가정(3세트만 존재)
+    return InASC->HasMatchingGameplayTag(RequiredSetTag) ? 3 : 0;
 }
 
 // ====================================================================================================
@@ -176,28 +187,32 @@ FGameplayEffectSpecHandle UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecFrom
     // 게임 플레이 이펙트 스펙 생성
     FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(SourceASC, InEffectConfig.EffectClass, Instigator, SourceObject, InAbilityLevel);
 
+    const float MultiplierValue = InEffectConfig.Multiplier.GetValueAtLevel(InAbilityLevel);
+    const float BaseAmountValue = InEffectConfig.BaseAmount.GetValueAtLevel(InAbilityLevel);
+    const float DurationValue = InEffectConfig.Duration.GetValueAtLevel(InAbilityLevel);
+
     // EffectConfig에서 설정된 값들을 스펙에 적용
-    if (!FMath::IsNearlyZero(InEffectConfig.Multiplier))
+    if (!FMath::IsNearlyZero(MultiplierValue))
     {
         EffectSpecHandle.Data->SetSetByCallerMagnitude(
             PGGameplayTags::Shared_SetByCaller_SkillMultiplier,
-            InEffectConfig.Multiplier
+            MultiplierValue 
         );
     }
 
-    if (InEffectConfig.BaseAmount > 0.f)
+    if (BaseAmountValue > 0.f)
     {
         EffectSpecHandle.Data->SetSetByCallerMagnitude(
             PGGameplayTags::Shared_SetByCaller_BaseAmount,
-            InEffectConfig.BaseAmount
+            BaseAmountValue
         );
     }
 
-    if (InEffectConfig.Duration > 0.f)
+    if (DurationValue > 0.f)
     {
         EffectSpecHandle.Data->SetSetByCallerMagnitude(
             PGGameplayTags::Shared_SetByCaller_Duration,
-            InEffectConfig.Duration
+            DurationValue
         );
     }
 

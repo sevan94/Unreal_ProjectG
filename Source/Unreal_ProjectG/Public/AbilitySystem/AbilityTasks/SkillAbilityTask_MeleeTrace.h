@@ -53,4 +53,6 @@ private:
     // 이전 프레임 소켓 위치 캐싱(스윕)
     FVector PreviousTraceStart = FVector::ZeroVector;
     FVector PreviousTraceEnd = FVector::ZeroVector;
+
+    bool bHitEventFlag = false; // 첫 번째 히트 발생을 체크하기 위한 플래그
 };

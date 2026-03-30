@@ -117,3 +117,18 @@ enum class ERewardCategory : uint8
     Health      UMETA(DisplayName = "Health"),
     Cost        UMETA(DisplayName = "Cost")
 };
+
+UENUM(BlueprintType)
+enum class ESkillTargetPolicy : uint8
+{
+    Enemy   UMETA(DisplayName = "적"),
+    Ally    UMETA(DisplayName = "아군"),
+    Self    UMETA(DisplayName = "자신")
+};
+
+UENUM(BlueprintType)
+enum class EPolarity : uint8
+{
+    Buff    UMETA(DisplayName = "버프"),
+    Debuff  UMETA(DisplayName = "디버프")
+};

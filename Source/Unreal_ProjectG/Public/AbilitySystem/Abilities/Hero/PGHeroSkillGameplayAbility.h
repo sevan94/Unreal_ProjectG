@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,39 +5,86 @@
 #include "DataAssets/Ability/DataAsset_HeroSkillData.h"
 #include "PGHeroSkillGameplayAbility.generated.h"
 
-/**
- * 히어로 스킬 어빌리티
- * HeroSkillData의 ActionSequence에 따라 스킬 액션들을 순차적으로 실행하는 어빌리티
- */
+UENUM()
+enum class EHeroSkillType : uint8
+{
+    None            UMETA(DisplayName = "없음"),
+    MainSkill       UMETA(DisplayName = "메인 스킬"),
+    SubSkill        UMETA(DisplayName = "서브 스킬"),
+    BasicAttack     UMETA(DisplayName = "기본 공격"),
+};
+
+
+/*
+* 히어로 스킬 어빌리티 클래스
+* 스킬 데이터 에셋의 정보를 기반으로 스킬 액션을 실행하는 어빌리티
+* 스킬 액션은 근접 트레이스, 버프, 액터 소환 등의 동작이고 각 동작이 끝나면 다음 액션이 실행되는 방식으로 구성되어 있음
+* 스킬 액션이 실행되는 도중에 특정 이벤트(Hit, Kill 등)이 발생하면 해당 이벤트에 반응하는 액션을 실행하도록 되어 있음.
+*/
 UCLASS()
 class UNREAL_PROJECTG_API UPGHeroSkillGameplayAbility : public UPGHeroGameplayAbility
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
     UPGHeroSkillGameplayAbility();
 
 protected:
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+    virtual void ActivateAbility(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        const FGameplayEventData* TriggerEventData) override;
+
+    virtual void EndAbility(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        bool bReplicateEndAbility,
+        bool bWasCancelled) override;
+
+    // 쿨다운 게임플레이 이펙트에서 태그를 가져오던 것을 이 어빌리티의 태그를 보고 메인 스킬인지 서브 스킬인지 판단해서 적절한 태그를 반환하도록 변경
+    virtual const FGameplayTagContainer* GetCooldownTags() const override;
+    // 스킬데이터의 쿨타임 Value와 GetCooldownTags()로 반환된 태그로 이펙트 스펙을 만들어서 적용하도록 변경
+    virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
 private:
     void ExecuteNextAction();
 
-    // Task 콜백 함수들
+    // SkillData의 이벤트에서 이벤트 액션 Modifier를 찾아서 액션 배열에 추가하는 함수
+    void ExecuteEventTrigger(EHeroSkillEventTrigger Trigger, const FGameplayTag& SourceEventTag, const FGameplayAbilityTargetDataHandle& TargetData);
+    
+    // 실제 이벤트 실행 함수
+    void ExecuteEventAction(const FSkillActionRow& ActionRow, const FGameplayAbilityTargetDataHandle& TargetData);
+
+    // 태그 -> EHeroSkillEventTrigger 변환 함수, 변환 실패 시 false 반환
+    static bool ConvertEventTagToTrigger(const FGameplayTag& EventTag, EHeroSkillEventTrigger& OutTrigger);
+
+    UFUNCTION()
+    void OnTaskRuntimeEvent(FGameplayTag EventTag, FGameplayAbilityTargetDataHandle TargetData);
+
     UFUNCTION()
     void OnActionCompleted(FGameplayAbilityTargetDataHandle TargetData);
 
     UFUNCTION()
     void OnActionCancelled(FGameplayAbilityTargetDataHandle TargetData);
 
+    UFUNCTION()
+    EHeroSkillType GetHeroSkillType() const;
+
+    // 이벤트에 반응하여 어빌리티를 Commit하는 함수, 어빌리티에서 딱 한 번만 커밋하도록 체크 포함
+    bool TryCommitAbilityOnce();
+
 private:
-    // InstancedPerActor이므로, 활성화마다 초기화
-    int32 CurrentActionIndex;                           // 현재 실행 중인 액션의 인덱스
+    int32 CurrentActionIndex = 0;
 
-    //SourceObject에서 스킬 데이터 가져와 할당할 변수
     UPROPERTY()
-    TObjectPtr<UDataAsset_HeroSkillData> SkillData;
+    TObjectPtr<UDataAsset_HeroSkillData> SkillData = nullptr;
 
-    bool bAutoMode; // 자동 모드 여부 (자동 모드인 경우 타겟팅 없이 자기 위치 기준으로 액션 실행)
+    UPROPERTY()
+    TArray<FSkillActionRow> RuntimeActionSequence;
+
+    bool bAutoMode = false;
+
+    bool bCommittedThisActivation = false;
 };

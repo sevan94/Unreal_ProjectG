@@ -11,6 +11,7 @@
 #include "PGGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "PGFunctionLibrary.h"
 
 namespace MeleeTraceConstants
@@ -29,17 +30,8 @@ USkillAbilityTask_MeleeTrace* USkillAbilityTask_MeleeTrace::Create(UGameplayAbil
 
 void USkillAbilityTask_MeleeTrace::Activate()
 {
+    bHitEventFlag = false;
     const FHeroMeleeTraceConfig& Config = CachedActionRow.MeleeTraceConfig;
-
-    // 몽타주 재생
-    if (Config.Montage)
-    {
-        UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(Ability, NAME_None, Config.Montage);
-        MontageTask->OnCancelled.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
-        MontageTask->OnBlendOut.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
-        MontageTask->OnInterrupted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
-        MontageTask->ReadyForActivation();
-    }
 
     UAbilityTask_WaitGameplayEvent* StartTraceEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(Ability, PGGameplayTags::Shared_Event_MeleeTraceStart);
     StartTraceEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnTraceStartEventReceived);
@@ -48,6 +40,17 @@ void USkillAbilityTask_MeleeTrace::Activate()
     UAbilityTask_WaitGameplayEvent* EndTraceEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(Ability, PGGameplayTags::Shared_Event_MeleeTraceEnd);
     EndTraceEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnTraceEndEventReceived);
     EndTraceEventTask->ReadyForActivation();
+
+    // 몽타주 재생
+    if (Config.Montage)
+    {
+        UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(Ability, NAME_None, Config.Montage);
+        MontageTask->OnCancelled.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
+        MontageTask->OnBlendOut.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
+        MontageTask->OnInterrupted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
+        MontageTask->OnCompleted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
+        MontageTask->ReadyForActivation();
+    }
 }
 
 
@@ -90,9 +93,6 @@ void USkillAbilityTask_MeleeTrace::OnTraceEndEventReceived(FGameplayEventData Pa
     bIsTraceActive = false;
     GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
     HitActors.Empty();
-
-    OnCompleted.Broadcast({});
-    EndTask();
 }
 
 void USkillAbilityTask_MeleeTrace::ExecuteTrace()
@@ -127,6 +127,8 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                 // 이전 프레임 위치 -> 현재 위치로 캡슐 스윕
                 const float HalfHeight = FVector::Dist(CurrentTraceStart, CurrentTraceEnd) * 0.5f;
 
+                EDrawDebugTrace::Type DebugTracePolicy = Config.bDrawDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+
                 TArray<FHitResult> HitResults;
                 UKismetSystemLibrary::CapsuleTraceMultiForObjects(
                     Avatar,
@@ -137,13 +139,13 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, // 적 캐릭터만 충돌하도록 Pawn 채널 사용
                     false,
                     TArray<AActor*>({ Avatar }),
-                    EDrawDebugTrace::None,
+                    DebugTracePolicy,
                     HitResults,
-                    true
+                    true,
+                    FLinearColor::Red
                 );
 
                 UPGGameplayAbility* PGAbility = Cast<UPGGameplayAbility>(Ability);
-                int32 HitCount = 0;
 
                 for (const FHitResult& HitResult : HitResults)
                 {
@@ -158,7 +160,7 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     if (HitActors.Contains(HitActor)) continue;
 
                     // MaxHit 체크
-                    if (HitCount >= Config.MaxHit) break;
+                    if (HitActors.Num() >= Config.MaxHit) break;
 
                     // GE 적용
                     if (PGAbility && !Config.Effects.IsEmpty())
@@ -168,9 +170,23 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
 
                         for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
                         {
-                            if(SpecHandle.IsValid())
+                            if (SpecHandle.IsValid())
+                            {
                                 PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
-                            HitActors.Add(HitActor);
+                                HitActors.Add(HitActor);
+
+                                if (!bHitEventFlag)
+                                {
+                                    FGameplayAbilityTargetDataHandle RuntimeTargetData;
+                                    FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
+                                    HitData->HitResult = HitResult;
+                                    RuntimeTargetData.Add(HitData);
+
+                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnCommit, RuntimeTargetData);
+                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                                    bHitEventFlag = true;
+                                }
+                            }
                         }
                     }
                 }

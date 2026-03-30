@@ -99,4 +99,15 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Dead, "Unit.State.Dead");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Guard, "Unit.State.Guard");
     UE_DEFINE_GAMEPLAY_TAG(Unit_State_Invincible, "Unit.State.Invincible");
+
+    //유닛 버프 디버프 태그
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Dbuff_Poison, "GameplayCue.VFX.Unit.Dbuff.Poison");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Dbuff_Slow, "GameplayCue.VFX.Unit.Dbuff.Slow");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Dbuff_Weekness, "GameplayCue.VFX.Unit.Dbuff.Weekness");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Dbuff_Frozen, "GameplayCue.VFX.Unit.Dbuff.Frozen");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Boost, "GameplayCue.VFX.Unit.Buff.Boost");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_berserk, "GameplayCue.VFX.Unit.Buff.berserk");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Warth, "GameplayCue.VFX.Unit.Buff.Warth");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Clam, "GameplayCue.VFX.Unit.Buff.Clam");
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Divinity, "GameplayCue.VFX.Unit.Buff.Divinity");
 }

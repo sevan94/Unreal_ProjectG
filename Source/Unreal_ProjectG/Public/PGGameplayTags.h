@@ -101,4 +101,17 @@ namespace PGGameplayTags
     //아군 적군 구분 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
+
+    //유닛 버프 디버프 태그
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Dbuff_Poison); //지속적인 체력 감소
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Dbuff_Slow); //이속감소
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Dbuff_Weekness); //공격력감소
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Dbuff_Frozen); //공속감소
+
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Buff_Boost); // 이속증가
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Buff_berserk); // 공격속도증가
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Buff_Warth); // 공격력증가
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Buff_Clam); // 방어력? 추가체력? 증가
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_VFX_Unit_Buff_Divinity); //여러 효과 합친 강력한 버프들
+
 }

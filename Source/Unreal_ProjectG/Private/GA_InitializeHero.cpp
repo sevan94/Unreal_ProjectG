@@ -19,14 +19,16 @@ void UGA_InitializeHero::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
     AHeroCharacter* Hero = Cast<AHeroCharacter>(ActorInfo->AvatarActor.Get());
 
-    if (Hero && FullHeal && FillCost)
+    if (Hero && FullHeal && FillCost && StartCost)
     {
         UPGAbilitySystemComponent* HeroAbility = Hero->GetPGAbilitySystemComponent();
         FGameplayEffectContextHandle Context = HeroAbility->MakeEffectContext();
         Context.AddSourceObject(this);
         FGameplayEffectSpecHandle CostSpec = HeroAbility->MakeOutgoingSpec(FillCost, GetAbilityLevel(), Context);
         FGameplayEffectSpecHandle HealSpec = HeroAbility->MakeOutgoingSpec(FullHeal, GetAbilityLevel(), Context);
+        FGameplayEffectSpecHandle StartCostSpec = HeroAbility->MakeOutgoingSpec(StartCost, GetAbilityLevel(), Context);
         HeroAbility->ApplyGameplayEffectSpecToSelf(*CostSpec.Data.Get());
         HeroAbility->ApplyGameplayEffectSpecToSelf(*HealSpec.Data.Get());
+        HeroAbility->ApplyGameplayEffectSpecToSelf(*StartCostSpec.Data.Get());
     }
 }

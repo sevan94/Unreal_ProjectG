@@ -20,20 +20,26 @@ class UNREAL_PROJECTG_API UDataAsset_SkillVisualData : public UPrimaryDataAsset
 	
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "비행 이펙트"))
-    TObjectPtr<UNiagaraSystem> ProjectileVFX; // 투사체 이펙트
+    TSoftObjectPtr<UNiagaraSystem> ProjectileVFX; // 투사체 이펙트
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "비행 사운드"))
-    TObjectPtr<USoundBase> ProjectileSFX; // 투사체 사운드
+    TSoftObjectPtr<USoundBase> ProjectileSFX; // 투사체 사운드
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "충돌 이펙트"))
-    TObjectPtr<UNiagaraSystem> ImpactVFX; // 히트 이펙트
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "히트 이펙트"))
+    TSoftObjectPtr<UNiagaraSystem> HitVFX; // 히트 이펙트
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "충돌 사운드"))
-    TObjectPtr<USoundBase> ImpactSFX; // 히트 사운드
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "히트 사운드"))
+    TSoftObjectPtr<USoundBase> HitSFX; // 히트 사운드
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "임팩트 이펙트"))
+    TSoftObjectPtr<UNiagaraSystem> ImpactVFX; // 임팩트 이펙트
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "임팩트 사운드"))
+    TSoftObjectPtr<USoundBase> ImpactSFX; // 임팩트 사운드
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 이펙트"))
-    TObjectPtr<UNiagaraSystem> PersistentVFX; // 지속 이펙트
+    TSoftObjectPtr<UNiagaraSystem> PersistentVFX; // 지속 이펙트
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "지속 사운드"))
-    TObjectPtr<USoundBase> PersistentSFX; // 지속 사운드
+    TSoftObjectPtr<USoundBase> PersistentSFX; // 지속 사운드
 };

@@ -138,11 +138,6 @@ void AHeroCharacter::InitializeHero()
     {
         PGAbilitySystemComponent->TryActivateAbilityByTag(PGGameplayTags::Player_Ability_Initialize);
     }
-
-    //if (PGAbilitySystemComponent && GA_Initialize)
-    //{
-    //    PGAbilitySystemComponent->TryActivateAbilityByClass(GA_Initialize);
-    //}
 }
 
 bool AHeroCharacter::ConsumeCost(float InCost)

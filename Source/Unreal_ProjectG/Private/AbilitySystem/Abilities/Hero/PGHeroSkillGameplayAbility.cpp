@@ -271,6 +271,8 @@ bool UPGHeroSkillGameplayAbility::TryCommitAbilityOnce()
 
 EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
 {
+    if (!GetCurrentAbilitySpec()) return EHeroSkillType::None;
+
     const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
     if (!Spec)
     {

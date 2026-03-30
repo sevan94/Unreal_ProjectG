@@ -160,7 +160,7 @@ void AUnitCharacter::InitUnitStartUpData()
 
                         SubBTAssetKey = StartUpData->BranchData->SubBTAsset;
 
-                        AttackMarginKey = AttackRangeKey * 0.85f;
+                        AttackMarginKey = AttackRangeKey * 0.9f;
 
                         if (StartUpData->BranchData->BranchTag.IsValid())
                         {
@@ -171,6 +171,7 @@ void AUnitCharacter::InitUnitStartUpData()
                     if (CharacterAttributeSet)
                     {
                         CharacterAttributeSet->SetHealth(CharacterAttributeSet->GetMaxHealth());
+                        UnitAttackSpeed = 1/CharacterAttributeSet->GetAttackSpeed();
                         UE_LOG(LogTemp, Log, TEXT("HP : %f"), CharacterAttributeSet->GetHealth());
                     }
                     else

@@ -81,7 +81,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 
         FVector BaseForward = SpawnBase->GetActorForwardVector();
         FVector BaseRight = SpawnBase->GetActorRightVector();
-        float RandomRange = FMath::RandRange(-250.0f, 250.0f);
+        float RandomRange = FMath::RandRange(-2.0f, 2.0f);
 
         FVector FinalLocation = SpawnLocation + (BaseForward * 200.0f) + (BaseRight * RandomRange);
 

@@ -69,6 +69,7 @@ void AUnitDetourCrowdAIController::InitializeAI()
         BlackboardComp->SetValueAsFloat(TEXT("DetectRange"), CrowdUnit->GetDetectRangeKey());
         BlackboardComp->SetValueAsFloat(TEXT("AttackRange"), CrowdUnit->GetAttackRangeKey());
         BlackboardComp->SetValueAsFloat(TEXT("AttackMargin"), CrowdUnit->GetAttackMarginKey());
+        BlackboardComp->SetValueAsFloat(TEXT("AttackSpeed"), CrowdUnit->GetAttackSpeedKey());
 
         if (UBehaviorTree* SubTree = CrowdUnit->GetSubBTAssetKey())
         {

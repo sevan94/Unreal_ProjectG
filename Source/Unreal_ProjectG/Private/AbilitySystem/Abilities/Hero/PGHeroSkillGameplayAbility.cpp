@@ -234,6 +234,10 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 // =========================================================================================
 EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
 {
+    if (!IsInstantiated())
+    {
+        return EHeroSkillType::None;
+    }
     const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
     if (!Spec)
     {

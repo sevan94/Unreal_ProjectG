@@ -99,6 +99,11 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
 {
     if (!bIsTraceActive) return;
 
+    FGameplayAbilityTargetDataHandle RuntimeTargetData;
+    FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
+
+    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnCommit, RuntimeTargetData); // 스킬 커밋 이벤트 먼저 발생시키기(예외 상황 방지 위해)
+
     const FHeroMeleeTraceConfig& Config = CachedActionRow.MeleeTraceConfig;
     AActor* Avatar = Ability->GetAvatarActorFromActorInfo();
 
@@ -124,18 +129,14 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     CurrentTraceEnd += TraceDir * Config.TraceOffsetRange;
                 }
 
-                // 이전 프레임 위치 -> 현재 위치로 캡슐 스윕
-                const float HalfHeight = FVector::Dist(CurrentTraceStart, CurrentTraceEnd) * 0.5f;
-
                 EDrawDebugTrace::Type DebugTracePolicy = Config.bDrawDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
                 TArray<FHitResult> HitResults;
-                UKismetSystemLibrary::CapsuleTraceMultiForObjects(
+                UKismetSystemLibrary::SphereTraceMultiForObjects(
                     Avatar,
-                    PreviousTraceStart, // 이전 프레임 시작점
+                    CurrentTraceStart,   // 현재 프레임 시작점
                     CurrentTraceEnd,     // 현재 프레임 끝점
                     Config.Radius,
-                    HalfHeight,
                     { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, // 적 캐릭터만 충돌하도록 Pawn 채널 사용
                     false,
                     TArray<AActor*>({ Avatar }),
@@ -177,12 +178,9 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
 
                                 if (!bHitEventFlag)
                                 {
-                                    FGameplayAbilityTargetDataHandle RuntimeTargetData;
-                                    FGameplayAbilityTargetData_SingleTargetHit* HitData = new FGameplayAbilityTargetData_SingleTargetHit();
                                     HitData->HitResult = HitResult;
                                     RuntimeTargetData.Add(HitData);
 
-                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnCommit, RuntimeTargetData);
                                     EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
                                     bHitEventFlag = true;
                                 }

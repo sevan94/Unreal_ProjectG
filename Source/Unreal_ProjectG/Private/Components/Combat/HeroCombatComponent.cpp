@@ -52,12 +52,16 @@ void UHeroCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         return;
     }
 
-    FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwningCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-    LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
+    FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+        OwningCharacter->GetActorLocation(),
+        CurrentTarget->GetActorLocation()
+    );
 
-    const FRotator NewRotation = FMath::RInterpTo(OwningCharacter->GetActorRotation(), LookAtRotation, DeltaTime, 10.f);
+    const FRotator CurrentControlRot = OwningCharacter->GetControlRotation();
+    const FRotator TargetRot = FMath::RInterpTo(CurrentControlRot, LookAtRot, DeltaTime, 10.f);
 
-    OwningCharacter->SetActorRotation(NewRotation);
+    OwningCharacter->GetController()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
+    OwningCharacter->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
 }
 
 void UHeroCombatComponent::ActivateManualCombat()
@@ -162,7 +166,10 @@ void UHeroCombatComponent::UpdateDetection()
     SetComponentTickEnabled(CurrentTarget.IsValid()); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
 
     // 유효한 타깃이 없으면 전투 종료
-    if (!CurrentTarget.IsValid()) return;
+    if (!CurrentTarget.IsValid())
+    {
+        return;
+    }
 
     if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
     {

@@ -11,6 +11,7 @@
 class UButton;
 class UImage;
 class UTextBlock;
+class UOverlay;
 class UHorizontalBox;
 class UReadyUnitWidget;
 class UReadyEquipWidget;
@@ -95,7 +96,13 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> RewardGem;
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UOverlay> GemOverlay;
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> RewardGold;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "UI")
+    TObjectPtr<UTexture2D> StarImage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+    TObjectPtr<UTexture2D> EmptyStarImage;
 
 private:
     TObjectPtr<UPGGameInstance> GI;

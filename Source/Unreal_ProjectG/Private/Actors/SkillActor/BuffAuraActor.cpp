@@ -17,12 +17,9 @@ ABuffAuraActor::ABuffAuraActor()
     AuraDecalComponent->DecalSize = FVector(200.f, 100.f, 100.f);
 }
 
-void ABuffAuraActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel)
+void ABuffAuraActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, int32 InAbilityLevel)
 {
-    Super::InitFromConfig(InConfig, InSpecHandles, InAbilityLevel);
-
-    AuraEffectSpecHandles = InSpecHandles;
-    EffectSpecHandles.Empty();
+    Super::InitFromConfig(InConfig, InAbilityLevel);
 
     Config.HitsPerLifeSpan = 0.f;
 
@@ -130,7 +127,7 @@ bool ABuffAuraActor::IsValidAuraTarget(AActor* TargetActor) const
 
 void ABuffAuraActor::ApplyAuraToTarget(AActor* TargetActor)
 {
-    if (!TargetActor || AuraEffectSpecHandles.IsEmpty())
+    if (!TargetActor || EffectSpecHandles.IsEmpty())
     {
         return;
     }
@@ -143,7 +140,7 @@ void ABuffAuraActor::ApplyAuraToTarget(AActor* TargetActor)
     }
 
     TArray<FActiveGameplayEffectHandle> AppliedHandles;
-    for (const FGameplayEffectSpecHandle& SpecHandle : AuraEffectSpecHandles)
+    for (const FGameplayEffectSpecHandle& SpecHandle : EffectSpecHandles)
     {
         if (!SpecHandle.IsValid())
         {

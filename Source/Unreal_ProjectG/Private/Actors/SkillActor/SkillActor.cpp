@@ -34,21 +34,23 @@ ASkillActor::ASkillActor()
 }
 
 // 초기화
-void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, const TArray<FGameplayEffectSpecHandle>& InSpecHandles, int32 InAbilityLevel)
+void ASkillActor::InitFromConfig(const FHeroSpawnableConfig& InConfig, int32 InAbilityLevel)
 {
     Config = InConfig;
-    EffectSpecHandles = InSpecHandles;
     CachedAbilityLevel = InAbilityLevel;
 
     if(Config.Radius > 0.f)
     {
-        CollisionComponent->SetSphereRadius(Config.Radius);
+        const float FinalRadius = Config.Radius * RuntimeEffectMultiplier;
+        CollisionComponent->SetSphereRadius(FinalRadius);
     }
 
     if (Config.LifeSpan > 0.f)
     {
         SetLifeSpan(Config.LifeSpan);
     }
+
+    RebuildEffectSpecsFromConfig();
 }
 
 FGameplayTag ASkillActor::GetDestroyedEventTag() const
@@ -59,6 +61,8 @@ FGameplayTag ASkillActor::GetDestroyedEventTag() const
 void ASkillActor::BeginPlay()
 {
     Super::BeginPlay();
+
+    bDestroyNotified = false;
 
     CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ASkillActor::OnSphereBeginOverlap);
     CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ASkillActor::OnSphereEndOverlap);
@@ -250,15 +254,19 @@ FHeroSpawnableConfig ASkillActor::MakeSpawnableConfigFromFollowUp(const FSkillAc
 
 TArray<FGameplayEffectSpecHandle> ASkillActor::BuildEffectSpecsFromConfigs(const TArray<FEffectConfig>& EffectConfigs) const
 {
-    UPGAbilitySystemComponent* SourceASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());
+    AActor* SourceActor = GetOwner();
+    if (!SourceActor) SourceActor = GetInstigator();
+    if (!SourceActor) return {};
+
+    UPGAbilitySystemComponent* SourceASC = UPGFunctionLibrary::NativeGetPGASCFromActor(SourceActor);
 
     if (!SourceASC) return {};
 
     return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(
         SourceASC,
         EffectConfigs,
-        GetOwner(),
-        GetOwner(),
+        SourceActor,
+        SourceActor,
         CachedAbilityLevel);
 }
 
@@ -287,9 +295,14 @@ void ASkillActor::SpawnFollowUpActor()
     if (!Spawned) return;
 
     FHeroSpawnableConfig FollowUpConfig = MakeSpawnableConfigFromFollowUp(Config.NextSpawn);
-    TArray<FGameplayEffectSpecHandle> FollowUpSpecs = BuildEffectSpecsFromConfigs(Config.NextSpawn.Effects);
 
-    Spawned->InitFromConfig(FollowUpConfig, FollowUpSpecs, CachedAbilityLevel);
+    UE_LOG(LogTemp, Log, TEXT("Spawning follow-up actor %s with scale multiplier %.2f and effect multiplier %.2f"), *Spawned->GetName(), RuntimeScaleMultiplier, RuntimeEffectMultiplier);
+
+    // 현재 배율을 후속 액터로 전달(후속이 Init에서 Spec 생성할 때 반영됨)
+    Spawned->SetOwner(OwnerActor);
+    Spawned->SetInstigator(Cast<APawn>(OwnerActor));
+    Spawned->SetRuntimeMultipliers(RuntimeScaleMultiplier, RuntimeEffectMultiplier);
+    Spawned->InitFromConfig(FollowUpConfig, CachedAbilityLevel);
     Spawned->FinishSpawning(SpawnTransform);
 }
 
@@ -313,3 +326,29 @@ void ASkillActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
+
+// ==================================================
+// ==================================================
+// ==================================================
+void ASkillActor::SetRuntimeMultipliers(float InScaleMultiplier, float InEffectMultiplier)
+{
+    RuntimeScaleMultiplier = FMath::Max(0.f, InScaleMultiplier);
+    RuntimeEffectMultiplier = FMath::Max(0.f, InEffectMultiplier);
+}
+
+
+void ASkillActor::RebuildEffectSpecsFromConfig()
+{
+    TArray<FEffectConfig> Adjusted = Config.Effects;
+
+    if (!FMath::IsNearlyEqual(RuntimeEffectMultiplier, 1.f))
+    {
+        for (FEffectConfig& Effect : Adjusted)
+        {
+            const float Current = Effect.Multiplier.GetValueAtLevel(CachedAbilityLevel);
+            Effect.Multiplier = FScalableFloat(Current * RuntimeEffectMultiplier);
+        }
+    }
+
+    EffectSpecHandles = BuildEffectSpecsFromConfigs(Adjusted);
+}

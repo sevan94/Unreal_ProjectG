@@ -5,6 +5,7 @@
 #include "UI/Lobby/Main/UISwitcherWidget.h"
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
 #include "Components/WidgetSwitcher.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void ALobbyHUD::ShowUnitGachaResultUI()
 {
@@ -43,6 +44,12 @@ void ALobbyHUD::BeginPlay()
         if (UISwitcher)
         {
             UISwitcherInstance->AddToViewport();
+            UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+            if (GI && GI->bStageSelect)
+            {
+                UISwitcherInstance->WidgetSwitcher->SetActiveWidgetIndex(3);
+                GI->bStageSelect = false;
+            }
         }
     }
 }

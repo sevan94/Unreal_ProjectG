@@ -10,6 +10,8 @@
 #include "UI/Lobby/Equip/EquipListWidget.h"
 #include "UI/Lobby/Equip/EquipDescriptionWidget.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
+#include "UI/Lobby/Equip/SetEffectWidget.h"
+#include "UI/DataTable/SetEffectDataTable.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
 #include "Mode/Save/PGGameInstance.h"
 
@@ -58,6 +60,7 @@ void ULobbyEquipWidget::NativeConstruct()
     }
 
     IntializeEquipSlots();
+    UpdateSetEffects();
     EquipDescription->SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -75,6 +78,54 @@ void ULobbyEquipWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
     {
     case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
     case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
+    }
+}
+
+void ULobbyEquipWidget::UpdateSetEffects()
+{
+    if (!SetEffectDataTable || !GI) return;
+
+    // 현재 장착 중인 모든 아이템의 세트 태그 수집
+    TMap<FGameplayTag, int32> EquippedTagCounts;
+
+    auto CheckAndAddTag = [&](TSoftObjectPtr<UEquipUIDataAsset> AssetPtr) {
+        if (auto Asset = AssetPtr.LoadSynchronous()) {
+            if (Asset->SetTag.IsValid()) {
+                EquippedTagCounts.FindOrAdd(Asset->SetTag)++;
+            }
+        }
+        };
+
+    CheckAndAddTag(GI->CurrentWeapon);
+    CheckAndAddTag(GI->CurrentArmor);
+    CheckAndAddTag(GI->CurrentAccessory);
+
+    // 데이터 테이블을 순회하며 조건 검사
+    bool bAnySetFound = false;
+    static const FString ContextString(TEXT("SetEffectLookup"));
+
+    TArray<FName> RowNames = SetEffectDataTable->GetRowNames();
+    for (const FName& RowName : RowNames)
+    {
+        FSetEffectDataTable* Row = SetEffectDataTable->FindRow<FSetEffectDataTable>(RowName, ContextString);
+        if (Row && EquippedTagCounts.Contains(Row->SetTag))
+        {
+            int32 CurrentCount = EquippedTagCounts[Row->SetTag];
+            if (CurrentCount >= Row->RequiredCount)
+            {
+                // UI 업데이트
+                SetEffectWidget->UpdateSetDisplay(Row->SetIcon, Row->SetName, Row->SetDescription);
+                SetEffectWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+                bAnySetFound = true;
+                break;
+            }
+        }
+    }
+
+    if (!bAnySetFound)
+    {
+        SetEffectWidget->SetVisibility(ESlateVisibility::Collapsed);
     }
 }
 
@@ -136,6 +187,7 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
     }
 
     // 장착 후 처리
+    UpdateSetEffects();
     GI->SaveGameData();
     EquipButton->SetIsEnabled(false);
     SelectedEquip = nullptr;

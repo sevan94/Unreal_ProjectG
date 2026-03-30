@@ -14,6 +14,13 @@ enum class EHeroSkillType : uint8
     BasicAttack     UMETA(DisplayName = "기본 공격"),
 };
 
+
+/*
+* 히어로 스킬 어빌리티 클래스
+* 스킬 데이터 에셋의 정보를 기반으로 스킬 액션을 실행하는 어빌리티
+* 스킬 액션은 근접 트레이스, 버프, 액터 소환 등의 동작이고 각 동작이 끝나면 다음 액션이 실행되는 방식으로 구성되어 있음
+* 스킬 액션이 실행되는 도중에 특정 이벤트(Hit, Kill 등)이 발생하면 해당 이벤트에 반응하는 액션을 실행하도록 되어 있음.
+*/
 UCLASS()
 class UNREAL_PROJECTG_API UPGHeroSkillGameplayAbility : public UPGHeroGameplayAbility
 {
@@ -44,9 +51,13 @@ protected:
 private:
     void ExecuteNextAction();
 
+    // SkillData의 이벤트에서 이벤트 액션 Modifier를 찾아서 액션 배열에 추가하는 함수
     void ExecuteEventTrigger(EHeroSkillEventTrigger Trigger, const FGameplayTag& SourceEventTag, const FGameplayAbilityTargetDataHandle& TargetData);
+    
+    // 실제 이벤트 실행 함수
     void ExecuteEventAction(const FSkillActionRow& ActionRow, const FGameplayAbilityTargetDataHandle& TargetData);
 
+    // 태그 -> EHeroSkillEventTrigger 변환 함수, 변환 실패 시 false 반환
     static bool ConvertEventTagToTrigger(const FGameplayTag& EventTag, EHeroSkillEventTrigger& OutTrigger);
 
     UFUNCTION()
@@ -61,6 +72,9 @@ private:
     UFUNCTION()
     EHeroSkillType GetHeroSkillType() const;
 
+    // 이벤트에 반응하여 어빌리티를 Commit하는 함수, 어빌리티에서 딱 한 번만 커밋하도록 체크 포함
+    bool TryCommitAbilityOnce();
+
 private:
     int32 CurrentActionIndex = 0;
 
@@ -72,6 +86,5 @@ private:
 
     bool bAutoMode = false;
 
-    FGameplayTagContainer TempCooldownTags;
-    bool bIsCooltimeTagsInitialized = false;
+    bool bCommittedThisActivation = false;
 };

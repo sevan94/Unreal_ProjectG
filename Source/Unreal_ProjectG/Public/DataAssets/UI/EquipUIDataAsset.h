@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
 #include "EquipUIDataAsset.generated.h"
 
@@ -15,6 +16,10 @@ class UNREAL_PROJECTG_API UEquipUIDataAsset : public UPrimaryDataAsset
 	GENERATED_BODY()
 	
 public:
+    // 세트 구분을 위한 태그
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip|Data")
+    FGameplayTag SetTag;
+
     // 장비 구분용 ID
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equip|Data")
     int32 EquipID;

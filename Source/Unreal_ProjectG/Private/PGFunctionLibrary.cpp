@@ -12,7 +12,7 @@
 
 UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetPGASCFromActor(AActor* InActor)
 {
-    check(InActor);
+    checkf(InActor, TEXT("InActor : %s"), *GetNameSafe(InActor));
 
     return CastChecked<UPGAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InActor));
 }

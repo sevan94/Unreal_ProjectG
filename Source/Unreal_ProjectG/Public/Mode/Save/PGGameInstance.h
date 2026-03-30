@@ -147,6 +147,9 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Player Info")
     int32 CurrentStageIndex = 0;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Lobby")
+    bool bStageSelect = false;
+
     // 유닛 도감 형식 데이터(유닛 코드, 유닛 데이터)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
     TMap<int32, FUnitSaveData> UnitLevelMap;

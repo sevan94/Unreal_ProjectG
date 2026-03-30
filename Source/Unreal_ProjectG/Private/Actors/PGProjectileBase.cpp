@@ -62,6 +62,8 @@ void APGProjectileBase::BeginPlay()
 
 void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    UE_LOG(LogTemp, Log, TEXT("Hit With %s"), *OtherActor->GetName());
+
     // 히트한 액터가 플레이어면 무시
     if (OtherActor == GetInstigator())
     {
@@ -77,6 +79,11 @@ void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
         Data.Target = HitPawn;
 
         HandleApplyProjectileDamage(HitPawn, Data);
+    }
+
+    if (HitImpactVFX.IsValid())
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
     }
 
     Destroy();
@@ -102,6 +109,10 @@ void APGProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overlapped
 
         // 히트된 액터에게 히트 반응 이벤트 전송
         UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OverlappedPawn, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
+    }
+    if (HitImpactVFX.IsValid())
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
     }
 
     // 이펙트와 사운드가 유효하다면 재생

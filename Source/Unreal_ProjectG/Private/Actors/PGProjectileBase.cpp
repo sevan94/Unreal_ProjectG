@@ -79,12 +79,13 @@ void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
         Data.Target = HitPawn;
 
         HandleApplyProjectileDamage(HitPawn, Data);
+        if (HitImpactVFX.IsValid())
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+        }
     }
 
-    if (HitImpactVFX.IsValid())
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-    }
+
 
     Destroy();
 }
@@ -106,14 +107,14 @@ void APGProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overlapped
         Data.Target = OverlappedPawn;
 
         HandleApplyProjectileDamage(OverlappedPawn, Data);
-
+        if (HitImpactVFX.IsValid())
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
+        }
         // 히트된 액터에게 히트 반응 이벤트 전송
         UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OverlappedPawn, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
     }
-    if (HitImpactVFX.IsValid())
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
-    }
+
 
     // 이펙트와 사운드가 유효하다면 재생
     if(ProjectileImpactVFX.IsValid())

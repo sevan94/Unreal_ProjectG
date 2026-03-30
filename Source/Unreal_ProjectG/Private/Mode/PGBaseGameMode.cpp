@@ -9,6 +9,7 @@
 #include "UI/Battle/BattleHUD.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "Character/Hero/HeroCharacter.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {
@@ -60,7 +61,10 @@ void APGBaseGameMode::BeginPlay()
         }
     }
 
-
+    if (HeroCharacter && AllyBase)
+    {
+        HeroCharacter->SetRespawnposition(AllyBase->GetActorLocation());
+    }
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

@@ -78,6 +78,10 @@ public:
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
+    //리스폰 위치 설정
+    UFUNCTION()
+    void SetRespawnposition(FVector InPosition) { RespawnPosition = InPosition; }
+
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
     virtual void BeginPlay() override;
@@ -208,4 +212,8 @@ private:
     FGameplayAbilitySpecHandle AttackHandle;
     //스킬 어빌리티 핸들이 들은 배열
     TArray<FGameplayAbilitySpecHandle> SkillHandle;
+
+    //부활할 위치. 아군 베이스의 위치로 설정
+    UPROPERTY()
+    FVector RespawnPosition = FVector::ZeroVector;
 };

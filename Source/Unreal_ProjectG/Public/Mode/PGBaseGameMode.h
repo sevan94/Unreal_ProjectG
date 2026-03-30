@@ -95,4 +95,7 @@ protected:
 
     // 체력 달성도 확인용 아군 기지
     TObjectPtr<ABaseStructure> AllyBase;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
+    TObjectPtr<class AHeroCharacter> HeroCharacter = nullptr;
 };

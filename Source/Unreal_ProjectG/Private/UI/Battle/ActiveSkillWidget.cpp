@@ -19,23 +19,26 @@ void UActiveSkillWidget::SetAbilitySpec(FGameplayAbilitySpec InSpec)
     // 핸들 저장
     AbilitySpecHandle = InSpec.Handle;
 
-    // 쿨다운 태그 추출 (CDO를 통해 안전하게 가져옴)
-    UPGGameplayAbility* AbilityCDO = Cast<UPGGameplayAbility>(InSpec.Ability);
-    if (AbilityCDO)
-    {
-        const FGameplayTagContainer* CooldownTags = AbilityCDO->GetCooldownTags();
-        if (CooldownTags && CooldownTags->IsValid())
-        {
-            CooldownTag = CooldownTags->GetByIndex(0);
-        }
+    // 스킬 데이터 에셋 저장
+    SkillData = Cast<UDataAsset_HeroSkillData>(InSpec.SourceObject);
 
-        // 쿨다운 태그 이벤트 바인딩
-        if (CooldownTag.IsValid())
-        {
-            AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
-            AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
-                .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
-        }
+    // 어빌리티의 동적 태그를 확인하여 감시할 CooldownTag 결정
+    const FGameplayTagContainer& DynamicTags = InSpec.GetDynamicSpecSourceTags();
+    if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_MainSkill))
+    {
+        CooldownTag = PGGameplayTags::Ability_Cooldown_MainSkill;
+    }
+    else if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_SubSkill))
+    {
+        CooldownTag = PGGameplayTags::Ability_Cooldown_SubSkill;
+    }
+
+    // 쿨다운 태그 이벤트 바인딩
+    if (CooldownTag.IsValid())
+    {
+        AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
+        AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
+            .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
     }
 }
 
@@ -73,28 +76,25 @@ void UActiveSkillWidget::UpdateCoolTimeProgress()
 {
     if (!AbilitySystemComponent || !CooldownTag.IsValid()) return;
 
-    // ASC에서 해당 쿨다운 태그의 남은 시간을 직접 조회 (가장 정확함)
-    float TimeRemaining = 0.0f;
-    float Duration = 0.0f;
-
-    // 현재 캐릭터에게 걸려있는 해당 태그의 이펙트 쿼리
+    //현재 태그에 대한 쿨타임 정보 가져오기
     FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
-    TArray<float> Durations = AbilitySystemComponent->GetActiveEffectsTimeRemaining(Query);
+    TArray<float> Times = AbilitySystemComponent->GetActiveEffectsTimeRemaining(Query);
 
-    if (Durations.Num() > 0)
+    if (Times.Num() > 0)
     {
-        TimeRemaining = FMath::Max<float>(Durations);
-    }
-
-    if (TimeRemaining > 0.0f)
-    {
-        if (CoolTimeText)
-            CoolTimeText->SetText(FText::AsNumber(FMath::CeilToInt(TimeRemaining)));
-    }
-    else
-    {
-        // 시간이 다 됐으면 타이머 정리
-        OnCoolDownTagChanged(CooldownTag, 0);
+        // 가장 많이 남은 시간을 표시
+        float MaxRemaining = 0.f;
+        for (float Time : Times) { MaxRemaining = FMath::Max(MaxRemaining, Time); }
+        if (MaxRemaining > 0.f)
+        {
+            if (CoolTimeText)
+                CoolTimeText->SetText(FText::AsNumber(FMath::CeilToInt(MaxRemaining)));
+        }
+        else
+        {
+            // 시간이 다 됐으면 타이머 정리
+            OnCoolDownTagChanged(CooldownTag, 0);
+        }
     }
 }
 
@@ -121,6 +121,9 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(AbilitySpecHandle);
     if (!Spec) return;
 
+    bool bIsToggle = SkillData->bIsToggleSkill;
+
+    // 이미 사용중인 상태라면
     if (Spec->IsActive())
     {
         // 토글형 스킬인 경우 취소 로직
@@ -129,11 +132,18 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     }
     else
     {
-        // 스킬 실행
+        // 사용 중이 아니라면 스킬 실행
         if (AbilitySystemComponent->TryActivateAbility(AbilitySpecHandle))
         {
-            // 실행 성공 시 슬롯 이미지 변경 (취소 아이콘 등)
-            UpdateSlot(false);
+            if (bIsToggle)
+            {
+                // 토글형 스킬인 경우 취소 위젯으로 전환
+                UpdateSlot(false);
+            }
+            else
+            {
+                // 일반 스킬일 경우 이미지 변화 X
+            }
         }
     }
 }

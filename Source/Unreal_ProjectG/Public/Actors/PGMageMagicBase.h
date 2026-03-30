@@ -16,7 +16,7 @@ class UNREAL_PROJECTG_API APGMageMagicBase : public AActor
 public:
     APGMageMagicBase();
 
-    void SetMagicDamageEffectSpecHandle(const FGameplayEffectSpecHandle& InSpecHandle);
+    void SetMagicDamageEffectSpecHandle(const TArray<FGameplayEffectSpecHandle>& InSpecHandles);
 
 protected:
     virtual void BeginPlay() override;
@@ -38,5 +38,6 @@ protected:
     TObjectPtr<UNiagaraComponent> MagicNiagaraComponent;
 
     UPROPERTY(BlueprintReadOnly, Category = "Magic", meta = (ExposeOnSpawn = "true"))
-    FGameplayEffectSpecHandle MagicDamageEffectSpecHandle;
+    TArray<FGameplayEffectSpecHandle> MagicDamageEffectSpecHandles;
+
 };

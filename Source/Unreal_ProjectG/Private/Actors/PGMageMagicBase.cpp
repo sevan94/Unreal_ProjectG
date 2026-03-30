@@ -45,10 +45,15 @@ void APGMageMagicBase::OnMagicBeginOverlap(UPrimitiveComponent* OverlappedCompon
     }
 
     APawn* TargetPawn = Cast<APawn>(OtherActor);
-    if (TargetPawn && MagicDamageEffectSpecHandle.IsValid())
+    if (TargetPawn)
     {
-        UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetInstigator(), TargetPawn, MagicDamageEffectSpecHandle);
-
+        for (const FGameplayEffectSpecHandle& SpecHandle : MagicDamageEffectSpecHandles)
+        {
+            if (SpecHandle.IsValid())
+            {
+                UPGFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetInstigator(), TargetPawn, SpecHandle);
+            }
+        }
         UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetPawn, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
     }
 }
@@ -58,7 +63,7 @@ void APGMageMagicBase::OnNiagaraFinished(UNiagaraComponent* PSystem)
     Destroy();
 }
 
-void APGMageMagicBase::SetMagicDamageEffectSpecHandle(const FGameplayEffectSpecHandle& InSpecHandle)
+void APGMageMagicBase::SetMagicDamageEffectSpecHandle(const TArray<FGameplayEffectSpecHandle>& InSpecHandles)
 {
-    MagicDamageEffectSpecHandle = InSpecHandle;
+    MagicDamageEffectSpecHandles = InSpecHandles;
 }

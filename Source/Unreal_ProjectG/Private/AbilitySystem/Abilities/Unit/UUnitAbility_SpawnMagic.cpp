@@ -73,6 +73,7 @@ void UUnitAbility_SpawnMagic::SpawnMagic(FGameplayEventData InEventData)
     {
         SpawnRotation = AvatarPawn->GetBaseAimRotation();
     }
+
     APGMageMagicBase* SpawnedMagic = GetWorld()->SpawnActorDeferred<APGMageMagicBase>(
         UnitSpawnMagicConfig.SpawnedMagicClass.Get(),
         FTransform(SpawnRotation, SpawnLocation),
@@ -83,12 +84,20 @@ void UUnitAbility_SpawnMagic::SpawnMagic(FGameplayEventData InEventData)
 
     if (SpawnedMagic)
     {
-        // 계수 적용 및 이펙트 스펙 생성
         float MagicMultiplierValue = UnitSpawnMagicConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
-        FGameplayEffectSpecHandle MagicDamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(UnitSpawnMagicConfig.DamageEffectClass.Get(), MagicMultiplierValue);
 
-        // 마법 베이스 전용 함수 호출
-        SpawnedMagic->SetMagicDamageEffectSpecHandle(MagicDamageEffectSpecHandle);
+        TArray<FGameplayEffectSpecHandle> MagicDamageEffectSpecHandles;
+
+        for (const TSubclassOf<UGameplayEffect>& EffectClass : UnitSpawnMagicConfig.DamageEffectClass)
+        {
+            if (EffectClass) 
+            {
+                FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, MagicMultiplierValue);
+                MagicDamageEffectSpecHandles.Add(SpecHandle);
+            }
+        }
+
+        SpawnedMagic->SetMagicDamageEffectSpecHandle(MagicDamageEffectSpecHandles);
 
         SpawnedMagic->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));
     }

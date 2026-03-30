@@ -201,7 +201,7 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
 
     // 데미지 계산 클래스
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass;
+    TArray<TSubclassOf<UGameplayEffect>> DamageEffectClass;
 
     // 스킬 계수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

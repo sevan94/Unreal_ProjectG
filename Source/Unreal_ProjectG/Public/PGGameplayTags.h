@@ -85,4 +85,7 @@ namespace PGGameplayTags
     //아군 적군 구분 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Foe);
+
+    //플레이어
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player);
 }

@@ -82,6 +82,9 @@ public:
     UFUNCTION()
     void SetRespawnposition(FVector InPosition) { RespawnPosition = InPosition; }
 
+    UFUNCTION(BlueprintCallable, Category = "Tag")
+    FGameplayTag GetPlayerTag() { return PlayerTag; }
+
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
     virtual void BeginPlay() override;
@@ -212,6 +215,10 @@ private:
     FGameplayAbilitySpecHandle AttackHandle;
     //스킬 어빌리티 핸들이 들은 배열
     TArray<FGameplayAbilitySpecHandle> SkillHandle;
+
+    //플레이어임을 표시하는 태그
+    UPROPERTY()
+    FGameplayTag PlayerTag;
 
     //부활할 위치. 아군 베이스의 위치로 설정
     UPROPERTY()

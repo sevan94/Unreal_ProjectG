@@ -18,12 +18,15 @@
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit.Side.Ally");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -107,9 +110,12 @@ void AHeroCharacter::SpawnHero()
     MeshComp->SetSimulatePhysics(false);
     MeshComp->SetCollisionProfileName(TEXT("CharacterMesh"));
 
+    UE_LOG(LogTemp, Log, TEXT("Respawn Position : %f %f %f"), RespawnPosition.X, RespawnPosition.Y, RespawnPosition.Z);
     MeshComp->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-    MeshComp->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+    //MeshComp->SetWorldLocation(RespawnPosition);
     MeshComp->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
+    SetActorLocation(RespawnPosition);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     MovementComponent->SetComponentTickEnabled(true);
@@ -237,6 +243,8 @@ void AHeroCharacter::BeginPlay()
     //    }
     //}
 
+    PlayerTag = TAG_Player;
+
     if (AggroCollision)
     {
         AggroCollision->OnComponentBeginOverlap.AddDynamic(this, &AHeroCharacter::OnOverlapBegin);
@@ -251,6 +259,19 @@ void AHeroCharacter::BeginPlay()
 
     //ABP 가져오기
     //AnimInstance = GetMesh()->GetAnimInstance();
+
+    if (UWorld* world = GetWorld())
+    {
+        for (TActorIterator<APlayerStart> PlayerStart(world); PlayerStart; ++PlayerStart)
+        {
+            APlayerStart* startPoint = *PlayerStart;
+            if (startPoint)
+            {
+                RespawnPosition = startPoint->GetActorLocation();
+                UE_LOG(LogTemp, Log, TEXT("Hero : PlayerStart Found"));
+            }
+        }
+    }
 }
 
 #pragma region Input

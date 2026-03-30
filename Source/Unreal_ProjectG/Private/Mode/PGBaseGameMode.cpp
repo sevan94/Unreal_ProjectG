@@ -60,11 +60,6 @@ void APGBaseGameMode::BeginPlay()
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
-
-    if (HeroCharacter && AllyBase)
-    {
-        HeroCharacter->SetRespawnposition(AllyBase->GetActorLocation());
-    }
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

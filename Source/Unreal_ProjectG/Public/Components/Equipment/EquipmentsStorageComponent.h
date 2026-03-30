@@ -23,6 +23,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
     TArray<FGameplayAbilitySpecHandle> GetSkillAbilitySpecHandles() const { return GrantedWeaponAbilitySpecHandles; }
 
+    //게임 시작시 호출
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    void Startup(UDataAsset_WeaponData* InWeaponData, UDataAsset_ArmorData* InArmorData, UDataAsset_AccessoryData* InAccessoryData);
+
     // ==============================================================
     // 장비 장착 함수들
     // ==============================================================

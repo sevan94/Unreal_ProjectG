@@ -223,25 +223,10 @@ void AHeroCharacter::BeginPlay()
         }
     }
 
-    //// 주석
-    //// =============================================================================
-    //// StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
-    //// =============================================================================
-    //if (PGAbilitySystemComponent)
-    //{
-    //    if (GA_Die)
-    //    {
-    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
-    //    }
-    //    //if (Weapon)
-    //    //{
-    //    //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
-    //    //}
-    //    if (GA_Initialize)
-    //    {
-    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
-    //    }
-    //}
+    if (EquipmentsStorageComponent)
+    {
+        EquipmentsStorageComponent->Startup(Weapon, Armor, Accessory);
+    }
 
     PlayerTag = TAG_Player;
 

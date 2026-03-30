@@ -165,9 +165,13 @@ void UHeroCombatComponent::UpdateDetection()
     CurrentTarget = FindNearestEnemy();
     SetComponentTickEnabled(CurrentTarget.IsValid()); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
 
-    // 유효한 타깃이 없으면 전투 종료
+    // 유효한 타깃이 없으면 전투 종료하면서 캐릭터 회전을 Movement 방향으로 돌려놓음
     if (!CurrentTarget.IsValid())
     {
+        if (OwningCharacter->GetCharacterMovement())
+        {
+            OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = true; // Movement 방향으로 회전하도록 설정
+        }
         return;
     }
 
@@ -286,31 +290,3 @@ bool UHeroCombatComponent::CanUseCombatInterface() const
 {
     return OwningCharacter && OwningCharacter->GetClass()->ImplementsInterface(UHeroCombatInterface::StaticClass());
 }
-
-//AActor* UHeroCombatComponent::GetClosestTarget(const TArray<AActor*>& TargetArray)
-//{
-//    if (TargetArray.IsEmpty())
-//    {
-//        return nullptr;
-//    }
-//
-//    AActor* ClosestActor = nullptr;
-//
-//    float MinDistanceSq = MAX_flt;
-//
-//    for (AActor* Target : TargetArray)
-//    {
-//        if (IsValid(Target))
-//        {
-//            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
-//
-//            if (CurrentDistanceSq < MinDistanceSq)
-//            {
-//                MinDistanceSq = CurrentDistanceSq;
-//                ClosestActor = Target;
-//            }
-//        }
-//    }
-//
-//    return ClosestActor;
-//}

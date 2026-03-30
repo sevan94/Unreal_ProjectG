@@ -12,9 +12,12 @@ APGMageMagicBase::APGMageMagicBase()
     RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
     SetRootComponent(RootSceneComponent);
 
+
     MagicCollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("MagicCollisionComponent"));
     MagicCollisionComponent->SetupAttachment(RootSceneComponent); 
-    MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+    MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
     MagicCollisionComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
     MagicCollisionComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
     MagicCollisionComponent->SetGenerateOverlapEvents(true);
@@ -22,13 +25,15 @@ APGMageMagicBase::APGMageMagicBase()
     MagicNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MagicNiagaraComponent"));
     MagicNiagaraComponent->SetupAttachment(RootSceneComponent);
     MagicNiagaraComponent->SetUsingAbsoluteRotation(false);
+
+    MagicCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &APGMageMagicBase::OnMagicBeginOverlap);
+
 }
 
 void APGMageMagicBase::BeginPlay()
 {
     Super::BeginPlay();
-
-    MagicCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &APGMageMagicBase::OnMagicBeginOverlap);
+    MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     MagicNiagaraComponent->OnSystemFinished.AddDynamic(this, &APGMageMagicBase::OnNiagaraFinished);
 }
 

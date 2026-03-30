@@ -49,8 +49,7 @@ EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
         if (OtherUnit->HasMatchingGameplayTag(MySideTag))
         {
-            if (OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Melee) ||
-                OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Tank))
+            if (OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Melee))
             {
                 float DistSq = FVector::DistSquared(SelfLoc, OtherUnit->GetActorLocation());
                 if (DistSq < MinDistSq)

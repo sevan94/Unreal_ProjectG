@@ -119,7 +119,7 @@ AUnitCharacter* UBTT_SetPosition::FindAlly(AUnitCharacter* SelfUnit, FVector Tar
                 if (OtherASC->HasMatchingGameplayTag(MySideTag))
                 {
                     bool bIsMelee = OtherASC->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Melee);
-                    bool bIsTank = OtherASC->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Tank);
+                    bool bIsTank = OtherASC->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Support);
 
                     if (bIsMelee || bIsTank)
                     {

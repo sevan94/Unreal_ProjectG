@@ -18,9 +18,6 @@ void AUnitDetourCrowdAIController::OnPossess(APawn* InPawn)
 {
     UE_LOG(LogTemp, Log, TEXT("OnPossess"));
 
-    /*지금 방식은 비동기 로딩이 끝나기 전에 빙의하기 때문에 작동 안될 가능성이 높음.
-    제미나이 물어보니 델리게이트를 이용하라 하는데 이건 내일 한번 상의해야 할듯???*/
-    
     Super::OnPossess(InPawn);
 
     UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
@@ -119,8 +116,9 @@ void AUnitDetourCrowdAIController::SetUnitState(EUnitState NewState)
 {
     if (BlackboardComp)
     {
-        Blackboard->SetValueAsEnum(StateKeyName, static_cast<uint8>(NewState));
+        BlackboardComp->SetValueAsEnum(StateKeyName, static_cast<uint8>(NewState));
         UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(GetPathFollowingComponent());
+
         if (CrowdComp)
         {
             if (NewState == EUnitState::Move)

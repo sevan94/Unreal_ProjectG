@@ -22,6 +22,8 @@ void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
         UnitName->SetText(FText::FromName(PickupUnit->UnitName));
         UnitSound = PickupUnit->GachaSound;
     }
+
+    UnitPanel->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
@@ -35,7 +37,10 @@ void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
         EquipGachaTarget->SetVisibility(ESlateVisibility::Visible);
         SkipButton->SetVisibility(ESlateVisibility::Hidden);
         EquipImage->SetBrushFromTexture(PickupEquip->EquipImage);
+        EquipImage->SetVisibility(ESlateVisibility::Hidden);
     }
+
+    EquipPanel->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UGachaResultWidget::PlayGachaAnim()
@@ -62,9 +67,8 @@ void UGachaResultWidget::ShowEquipResult()
 void UGachaResultWidget::NativeConstruct()
 {
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
-    UnitImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
+    UnitPanel->SetVisibility(ESlateVisibility::Hidden);
+    EquipPanel->SetVisibility(ESlateVisibility::Hidden);
 
     if (SkipButton) SkipButton->OnClicked.AddDynamic(this, &UGachaResultWidget::OnSkipButtonClicked);
 }
@@ -115,9 +119,9 @@ void UGachaResultWidget::ResetGachaResult()
     // 상태 초기화
     bCanExit = false;
     UnitImage->SetColorAndOpacity(FLinearColor::Black);
-    UnitImage->SetVisibility(ESlateVisibility::Hidden);
+    UnitPanel->SetVisibility(ESlateVisibility::Hidden);
+    EquipPanel->SetVisibility(ESlateVisibility::Hidden);
     EquipImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
     GachaEffect->DeactivateSystem();
     SkipButton->SetVisibility(ESlateVisibility::Visible);

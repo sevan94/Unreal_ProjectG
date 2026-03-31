@@ -50,6 +50,12 @@ public:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UCanvasPanel> GachaReaultPanel;
 
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> UnitPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> EquipPanel;
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> SkipButton;

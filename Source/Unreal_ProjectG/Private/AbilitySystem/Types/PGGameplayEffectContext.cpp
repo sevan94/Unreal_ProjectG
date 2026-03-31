@@ -23,27 +23,13 @@ FGameplayEffectContext* FPGGameplayEffectContext::Duplicate() const
 
 bool FPGGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
+    // FGameplayEffectContext의 NetSerialize를 먼저 호출하여 기본 필드들을 직렬화/역직렬화합니다.
     const bool bSuperResult = FGameplayEffectContext::NetSerialize(Ar, Map, bOutSuccess);
 
-    uint8 PolarityValue = static_cast<uint8>(Polarity);
-    uint8 TargetPolicyValue = static_cast<uint8>(TargetPolicy);
+    // FPGGameplayEffectContext의 고유 필드인 EffectTag을 직렬화/역직렬화합니다.
+    const bool bTagResult = EffectTag.NetSerialize(Ar, Map, bOutSuccess);
 
-    Ar.SerializeBits(&PolarityValue, 8);
-    Ar.SerializeBits(&TargetPolicyValue, 8);
-
-    const bool bTagResult = EffectTags.NetSerialize(Ar, Map, bOutSuccess);
-
-    if (Ar.IsLoading())
-    {
-        Polarity = (PolarityValue <= static_cast<uint8>(EPolarity::Debuff))
-            ? static_cast<EPolarity>(PolarityValue)
-            : EPolarity::Buff;
-
-        TargetPolicy = (TargetPolicyValue <= static_cast<uint8>(ESkillTargetPolicy::Self))
-            ? static_cast<ESkillTargetPolicy>(TargetPolicyValue)
-            : ESkillTargetPolicy::Self;
-    }
-
+    // 두 직렬화 결과를 모두 고려하여 최종 성공 여부를 결정합니다.
     bOutSuccess = bOutSuccess && bSuperResult && bTagResult;
     return true;
 }

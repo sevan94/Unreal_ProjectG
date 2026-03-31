@@ -311,6 +311,7 @@ void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Target
             if (SpecHandle.IsValid())
             {
                 PGAbility->NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
+
             }
         }
     }

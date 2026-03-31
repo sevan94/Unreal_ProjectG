@@ -60,6 +60,9 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "SkillActor|Events", meta = (DisplayName = "On Skill Actor Destroyed"))
     void OnSkillActorDestroyed();
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "SkillActor|Events", meta = (DisplayName = "On Tick For Owner"))
+    void OnTickForOwner(AActor* TargetActor);
+
     //==================================================
     // BP에서 호출 가능한 함수
     // ==================================================
@@ -110,6 +113,9 @@ private:
     // 후속 액터 스폰: Config.NextSpawn이 유효하면 해당 설정으로 액터 스폰
     void SpawnFollowUpActor();
 
+    // 수동으로 겹치는 타겟 목록 갱신 (주로 장판에서 사용, TickInterval > 0인 경우)
+    void RefreshOverlappingTargets();
+
     FHeroSpawnableConfig MakeSpawnableConfigFromFollowUp(const FSkillActorFollowUpSpawnConfig& FollowUpConfig) const;
     TArray<FGameplayEffectSpecHandle> BuildEffectSpecsFromConfigs(const TArray<FEffectConfig>& EffectConfigs) const;
 
@@ -138,10 +144,9 @@ protected:
 
     FTimerHandle TickEffectTimerHandle;
 
-    TMap <TWeakObjectPtr<AActor>, float> HitCooldownMap; // TickInterval > 0인 경우, 타겟별로 히트 쿨타임 관리
-
     bool bDestroyNotified = false; // 파괴 통보 여부 (중복 방지)
     float TickInterval = 0.f; // 타이머 기반 효과 적용 간격 (LifeSpan / HitsPerLifeSpan)
+    int32 CurrentTickCount = 0; // 현재 인터발 수 (HitsPerLifeSpan과 비교하여 타이머 종료 여부 결정)
     int32 CachedAbilityLevel = 1; // GA 레벨에 따른 효과 적용을 위해 캐싱
 
     static const FGameplayTag DestroyedEventTag; // 파괴 이벤트 태그

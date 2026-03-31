@@ -169,27 +169,29 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     // MaxHit 체크
                     if (HitActors.Num() >= Config.MaxHit) break;
 
+                    // 효과 적용 전 유효성 체크
+                    if (!PGAbility || Config.Effects.IsEmpty()) return;
+                    
                     // GE 적용
-                    if (PGAbility && !Config.Effects.IsEmpty())
+                    TArray<FGameplayEffectSpecHandle> SpecHandles = 
+                        PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
+
+
+
+                    for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
                     {
-                        TArray<FGameplayEffectSpecHandle> SpecHandles = 
-                            PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
-
-                        for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
+                        if (SpecHandle.IsValid())
                         {
-                            if (SpecHandle.IsValid())
+                            PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+                            HitActors.Add(HitActor);
+
+                            if (!bHitEventFlag)
                             {
-                                PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
-                                HitActors.Add(HitActor);
+                                HitData->HitResult = HitResult;
+                                RuntimeTargetData.Add(HitData);
 
-                                if (!bHitEventFlag)
-                                {
-                                    HitData->HitResult = HitResult;
-                                    RuntimeTargetData.Add(HitData);
-
-                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
-                                    bHitEventFlag = true;
-                                }
+                                EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                                bHitEventFlag = true;
                             }
                         }
                     }

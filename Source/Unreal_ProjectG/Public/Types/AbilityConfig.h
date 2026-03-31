@@ -425,9 +425,6 @@ struct FHeroBuffConfig : public FAbilityConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 배열"))
     TArray<FEffectConfig> Effects;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "버프/디버프"))
-    EPolarity Polarity = EPolarity::Buff;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "타겟팅 정책"))
     ESkillTargetPolicy TargetPolicy = ESkillTargetPolicy::Ally;
 

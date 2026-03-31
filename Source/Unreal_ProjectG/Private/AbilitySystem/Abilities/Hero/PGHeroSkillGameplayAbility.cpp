@@ -88,7 +88,8 @@ void UPGHeroSkillGameplayAbility::ExecuteNextAction()
 
     const FSkillActionRow& CurrentAction = RuntimeActionSequence[CurrentActionIndex];
 
-    switch (CurrentAction.ActionType)
+    switch (CurrentAction.
+        )
     {
     case ESkillActionType::MeleeTrace:
     {

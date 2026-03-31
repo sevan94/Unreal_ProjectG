@@ -38,7 +38,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnCommit, "Event.Trigger.OnCommit");
 
-    // 어트리뷰트 태그
+    // 어트리뷰트 태그(버프/디버프 구분 등에 사용)
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Cost, "Attribute.Cost");
@@ -112,4 +112,9 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Warth, "GameplayCue.VFX.Unit.Buff.Warth");
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Clam, "GameplayCue.VFX.Unit.Buff.Clam");
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Divinity, "GameplayCue.VFX.Unit.Buff.Divinity");
+
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Static, "GameplayCue.SVFX.Static");
+
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Actor, "GameplayCue.SVFX.Actor");
+
 }

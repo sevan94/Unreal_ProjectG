@@ -65,7 +65,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
     TWeakObjectPtr<UNiagaraSystem> ProjectileImpactVFX;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile|SVFX")
     TWeakObjectPtr<UNiagaraSystem> HitImpactVFX;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")

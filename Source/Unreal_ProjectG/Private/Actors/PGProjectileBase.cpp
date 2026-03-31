@@ -64,6 +64,10 @@ void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
 {
     UE_LOG(LogTemp, Log, TEXT("Hit With %s"), *OtherActor->GetName());
 
+    if (OtherActor == GetInstigator() || !UPGFunctionLibrary::IsTargetCharacterHostile(GetInstigator(), OtherActor))
+    {
+        return;
+    }
     // 히트한 액터가 플레이어면 무시
     if (OtherActor == GetInstigator())
     {

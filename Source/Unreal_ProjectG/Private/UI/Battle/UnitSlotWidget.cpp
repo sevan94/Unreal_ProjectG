@@ -10,8 +10,8 @@
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
-#include "UI/Battle/UnitSlotWidget.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -40,16 +40,15 @@ void UUnitSlotWidget::UpdateSlot(float InCost)
     }
 }
 
-void UUnitSlotWidget::NativeConstruct()
+bool UUnitSlotWidget::IsSpawnAble() const
 {
-    Super::NativeConstruct();
+    if (!UnitData) return false;
 
-    if (UnitButton)
-    {
-        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
-    }
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    return Hero && Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
 }
-void UUnitSlotWidget::OnUnitButtonClicked()
+
+void UUnitSlotWidget::ExecuteSpawn()
 {
     if (!UnitData || !UnitData->UnitClass)
     {
@@ -72,12 +71,12 @@ void UUnitSlotWidget::OnUnitButtonClicked()
                 {
                     SpawnBase = TempBase;
                     SpawnLocation = SpawnBase->GetActorLocation();
-                    break; 
+                    break;
                 }
             }
         }
 
-        if (!SpawnBase) return; 
+        if (!SpawnBase) return;
 
         FVector BaseForward = SpawnBase->GetActorForwardVector();
         FVector BaseRight = SpawnBase->GetActorRightVector();
@@ -115,5 +114,22 @@ void UUnitSlotWidget::OnUnitButtonClicked()
 
             ReusedUnit->ActivateUnit();
         }
+    }
+}
+
+void UUnitSlotWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    if (UnitButton)
+    {
+        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
+    }
+}
+void UUnitSlotWidget::OnUnitButtonClicked()
+{
+    if (IsSpawnAble())
+    {
+        ExecuteSpawn();
     }
 }

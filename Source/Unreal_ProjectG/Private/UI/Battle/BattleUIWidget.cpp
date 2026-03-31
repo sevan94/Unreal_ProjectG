@@ -4,6 +4,9 @@
 #include "UI/Battle/BattleUIWidget.h"
 #include "UI/Battle/ResultVictoryWidget.h"
 #include "UI/Battle/PauseWidget.h"
+#include "UI/Battle/ControlPanelWidget.h"
+#include "UI/Battle/UnitPanelWidget.h"
+#include "UI/Battle/UnitSlotWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -104,12 +107,17 @@ void UBattleUIWidget::OnAutoButtonClicked()
     if (bIsAuto)
     {
         Hero->ChangeCombatMode(EHeroCombatMode::Auto);
+        CurrentAutoSpawnIndex = 0;
+        GetWorld()->GetTimerManager().SetTimer(AutoSpawnTimerHandle, this, &UBattleUIWidget::AutoUnitSpawn, 0.5f, true);
+
         PlayAnimation(ControlPanelSlide, 0.0f, 1);
         AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
         Hero->ChangeCombatMode(EHeroCombatMode::Manual);
+        GetWorld()->GetTimerManager().ClearTimer(AutoSpawnTimerHandle);
+
         PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
     }
@@ -124,5 +132,24 @@ void UBattleUIWidget::OnPauseButtonClicked()
 
         // 일시정지 위젯 표시
         PauseWidget->SetVisibility(ESlateVisibility::Visible);
+    }
+}
+
+void UBattleUIWidget::AutoUnitSpawn()
+{
+    if (!bIsAuto || !ControlPanel) return;
+
+    UUnitPanelWidget* UnitPanel = ControlPanel->GetUnitPanel();
+    if (!UnitPanel) return;
+
+    const TArray<UUnitSlotWidget*>& UnitSlots = UnitPanel->GetUnitArray();
+    if (UnitSlots.Num() == 0) return;
+
+    UUnitSlotWidget* TargetSlot = UnitSlots[CurrentAutoSpawnIndex];
+
+    if (TargetSlot && TargetSlot->IsSpawnAble())
+    {
+        TargetSlot->ExecuteSpawn();
+        CurrentAutoSpawnIndex = (CurrentAutoSpawnIndex + 1) % UnitSlots.Num();
     }
 }

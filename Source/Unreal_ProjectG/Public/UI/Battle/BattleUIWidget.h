@@ -44,6 +44,9 @@ protected:
 
     UFUNCTION()
     void OnPauseButtonClicked();
+
+    UFUNCTION()
+    void AutoUnitSpawn();
 	
 protected:
     // 플레이타임 텍스트
@@ -110,4 +113,10 @@ private:
 
     // 플레이타임
     float ElapsedPlayTime = 0.0f;
+
+    // 자동 모드시 유닛 스폰 타이머 핸들
+    FTimerHandle AutoSpawnTimerHandle;
+
+    // 순차 유닛 스폰 인덱스
+    int32 CurrentAutoSpawnIndex = 0;
 };

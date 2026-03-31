@@ -32,6 +32,10 @@ struct FStageDataTable : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
     TSoftObjectPtr<UWorld> StageLevel;
 
+    // 스테이지 브금
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageInfo")
+    TSoftObjectPtr<USoundBase> StageBGM;
+
     // 출현할 적 정보
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageDetail")
     TObjectPtr<UDA_StageUnitListDataAsset> EnemyList;

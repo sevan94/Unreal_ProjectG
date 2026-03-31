@@ -4,13 +4,15 @@
 #include "UI/Lobby/Unit/LobbyUnitWidget.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
+#include "Components/HorizontalBox.h"
+#include "Components/AudioComponent.h"
 #include "UI/Lobby/Unit/UnitListWidget.h"
 #include "UI/Lobby/Unit/UnitDescriptionWidget.h"
 #include "UI/Lobby/Unit/CurrentUnitWidget.h"
 #include "UI/UnitEntryObject.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
-#include "Components/HorizontalBox.h"
+#include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
 
 void ULobbyUnitWidget::NativeConstruct()
@@ -64,6 +66,10 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
         }
 
         PartySlots[SlotIndex]->UpdateSlot(SelectedUnit);
+        if (SelectedUnit->PartySound)
+        {
+            PlayUnitSound(SelectedUnit->PartySound);
+        }
 
         // 인스턴스에 최종 변경사항 저장
         if (GI)
@@ -116,6 +122,20 @@ void ULobbyUnitWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
     case EGoodsCategory::Unlock: Unlock->UpdateGoodsText(InValue); break;
     case EGoodsCategory::Gold: Gold->UpdateGoodsText(InValue); break;
     }
+}
+
+void ULobbyUnitWidget::PlayUnitSound(USoundBase* NewSound)
+{
+    if (!NewSound) return;
+
+    // 이미 사운드가 재생 중이라면 중지
+    if (AudioComponent && AudioComponent->IsPlaying())
+    {
+        AudioComponent->Stop();
+    }
+
+    // 새 사운드 재생
+    AudioComponent = UGameplayStatics::SpawnSound2D(this, NewSound);
 }
 
 void ULobbyUnitWidget::OnExitButtonClick()

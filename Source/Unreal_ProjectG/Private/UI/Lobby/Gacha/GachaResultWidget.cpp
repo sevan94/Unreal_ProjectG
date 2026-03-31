@@ -85,13 +85,10 @@ void UGachaResultWidget::OnSkipButtonClicked()
     {
         UnitImage->SetColorAndOpacity(FLinearColor::White);
         GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
-        // 애니메이션을 마지막 프레임으로 이동
-        float EndTime = UnitGacha->GetEndTime();
 
-        // 애니메이션 재생 중일 수 있으므로 중지 후 시간 설정
+        // 애니메이션 재생 배속으로 끝까지 재생
         if (UnitSound) PlaySound(UnitSound);
-        PauseAnimation(UnitGacha);
-        SetAnimationCurrentTime(UnitGacha, EndTime);
+        PlayAnimation(UnitGacha, 0.0f, 1, EUMGSequencePlayMode::Forward, 100.0f);
 
         // 스킵 버튼 숨기기
         if (SkipButton)

@@ -38,6 +38,9 @@ protected:
     UFUNCTION()
     void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);
 
+    // 사운드 재생 헬퍼 함수 (중복 방지용)
+    void PlayUnitSound(USoundBase* NewSound);
+
 private:
     UFUNCTION()
     void OnExitButtonClick();
@@ -74,6 +77,10 @@ public:
     // 업그레이드 재화
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> Gold;
+
+    // 현재 재생 중인 유닛 사운드를 관리하기 위한 컴포넌트
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 
 private:
     // 현재 리스트에서 선택된 유닛

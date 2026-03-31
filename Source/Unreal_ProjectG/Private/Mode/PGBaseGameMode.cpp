@@ -36,6 +36,18 @@ void APGBaseGameMode::BeginPlay()
                         }
                     }
                 }
+
+                if (GI && !GI->CurrentStageData.StageBGM.IsNull())
+                {
+                    // 사운드 에셋 로드 후 재생
+                    USoundBase* BGM = GI->CurrentStageData.StageBGM.LoadSynchronous();
+                    if (BGM)
+                    {
+                        // 전역적으로 관리되는 사운드 믹스와 클래스를 적용하여 재생
+                        UGameplayStatics::PlaySound2D(this, BGM);
+                        // 또는 지속적인 BGM을 위해 SpawnSound2D 후 참조 유지
+                    }
+                }
             }
         }
     }

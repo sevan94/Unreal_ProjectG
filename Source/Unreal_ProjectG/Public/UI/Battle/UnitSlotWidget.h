@@ -29,6 +29,10 @@ public:
 
     void SetSpawnBase(ABaseStructure* InSpawnBase) {SpawnBase = InSpawnBase;}
 
+    bool IsSpawnAble() const;
+
+    void ExecuteSpawn();
+
 protected:
     // 초기화 및 버튼 이벤트 바인딩
     virtual void NativeConstruct() override;

@@ -15,6 +15,12 @@ class UNREAL_PROJECTG_API AHeroController : public APlayerController, public IJo
 {
 	GENERATED_BODY()
 
+public:
+    void MoveCamera(float DeltaY);
+    void SaveCameraPosition();
+    void ResetCameraPosition();
+    void SetCameraClamp(float InMin, float InMax);
+
 protected:
     virtual void OnPossess(APawn* InPawn) override;
     virtual void BeginPlay() override;
@@ -38,6 +44,17 @@ private:
 
     //움직일 방향
     FVector MoveDirection = FVector::ZeroVector;
+
+    // 카메라 컨트롤 변수
+    bool bIsCameraManual = false;
+    float CameraTargetY = 0.0f;
+    float CameraBaseY = 0.0f;
+    UPROPERTY(EditAnywhere, Category = "Camera")
+    float MaxCameraOffset = 800.0f; // 좌우 최대 이동 범위
+    UPROPERTY(EditAnywhere, Category = "Camera")
+    float CameraReturnSpeed = 5.0f; // 복구 시 보간 속도
+    float MapMin = 0.0f;
+    float MapMax = 0.0f;
 
     UPROPERTY()
     TObjectPtr<class AHeroCharacter> Hero = nullptr;

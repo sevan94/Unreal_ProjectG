@@ -49,6 +49,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Detail")
     TObjectPtr<UTexture2D> UnitImage;
 
+    // 획득 사운드
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Detail")
+    TObjectPtr<USoundBase> GachaSound;
+
+    // 편성 사운드
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Detail")
+    TObjectPtr<USoundBase> PartySound;
+
     // 유닛 설명
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit|Detail")
     FString UnitDetail;

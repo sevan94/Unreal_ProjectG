@@ -69,16 +69,18 @@ public:
 
     //자동전투 상태로 만듦
     UFUNCTION(BlueprintCallable, Category = "Battle")
-    void OnAutoBattle() { bIsAuto = true; };
+    void OnAutoBattle() { bIsAuto = true; }
 
     //자동전투 종료
     UFUNCTION(BlueprintCallable, Category = "Battle")
-    void OffAutoBattle() { bIsAuto = false; };
+    void OffAutoBattle() { bIsAuto = false; }
 
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
+    class USpringArmComponent* GetSpringArm() const { return SpringArm; }
+
 protected:
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

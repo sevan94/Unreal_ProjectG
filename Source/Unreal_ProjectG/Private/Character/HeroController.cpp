@@ -10,6 +10,7 @@
 #include "Character/Hero/HeroCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "PGGameplayTags.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // 내부 헬퍼 함수
 namespace HeroController
@@ -25,6 +26,46 @@ namespace HeroController
         const UAbilitySystemComponent* ASC = Hero->GetAbilitySystemComponent();
         return ASC && ASC->HasMatchingGameplayTag(PGGameplayTags::State_InputBlock_Move);
     }
+}
+
+void AHeroController::MoveCamera(float DeltaY)
+{
+    bIsCameraManual = true;
+
+    // 카메라 위치 계산
+    float OffsetY = CameraBaseY + DeltaY;
+    // 캐릭터 위치 계산
+    float HeroY = Hero->GetActorLocation().X;
+
+    // 캐릭터 위치 + 카메라 위치가 맵 밖으로 나가지 않게 카메라의 월드 좌표 제한
+    float FinalCameraY = FMath::Clamp(HeroY + OffsetY, MapMin, MapMax);
+
+    CameraTargetY = FinalCameraY - HeroY;
+    UE_LOG(LogTemp, Log, TEXT("맵 최소 : %f, 맵 최대 : %f, 현재 카메라 위치 : %f"), MapMin, MapMax , FinalCameraY);
+}
+
+void AHeroController::SaveCameraPosition()
+{
+    if (bIsCameraManual)
+    {
+        CameraBaseY = CameraTargetY;
+    }
+}
+
+void AHeroController::ResetCameraPosition()
+{
+    if (bIsCameraManual)
+    {
+        bIsCameraManual = false;
+        CameraTargetY = 0.0f;
+        CameraBaseY = 0.0f;
+    }
+}
+
+void AHeroController::SetCameraClamp(float InMin, float InMax)
+{
+    MapMin = InMin;
+    MapMax = InMax;
 }
 
 void AHeroController::OnPossess(APawn* InPawn)
@@ -52,9 +93,23 @@ void AHeroController::PlayerTick(float DeltaTime)
     Super::PlayerTick(DeltaTime);
 
     // 조이스틱 위젯이 있고, 입력값이 있다면 이동 처리
-    if (Hero && bIsMoving)
+    if (Hero)
     {
-        MoveCharacter();
+        if (bIsMoving)
+        {
+            ResetCameraPosition();
+            MoveCharacter();
+        }
+
+        // 카메라 오프셋 보간 처리 (Lerp)
+        USpringArmComponent* SpringArm = Hero->GetSpringArm();
+        if (SpringArm)
+        {
+            FVector CurrentOffset = SpringArm->SocketOffset;
+
+            float NewY = FMath::FInterpTo(CurrentOffset.Y, CameraTargetY, DeltaTime, CameraReturnSpeed);
+            SpringArm->SocketOffset.Y = NewY;
+        }
     }
 }
 

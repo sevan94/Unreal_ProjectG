@@ -10,6 +10,7 @@
 
 class UButton;
 class UImage;
+class UTextBlock;
 class UCanvasPanel;
 class UNiagaraSystemWidget;
 class UWidgetSwitcher;
@@ -57,6 +58,12 @@ protected:
     TObjectPtr<UImage> UnitImage;
 
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> UnitRank;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitName;
+
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> EquipImage;
 
     UPROPERTY(meta = (BindWidget))
@@ -67,6 +74,9 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
     UWidgetAnimation* UnitGacha;
+
+    UPROPERTY()
+    TObjectPtr<USoundBase> UnitSound;
 
     bool bCanExit = false;
 private:

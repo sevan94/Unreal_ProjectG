@@ -56,10 +56,10 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
                 if (FRealCurve* CostCurve = CurrentUIData->UnitStatus->FindCurve(TEXT("UpgradeCost"), TEXT("")))
                 {
                     CurrentCost = FMath::RoundToInt(CostCurve->Eval(SaveData.Level));
-                    if (CurrentCost >= GI->CurrentPlayerGold)
-                        UpgradeButton->SetIsEnabled(false);
-                    else
+                    if (GI->CurrentPlayerGold >= CurrentCost)
                         UpgradeButton->SetIsEnabled(true);
+                    else
+                        UpgradeButton->SetIsEnabled(false);
                 }
             }
         }
@@ -68,10 +68,10 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
             ButtonText->SetText(FText::FromString(TEXT("해금")));
             CostBar->SetGoodsImage(UnlockIcon);
             CurrentCost = CurrentUIData->UnitUnlock;
-            if (CurrentCost >= GI->CurrentPlayerUnlock)
-                UpgradeButton->SetIsEnabled(false);
-            else
+            if (GI->CurrentPlayerUnlock >= CurrentCost)
                 UpgradeButton->SetIsEnabled(true);
+            else
+                UpgradeButton->SetIsEnabled(false);
         }
         CostBar->UpdateGoodsText(CurrentCost);
     }

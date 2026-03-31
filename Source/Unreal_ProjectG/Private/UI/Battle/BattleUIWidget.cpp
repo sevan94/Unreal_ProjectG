@@ -4,12 +4,16 @@
 #include "UI/Battle/BattleUIWidget.h"
 #include "UI/Battle/ResultVictoryWidget.h"
 #include "UI/Battle/PauseWidget.h"
+#include "UI/Battle/ControlPanelWidget.h"
+#include "UI/Battle/UnitPanelWidget.h"
+#include "UI/Battle/UnitSlotWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/PGBaseGameMode.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "Character/HeroController.h"
 
 void UBattleUIWidget::NativeConstruct()
 {
@@ -52,6 +56,56 @@ void UBattleUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
             PlayTimeText->SetText(FText::FromString(TimeString));
         }
     }
+}
+
+FReply UBattleUIWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    // 조이스틱 패널 영역이 아닌 상단 영역 클릭 시 드래그 시작
+    if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+    {
+        bIsControlCamera = true;
+        // 스크린 공간의 좌표를 저장
+        DragStartPos = InMouseEvent.GetScreenSpacePosition();
+
+        return FReply::Handled().CaptureMouse(TakeWidget());
+    }
+    return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
+FReply UBattleUIWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    // 카메라 컨트롤 중인지 확인
+    if (bIsControlCamera)
+    {
+        FVector2D CurrentPos = InMouseEvent.GetScreenSpacePosition();
+
+        // 시작점에서 현재 마우스 위치까지의 벡터 계산
+        FVector2D DragDelta = CurrentPos - DragStartPos;
+
+        if (AHeroController* PC = Cast<AHeroController>(GetOwningPlayer()))
+        {
+            PC->MoveCamera(-DragDelta.X);
+        }
+        return FReply::Handled();
+    }
+    return FReply::Unhandled();
+}
+
+FReply UBattleUIWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+    {
+        if (bIsControlCamera)
+        {
+            bIsControlCamera = false;
+            if (AHeroController* PC = Cast<AHeroController>(GetOwningPlayer()))
+            {
+                PC->SaveCameraPosition();
+            }
+        }
+        return FReply::Handled().ReleaseMouseCapture();
+    }
+    return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
 void UBattleUIWidget::OnSpeedButtonClicked()
@@ -104,12 +158,17 @@ void UBattleUIWidget::OnAutoButtonClicked()
     if (bIsAuto)
     {
         Hero->ChangeCombatMode(EHeroCombatMode::Auto);
+        CurrentAutoSpawnIndex = 0;
+        GetWorld()->GetTimerManager().SetTimer(AutoSpawnTimerHandle, this, &UBattleUIWidget::AutoUnitSpawn, 0.5f, true);
+
         PlayAnimation(ControlPanelSlide, 0.0f, 1);
         AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
         Hero->ChangeCombatMode(EHeroCombatMode::Manual);
+        GetWorld()->GetTimerManager().ClearTimer(AutoSpawnTimerHandle);
+
         PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);
     }
@@ -124,5 +183,24 @@ void UBattleUIWidget::OnPauseButtonClicked()
 
         // 일시정지 위젯 표시
         PauseWidget->SetVisibility(ESlateVisibility::Visible);
+    }
+}
+
+void UBattleUIWidget::AutoUnitSpawn()
+{
+    if (!bIsAuto || !ControlPanel) return;
+
+    UUnitPanelWidget* UnitPanel = ControlPanel->GetUnitPanel();
+    if (!UnitPanel) return;
+
+    const TArray<UUnitSlotWidget*>& UnitSlots = UnitPanel->GetUnitArray();
+    if (UnitSlots.Num() == 0) return;
+
+    UUnitSlotWidget* TargetSlot = UnitSlots[CurrentAutoSpawnIndex];
+
+    if (TargetSlot && TargetSlot->IsSpawnAble())
+    {
+        TargetSlot->ExecuteSpawn();
+        CurrentAutoSpawnIndex = (CurrentAutoSpawnIndex + 1) % UnitSlots.Num();
     }
 }

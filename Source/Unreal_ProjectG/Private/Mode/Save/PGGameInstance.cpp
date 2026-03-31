@@ -232,13 +232,12 @@ void UPGGameInstance::UpdateStageClearData(int32 StageCode, int32 InStarCount)
     // 달성도에 따라 골드 지급
     AddGoods(EGoodsCategory::Gold, CurrentStageData.RewardGold * InStarCount);
 
+    // 처음 클리어했거나, 이전보다 더 높은 별점을 획득했을 때 기록 갱신
     if (bIsFirstClear || InStarCount > *OldStarCountPtr)
     {
-        StageClearData.Add(StageCode, InStarCount);
-
-        // 다음 스테이지 해금 로직 [추가 예정]
-        // UnlockNextStage(StageCode); 
+        StageClearData.FindOrAdd(StageCode) = InStarCount;
     }
+
     SaveGameData();
 }
 

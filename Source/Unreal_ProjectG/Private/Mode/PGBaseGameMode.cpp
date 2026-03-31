@@ -8,6 +8,7 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BattleHUD.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "Character/HeroController.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
 APGBaseGameMode::APGBaseGameMode()
@@ -55,12 +56,21 @@ void APGBaseGameMode::BeginPlay()
             {
                 AllyBase = Base;
             }
+            if (Base->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
+            {
+                EnemyBase = Base;
+            }
             // 기지가 파괴되면 OnGameOver 함수가 실행되도록 연결
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
 
-
+    // 카메라 이동 범위 제한
+    AHeroController* PC = Cast<AHeroController>(GetWorld()->GetFirstPlayerController());
+    if (PC)
+    {
+        PC->SetCameraClamp(AllyBase->GetActorLocation().X + 200.0f, EnemyBase->GetActorLocation().X - 200.0f);
+    }
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

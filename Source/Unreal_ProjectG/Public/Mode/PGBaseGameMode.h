@@ -99,6 +99,8 @@ protected:
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
 
-    // 체력 달성도 확인용 아군 기지
+    // 기지 캐싱
+    // 기지 캐싱
     TObjectPtr<ABaseStructure> AllyBase;
+    TObjectPtr<ABaseStructure> EnemyBase;
 };

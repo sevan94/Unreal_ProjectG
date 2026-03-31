@@ -135,6 +135,7 @@ FReply UControlPanelWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
             //인터페이스를 사용해 캐릭터 움직임
             if(Controller)
             {
+                Controller->ResetCameraPosition();
                 IJoysticInput::Execute_MoveStart(Controller, JoystickVector);
             }
 

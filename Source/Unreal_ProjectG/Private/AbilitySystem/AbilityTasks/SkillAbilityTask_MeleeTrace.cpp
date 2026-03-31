@@ -46,9 +46,9 @@ void USkillAbilityTask_MeleeTrace::Activate()
     {
         UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(Ability, NAME_None, Config.Montage);
         MontageTask->OnCancelled.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
-        MontageTask->OnBlendOut.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
         MontageTask->OnInterrupted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
-        MontageTask->OnCompleted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCancelled);
+        MontageTask->OnBlendOut.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCompleted);
+        MontageTask->OnCompleted.AddDynamic(this, &USkillAbilityTask_MeleeTrace::OnMontageCompleted);
         MontageTask->ReadyForActivation();
     }
 }
@@ -57,6 +57,12 @@ void USkillAbilityTask_MeleeTrace::Activate()
 void USkillAbilityTask_MeleeTrace::OnMontageCancelled()
 {
     OnCancelled.Broadcast({});
+    EndTask();
+}
+
+void USkillAbilityTask_MeleeTrace::OnMontageCompleted()
+{
+    OnCompleted.Broadcast({});
     EndTask();
 }
 

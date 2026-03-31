@@ -41,6 +41,17 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
     }
 
     RuntimeActionSequence.Reset();
+    bBlockedMoveInputThisActivation = false;
+
+    // 풀바디 모션인 경우 이동 입력 차단 태그 추가
+    if (SkillData->BodyMode == EHeroSkillBodyMode::FullBody)
+    {
+        if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+        {
+            ASC->AddLooseGameplayTag(PGGameplayTags::State_InputBlock_Move);
+            bBlockedMoveInputThisActivation = true;
+        }
+    }
     //==============================================================================
 
     if (const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
@@ -238,10 +249,20 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
     }
 
     RuntimeActionSequence.Reset();
+
+    if (bBlockedMoveInputThisActivation)
+    {
+        if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+        {
+            ASC->RemoveLooseGameplayTag(PGGameplayTags::State_InputBlock_Move);
+        }
+    }
+
     SkillData = nullptr;
     CurrentActionIndex = 0;
     bAutoMode = false;
     bCommittedThisActivation = false;
+    bBlockedMoveInputThisActivation = false;
 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -269,11 +290,28 @@ bool UPGHeroSkillGameplayAbility::TryCommitAbilityOnce()
     return false;
 }
 
+const FGameplayAbilitySpec* UPGHeroSkillGameplayAbility::ResolveAbilitySpec(
+    const FGameplayAbilitySpecHandle& Handle,
+    const FGameplayAbilityActorInfo* ActorInfo) const
+{
+    const FGameplayAbilitySpecHandle SpecHandle = Handle.IsValid() ? Handle : CurrentSpecHandle;
+    if (!SpecHandle.IsValid())
+    {
+        return nullptr;
+    }
+
+    const FGameplayAbilityActorInfo* ResolvedActorInfo = ActorInfo ? ActorInfo : CurrentActorInfo;
+    if (!ResolvedActorInfo || !ResolvedActorInfo->AbilitySystemComponent.IsValid())
+    {
+        return nullptr;
+    }
+
+    return ResolvedActorInfo->AbilitySystemComponent->FindAbilitySpecFromHandle(SpecHandle);
+}
+
 EHeroSkillType UPGHeroSkillGameplayAbility::GetHeroSkillType() const
 {
-    if (!GetCurrentAbilitySpec()) return EHeroSkillType::None;
-
-    const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
+    const FGameplayAbilitySpec* Spec = ResolveAbilitySpec();
     if (!Spec)
     {
         return EHeroSkillType::None;
@@ -336,20 +374,29 @@ void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle
     
     if (!SpecHandle.IsValid()) return;
 
-    // 슬롯 태그 주입
-    switch (GetHeroSkillType())
+    const FGameplayAbilitySpec* Spec = ResolveAbilitySpec(Handle, ActorInfo);
+    if (!Spec)
     {
-    case EHeroSkillType::MainSkill:
-        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
-        break;
-    case EHeroSkillType::SubSkill:
-        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
-        break;
-    default:    
         return;
     }
 
-    UE_LOG(LogTemp, Log, TEXT("Applying Cooldown: %f seconds"), CooldownDuration);
+    const FGameplayTagContainer& DynamicTags = Spec->GetDynamicSpecSourceTags();
+
+    // 슬롯 태그 주입
+    if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_MainSkill))
+    {
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_MainSkill);
+    }
+    else if (DynamicTags.HasTag(PGGameplayTags::Input_ActiveSkill_SubSkill))
+    {
+        SpecHandle.Data->DynamicGrantedTags.AddTag(PGGameplayTags::Ability_Cooldown_SubSkill);
+    }
+    else
+    {
+        return;
+    }
+
+    //UE_LOG(LogTemp, Log, TEXT("Applying Cooldown: %f seconds"), CooldownDuration);
 
     SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_Duration, CooldownDuration);
 

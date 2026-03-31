@@ -26,8 +26,8 @@ namespace PGGameplayTags
 
     // 플레이어 세트 게임 플레이 태그 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_ChainSword, "Equipment.Set.ChainSword");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Justice, "Equipment.Set.Justice");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Ironmaid, "Equipment.Set.Ironmaid");
+
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_RockStar, "Equipment.Set.RockStar");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");

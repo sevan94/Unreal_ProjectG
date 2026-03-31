@@ -32,6 +32,10 @@ public:
     // EffectConfig 배열을 기반으로 게임플레이 이펙트 스펙핸들 배열 생성
     TArray<FGameplayEffectSpecHandle> MakeOutgoingEffectSpecsFromEffectConfigs(const TArray<FEffectConfig>& EffectConfigs);
 
+    // EffectConfig을 기반으로 게임플레이 이펙트 스펙핸들 생성
+    UFUNCTION(BlueprintPure, Category = "PG|Ability")
+    FGameplayEffectSpecHandle MakeOutgoingEffectSpecFromEffectConfig(const FEffectConfig& EffectConfig);
+
     // 타깃 액터에게 게임플레이 이펙트를 적용하는 네이티브 함수
     FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
 
@@ -56,10 +60,6 @@ protected:
     // 스킬 배율이 적용된 게임플레이 이펙트 스펙핸들 생성
     UFUNCTION(BlueprintPure, Category = "PG|Ability")
     FGameplayEffectSpecHandle MakeOutgoingEffectSpecWithMultiplier(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier);
-
-    // EffectConfig을 기반으로 게임플레이 이펙트 스펙핸들 생성
-    UFUNCTION(BlueprintPure, Category = "PG|Ability")
-    FGameplayEffectSpecHandle MakeOutgoingEffectSpecFromEffectConfig(const FEffectConfig& EffectConfig);
 
 public:
     // 일단은 UI 사용 용도로 Public하게 두었음, 추후 로직에 들어가면 위치 변경 가능

@@ -238,6 +238,14 @@ struct FEffectConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
     FScalableFloat Duration = FScalableFloat(0.f);
+
+    //액션에 적용할 큐 태그
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "실행할 Static 큐", Categories = "GameplayCue"))
+    FGameplayTag AppliedCueTag;
+
+    // 큐 태그와 함께 보낼 Enum
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "큐 이펙트 타입"))
+    EEffectType CueEffectType = EEffectType::None;
 };
 
 //==========================================================================================================

@@ -93,16 +93,6 @@ struct FSkillActionRow
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "액션|Buff",
         meta = (DisplayName = "Buff 설정", EditCondition = "ActionType == ESkillActionType::Buff", EditConditionHides))
     FHeroBuffConfig BuffConfig;
-
-    //액션에 적용할 큐 태그
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "액션|큐 태그",
-        meta = (DisplayName = "적용할 큐 태그 설정", EditCondition = "ActionType != ESkillActionType::None", EditConditionHides))
-    FGameplayTag AppliedCueTag;
-
-    // 큐 태그와 함께 보낼 Enum
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "액션|큐 태그",
-        meta = (DisplayName = "적용할 큐 태그 설정", EditCondition = "AppliedCueTag != FGameplayTag::EmptyTag", EditConditionHides))
-    EEffectType EffectType = EEffectType::None;
 };
 
 USTRUCT(BlueprintType)

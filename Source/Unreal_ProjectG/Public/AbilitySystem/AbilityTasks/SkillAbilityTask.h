@@ -12,6 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillTaskDelegate, FGameplayAbility
 // 스킬 런타임 이벤트 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSkillRuntimeEventDelegate, FGameplayTag, EventTag, FGameplayAbilityTargetDataHandle, TargetData);
 
+struct FEffectConfig;
+
 /**
  * 
  */
@@ -21,11 +23,11 @@ class UNREAL_PROJECTG_API USkillAbilityTask : public UAbilityTask
 	GENERATED_BODY()
 	
 protected:
-    // 액터 큐를 이펙트에 추가하는 유틸리티 함수
-    FGameplayEffectSpecHandle AddActorCueIntoSpecHandle(TArray<FGameplayEffectSpecHandle>& SpecHandles, EEffectType InEffectType, const FGameplayTag& InActorCueTag);
+    // Actor Cue: GE Spec에 PGEffectContext(CueEffectType) 주입
+    FGameplayEffectContextHandle  AddActorCueIntoSpecHandle(FGameplayEffectSpecHandle& InOutSpecHandle, const FEffectConfig& InEffectConfig) const;
 
-    // 스태틱 큐 실행 유틸리티 함수
-    void ExecuteSstaticCue(AActor* TargetActor, const FGameplayTag& InStaticCueTag, EEffectType InEffectType, const FGameplayEffectContextHandle& EffectContext) const;
+    // Static Cue: GE와 분리 실행, CueParams.EffectContext에 CueEffectType 담아 전달
+    void ExecuteStaticCue(AActor* TargetActor, const FEffectConfig& InEffectConfig, const FGameplayEffectContextHandle& EffectContext) const;
 
 public:
     // Task 완료(정상 종료)
@@ -41,5 +43,6 @@ public:
     FSkillRuntimeEventDelegate OnRuntimeEvent;
 
 protected:
+    // 스킬 런타임 이벤트를 수신하는 헬퍼 함수
     void EmitRuntimeEvent(const FGameplayTag& EventTag, const FGameplayAbilityTargetDataHandle& TargetData = FGameplayAbilityTargetDataHandle());
 };

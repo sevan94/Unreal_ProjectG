@@ -172,29 +172,57 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     // 효과 적용 전 유효성 체크
                     if (!PGAbility || Config.Effects.IsEmpty()) return;
                     
-                    // GE 적용
-                    TArray<FGameplayEffectSpecHandle> SpecHandles = 
-                        PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
-
-
-
-                    for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
+                    // GE 스펙 핸들 생성 및 효과 적용
+                    for (const FEffectConfig& EffectConfig : Config.Effects)
                     {
-                        if (SpecHandle.IsValid())
+                        FGameplayEffectSpecHandle SpecHandle = PGAbility->MakeOutgoingEffectSpecFromEffectConfig(EffectConfig);
+                        
+                        if (!SpecHandle.IsValid()) continue;
+
+                        // 적용 전: ActorCue를 Spec에 주입
+                        const FGameplayEffectContextHandle CueContext = AddActorCueIntoSpecHandle(SpecHandle, EffectConfig);
+
+                        const FActiveGameplayEffectHandle AppliedHandle = PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+
+                        if (AppliedHandle.IsValid())
                         {
-                            PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+                            // Context를 사용한다면
+                            const FGameplayEffectContextHandle ContextToUse = CueContext.IsValid() ? CueContext : (SpecHandle.Data.IsValid() ? SpecHandle.Data->GetContext() : FGameplayEffectContextHandle());
+
+                            // 적용 후: StaticCue 실행
+                            ExecuteStaticCue(HitActor, EffectConfig, ContextToUse);
                             HitActors.Add(HitActor);
 
                             if (!bHitEventFlag)
                             {
                                 HitData->HitResult = HitResult;
                                 RuntimeTargetData.Add(HitData);
-
                                 EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
                                 bHitEventFlag = true;
                             }
                         }
                     }
+
+                    //TArray<FGameplayEffectSpecHandle> SpecHandles = 
+                    //    PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
+
+                    //for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
+                    //{
+                    //    if (SpecHandle.IsValid())
+                    //    {
+                    //        PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+                    //        HitActors.Add(HitActor);
+
+                    //        if (!bHitEventFlag)
+                    //        {
+                    //            HitData->HitResult = HitResult;
+                    //            RuntimeTargetData.Add(HitData);
+
+                    //            EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                    //            bHitEventFlag = true;
+                    //        }
+                    //    }
+                    //}
                 }
                 PreviousTraceStart = CurrentTraceStart;
                 PreviousTraceEnd = CurrentTraceEnd;

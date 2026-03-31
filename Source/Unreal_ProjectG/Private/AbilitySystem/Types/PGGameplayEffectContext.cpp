@@ -26,10 +26,16 @@ bool FPGGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
     // FGameplayEffectContext의 NetSerialize를 먼저 호출하여 기본 필드들을 직렬화/역직렬화합니다.
     const bool bSuperResult = FGameplayEffectContext::NetSerialize(Ar, Map, bOutSuccess);
 
-    // FPGGameplayEffectContext의 고유 필드인 EffectTag을 직렬화/역직렬화합니다.
-    const bool bTagResult = EffectTag.NetSerialize(Ar, Map, bOutSuccess);
+    // FPGGameplayEffectContext의 고유 필드인 EEffectType을 직렬화/역직렬화합니다.
+    uint8 EffectTypeValue = static_cast<uint8>(CueEffectType);
+    Ar << EffectTypeValue;
+    if (Ar.IsLoading())
+    {
+        const UEnum* EffectTypeEnum = StaticEnum<EEffectType>();
+        CueEffectType = (EffectTypeEnum && EffectTypeEnum->IsValidEnumValue(EffectTypeValue)) ? static_cast<EEffectType>(EffectTypeValue) : EEffectType::None; // 역직렬화 시 유효하지 않은 값이 들어올 경우 안전하게 None으로 설정
+    }
 
     // 두 직렬화 결과를 모두 고려하여 최종 성공 여부를 결정합니다.
-    bOutSuccess = bOutSuccess && bSuperResult && bTagResult;
+    bOutSuccess = bOutSuccess && bSuperResult;
     return true;
 }

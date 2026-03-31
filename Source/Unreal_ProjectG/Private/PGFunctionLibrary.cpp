@@ -10,6 +10,9 @@
 #include "Interfaces/HeroCombatInterface.h"
 #include "Components/Combat/HeroCombatComponent.h"
 
+#include "AbilitySystem/Types/PGGameplayEffectContext.h"
+#include "GameplayEffectTypes.h"
+
 UPGAbilitySystemComponent* UPGFunctionLibrary::NativeGetPGASCFromActor(AActor* InActor)
 {
     checkf(InActor, TEXT("InActor : %s"), *GetNameSafe(InActor));
@@ -238,4 +241,31 @@ TArray<FGameplayEffectSpecHandle> UPGFunctionLibrary::MakeOutgoingGameplayEffect
         }
     }
     return EffectSpecHandles;
+}
+
+EEffectType UPGFunctionLibrary::GetCueEffectTypeFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext)
+{
+    bHasValidPGContext = false;
+
+    const FGameplayEffectContext* BaseContext = InContext.Get();
+    if (!BaseContext)
+    {
+        return EEffectType::None;
+    }
+
+    const UScriptStruct* StructType = BaseContext->GetScriptStruct();
+    if (!StructType || !StructType->IsChildOf(FPGGameplayEffectContext::StaticStruct()))
+    {
+        return EEffectType::None;
+    }
+
+    const FPGGameplayEffectContext* PGContext = static_cast<const FPGGameplayEffectContext*>(BaseContext);
+
+    bHasValidPGContext = true;
+    return PGContext->CueEffectType;
+}
+
+EEffectType UPGFunctionLibrary::GetCueEffectTypeFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext)
+{
+    return GetCueEffectTypeFromContext(InCueParams.EffectContext, bHasValidPGContext);
 }

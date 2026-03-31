@@ -285,18 +285,36 @@ float USkillAbilityTask_Buff::GetTargetHealth(const AActor* Target) const
 
 void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Targets) const
 {
-    if (Targets.IsEmpty())
-    {
-        return;
-    }
+    if (Targets.IsEmpty()) return;
 
     UPGGameplayAbility* PGAbility = Cast<UPGGameplayAbility>(Ability);
-    if (!PGAbility)
+    
+    if (!PGAbility) return;
+
+    for (const FEffectConfig& EffectConfig : ActionRowData.BuffConfig.Effects)
     {
-        return;
+        FGameplayEffectSpecHandle SpecHandle = PGAbility->MakeOutgoingEffectSpecFromEffectConfig(EffectConfig);
+        
+        if (!SpecHandle.IsValid()) continue;
+
+        const FGameplayEffectContextHandle CueContext = AddActorCueIntoSpecHandle(SpecHandle, EffectConfig); // 적용 전
+
+        for (AActor* TargetActor : Targets)
+        {
+            if (!TargetActor) continue;
+
+            const FActiveGameplayEffectHandle AppliedHandle = PGAbility->NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
+
+            if (AppliedHandle.IsValid())
+            {
+                const FGameplayEffectContextHandle ContextToUse = CueContext.IsValid() ? CueContext : (SpecHandle.Data.IsValid() ? SpecHandle.Data->GetContext() : FGameplayEffectContextHandle());
+
+                ExecuteStaticCue(TargetActor, EffectConfig, ContextToUse); // 적용 후
+            }
+        }
     }
 
-    const TArray<FGameplayEffectSpecHandle> SpecHandles =
+    /*const TArray<FGameplayEffectSpecHandle> SpecHandles =
         PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(ActionRowData.BuffConfig.Effects);
 
     for (AActor* TargetActor : Targets)
@@ -314,7 +332,7 @@ void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Target
 
             }
         }
-    }
+    }*/
 }
 
 void USkillAbilityTask_Buff::CompleteTask()

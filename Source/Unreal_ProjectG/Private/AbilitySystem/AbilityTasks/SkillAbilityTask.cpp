@@ -2,22 +2,110 @@
 
 
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask.h"
+#include "AbilitySystem/Types/PGGameplayEffectContext.h"
 #include "GameplayCueFunctionLibrary.h"
+#include "GameplayEffect.h"
+#include "Types/AbilityConfig.h"
+#include "PGGameplayTags.h"
 
-FGameplayEffectSpecHandle USkillAbilityTask::AddActorCueIntoSpecHandle(TArray<FGameplayEffectSpecHandle>& SpecHandles, EEffectType InEffectType, const FGameplayTag& InActorCueTag)
+// 헬퍼 함수
+// EffectContextHandle에 이펙트 타입을 담는다.
+namespace SkillCueHelper
 {
-    return FGameplayEffectSpecHandle();
+    // 스태틱 큐를 적용할지 판단하는 헬퍼 함수
+    static bool ShouldExecuteStaticCue(const FEffectConfig& InEffectConfig)
+    {
+        return InEffectConfig.AppliedCueTag.IsValid()
+            && InEffectConfig.AppliedCueTag.MatchesTag(PGGameplayTags::GameplayCue_SVFX_Static);
+    }
+
+    // EffectContextHandle을 복제하면서 이펙트 타입을 담는 헬퍼 함수
+    static FGameplayEffectContextHandle DuplicateContextWithEffectType(
+        const FGameplayEffectContextHandle& InContext,
+        EEffectType InEffectType)
+    {
+        if (!InContext.IsValid()) return FGameplayEffectContextHandle();
+
+        FGameplayEffectContextHandle NewContext = InContext.Duplicate();
+        if (!NewContext.IsValid()) return FGameplayEffectContextHandle();
+
+        // 타입 전달이 필요 없으면 복제본만 반환
+        if (InEffectType == EEffectType::None) return NewContext;
+
+        FGameplayEffectContext* RawContext = NewContext.Get();
+        
+        // FGameplayEffectContext를 가져오는데 실패했다면 빈 핸들 반환
+        if (!RawContext) return FGameplayEffectContextHandle();
+
+        // RawContext가 FPGGameplayEffectContext의 자식이 아니라면 빈 핸들 반환
+        UScriptStruct* ScriptStruct = RawContext->GetScriptStruct();
+        if (!ScriptStruct || !ScriptStruct->IsChildOf(FPGGameplayEffectContext::StaticStruct()))
+        {
+            return FGameplayEffectContextHandle();
+        }
+
+        // FPGGameplayEffectContext로 캐스팅해서 이펙트 타입을 담는다.
+        static_cast<FPGGameplayEffectContext*>(RawContext)->CueEffectType = InEffectType;
+        return NewContext;
+    }
 }
 
-void USkillAbilityTask::ExecuteSstaticCue(AActor* TargetActor, const FGameplayTag& InStaticCueTag, EEffectType InEffectType, const FGameplayEffectContextHandle& EffectContext) const
+FGameplayEffectContextHandle  USkillAbilityTask::AddActorCueIntoSpecHandle(FGameplayEffectSpecHandle& InOutSpecHandle, const FEffectConfig& InEffectConfig) const
 {
+    if (!InOutSpecHandle.IsValid() || !InOutSpecHandle.Data.IsValid()) return FGameplayEffectContextHandle();
 
+    FGameplayEffectSpec& Spec = *InOutSpecHandle.Data.Get();
+
+    FGameplayEffectContextHandle NewContext = SkillCueHelper::DuplicateContextWithEffectType(Spec.GetContext(), InEffectConfig.CueEffectType);
+
+    if (NewContext.IsValid())
+    {
+        Spec.SetContext(NewContext);
+        return NewContext;
+    }
+
+    return Spec.GetContext();
+}
+
+void USkillAbilityTask::ExecuteStaticCue(AActor* TargetActor, const FEffectConfig& InEffectConfig, const FGameplayEffectContextHandle& EffectContext) const
+{
+    if (!TargetActor) return;
+
+    if (!SkillCueHelper::ShouldExecuteStaticCue(InEffectConfig)) return;
+
+    FGameplayCueParameters CueParams;
+
+    // Context가 있으면 EffectType을 담아 전달, 없으면 빈 Params로 그대로 실행
+    FGameplayEffectContextHandle NewContext =
+        SkillCueHelper::DuplicateContextWithEffectType(EffectContext, InEffectConfig.CueEffectType);
+
+    if (NewContext.IsValid())
+    {
+        CueParams = FGameplayCueParameters(NewContext);
+    }
+
+    CueParams.Location = TargetActor->GetActorLocation();
+
+    if (Ability)
+    {
+        if (AActor* AvatarActor = Ability->GetAvatarActorFromActorInfo())
+        {
+            CueParams.Instigator = AvatarActor;
+            CueParams.EffectCauser = AvatarActor;
+        }
+    }
+
+    UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(
+        TargetActor,
+        InEffectConfig.AppliedCueTag,
+        CueParams);
 }
 
 void USkillAbilityTask::EmitRuntimeEvent(const FGameplayTag& EventTag, const FGameplayAbilityTargetDataHandle& TargetData)
 {
-    if (EventTag.IsValid())
+    if (!EventTag.IsValid())
     {
-        OnRuntimeEvent.Broadcast(EventTag, TargetData);
+        return;
     }
+    OnRuntimeEvent.Broadcast(EventTag, TargetData);
 }

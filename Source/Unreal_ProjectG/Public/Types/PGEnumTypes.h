@@ -125,10 +125,3 @@ enum class ESkillTargetPolicy : uint8
     Ally    UMETA(DisplayName = "아군"),
     Self    UMETA(DisplayName = "자신")
 };
-
-UENUM(BlueprintType)
-enum class EPolarity : uint8
-{
-    Buff    UMETA(DisplayName = "버프"),
-    Debuff  UMETA(DisplayName = "디버프")
-};

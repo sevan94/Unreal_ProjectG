@@ -62,6 +62,13 @@ enum class EHeroSkillEventCooldownScope : uint8
     PerSourceTag    UMETA(DisplayName = "소스 태그별"),
 };
 
+UENUM(BlueprintType)
+enum class EHeroSkillBodyMode : uint8
+{
+    UpperBody       UMETA(DisplayName = "UpperBody"),
+    FullBody        UMETA(DisplayName = "FullBody"),
+};
+
 USTRUCT(BlueprintType)
 struct FSkillActionRow
 {
@@ -196,6 +203,9 @@ class UNREAL_PROJECTG_API UDataAsset_HeroSkillData : public UPrimaryDataAsset
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬", meta = (DisplayName = "스킬 토글 여부"))
     bool bIsToggleSkill = false; // UI용
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬", meta = (DisplayName = "바디 모드"))
+    EHeroSkillBodyMode BodyMode = EHeroSkillBodyMode::UpperBody;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬", meta = (DisplayName = "스킬 쿨다운"))
     FScalableFloat SkillCooldown = FScalableFloat(0.f);

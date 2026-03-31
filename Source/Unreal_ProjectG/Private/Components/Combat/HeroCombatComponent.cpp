@@ -52,12 +52,16 @@ void UHeroCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         return;
     }
 
-    FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwningCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-    LookAtRotation.Pitch = 0.f; // 수평 회전만 허용
+    FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+        OwningCharacter->GetActorLocation(),
+        CurrentTarget->GetActorLocation()
+    );
 
-    const FRotator NewRotation = FMath::RInterpTo(OwningCharacter->GetActorRotation(), LookAtRotation, DeltaTime, 10.f);
+    const FRotator CurrentControlRot = OwningCharacter->GetControlRotation();
+    const FRotator TargetRot = FMath::RInterpTo(CurrentControlRot, LookAtRot, DeltaTime, 10.f);
 
-    OwningCharacter->SetActorRotation(NewRotation);
+    OwningCharacter->GetController()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
+    OwningCharacter->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
 }
 
 void UHeroCombatComponent::ActivateManualCombat()
@@ -159,10 +163,25 @@ void UHeroCombatComponent::UpdateDetection()
 
     // 현재 타깃은 가장 가까운 적으로 변경
     CurrentTarget = FindNearestEnemy();
-    SetComponentTickEnabled(CurrentTarget.IsValid()); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
 
-    // 유효한 타깃이 없으면 전투 종료
-    if (!CurrentTarget.IsValid()) return;
+    // 유효한 타깃이 없으면 전투 종료하면서 캐릭터 회전을 Movement 방향으로 돌려놓음
+    // TODO: 이벤트 기반으로 딱 한번만 타깃이 변경될 때마다 처리하도록 변경 필요 (현재는 타깃이 없을 때마다 매 프레임마다 처리됨)
+    if (!CurrentTarget.IsValid())
+    {
+        SetComponentTickEnabled(false);
+        if (OwningCharacter->GetCharacterMovement())
+        {
+            OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = true; // Movement 방향으로 회전하도록 설정
+            OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;  // TODO: 기본 이동 속도는 캐릭터 데이터에서 가져오도록 변경 필요
+        }
+        return;
+    }
+    else
+    {
+        SetComponentTickEnabled(true); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
+        OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 300.f;  // TODO: 전투 이동 속도는 캐릭터 데이터에서 가져오도록 변경 필요
+    }
+
 
     if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
     {
@@ -279,31 +298,3 @@ bool UHeroCombatComponent::CanUseCombatInterface() const
 {
     return OwningCharacter && OwningCharacter->GetClass()->ImplementsInterface(UHeroCombatInterface::StaticClass());
 }
-
-//AActor* UHeroCombatComponent::GetClosestTarget(const TArray<AActor*>& TargetArray)
-//{
-//    if (TargetArray.IsEmpty())
-//    {
-//        return nullptr;
-//    }
-//
-//    AActor* ClosestActor = nullptr;
-//
-//    float MinDistanceSq = MAX_flt;
-//
-//    for (AActor* Target : TargetArray)
-//    {
-//        if (IsValid(Target))
-//        {
-//            const float CurrentDistanceSq = this->GetSquaredDistanceTo(Target);
-//
-//            if (CurrentDistanceSq < MinDistanceSq)
-//            {
-//                MinDistanceSq = CurrentDistanceSq;
-//                ClosestActor = Target;
-//            }
-//        }
-//    }
-//
-//    return ClosestActor;
-//}

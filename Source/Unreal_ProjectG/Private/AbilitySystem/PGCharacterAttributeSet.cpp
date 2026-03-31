@@ -71,7 +71,7 @@ void UPGCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Att
 
         if (Delta > 0.f)
         {
-            // MaxHealth가 증가 했으면 CurrentHealth도 같이 증가 시킨다.
+            // MaxCost가 증가 했으면 CurrentCost도 같이 증가 시킨다.
             const float NewCost = FMath::Min(GetCost() + Delta, NewValue);
             SetCost(NewCost);
         }

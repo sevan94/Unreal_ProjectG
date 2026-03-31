@@ -49,6 +49,10 @@ protected:
     virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
 private:
+    const FGameplayAbilitySpec* ResolveAbilitySpec(
+        const FGameplayAbilitySpecHandle& Handle = FGameplayAbilitySpecHandle(),
+        const FGameplayAbilityActorInfo* ActorInfo = nullptr) const;
+
     void ExecuteNextAction();
 
     // SkillData의 이벤트에서 이벤트 액션 Modifier를 찾아서 액션 배열에 추가하는 함수
@@ -87,4 +91,6 @@ private:
     bool bAutoMode = false;
 
     bool bCommittedThisActivation = false;
+
+    bool bBlockedMoveInputThisActivation = false;
 };

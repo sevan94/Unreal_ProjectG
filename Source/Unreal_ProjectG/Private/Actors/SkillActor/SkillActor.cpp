@@ -69,6 +69,9 @@ void ASkillActor::BeginPlay()
 
     if (Config.HitsPerLifeSpan > 0.f)
     {
+        RefreshOverlappingTargets();
+        CurrentTickCount = 0;
+
         TickInterval = Config.LifeSpan / Config.HitsPerLifeSpan;
         GetWorldTimerManager().SetTimer(
             TickEffectTimerHandle,
@@ -76,7 +79,7 @@ void ASkillActor::BeginPlay()
             &ASkillActor::HandleTickEffects,
             TickInterval,
             true,
-            -1.f);
+            0.f);
     }
 }
 
@@ -108,10 +111,10 @@ void ASkillActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
     // TargetPolicy 기반 필터링
     if (!IsValidTarget(OtherActor)) return;
 
-    if (Config.HitsPerLifeSpan > 1.f)
+    if (Config.HitsPerLifeSpan > 0.f)
     {
-        // TickInterval > 0인 경우, 타이머 기반 효과 적용을 위해 타겟 목록에 추가
-        OverlappingTargets.AddUnique(OtherActor);
+        // 틱형은 HandleTickEffects에서 매 틱 재조회로 처리
+        return;
     }
     else
     {
@@ -124,11 +127,9 @@ void ASkillActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, A
     if (!OtherActor) return;
 
     // OverlappingTargets를 돌면서 OtherActor와 일치하는 항목 제거
-    OverlappingTargets.RemoveAll([OtherActor](const TWeakObjectPtr<AActor>& Target) {
+    OverlappingTargets.RemoveAll([OtherActor](const TObjectPtr<AActor>& Target) {
         return Target.Get() == OtherActor;
         });
-
-    HitCooldownMap.Remove(OtherActor);
 }
 
 // ==================================================
@@ -137,34 +138,33 @@ void ASkillActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, A
 
 void ASkillActor::HandleTickEffects()
 {
-    float CurrentTime = GetWorld()->GetTimeSeconds();
+    // 디버그용 콜리전 스피어 시각화
+    //DrawDebugSphere(GetWorld(), GetActorLocation(), CollisionComponent->GetScaledSphereRadius(), 12, FColor::Red, false, TickInterval);
 
-    for (TObjectPtr<AActor>& WeakTarget : OverlappingTargets)
+    if(CurrentTickCount >= Config.HitsPerLifeSpan)
+    {
+        GetWorldTimerManager().ClearTimer(TickEffectTimerHandle);
+        return;
+    }
+
+    // 매 틱마다 현재 overlap 상태 재수집
+    RefreshOverlappingTargets();
+
+    OnTickForOwner(GetOwner());
+    
+    for (const TObjectPtr<AActor>& WeakTarget : OverlappingTargets)
     {
         if (!WeakTarget) continue;
 
-        // 중복 히트 방지
-        if(const float* LastHitTime = HitCooldownMap.Find(WeakTarget.Get()))
-        {
-            if (CurrentTime - *LastHitTime < TickInterval)
-            {
-                continue; // 아직 쿨타임이 끝나지 않았다면 무시
-            }
-        }
-
         // 1. GE 적용
         ApplyEffectsToTarget(WeakTarget.Get());
-        HitCooldownMap.Add(WeakTarget.Get(), CurrentTime);
 
         // 2. BP 이벤트 호출
         // BP_SkillActor 자손에서 OnTickEffectForTarget 이벤트 구현하여 이펙트 적용 시각화
         OnTickEffectForTarget(WeakTarget.Get());
     }
 
-    // 유효하지 않은 타겟 제거
-    OverlappingTargets.RemoveAll([](const TWeakObjectPtr<AActor>& Target) {
-        return !Target.IsValid();
-    });
+    CurrentTickCount++;
 }
 
 void ASkillActor::HandleInstantEffects(AActor* TargetActor)
@@ -199,6 +199,8 @@ void ASkillActor::ApplyEffectsToTarget(AActor* TargetActor)
     {
         if (!SpecHandle.IsValid()) continue;
         SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+
+        UE_LOG(LogTemp, Log, TEXT("Applied EffectSpec to Target: %s"), *TargetActor->GetName());
     }
 }
 
@@ -232,6 +234,24 @@ void ASkillActor::HandlePreDestroy()
 
     // BP 이벤트 호출
     OnSkillActorDestroyed();
+}
+
+void ASkillActor::RefreshOverlappingTargets()
+{
+    OverlappingTargets.Reset();
+
+    if (!CollisionComponent) return;
+
+    TArray<AActor*> CurrentOverlaps;
+    CollisionComponent->GetOverlappingActors(CurrentOverlaps);
+
+    for (AActor* Candidate : CurrentOverlaps)
+    {
+        if (!IsValid(Candidate)) continue;
+        if (!IsValidTarget(Candidate)) continue;
+
+        OverlappingTargets.AddUnique(Candidate);
+    }
 }
 
 FHeroSpawnableConfig ASkillActor::MakeSpawnableConfigFromFollowUp(const FSkillActorFollowUpSpawnConfig& FollowUpConfig) const
@@ -296,7 +316,6 @@ void ASkillActor::SpawnFollowUpActor()
 
     FHeroSpawnableConfig FollowUpConfig = MakeSpawnableConfigFromFollowUp(Config.NextSpawn);
 
-    UE_LOG(LogTemp, Log, TEXT("Spawning follow-up actor %s with scale multiplier %.2f and effect multiplier %.2f"), *Spawned->GetName(), RuntimeScaleMultiplier, RuntimeEffectMultiplier);
 
     // 현재 배율을 후속 액터로 전달(후속이 Init에서 Spec 생성할 때 반영됨)
     Spawned->SetOwner(OwnerActor);

@@ -8,6 +8,24 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "AbilitySystemComponent.h"
+#include "PGGameplayTags.h"
+
+// 내부 헬퍼 함수
+namespace HeroController
+{
+    // ASC가 State_InputBlock_Move 태그를 가지고 있는지 확인하는 함수
+    bool IsMoveBlockedByGameplayTag(const AHeroCharacter* Hero)
+    {
+        if (!Hero)
+        {
+            return false;
+        }
+
+        const UAbilitySystemComponent* ASC = Hero->GetAbilitySystemComponent();
+        return ASC && ASC->HasMatchingGameplayTag(PGGameplayTags::State_InputBlock_Move);
+    }
+}
 
 void AHeroController::OnPossess(APawn* InPawn)
 {
@@ -60,6 +78,12 @@ void AHeroController::SetupInputComponent()
 
 void AHeroController::MoveStart_Implementation(FVector2D JoyInput)
 {
+    if (HeroController::IsMoveBlockedByGameplayTag(Hero))
+    {
+        bIsMoving = false;
+        return;
+    }
+
     bIsMoving = true;
 
     MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
@@ -67,6 +91,12 @@ void AHeroController::MoveStart_Implementation(FVector2D JoyInput)
 
 void AHeroController::ChangeDirection_Implementation(FVector2D JoyInput)
 {
+    if (HeroController::IsMoveBlockedByGameplayTag(Hero))
+    {
+        bIsMoving = false;
+        return;
+    }
+
     MoveDirection = FVector(JoyInput.X, JoyInput.Y, 0);
 }
 
@@ -77,5 +107,11 @@ void AHeroController::EndMovement_Implementation()
 
 void AHeroController::MoveCharacter()
 {
+    if (HeroController::IsMoveBlockedByGameplayTag(Hero))
+    {
+        bIsMoving = false;
+        return;
+    }
+
     Hero->AddMovementInput(MoveDirection);
 }

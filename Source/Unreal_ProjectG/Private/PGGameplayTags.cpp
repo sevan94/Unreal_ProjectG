@@ -10,6 +10,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill, "Input.ActiveSkill");
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_SubSkill, "Input.ActiveSkill.SubSkill");
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_MainSkill, "Input.ActiveSkill.MainSkill");
+    UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_Move, "State.InputBlock.Move");
 
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
@@ -24,11 +25,12 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_SubSkill, "Ability.Cooldown.SubSkill");
 
     // 플레이어 세트 게임 플레이 태그 
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Defender, "Equipment.Set.Defender");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_ChainSword, "Equipment.Set.ChainSword");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Justice, "Equipment.Set.Justice");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Ironmaid, "Equipment.Set.Ironmaid");
+
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Thunder, "Equipment.Set.Thunder");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Crasher, "Equipment.Set.Crasher");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_FireballMaster, "Equipment.Set.FireballMaster");
 
     // 이벤트 트리거

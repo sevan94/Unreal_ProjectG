@@ -27,6 +27,9 @@ private:
     UFUNCTION()
     void OnMontageCancelled();
 
+    UFUNCTION()
+    void OnMontageCompleted();
+
     // 트레이스 활성화/비활성화
     UFUNCTION()
     void OnTraceStartEventReceived(FGameplayEventData Payload);

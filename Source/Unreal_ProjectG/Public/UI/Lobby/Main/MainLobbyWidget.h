@@ -10,6 +10,7 @@
 class UWidgetSwitcher;
 class UButton;
 class UGoodsBarWidget;
+class UOptionWidget;
 
 /**
  * 
@@ -41,6 +42,9 @@ private:
     UFUNCTION()
     void OnGachaButtonClick();
 
+    UFUNCTION()
+    void OnOptionButtonClick();
+
 public:
     // 위젯 스위처
     UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -56,6 +60,8 @@ protected:
     TObjectPtr<UButton> StageButton;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> GachaButton;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> OptionButton;
 
     // 재화 창
     UPROPERTY(meta = (BindWidget))
@@ -64,4 +70,8 @@ protected:
     TObjectPtr<UGoodsBarWidget> Unlock;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> Gold;
+
+    // 설정 패널
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UOptionWidget> OptionPanel;
 };

@@ -123,7 +123,7 @@ struct FUnitSpawnProjectileAbilityConfig : public FAbilityConfig
     TArray<TSoftObjectPtr<UAnimMontage>> SpawnProjectileMontages; // 공격 애니메이션 몽타주들
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Categories = "GameplayCue"))
-    FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그
+    FGameplayTag SpawnCueTag; //스폰할때, 재생할 이펙트 태그 
 };
 
 USTRUCT(BlueprintType)
@@ -201,7 +201,7 @@ struct FUnitSpawnMagicAbilityConfig : public FAbilityConfig
 
     // 데미지 계산 클래스
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<UGameplayEffect> DamageEffectClass;
+    TArray<TSubclassOf<UGameplayEffect>> DamageEffectClass;
 
     // 스킬 계수
     UPROPERTY(EditAnywhere, BlueprintReadOnly)

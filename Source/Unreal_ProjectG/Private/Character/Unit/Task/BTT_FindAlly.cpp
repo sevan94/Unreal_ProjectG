@@ -13,6 +13,7 @@ UBTT_FindAlly::UBTT_FindAlly()
     BlackboardKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_FindAlly, BlackboardKey), AActor::StaticClass());
     bIsAllyInFrontKey.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_FindAlly, bIsAllyInFrontKey));
     TargetLocationKey.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_FindAlly, TargetLocationKey));
+    TargetActorKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTT_FindAlly, TargetActorKey), AActor::StaticClass());
 }
 
 EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -48,8 +49,7 @@ EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
         if (OtherUnit->HasMatchingGameplayTag(MySideTag))
         {
-            if (OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Melee) ||
-                OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Tank))
+            if (OtherUnit->HasMatchingGameplayTag(PGGameplayTags::Unit_Branch_Melee))
             {
                 float DistSq = FVector::DistSquared(SelfLoc, OtherUnit->GetActorLocation());
                 if (DistSq < MinDistSq)
@@ -63,17 +63,34 @@ EBTNodeResult::Type UBTT_FindAlly::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
     if (NearestAlly)
     {
-        InFrontCheckDistance = SelfUnit->GetAttackRangeKey();
         BlackboardComp->SetValueAsObject(BlackboardKey.SelectedKeyName, NearestAlly);
 
-        FVector DirToAlly = (NearestAlly->GetActorLocation() - SelfLoc).GetSafeNormal();
-        float DotProduct = FVector::DotProduct(SelfUnit->GetActorForwardVector(), DirToAlly);
-        float DistanceToAlly = FVector::Dist(SelfLoc, NearestAlly->GetActorLocation());
+        FVector SelfLoc2D = FVector(SelfLoc.X, SelfLoc.Y, 0.0f);
+        FVector AllyLoc2D = FVector(NearestAlly->GetActorLocation().X, NearestAlly->GetActorLocation().Y, 0.0f);
 
-        bool bIsInFront = (DotProduct > 0.0f) && (DistanceToAlly <= InFrontCheckDistance);
+        AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(TargetActorKey.SelectedKeyName));
+        FVector ForwardDirection;
+
+        if (TargetActor)
+        {
+            FVector TargetLoc2D = FVector(TargetActor->GetActorLocation().X, TargetActor->GetActorLocation().Y, 0.0f);
+            ForwardDirection = (TargetLoc2D - SelfLoc2D).GetSafeNormal();
+        }
+        else
+        {
+            ForwardDirection = FVector(SelfUnit->GetActorForwardVector().X, SelfUnit->GetActorForwardVector().Y, 0.0f).GetSafeNormal();
+        }
+
+        FVector DirToAlly = (AllyLoc2D - SelfLoc2D).GetSafeNormal();
+        float DotProduct = FVector::DotProduct(ForwardDirection, DirToAlly);
+        float DistanceToAlly = FVector::Distance(SelfLoc2D, AllyLoc2D);
+
+        bool bIsInFront = (DotProduct > 0.5f) && (DistanceToAlly <= InFrontCheckDistance);
         BlackboardComp->SetValueAsBool(bIsAllyInFrontKey.SelectedKeyName, bIsInFront);
 
-        FVector TargetPos = NearestAlly->GetActorLocation() - (NearestAlly->GetActorForwardVector() * DistanceBehindAlly);
+        FVector TargetPos = NearestAlly->GetActorLocation() - (ForwardDirection * DistanceBehindAlly);
+        TargetPos.Z = NearestAlly->GetActorLocation().Z;
+
         BlackboardComp->SetValueAsVector(TargetLocationKey.SelectedKeyName, TargetPos);
 
         return EBTNodeResult::Succeeded;

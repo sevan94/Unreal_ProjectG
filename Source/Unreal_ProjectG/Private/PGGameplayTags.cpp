@@ -88,7 +88,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Unit_Branch_Melee, "Unit.Branch.Melee");
     UE_DEFINE_GAMEPLAY_TAG(Unit_Branch_Ranged, "Unit.Branch.Ranged");
     UE_DEFINE_GAMEPLAY_TAG(Unit_Branch_Mage, "Unit.Branch.Mage");
-    UE_DEFINE_GAMEPLAY_TAG(Unit_Branch_Tank, "Unit.Branch.Tank");
+    UE_DEFINE_GAMEPLAY_TAG(Unit_Branch_Support, "Unit.Branch.Support");
 
     //유닛 진영 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Side_Ally, "Unit.Side.Ally");

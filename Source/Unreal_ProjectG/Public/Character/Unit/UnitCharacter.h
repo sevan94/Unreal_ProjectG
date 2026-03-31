@@ -48,6 +48,7 @@ public:
     float GetDetectRangeKey() { return DetectRangeKey; }
     float GetAttackRangeKey() { return AttackRangeKey; }
     float GetAttackMarginKey() { return AttackMarginKey; }
+    float GetAttackSpeedKey() { return UnitAttackSpeed; }
     UBehaviorTree* GetSubBTAssetKey() { return SubBTAssetKey; }
 
     UFUNCTION(BlueprintCallable)
@@ -96,6 +97,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"), Category = "Unit|Stats")
     int32 UnitLevel = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"), Category = "Unit|Stats")
+    float UnitAttackSpeed = 0.0f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
     bool bIsDead = false;

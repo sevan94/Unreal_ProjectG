@@ -21,6 +21,8 @@ class UNREAL_PROJECTG_API UUnitPanelWidget : public UUserWidget
 public:
     void UpdateAllSlots(float InCost);
 
+    TArray<UUnitSlotWidget*> GetUnitArray() { return SlotArray; }
+
 protected:
     virtual void NativeConstruct() override;
 

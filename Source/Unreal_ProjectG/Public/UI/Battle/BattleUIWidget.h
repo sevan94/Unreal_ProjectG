@@ -35,6 +35,13 @@ protected:
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+    // 마우스 버튼 클릭 시
+    virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+    // 마우스 버튼 드래그 시
+    virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+    // 마우스 버튼 클릭 해제 시
+    virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
     // 버튼 클릭 이벤트
     UFUNCTION()
     void OnSpeedButtonClicked();
@@ -44,6 +51,9 @@ protected:
 
     UFUNCTION()
     void OnPauseButtonClicked();
+
+    UFUNCTION()
+    void AutoUnitSpawn();
 	
 protected:
     // 플레이타임 텍스트
@@ -110,4 +120,14 @@ private:
 
     // 플레이타임
     float ElapsedPlayTime = 0.0f;
+
+    // 자동 모드시 유닛 스폰 타이머 핸들
+    FTimerHandle AutoSpawnTimerHandle;
+
+    // 순차 유닛 스폰 인덱스
+    int32 CurrentAutoSpawnIndex = 0;
+
+    // 카메라 제어 함수
+    bool bIsControlCamera = false;
+    FVector2D DragStartPos;
 };

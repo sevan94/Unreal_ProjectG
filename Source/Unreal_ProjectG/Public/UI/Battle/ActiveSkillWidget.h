@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "GameplayAbilities/public/Abilities/GameplayAbility.h"
 #include "GamePlayAbilitySpecHandle.h"
-#include "GameplayTagContainer.h"
+#include "DataAssets/Ability/DataAsset_HeroSkillData.h"
+#include "PGGameplayTags.h"
 #include "ActiveSkillWidget.generated.h"
 
 class UButton;
@@ -74,8 +75,8 @@ private:
     // 어빌리티 스펙
     FGameplayAbilitySpecHandle AbilitySpecHandle;
 
-    // 어빌리티 오브젝트 레퍼런스
-    TObjectPtr<UGameplayAbility> AbilityObject;
+    // 어빌리티 스킬 데이터
+    TObjectPtr<UDataAsset_HeroSkillData> SkillData;
 
     // 스킬 쿨타임 타이머 핸들
     FTimerHandle CoolTimeTimerHandle;

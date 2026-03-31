@@ -13,6 +13,7 @@ class ULobbyEquipWidget;
 class ULobbyStageWidget;
 class ULobbyGachaWidget;
 class UGachaResultWidget;
+class UAudioComponent;
 
 /**
  * 
@@ -28,6 +29,10 @@ protected:
 public:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
+
+    // 로비 배경음
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<USoundBase> LobbyBGM;
 
 protected:
     UPROPERTY(meta = (BindWidget))
@@ -47,4 +52,7 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGachaResultWidget> GachaResultWidget;
+
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 };

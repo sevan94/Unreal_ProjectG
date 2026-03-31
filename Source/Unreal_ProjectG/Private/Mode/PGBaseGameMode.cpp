@@ -8,6 +8,7 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BattleHUD.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "Character/HeroController.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 
 APGBaseGameMode::APGBaseGameMode()
@@ -35,6 +36,18 @@ void APGBaseGameMode::BeginPlay()
                         }
                     }
                 }
+
+                if (GI && !GI->CurrentStageData.StageBGM.IsNull())
+                {
+                    // 사운드 에셋 로드 후 재생
+                    USoundBase* BGM = GI->CurrentStageData.StageBGM.LoadSynchronous();
+                    if (BGM)
+                    {
+                        // 전역적으로 관리되는 사운드 믹스와 클래스를 적용하여 재생
+                        UGameplayStatics::PlaySound2D(this, BGM);
+                        // 또는 지속적인 BGM을 위해 SpawnSound2D 후 참조 유지
+                    }
+                }
             }
         }
     }
@@ -55,12 +68,21 @@ void APGBaseGameMode::BeginPlay()
             {
                 AllyBase = Base;
             }
+            if (Base->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
+            {
+                EnemyBase = Base;
+            }
             // 기지가 파괴되면 OnGameOver 함수가 실행되도록 연결
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
 
-
+    // 카메라 이동 범위 제한
+    AHeroController* PC = Cast<AHeroController>(GetWorld()->GetFirstPlayerController());
+    if (PC)
+    {
+        PC->SetCameraClamp(AllyBase->GetActorLocation().X + 200.0f, EnemyBase->GetActorLocation().X - 200.0f);
+    }
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

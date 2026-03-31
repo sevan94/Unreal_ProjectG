@@ -9,6 +9,8 @@
 #include "UI/Lobby/Stage/LobbyStageWidget.h"
 #include "UI/Lobby/Gacha/LobbyGachaWidget.h"
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void UUISwitcherWidget::NativeConstruct()
 {
@@ -23,5 +25,10 @@ void UUISwitcherWidget::NativeConstruct()
 
         // 기본 페이지 설정
         WidgetSwitcher->SetActiveWidgetIndex(0);
+    }
+
+    if (LobbyBGM && (!AudioComponent || !AudioComponent->IsPlaying()))
+    {
+        AudioComponent = UGameplayStatics::SpawnSound2D(this, LobbyBGM);
     }
 }

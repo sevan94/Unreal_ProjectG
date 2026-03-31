@@ -10,9 +10,11 @@
 
 class UButton;
 class UImage;
+class UTextBlock;
 class UCanvasPanel;
 class UNiagaraSystemWidget;
 class UWidgetSwitcher;
+class UAudioComponent;
 
 /**
  * 
@@ -49,12 +51,24 @@ public:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UCanvasPanel> GachaReaultPanel;
 
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> UnitPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> EquipPanel;
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> SkipButton;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> UnitImage;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> UnitRank;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UnitName;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> EquipImage;
@@ -67,6 +81,12 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
     UWidgetAnimation* UnitGacha;
+
+    UPROPERTY()
+    TObjectPtr<USoundBase> UnitSound;
+
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 
     bool bCanExit = false;
 private:

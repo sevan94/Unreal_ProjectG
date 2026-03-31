@@ -22,7 +22,7 @@ enum class EProjectileDamagePolicy : uint8
     OnBeginOverlap
 };
 
-UCLASS()
+UCLASS(Blueprintable)
 class UNREAL_PROJECTG_API APGProjectileBase : public AActor
 {
 	GENERATED_BODY()
@@ -64,6 +64,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
     TWeakObjectPtr<UNiagaraSystem> ProjectileImpactVFX;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile|SVFX")
+    TWeakObjectPtr<UNiagaraSystem> HitImpactVFX;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|SVFX")
     TWeakObjectPtr<USoundBase> ProjectileImpactSFX;

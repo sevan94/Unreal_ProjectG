@@ -9,6 +9,7 @@
 class UImage;
 class UButton;
 class UTextBlock;
+class UOverlay;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageSelected, int32, StgaeCode);
 /**
@@ -39,6 +40,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> StageButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UOverlay> LockOverlay;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> Star1;

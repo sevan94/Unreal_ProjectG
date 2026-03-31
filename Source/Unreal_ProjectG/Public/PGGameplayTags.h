@@ -98,7 +98,7 @@ namespace PGGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Branch_Melee);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Branch_Ranged);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Branch_Mage);
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Branch_Tank);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Branch_Support);
 
     //아군 적군 구분 태그
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_Side_Ally);

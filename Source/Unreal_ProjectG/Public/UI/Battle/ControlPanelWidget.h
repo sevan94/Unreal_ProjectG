@@ -27,6 +27,8 @@ public:
     // 외부(캐릭터)에서 조이스틱 값을 가져갈 함수
     FVector2D GetJoystickVector() const { return JoystickVector; }
 
+    UUnitPanelWidget* GetUnitPanel() { return UnitPanel; }
+
     // 무기 어빌리티 핸들 초기화 함수
     UFUNCTION(BlueprintCallable)
     void SetAbilitySpecHandle();

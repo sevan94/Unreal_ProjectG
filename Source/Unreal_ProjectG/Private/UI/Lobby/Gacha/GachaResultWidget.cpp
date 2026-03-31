@@ -5,9 +5,12 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "Components/AudioComponent.h"
 #include "NiagaraSystemWidget.h"
 #include "Animation/WidgetAnimation.h"
+#include "Kismet/GameplayStatics.h"
 
 void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
 {
@@ -17,7 +20,12 @@ void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
     {
         UnitImage->SetVisibility(ESlateVisibility::Visible);
         UnitImage->SetBrushFromTexture(PickupUnit->UnitImage);
+        UnitRank->SetBrushFromTexture(PickupUnit->UnitRankImage);
+        UnitName->SetText(FText::FromName(PickupUnit->UnitName));
+        UnitSound = PickupUnit->GachaSound;
     }
+
+    UnitPanel->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
@@ -31,12 +39,16 @@ void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
         EquipGachaTarget->SetVisibility(ESlateVisibility::Visible);
         SkipButton->SetVisibility(ESlateVisibility::Hidden);
         EquipImage->SetBrushFromTexture(PickupEquip->EquipImage);
+        EquipImage->SetVisibility(ESlateVisibility::Hidden);
     }
+
+    EquipPanel->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UGachaResultWidget::PlayGachaAnim()
 {
     bCanExit = false; // 재생 시작 시 클릭 방지
+    SkipButton->SetVisibility(ESlateVisibility::Hidden);
     GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
 
     // 애니메이션 종료 델리게이트 바인딩
@@ -45,6 +57,7 @@ void UGachaResultWidget::PlayGachaAnim()
     BindToAnimationFinished(UnitGacha, EndEvent);
 
     PlayAnimation(UnitGacha);
+    AudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), UnitSound);
     GachaEffect->ActivateSystem(false);
 }
 
@@ -57,9 +70,8 @@ void UGachaResultWidget::ShowEquipResult()
 void UGachaResultWidget::NativeConstruct()
 {
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
-    UnitImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
+    UnitPanel->SetVisibility(ESlateVisibility::Hidden);
+    EquipPanel->SetVisibility(ESlateVisibility::Hidden);
 
     if (SkipButton) SkipButton->OnClicked.AddDynamic(this, &UGachaResultWidget::OnSkipButtonClicked);
 }
@@ -80,12 +92,10 @@ void UGachaResultWidget::OnSkipButtonClicked()
     {
         UnitImage->SetColorAndOpacity(FLinearColor::White);
         GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
-        // 애니메이션을 마지막 프레임으로 이동
-        float EndTime = UnitGacha->GetEndTime();
 
-        // 애니메이션 재생 중일 수 있으므로 중지 후 시간 설정
-        PauseAnimation(UnitGacha);
-        SetAnimationCurrentTime(UnitGacha, EndTime);
+        // 애니메이션 재생 배속으로 끝까지 재생
+        AudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), UnitSound);
+        PlayAnimation(UnitGacha, 0.0f, 1, EUMGSequencePlayMode::Forward, 100.0f);
 
         // 스킵 버튼 숨기기
         if (SkipButton)
@@ -112,12 +122,18 @@ void UGachaResultWidget::ResetGachaResult()
     // 상태 초기화
     bCanExit = false;
     UnitImage->SetColorAndOpacity(FLinearColor::Black);
-    UnitImage->SetVisibility(ESlateVisibility::Hidden);
+    UnitPanel->SetVisibility(ESlateVisibility::Hidden);
+    EquipPanel->SetVisibility(ESlateVisibility::Hidden);
     EquipImage->SetVisibility(ESlateVisibility::Hidden);
-    EquipGachaTarget->SetVisibility(ESlateVisibility::Hidden);
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
     GachaEffect->DeactivateSystem();
     SkipButton->SetVisibility(ESlateVisibility::Visible);
+
+    // 재생 중인 오디오 컴포넌트 중지
+    if (AudioComponent && AudioComponent->IsPlaying())
+    {
+        AudioComponent->Stop();
+    }
 
     // 애니메이션 정지 및 시간 초기화
     StopAnimation(UnitGacha);

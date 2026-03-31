@@ -93,6 +93,8 @@ void UPGGameInstance::LoadGameData()
     CurrentBGMVolume = CachedSaveData->BGMVolume;
     CurrentSFXVolume = CachedSaveData->SFXVolume;
 
+    SetSoundVolumes(CurrentMasterVolume, CurrentBGMVolume, CurrentSFXVolume);
+
     if (bIsNewGame) SaveGameData();
 }
 
@@ -164,13 +166,15 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
 void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX)
 {
     // 볼륨 값을 0.0 ~ 1.0 사이 설정
-    CurrentMasterVolume = FMath::Clamp(InMaster, 0.0f, 1.0f);
-    CurrentBGMVolume = FMath::Clamp(InBGM, 0.0f, 1.0f);
-    CurrentSFXVolume = FMath::Clamp(InSFX, 0.0f, 1.0f);
+    CurrentMasterVolume = FMath::Clamp(InMaster, 0.0001f, 1.0f);
+    CurrentBGMVolume = FMath::Clamp(InBGM, 0.0001f, 1.0f);
+    CurrentSFXVolume = FMath::Clamp(InSFX, 0.0001f, 1.0f);
+    //UE_LOG(LogTemp, Log, TEXT("Master: %f, BGM: %f, SFX: %f"), InMaster, InBGM, InSFX);
 
     // 언리얼 엔진 사운드 믹스에 오버라이드 (적용)
     if (MainSoundMix)
     {
+        UGameplayStatics::PushSoundMixModifier(this, MainSoundMix);
         if (MasterSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, MasterSoundClass, CurrentMasterVolume, 1.0f, 0.0f, true);
         if (BGMSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, BGMSoundClass, CurrentBGMVolume, 1.0f, 0.0f, true);
         if (SFXSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, SFXSoundClass, CurrentSFXVolume, 1.0f, 0.0f, true);
@@ -228,13 +232,12 @@ void UPGGameInstance::UpdateStageClearData(int32 StageCode, int32 InStarCount)
     // 달성도에 따라 골드 지급
     AddGoods(EGoodsCategory::Gold, CurrentStageData.RewardGold * InStarCount);
 
+    // 처음 클리어했거나, 이전보다 더 높은 별점을 획득했을 때 기록 갱신
     if (bIsFirstClear || InStarCount > *OldStarCountPtr)
     {
-        StageClearData.Add(StageCode, InStarCount);
-
-        // 다음 스테이지 해금 로직 [추가 예정]
-        // UnlockNextStage(StageCode); 
+        StageClearData.FindOrAdd(StageCode) = InStarCount;
     }
+
     SaveGameData();
 }
 

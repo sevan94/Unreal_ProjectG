@@ -8,6 +8,7 @@
 
 class USlider;
 class UButton;
+class UPGGameInstance;
 
 /**
  * 
@@ -20,15 +21,18 @@ class UNREAL_PROJECTG_API UPauseWidget : public UUserWidget
 protected:
     virtual void NativeConstruct() override;
 
-    // 슬라이더 이벤트
+    // 실제 게임 인스턴스에서 볼륨을 변경할 함수
+    void UpdateVolumes();
+
+    // 슬라이더 값이 변경될 때 호출될 함수들
     UFUNCTION()
-    void OnMasterVolumeChanged(float Value);
+    void OnMasterChanged(float Value);
 
     UFUNCTION()
-    void OnBGMVolumeChanged(float Value);
+    void OnBGMChanged(float Value);
 
     UFUNCTION()
-    void OnSFXVolumeChanged(float Value);
+    void OnSFXChanged(float Value);
 
     // 버튼 이벤트
     UFUNCTION()
@@ -54,4 +58,7 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ContinueButton;
+
+private:
+    TObjectPtr<UPGGameInstance> GI;
 };

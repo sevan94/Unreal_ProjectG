@@ -7,8 +7,10 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "Components/AudioComponent.h"
 #include "NiagaraSystemWidget.h"
 #include "Animation/WidgetAnimation.h"
+#include "Kismet/GameplayStatics.h"
 
 void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
 {
@@ -46,6 +48,7 @@ void UGachaResultWidget::InitEquipData(UEquipUIDataAsset* InData)
 void UGachaResultWidget::PlayGachaAnim()
 {
     bCanExit = false; // 재생 시작 시 클릭 방지
+    SkipButton->SetVisibility(ESlateVisibility::Hidden);
     GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
 
     // 애니메이션 종료 델리게이트 바인딩
@@ -54,7 +57,7 @@ void UGachaResultWidget::PlayGachaAnim()
     BindToAnimationFinished(UnitGacha, EndEvent);
 
     PlayAnimation(UnitGacha);
-    if(UnitSound) PlaySound(UnitSound);
+    AudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), UnitSound);
     GachaEffect->ActivateSystem(false);
 }
 
@@ -91,7 +94,7 @@ void UGachaResultWidget::OnSkipButtonClicked()
         GachaReaultPanel->SetVisibility(ESlateVisibility::Visible);
 
         // 애니메이션 재생 배속으로 끝까지 재생
-        if (UnitSound) PlaySound(UnitSound);
+        AudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), UnitSound);
         PlayAnimation(UnitGacha, 0.0f, 1, EUMGSequencePlayMode::Forward, 100.0f);
 
         // 스킵 버튼 숨기기
@@ -125,6 +128,12 @@ void UGachaResultWidget::ResetGachaResult()
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
     GachaEffect->DeactivateSystem();
     SkipButton->SetVisibility(ESlateVisibility::Visible);
+
+    // 재생 중인 오디오 컴포넌트 중지
+    if (AudioComponent && AudioComponent->IsPlaying())
+    {
+        AudioComponent->Stop();
+    }
 
     // 애니메이션 정지 및 시간 초기화
     StopAnimation(UnitGacha);

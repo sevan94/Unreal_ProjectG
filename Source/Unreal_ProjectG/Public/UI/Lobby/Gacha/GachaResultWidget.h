@@ -14,6 +14,7 @@ class UTextBlock;
 class UCanvasPanel;
 class UNiagaraSystemWidget;
 class UWidgetSwitcher;
+class UAudioComponent;
 
 /**
  * 
@@ -83,6 +84,9 @@ protected:
 
     UPROPERTY()
     TObjectPtr<USoundBase> UnitSound;
+
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 
     bool bCanExit = false;
 private:

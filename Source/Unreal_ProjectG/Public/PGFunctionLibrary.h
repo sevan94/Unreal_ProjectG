@@ -83,8 +83,8 @@ public:
     // 게임플레이 큐 관련 헬퍼 함수들
     //================================================================================================
     UFUNCTION(BlueprintPure, Category = "PG|Cue")
-    static EEffectType GetCueEffectTypeFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext);
+    static FGameplayTag GetCueVariantTagFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext);
 
     UFUNCTION(BlueprintPure, Category = "PG|Cue")
-    static EEffectType GetCueEffectTypeFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext);
+    static FGameplayTag GetCueVariantTagFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext);
 };

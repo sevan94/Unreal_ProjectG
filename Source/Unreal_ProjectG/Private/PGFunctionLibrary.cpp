@@ -243,29 +243,29 @@ TArray<FGameplayEffectSpecHandle> UPGFunctionLibrary::MakeOutgoingGameplayEffect
     return EffectSpecHandles;
 }
 
-EEffectType UPGFunctionLibrary::GetCueEffectTypeFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext)
+FGameplayTag UPGFunctionLibrary::GetCueVariantTagFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext)
 {
     bHasValidPGContext = false;
 
     const FGameplayEffectContext* BaseContext = InContext.Get();
     if (!BaseContext)
     {
-        return EEffectType::None;
+        return FGameplayTag();
     }
 
     const UScriptStruct* StructType = BaseContext->GetScriptStruct();
     if (!StructType || !StructType->IsChildOf(FPGGameplayEffectContext::StaticStruct()))
     {
-        return EEffectType::None;
+        return FGameplayTag();
     }
 
     const FPGGameplayEffectContext* PGContext = static_cast<const FPGGameplayEffectContext*>(BaseContext);
 
     bHasValidPGContext = true;
-    return PGContext->CueEffectType;
+    return PGContext->CueVariantTag;
 }
 
-EEffectType UPGFunctionLibrary::GetCueEffectTypeFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext)
+FGameplayTag UPGFunctionLibrary::GetCueVariantTagFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext)
 {
-    return GetCueEffectTypeFromContext(InCueParams.EffectContext, bHasValidPGContext);
+    return GetCueVariantTagFromContext(InCueParams.EffectContext, bHasValidPGContext);
 }

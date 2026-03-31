@@ -19,18 +19,18 @@ namespace SkillCueHelper
             && InEffectConfig.AppliedCueTag.MatchesTag(PGGameplayTags::GameplayCue_SVFX_Static);
     }
 
-    // EffectContextHandle을 복제하면서 이펙트 타입을 담는 헬퍼 함수
-    static FGameplayEffectContextHandle DuplicateContextWithEffectType(
+    // EffectContextHandle을 복제하면서 CueVariantTag를 담는 헬퍼 함수
+    static FGameplayEffectContextHandle DuplicateContextWithVariantTag(
         const FGameplayEffectContextHandle& InContext,
-        EEffectType InEffectType)
+        const FGameplayTag& InCueVariantTag)
     {
         if (!InContext.IsValid()) return FGameplayEffectContextHandle();
 
         FGameplayEffectContextHandle NewContext = InContext.Duplicate();
         if (!NewContext.IsValid()) return FGameplayEffectContextHandle();
 
-        // 타입 전달이 필요 없으면 복제본만 반환
-        if (InEffectType == EEffectType::None) return NewContext;
+        // 전달할 변형 태그가 없으면 복제본만 반환
+        if (!InCueVariantTag.IsValid()) return NewContext;
 
         FGameplayEffectContext* RawContext = NewContext.Get();
         
@@ -44,8 +44,8 @@ namespace SkillCueHelper
             return FGameplayEffectContextHandle();
         }
 
-        // FPGGameplayEffectContext로 캐스팅해서 이펙트 타입을 담는다.
-        static_cast<FPGGameplayEffectContext*>(RawContext)->CueEffectType = InEffectType;
+        // FPGGameplayEffectContext로 캐스팅해서 CueVariantTag를 담는다.
+        static_cast<FPGGameplayEffectContext*>(RawContext)->CueVariantTag = InCueVariantTag;
         return NewContext;
     }
 }
@@ -56,7 +56,7 @@ FGameplayEffectContextHandle  USkillAbilityTask::AddActorCueIntoSpecHandle(FGame
 
     FGameplayEffectSpec& Spec = *InOutSpecHandle.Data.Get();
 
-    FGameplayEffectContextHandle NewContext = SkillCueHelper::DuplicateContextWithEffectType(Spec.GetContext(), InEffectConfig.CueEffectType);
+    FGameplayEffectContextHandle NewContext = SkillCueHelper::DuplicateContextWithVariantTag(Spec.GetContext(), InEffectConfig.CueVariantTag);
 
     if (NewContext.IsValid())
     {
@@ -75,9 +75,9 @@ void USkillAbilityTask::ExecuteStaticCue(AActor* TargetActor, const FEffectConfi
 
     FGameplayCueParameters CueParams;
 
-    // Context가 있으면 EffectType을 담아 전달, 없으면 빈 Params로 그대로 실행
+    // Context가 있으면 CueVariantTag를 담아 전달, 없으면 빈 Params로 그대로 실행
     FGameplayEffectContextHandle NewContext =
-        SkillCueHelper::DuplicateContextWithEffectType(EffectContext, InEffectConfig.CueEffectType);
+        SkillCueHelper::DuplicateContextWithVariantTag(EffectContext, InEffectConfig.CueVariantTag);
 
     if (NewContext.IsValid())
     {

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "Types/PGEnumTypes.h"
 #include "SkillAbilityTask.generated.h"
 
 // 모든 스킬 Task 공통 델리게이트 
@@ -23,10 +22,10 @@ class UNREAL_PROJECTG_API USkillAbilityTask : public UAbilityTask
 	GENERATED_BODY()
 	
 protected:
-    // Actor Cue: GE Spec에 PGEffectContext(CueEffectType) 주입
+    // Actor Cue: GE Context에 태그 정보를 주입
     FGameplayEffectContextHandle  AddActorCueIntoSpecHandle(FGameplayEffectSpecHandle& InOutSpecHandle, const FEffectConfig& InEffectConfig) const;
 
-    // Static Cue: GE와 분리 실행, CueParams.EffectContext에 CueEffectType 담아 전달
+    // Static Cue: GE Context에 태그 정보를 주입하여 실행
     void ExecuteStaticCue(AActor* TargetActor, const FEffectConfig& InEffectConfig, const FGameplayEffectContextHandle& EffectContext) const;
 
 public:

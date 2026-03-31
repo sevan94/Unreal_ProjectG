@@ -169,7 +169,7 @@ void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX)
     CurrentMasterVolume = FMath::Clamp(InMaster, 0.0001f, 1.0f);
     CurrentBGMVolume = FMath::Clamp(InBGM, 0.0001f, 1.0f);
     CurrentSFXVolume = FMath::Clamp(InSFX, 0.0001f, 1.0f);
-    UE_LOG(LogTemp, Log, TEXT("Master: %f, BGM: %f, SFX: %f"), InMaster, InBGM, InSFX);
+    //UE_LOG(LogTemp, Log, TEXT("Master: %f, BGM: %f, SFX: %f"), InMaster, InBGM, InSFX);
 
     // 언리얼 엔진 사운드 믹스에 오버라이드 (적용)
     if (MainSoundMix)

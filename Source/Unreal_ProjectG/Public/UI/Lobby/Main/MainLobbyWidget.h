@@ -71,6 +71,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UGoodsBarWidget> Gold;
 
+    // 설정 패널
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UOptionWidget> OptionPanel;
 };

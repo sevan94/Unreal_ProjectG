@@ -388,7 +388,6 @@ void AUnitCharacter::ActivateUnit()
 void AUnitCharacter::DeactivateUnit()
 {
     bIsDead = true; // 상태 변경
-
     if (AIController)
     {
         if (UBrainComponent* BrainComp = AIController->GetBrainComponent())

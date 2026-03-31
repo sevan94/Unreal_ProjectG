@@ -123,13 +123,13 @@ void AUnitDetourCrowdAIController::SetUnitState(EUnitState NewState)
         {
             if (NewState == EUnitState::Move)
             {
+                CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::Enabled);
                 CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High);
             }
             else if (NewState == EUnitState::Combat)
             {
+                CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::Enabled);
                 CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High);
-
-                //CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::Disabled);
             }
             else if (NewState == EUnitState::Dead)
             {

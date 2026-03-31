@@ -5,6 +5,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "NiagaraSystemWidget.h"
 #include "Animation/WidgetAnimation.h"
@@ -17,6 +18,9 @@ void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
     {
         UnitImage->SetVisibility(ESlateVisibility::Visible);
         UnitImage->SetBrushFromTexture(PickupUnit->UnitImage);
+        UnitRank->SetBrushFromTexture(PickupUnit->UnitRankImage);
+        UnitName->SetText(FText::FromName(PickupUnit->UnitName));
+        UnitSound = PickupUnit->GachaSound;
     }
 }
 
@@ -45,6 +49,7 @@ void UGachaResultWidget::PlayGachaAnim()
     BindToAnimationFinished(UnitGacha, EndEvent);
 
     PlayAnimation(UnitGacha);
+    if(UnitSound) PlaySound(UnitSound);
     GachaEffect->ActivateSystem(false);
 }
 
@@ -84,6 +89,7 @@ void UGachaResultWidget::OnSkipButtonClicked()
         float EndTime = UnitGacha->GetEndTime();
 
         // 애니메이션 재생 중일 수 있으므로 중지 후 시간 설정
+        if (UnitSound) PlaySound(UnitSound);
         PauseAnimation(UnitGacha);
         SetAnimationCurrentTime(UnitGacha, EndTime);
 

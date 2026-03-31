@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Types/PGEnumTypes.h"
+#include "DataAssets/UI/EquipUIDataAsset.h"
 #include "ReadyEquipWidget.generated.h"
 
 class UImage;
-class UEquipUIDataAsset;
 
 /**
  * 

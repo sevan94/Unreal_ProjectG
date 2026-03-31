@@ -6,32 +6,66 @@
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Mode/Save/PGGameInstance.h"
 
 void UPauseWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
+    // GameInstance 가져오기
+    GI = Cast<UPGGameInstance>(GetGameInstance());
+
+    if (GI)
+    {
+        // 현재 GameInstance에 저장된 값을 슬라이더에 반영
+        if (MasterVolume) MasterVolume->SetValue(GI->CurrentMasterVolume);
+        if (BGMVolume) BGMVolume->SetValue(GI->CurrentBGMVolume);
+        if (SFXVolume) SFXVolume->SetValue(GI->CurrentSFXVolume);
+    }
+
     // 볼륨 슬라이더 이벤트 연결
-    if (MasterVolume) MasterVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnMasterVolumeChanged);
-    if (BGMVolume) BGMVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnBGMVolumeChanged);
-    if (SFXVolume) SFXVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnSFXVolumeChanged);
+    if (MasterVolume) MasterVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnMasterChanged);
+    if (BGMVolume) BGMVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnBGMChanged);
+    if (SFXVolume) SFXVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnSFXChanged);
 
     // 버튼 이벤트 연결
     if (LobbyButton) LobbyButton->OnClicked.AddDynamic(this, &UPauseWidget::OnLobbyButtonClicked);
     if (ContinueButton) ContinueButton->OnClicked.AddDynamic(this, &UPauseWidget::OnContinueButtonClicked);
 }
 
-void UPauseWidget::OnMasterVolumeChanged(float Value)
+void UPauseWidget::UpdateVolumes()
 {
-    // 볼륨 조절
+    if (GI)
+    {
+        GI->SetSoundVolumes(GI->CurrentMasterVolume, GI->CurrentBGMVolume, GI->CurrentSFXVolume);
+    }
 }
 
-void UPauseWidget::OnBGMVolumeChanged(float Value)
+void UPauseWidget::OnMasterChanged(float Value)
 {
+    if (GI)
+    {
+        GI->CurrentMasterVolume = Value;
+        UpdateVolumes();
+    }
 }
 
-void UPauseWidget::OnSFXVolumeChanged(float Value)
+void UPauseWidget::OnBGMChanged(float Value)
 {
+    if (GI)
+    {
+        GI->CurrentBGMVolume = Value;
+        UpdateVolumes();
+    }
+}
+
+void UPauseWidget::OnSFXChanged(float Value)
+{
+    if (GI)
+    {
+        GI->CurrentSFXVolume = Value;
+        UpdateVolumes();
+    }
 }
 
 void UPauseWidget::OnLobbyButtonClicked()

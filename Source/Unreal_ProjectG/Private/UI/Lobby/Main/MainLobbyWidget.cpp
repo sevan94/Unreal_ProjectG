@@ -5,6 +5,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
+#include "UI/Lobby/Main/OptionWidget.h"
 #include "Mode/Save/PGGameInstance.h"
 
 void UMainLobbyWidget::NativeConstruct()
@@ -14,6 +15,8 @@ void UMainLobbyWidget::NativeConstruct()
     if (UnitButton)  UnitButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnUnitButtonClick);
     if (EquipButton) EquipButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnEquipButtonClick);
     if (GachaButton) GachaButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnGachaButtonClick);
+    if (OptionButton) OptionButton->OnClicked.AddDynamic(this, &UMainLobbyWidget::OnOptionButtonClick);
+    if (OptionPanel) OptionPanel->SetVisibility(ESlateVisibility::Hidden);
 
     UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
     if (GI) GI->OnGoodsChanged.AddDynamic(this, &UMainLobbyWidget::UpdateGoodsBar);
@@ -58,5 +61,13 @@ void UMainLobbyWidget::OnStageButtonClick()
 void UMainLobbyWidget::OnGachaButtonClick()
 {
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(4);
+}
+
+void UMainLobbyWidget::OnOptionButtonClick()
+{
+    if (OptionPanel)
+    {
+        OptionPanel->SetVisibility(ESlateVisibility::Visible);
+    }
 }
 

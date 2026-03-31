@@ -100,7 +100,6 @@ protected:
     float GameStartTime = 0.0f;
 
     // 기지 캐싱
-    // 기지 캐싱
     TObjectPtr<ABaseStructure> AllyBase;
     TObjectPtr<ABaseStructure> EnemyBase;
 };

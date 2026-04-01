@@ -1,9 +1,11 @@
 
 #include "AbilitySystem/TargetActor/GATargetActor_AOEGroundTrace.h"
 #include "Components/SphereComponent.h"
+#include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/DecalComponent.h"
 #include "PGFunctionLibrary.h"
+#include "PGGameplayTags.h"
 #include "Interfaces/VisualEffectTargetInterface.h"
 
 
@@ -28,14 +30,43 @@ void AGATargetActor_AOEGroundTrace::StartTargeting(UGameplayAbility* InAbility)
 {
     Super::StartTargeting(InAbility);
 
+    //Screen입력 차단 태그 부여
+    bAddedBattleUIBlockTag = false;
+    CachedOwnerASC.Reset();
+
+    if (InAbility)
+    {
+        if (UAbilitySystemComponent* ASC = InAbility->GetAbilitySystemComponentFromActorInfo())
+        {
+            ASC->AddLooseGameplayTag(PGGameplayTags::State_InputBlock_ScreenTouch);
+            CachedOwnerASC = ASC;
+            bAddedBattleUIBlockTag = true;
+        }
+    }
+
     // 오버랩 이벤트 바인딩
     AOERadiusSphere->OnComponentBeginOverlap.AddDynamic(this, &AGATargetActor_AOEGroundTrace::OnSphereOverlapBegin);
     AOERadiusSphere->OnComponentEndOverlap.AddDynamic(this, &AGATargetActor_AOEGroundTrace::OnSphereOverlapEnd);
 
+    // 타게팅 시작 시 이미 눌려 있던 기존 터치는 무시하고,
+    // 이후 새로 시작되는 터치만 추적한다.
+    bHasActiveTouchIndex = false;
+    IgnoredTouchIndices.Empty();
+    bIsTouching = false;
+
     if (APlayerController* PC = Cast<APlayerController>(PrimaryPC))
     {
-        // 터치 이벤트 활성화
-        PC->bEnableTouchEvents = true;
+        for (int32 TouchIndexInt = 0; TouchIndexInt < static_cast<int32>(ETouchIndex::MAX_TOUCHES); ++TouchIndexInt)
+        {
+            bool bTouchDown = false;
+            FVector2D CurrentLocation = FVector2D::ZeroVector;
+            const ETouchIndex::Type TouchIndex = static_cast<ETouchIndex::Type>(TouchIndexInt);
+            PC->GetInputTouchState(TouchIndex, CurrentLocation.X, CurrentLocation.Y, bTouchDown);
+            if (bTouchDown)
+            {
+                IgnoredTouchIndices.Add(TouchIndex);
+            }
+        }
     }
 
     // 데칼 컴포넌트 설정
@@ -49,6 +80,14 @@ void AGATargetActor_AOEGroundTrace::StartTargeting(UGameplayAbility* InAbility)
 
 void AGATargetActor_AOEGroundTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    // Screen입력 차단 태그 제거 및 변수 초기화
+    if(bAddedBattleUIBlockTag && CachedOwnerASC.IsValid())
+    {
+        CachedOwnerASC->RemoveLooseGameplayTag(PGGameplayTags::State_InputBlock_ScreenTouch);
+    }
+    bAddedBattleUIBlockTag = false;
+    CachedOwnerASC.Reset();
+
     ClearAllHighlightedActors();
     Super::EndPlay(EndPlayReason);
 }
@@ -65,9 +104,51 @@ void AGATargetActor_AOEGroundTrace::Tick(float DeltaSeconds)
     FVector2D TouchLocation = FVector2D::ZeroVector;
     bool bIsCurrentlyTouching = false;
 
-    if(APlayerController* PC = Cast<APlayerController>(PrimaryPC))
+    if (APlayerController* PC = Cast<APlayerController>(PrimaryPC))
     {
-        PC->GetInputTouchState(ETouchIndex::Touch1, TouchLocation.X, TouchLocation.Y, bIsCurrentlyTouching);
+        bool bLostActiveTouchThisFrame = false;
+
+        // 활성중인 터치 인덱스가 있었지만 손을 뗀경우 bHasActiveTouchIndex를 False로
+        if (bHasActiveTouchIndex)
+        {
+            PC->GetInputTouchState(ActiveTouchIndex, TouchLocation.X, TouchLocation.Y, bIsCurrentlyTouching);
+            if (!bIsCurrentlyTouching)
+            {
+                bHasActiveTouchIndex = false;
+                bLostActiveTouchThisFrame = true;
+            }
+        }
+
+        if (!bHasActiveTouchIndex && !bLostActiveTouchThisFrame)
+        {
+            // 0부터 터치 인덱스를 돌면서 떼진 상태인지 확인. 이미 무시 중인 인덱스는 건너뛰고, 새로 눌린 인덱스가 있으면 그걸 활성 터치 인덱스로 삼는다.
+            for (int32 TouchIndexInt = 0; TouchIndexInt < static_cast<int32>(ETouchIndex::MAX_TOUCHES); ++TouchIndexInt)
+            {
+                bool bTouchDown = false;
+                FVector2D CurrentLocation = FVector2D::ZeroVector;
+                const ETouchIndex::Type TouchIndex = static_cast<ETouchIndex::Type>(TouchIndexInt);
+
+                PC->GetInputTouchState(TouchIndex, CurrentLocation.X, CurrentLocation.Y, bTouchDown);
+                if (!bTouchDown)
+                {
+                    // 기존에 눌려서 무시 중이던 인덱스도 손을 떼면 다시 후보에 포함
+                    IgnoredTouchIndices.Remove(TouchIndex);
+                    continue;
+                }
+
+                //현재 터치 인덱스가 이미 누른 
+                if (IgnoredTouchIndices.Contains(TouchIndex))
+                {
+                    continue;
+                }
+
+                bHasActiveTouchIndex = true;     //활성 터치 인덱스가 있음.
+                ActiveTouchIndex = TouchIndex;   //현재 활성 터치 인덱스 저장
+                TouchLocation = CurrentLocation; //현재 터치 위치 저장
+                bIsCurrentlyTouching = true;
+                break;
+            }
+        }
     }
 
     // 터치 시작 및 종료 감지
@@ -101,6 +182,8 @@ void AGATargetActor_AOEGroundTrace::Tick(float DeltaSeconds)
                 LastTouchLocation = HitResult.Location;
 
                 SetActorLocation(LastTouchLocation);
+
+                GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("Hit Location: %s"), *LastTouchLocation.ToString()));
             }
         }
     }

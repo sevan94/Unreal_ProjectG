@@ -14,6 +14,25 @@
 #include "Mode/PGBaseGameMode.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemComponent.h"
+#include "PGGameplayTags.h"
+
+// 헬퍼 함수 정의
+namespace BattleUIWidgetLocal
+{
+    // State_InputBlock_ScreenTouch가 있다면 입력을 월드로 전달하지 않음
+    bool ShouldPassInputToWorld(UUserWidget* Widget)
+    {
+        if (!Widget) return false;
+
+        AActor* OwnerPawn = Widget->GetOwningPlayerPawn();
+        if (!OwnerPawn) return false;
+
+        const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerPawn);
+        return ASC && ASC->HasMatchingGameplayTag(PGGameplayTags::State_InputBlock_ScreenTouch);
+    }
+}
 
 void UBattleUIWidget::NativeConstruct()
 {
@@ -60,6 +79,12 @@ void UBattleUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 FReply UBattleUIWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    if(BattleUIWidgetLocal::ShouldPassInputToWorld(this))
+    {
+        bIsControlCamera = false;
+        return FReply::Unhandled();
+    }
+
     // 조이스틱 패널 영역이 아닌 상단 영역 클릭 시 드래그 시작
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
@@ -74,6 +99,17 @@ FReply UBattleUIWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, con
 
 FReply UBattleUIWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    if (BattleUIWidgetLocal::ShouldPassInputToWorld(this))
+    {
+        // 이미 카메라 컨트롤 중이었다면 캡처 해제
+        if (bIsControlCamera)
+        {
+            bIsControlCamera = false;
+            return FReply::Handled().ReleaseMouseCapture();
+        }
+        return FReply::Unhandled();
+    }
+
     // 카메라 컨트롤 중인지 확인
     if (bIsControlCamera)
     {
@@ -93,6 +129,17 @@ FReply UBattleUIWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPo
 
 FReply UBattleUIWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    if (BattleUIWidgetLocal::ShouldPassInputToWorld(this))
+    {
+        // 이미 카메라 컨트롤 중이었다면 캡처 해제
+        if (bIsControlCamera)
+        {
+            bIsControlCamera = false;
+            return FReply::Handled().ReleaseMouseCapture();
+        }
+        return FReply::Unhandled();
+    }
+
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
         if (bIsControlCamera)

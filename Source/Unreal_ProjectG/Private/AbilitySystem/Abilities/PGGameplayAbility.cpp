@@ -77,25 +77,25 @@ FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpec(TSubclassOf
 {
     check(EffectClass);
 
-    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpec(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpec(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, GetAvatarActorFromActorInfo(), this, GetAbilityLevel());
 }
 
 FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpecWithMultiplier(TSubclassOf<UGameplayEffect> EffectClass, float SkillMultiflier)
 {
     check(EffectClass);
 
-    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecWithMultiplier(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, SkillMultiflier, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecWithMultiplier(GetPGAbilitySystemComponentFromActorInfo(), EffectClass, SkillMultiflier, GetAvatarActorFromActorInfo(), this, GetAbilityLevel());
 }
 
 FGameplayEffectSpecHandle UPGGameplayAbility::MakeOutgoingEffectSpecFromEffectConfig(const FEffectConfig& EffectConfig)
 {
     checkf(EffectConfig.EffectClass, TEXT("EffectConfig의 EffectClass가 유효하지 않습니다."));
 
-    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecFromEffectConfig(GetPGAbilitySystemComponentFromActorInfo(), EffectConfig, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecFromEffectConfig(GetPGAbilitySystemComponentFromActorInfo(), EffectConfig, GetAvatarActorFromActorInfo(), this, GetAbilityLevel());
 }
 
 TArray<FGameplayEffectSpecHandle> UPGGameplayAbility::MakeOutgoingEffectSpecsFromEffectConfigs(const TArray<FEffectConfig>& EffectConfigs)
 {
-    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(GetPGAbilitySystemComponentFromActorInfo(), EffectConfigs, GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo(), GetAbilityLevel());
+    return UPGFunctionLibrary::MakeOutgoingGameplayEffectSpecsFromEffectConfigs(GetPGAbilitySystemComponentFromActorInfo(), EffectConfigs, GetAvatarActorFromActorInfo(), this, GetAbilityLevel());
 }
 

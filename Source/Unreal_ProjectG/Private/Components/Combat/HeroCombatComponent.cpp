@@ -62,18 +62,25 @@ void UHeroCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     OwningCharacter->GetController()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
     OwningCharacter->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
+
+    if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
+    {
+        HandleAutoCombat();
+    }
 }
 
 void UHeroCombatComponent::ActivateManualCombat()
 {
     CombatMode = EHeroCombatMode::Manual;
     StartCombat();
+    SetComponentTickEnabled(false); // Manual 모드에서는 타깃이 있을 때만 Tick이 활성화 되어야 하므로, 일단 비활성화 상태로 시작
 }
 
 void UHeroCombatComponent::ActivateAutoCombat()
 {
     CombatMode = EHeroCombatMode::Auto;
     StartCombat();
+    SetComponentTickEnabled(true);
 }
 
 void UHeroCombatComponent::DeactivateCombat()
@@ -81,6 +88,7 @@ void UHeroCombatComponent::DeactivateCombat()
     CombatMode = EHeroCombatMode::None;
     CurrentTarget = nullptr;
     StopCombat();
+    SetComponentTickEnabled(false);
 }
 
 void UHeroCombatComponent::StartCombat()
@@ -164,9 +172,9 @@ void UHeroCombatComponent::UpdateDetection()
     // 현재 타깃은 가장 가까운 적으로 변경
     CurrentTarget = FindNearestEnemy();
 
-    // 유효한 타깃이 없으면 전투 종료하면서 캐릭터 회전을 Movement 방향으로 돌려놓음
-    // TODO: 이벤트 기반으로 딱 한번만 타깃이 변경될 때마다 처리하도록 변경 필요 (현재는 타깃이 없을 때마다 매 프레임마다 처리됨)
-    if (!CurrentTarget.IsValid())
+    // 유효한 타깃이 없으면 틱을 종료하면서 캐릭터 회전을 Movement 방향으로 돌려놓음
+    // Auto 모드라면 항상 틱이 활성화 되어 있어야 하지만, Manual 모드에서는 타깃이 없을 때 틱을 비활성화하여 불필요한 연산을 줄임
+    if (!CurrentTarget.IsValid() && CombatMode == EHeroCombatMode::Manual)
     {
         SetComponentTickEnabled(false);
         if (OwningCharacter->GetCharacterMovement())
@@ -179,13 +187,8 @@ void UHeroCombatComponent::UpdateDetection()
     else
     {
         SetComponentTickEnabled(true); // 유효한 타깃이 있으면 Tick 활성화, 없으면 비활성화
+        OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = false; // 회전을 캐릭터 방향으로 고정
         OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 300.f;  // TODO: 전투 이동 속도는 캐릭터 데이터에서 가져오도록 변경 필요
-    }
-
-
-    if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
-    {
-        IHeroCombatInterface::Execute_TryExecuteActiveSkill(OwningCharacter);
     }
 }
 
@@ -201,6 +204,28 @@ void UHeroCombatComponent::HandleBasicAttack()
     if(CanUseCombatInterface())
     {
         IHeroCombatInterface::Execute_TryExecuteBasicAttack(OwningCharacter);
+    }
+}
+
+void UHeroCombatComponent::HandleAutoCombat()
+{   // Auto 모드에서는 타깃이 있든 없든 항상 Tick이 활성화 되어 있어야 함
+    if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
+    {
+        OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = true; // Movement 방향으로 회전하도록 설정
+        if (!CurrentTarget.IsValid())
+        {
+            // 유효한 타깃이 없다면 속도를 500으로 설정하여 이동하도록 함, X방향으로 이동하도록 함.
+            OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;
+            OwningCharacter->GetCharacterMovement()->InputMove
+            return;
+        }
+        else
+        {
+            // 유효한 타깃이 있다면 속도를 300으로 설정하여 이동하도록 함
+            OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+        }
+
+        IHeroCombatInterface::Execute_TryExecuteActiveSkill(OwningCharacter);
     }
 }
 

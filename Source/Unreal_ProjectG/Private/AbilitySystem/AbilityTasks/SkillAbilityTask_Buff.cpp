@@ -259,6 +259,9 @@ bool USkillAbilityTask_Buff::IsTargetAllowed(AActor* Candidate) const
     case ESkillTargetPolicy::Ally:
         return !UPGFunctionLibrary::IsTargetCharacterHostile(AvatarActor, Candidate);
 
+    case ESkillTargetPolicy::AllyWithOutSelf:
+        return !UPGFunctionLibrary::IsTargetCharacterHostile(AvatarActor, Candidate) && Candidate != AvatarActor;
+
     case ESkillTargetPolicy::Self:
         return Candidate == AvatarActor;
 

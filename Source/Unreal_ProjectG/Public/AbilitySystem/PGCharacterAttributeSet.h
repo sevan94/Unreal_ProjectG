@@ -56,6 +56,10 @@ public:
     FGameplayAttributeData MoveSpeed;
     ATTRIBUTE_ACCESSORS(UPGCharacterAttributeSet, MoveSpeed)
 
+    UPROPERTY(BlueprintReadOnly, Category = "Attribute")
+    FGameplayAttributeData DamageResist;
+    ATTRIBUTE_ACCESSORS(UPGCharacterAttributeSet, DamageResist)
+
     //---------------------------------------------------------------------
     // Meta Attribute
     // 실제 Attribute의 값에 반영한 뒤 바로 0으로 초기화

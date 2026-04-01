@@ -16,6 +16,7 @@ UPGCharacterAttributeSet::UPGCharacterAttributeSet()
     InitCost(GetMaxCost());
     InitAttackPower(10.0f);
     InitAttackSpeed(1.0f);
+    InitDamageResist(0.0f);
 
     InitDamageTaken(0.0f);
     InitHealReceived(0.0f);

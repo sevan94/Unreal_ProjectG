@@ -117,6 +117,9 @@ bool ABuffAuraActor::IsValidAuraTarget(AActor* TargetActor) const
     case ESkillTargetPolicy::Ally:
         return !UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, TargetActor);
 
+    case ESkillTargetPolicy::AllyWithOutSelf:
+        return !UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, TargetActor) && TargetActor != OwnerActor;
+
     case ESkillTargetPolicy::Self:
         return TargetActor == OwnerActor;
 

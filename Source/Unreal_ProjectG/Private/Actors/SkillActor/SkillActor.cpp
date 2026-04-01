@@ -97,6 +97,8 @@ bool ASkillActor::IsValidTarget(AActor* TargetActor) const
         return UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor);
     case ESkillTargetPolicy::Ally:
         return !UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor);
+    case ESkillTargetPolicy::AllyWithOutSelf:
+        return !UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor) && TargetActor != GetOwner();
     case ESkillTargetPolicy::Self:
         return TargetActor == GetOwner();
     }

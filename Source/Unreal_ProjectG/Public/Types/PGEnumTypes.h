@@ -121,9 +121,10 @@ enum class ERewardCategory : uint8
 UENUM(BlueprintType)
 enum class ESkillTargetPolicy : uint8
 {
-    Enemy   UMETA(DisplayName = "적"),
-    Ally    UMETA(DisplayName = "아군"),
-    Self    UMETA(DisplayName = "자신")
+    Enemy           UMETA(DisplayName = "적"),
+    Ally            UMETA(DisplayName = "아군(자신 포함)"),
+    AllyWithOutSelf UMETA(DisplayName = "아군(자신 제외)"),
+    Self            UMETA(DisplayName = "자신")
 };
 
 UENUM(BlueprintType)

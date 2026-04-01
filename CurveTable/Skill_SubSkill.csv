@@ -1,0 +1,10 @@
+---,1
+AttackPower_BaseAmount,5
+AttackPower_SkillMultiplier,0.3
+AttackPower_Duration,6
+CostRegen_BaseAmout,30
+CostRegen_SkillMultiplier,0
+CostRegen_Duration,0
+DamageResist_BaseAmount,30
+DamageResist_SkillMultiplier,0
+DamageResist_Duration,6

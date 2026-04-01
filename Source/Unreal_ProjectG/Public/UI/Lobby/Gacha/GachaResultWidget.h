@@ -14,6 +14,7 @@ class UTextBlock;
 class UCanvasPanel;
 class UNiagaraSystemWidget;
 class UWidgetSwitcher;
+class UAudioComponent;
 
 /**
  * 
@@ -50,6 +51,12 @@ public:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UCanvasPanel> GachaReaultPanel;
 
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> UnitPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCanvasPanel> EquipPanel;
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> SkipButton;
@@ -77,6 +84,9 @@ protected:
 
     UPROPERTY()
     TObjectPtr<USoundBase> UnitSound;
+
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 
     bool bCanExit = false;
 private:

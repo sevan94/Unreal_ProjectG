@@ -5,6 +5,7 @@
 #include "UI/Lobby/Main/UISwitcherWidget.h"
 #include "UI/Lobby/Gacha/GachaResultWidget.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/CanvasPanel.h"
 #include "Mode/Save/PGGameInstance.h"
 
 void ALobbyHUD::ShowUnitGachaResultUI()

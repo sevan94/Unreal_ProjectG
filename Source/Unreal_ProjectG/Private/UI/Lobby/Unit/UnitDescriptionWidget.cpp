@@ -55,11 +55,29 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
             {
                 if (FRealCurve* CostCurve = CurrentUIData->UnitStatus->FindCurve(TEXT("UpgradeCost"), TEXT("")))
                 {
+                    // 코스트 설정
                     CurrentCost = FMath::RoundToInt(CostCurve->Eval(SaveData.Level));
-                    if (GI->CurrentPlayerGold >= CurrentCost)
-                        UpgradeButton->SetIsEnabled(true);
+
+                    // 커브 테이블의 최대값 설정
+                    float MinLevel, MaxLevel;
+                    CostCurve->GetTimeRange(MinLevel, MaxLevel);
+                    int32 MaxLevelInt = FMath::RoundToInt(MaxLevel);
+
+                    // 현재 레벨이 최대 레벨보다 작은지 검사
+                    if (SaveData.Level < MaxLevelInt)
+                    {
+                        // 골드 검사
+                        if (GI->CurrentPlayerGold >= CurrentCost)
+                            UpgradeButton->SetIsEnabled(true);
+                        else
+                            UpgradeButton->SetIsEnabled(false);
+                    }
                     else
+                    {
+                        // 최대 레벨에 도달했을 경우 버튼 비활성화 및 텍스트 변경
                         UpgradeButton->SetIsEnabled(false);
+                        ButtonText->SetText(FText::FromString(TEXT("MAX")));
+                    }
                 }
             }
         }

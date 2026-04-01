@@ -18,6 +18,14 @@ public:
 
     void SetMagicDamageEffectSpecHandle(const TArray<FGameplayEffectSpecHandle>& InSpecHandles);
 
+    // --- [오브젝트 풀링 전용 이벤트] ---    
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pooling")
+    void OnActivatedFromPool();
+    virtual void OnActivatedFromPool_Implementation();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pooling")
+    void OnReturnedToPool();
+    virtual void OnReturnedToPool_Implementation();
 protected:
     virtual void BeginPlay() override;
 
@@ -26,6 +34,10 @@ protected:
 
     UFUNCTION()
     virtual void OnNiagaraFinished(UNiagaraComponent* PSystem);
+
+private:
+    // 파괴(Destroy) 대신 풀로 돌려보내는 헬퍼 함수
+    void DeactivateAndReturnToPool();
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic|Components")

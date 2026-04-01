@@ -6,6 +6,7 @@
 #include "DataAssets/Ability/DataAsset_SkillData.h"
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Character/Unit/SubSystem/PGObjectPoolSubsystem.h"
 
 void UUnitAbility_SpawnMagic::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -74,32 +75,38 @@ void UUnitAbility_SpawnMagic::SpawnMagic(FGameplayEventData InEventData)
         SpawnRotation = AvatarPawn->GetBaseAimRotation();
     }
 
-    APGMageMagicBase* SpawnedMagic = GetWorld()->SpawnActorDeferred<APGMageMagicBase>(
-        UnitSpawnMagicConfig.SpawnedMagicClass.Get(),
-        FTransform(SpawnRotation, SpawnLocation),
-        GetAvatarActorFromActorInfo(),
-        Cast<APawn>(GetAvatarActorFromActorInfo()),
-        ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+    FTransform SpawnTransform(SpawnRotation, SpawnLocation);
+
+    // 1. 풀링 서브시스템 호출
+    UPGObjectPoolSubsystem* PoolSubsystem = GetWorld()->GetSubsystem<UPGObjectPoolSubsystem>();
+    if (!PoolSubsystem) return;
+
+    // 2. 마법 액터 풀에서 꺼내기
+    APGMageMagicBase* SpawnedMagic = Cast<APGMageMagicBase>(
+        PoolSubsystem->GetActorFromPool(UnitSpawnMagicConfig.SpawnedMagicClass.Get(), SpawnTransform)
     );
 
     if (SpawnedMagic)
     {
+        SpawnedMagic->SetOwner(GetAvatarActorFromActorInfo());
+        SpawnedMagic->SetInstigator(Cast<APawn>(GetAvatarActorFromActorInfo()));
+
         float MagicMultiplierValue = UnitSpawnMagicConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
 
-        TArray<FGameplayEffectSpecHandle> MagicDamageEffectSpecHandles;
+        TArray<FGameplayEffectSpecHandle> SpecHandles;
 
-        for (const TSubclassOf<UGameplayEffect>& EffectClass : UnitSpawnMagicConfig.DamageEffectClass)
+        for (const auto& EffectClass : UnitSpawnMagicConfig.DamageEffectClass)
         {
-            if (EffectClass) 
+            if (EffectClass)
             {
-                FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, MagicMultiplierValue);
-                MagicDamageEffectSpecHandles.Add(SpecHandle);
+                FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, MagicMultiplierValue);
+                SpecHandles.Add(DamageEffectSpecHandle);
             }
         }
 
-        SpawnedMagic->SetMagicDamageEffectSpecHandle(MagicDamageEffectSpecHandles);
+        SpawnedMagic->SetMagicDamageEffectSpecHandle(SpecHandles);
 
-        SpawnedMagic->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));
+        SpawnedMagic->OnActivatedFromPool();
     }
 }
 

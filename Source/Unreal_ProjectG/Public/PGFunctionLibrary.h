@@ -14,6 +14,8 @@ class UPGAbilitySystemComponent;
 class UHeroCombatComponent;
 struct FGameplayEffectSpecHandle;
 struct FGameplayAttribute;
+struct FGameplayEffectContextHandle;
+struct FGameplayCueParameters;
 /**
  * 
  */
@@ -76,4 +78,13 @@ public:
     // EffectConfig 배열을 받아서 이펙트 스펙 핸들 배열을 생성하는 함수
     UFUNCTION(BlueprintPure, Category = "ProjectG|FunctionLibrary")
     static TArray<FGameplayEffectSpecHandle> MakeOutgoingGameplayEffectSpecsFromEffectConfigs(UPGAbilitySystemComponent* SourceASC, const TArray<FEffectConfig>& EffectConfigs, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel = 1);
+
+    //================================================================================================
+    // 게임플레이 큐 관련 헬퍼 함수들
+    //================================================================================================
+    UFUNCTION(BlueprintPure, Category = "PG|Cue")
+    static FGameplayTag GetCueVariantTagFromContext(const FGameplayEffectContextHandle& InContext, bool& bHasValidPGContext);
+
+    UFUNCTION(BlueprintPure, Category = "PG|Cue")
+    static FGameplayTag GetCueVariantTagFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext);
 };

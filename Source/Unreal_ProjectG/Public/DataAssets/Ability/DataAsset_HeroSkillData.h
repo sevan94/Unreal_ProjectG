@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Types/AbilityConfig.h"
+#include "Types/PGEnumTypes.h"
 #include "DataAsset_HeroSkillData.generated.h"
 
 class UAbilitySystemComponent;
@@ -10,6 +11,7 @@ class UAbilitySystemComponent;
 UENUM(BlueprintType)
 enum class ESkillActionType : uint8
 {
+    None            UMETA(DisplayName = "None"),
     SpawnActor      UMETA(DisplayName = "SpawnActor"),
     MeleeTrace      UMETA(DisplayName = "MeleeTrace"),
     Buff            UMETA(DisplayName = "Buff"),
@@ -78,7 +80,7 @@ struct FSkillActionRow
     FName ActionID = NAME_None;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|기본", meta=(DisplayName="액션 타입"))
-    ESkillActionType ActionType = ESkillActionType::SpawnActor;
+    ESkillActionType ActionType = ESkillActionType::None;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="액션|SpawnActor",
         meta=(DisplayName="SpawnActor 설정", EditCondition="ActionType == ESkillActionType::SpawnActor", EditConditionHides))

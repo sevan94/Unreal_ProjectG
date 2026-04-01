@@ -121,7 +121,23 @@ enum class ERewardCategory : uint8
 UENUM(BlueprintType)
 enum class ESkillTargetPolicy : uint8
 {
-    Enemy   UMETA(DisplayName = "적"),
-    Ally    UMETA(DisplayName = "아군"),
-    Self    UMETA(DisplayName = "자신")
+    Enemy           UMETA(DisplayName = "적"),
+    Ally            UMETA(DisplayName = "아군(자신 포함)"),
+    AllyWithOutSelf UMETA(DisplayName = "아군(자신 제외)"),
+    Self            UMETA(DisplayName = "자신")
+};
+
+UENUM(BlueprintType)
+enum class EEffectType : uint8
+{
+    None                    UMETA(DisplayName = "없음"),
+    Damage                  UMETA(DisplayName = "데미지"),
+    Heal                    UMETA(DisplayName = "치유"),
+    MaxHealthBuff           UMETA(DisplayName = "최대 체력 증가"),
+    AttackPowerBuff         UMETA(DisplayName = "공격력 증가"),
+    MoveSpeedBuff           UMETA(DisplayName = "이동 속도 증가"),
+    AttackSpeedBuff         UMETA(DisplayName = "공격 속도 증가"),
+    AttackPowerDebuff       UMETA(DisplayName = "공격력 감소"),
+    MoveSpeedDebuff         UMETA(DisplayName = "이동 속도 감소"),
+    AttackSpeedDebuff       UMETA(DisplayName = "공격 속도 감소"),
 };

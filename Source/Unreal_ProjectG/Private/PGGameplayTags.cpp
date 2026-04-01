@@ -26,8 +26,8 @@ namespace PGGameplayTags
 
     // 플레이어 세트 게임 플레이 태그 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_ChainSword, "Equipment.Set.ChainSword");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Justice, "Equipment.Set.Justice");
-    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Ironmaid, "Equipment.Set.Ironmaid");
+
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_RockStar, "Equipment.Set.RockStar");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");
@@ -38,7 +38,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnCommit, "Event.Trigger.OnCommit");
 
-    // 어트리뷰트 태그
+    // 어트리뷰트 태그(버프/디버프 구분 등에 사용)
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Cost, "Attribute.Cost");
@@ -112,4 +112,9 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Warth, "GameplayCue.VFX.Unit.Buff.Warth");
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Clam, "GameplayCue.VFX.Unit.Buff.Clam");
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_VFX_Unit_Buff_Divinity, "GameplayCue.VFX.Unit.Buff.Divinity");
+
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Static, "GameplayCue.SVFX.Static");
+
+    UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Actor, "GameplayCue.SVFX.Actor");
+
 }

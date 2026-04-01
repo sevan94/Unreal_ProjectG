@@ -238,6 +238,14 @@ struct FEffectConfig
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0", DisplayName = "지속 시간"))
     FScalableFloat Duration = FScalableFloat(0.f);
+
+    //액션에 적용할 큐 태그
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "적용할 큐 태그", Categories = "GameplayCue"))
+    FGameplayTag AppliedCueTag;
+
+    // 큐 태그와 함께 보낼 Enum
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "큐 스위처", Categories = "GameplayCue"))
+    FGameplayTag CueVariantTag; // 큐 내부에서 Switch 구분을 위한 태그입니다.
 };
 
 //==========================================================================================================

@@ -6,11 +6,12 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "SkillAbilityTask.generated.h"
 
-
 // 모든 스킬 Task 공통 델리게이트 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillTaskDelegate, FGameplayAbilityTargetDataHandle, TargetData);
 // 스킬 런타임 이벤트 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSkillRuntimeEventDelegate, FGameplayTag, EventTag, FGameplayAbilityTargetDataHandle, TargetData);
+
+struct FEffectConfig;
 
 /**
  * 
@@ -20,6 +21,13 @@ class UNREAL_PROJECTG_API USkillAbilityTask : public UAbilityTask
 {
 	GENERATED_BODY()
 	
+protected:
+    // Actor Cue: GE Context에 태그 정보를 주입
+    FGameplayEffectContextHandle  AddActorCueIntoSpecHandle(FGameplayEffectSpecHandle& InOutSpecHandle, const FEffectConfig& InEffectConfig) const;
+
+    // Static Cue: GE Context에 태그 정보를 주입하여 실행
+    void ExecuteStaticCue(AActor* TargetActor, const FEffectConfig& InEffectConfig, const FGameplayEffectContextHandle& EffectContext) const;
+
 public:
     // Task 완료(정상 종료)
     UPROPERTY(BlueprintAssignable)
@@ -34,5 +42,6 @@ public:
     FSkillRuntimeEventDelegate OnRuntimeEvent;
 
 protected:
+    // 스킬 런타임 이벤트를 수신하는 헬퍼 함수
     void EmitRuntimeEvent(const FGameplayTag& EventTag, const FGameplayAbilityTargetDataHandle& TargetData = FGameplayAbilityTargetDataHandle());
 };

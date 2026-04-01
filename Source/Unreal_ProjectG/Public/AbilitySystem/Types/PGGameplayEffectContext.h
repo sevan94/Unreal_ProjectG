@@ -3,7 +3,6 @@
 #pragma once
 #include "GameplayTagContainer.h"
 #include "GameplayEffectTypes.h"
-#include "Types/PGEnumTypes.h"
 #include "CoreMinimal.h"
 #include "PGGameplayEffectContext.generated.h"
 
@@ -15,8 +14,8 @@ struct FPGGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "이펙트 태그"))
-    FGameplayTag EffectTag;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "큐 스위처", Categories = "GameplayCue"))
+    FGameplayTag CueVariantTag;
 
     // 이 컨텍스트의 실제 타입이 FPGGameplayEffectContext임을 엔진에 알려준다.
     virtual UScriptStruct* GetScriptStruct() const override;

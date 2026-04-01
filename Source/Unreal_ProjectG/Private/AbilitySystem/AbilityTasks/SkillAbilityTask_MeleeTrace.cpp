@@ -169,30 +169,60 @@ void USkillAbilityTask_MeleeTrace::ExecuteTrace()
                     // MaxHit 체크
                     if (HitActors.Num() >= Config.MaxHit) break;
 
-                    // GE 적용
-                    if (PGAbility && !Config.Effects.IsEmpty())
+                    // 효과 적용 전 유효성 체크
+                    if (!PGAbility || Config.Effects.IsEmpty()) return;
+                    
+                    // GE 스펙 핸들 생성 및 효과 적용
+                    for (const FEffectConfig& EffectConfig : Config.Effects)
                     {
-                        TArray<FGameplayEffectSpecHandle> SpecHandles = 
-                            PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
+                        FGameplayEffectSpecHandle SpecHandle = PGAbility->MakeOutgoingEffectSpecFromEffectConfig(EffectConfig);
+                        
+                        if (!SpecHandle.IsValid()) continue;
 
-                        for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
+                        // 적용 전: ActorCue를 Spec에 주입
+                        const FGameplayEffectContextHandle CueContext = AddActorCueIntoSpecHandle(SpecHandle, EffectConfig);
+
+                        const FActiveGameplayEffectHandle AppliedHandle = PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+
+                        if (AppliedHandle.IsValid())
                         {
-                            if (SpecHandle.IsValid())
+                            // Context를 사용한다면
+                            const FGameplayEffectContextHandle ContextToUse = CueContext.IsValid() ? CueContext : (SpecHandle.Data.IsValid() ? SpecHandle.Data->GetContext() : FGameplayEffectContextHandle());
+
+                            // 적용 후: StaticCue 실행
+                            ExecuteStaticCue(HitActor, EffectConfig, ContextToUse);
+                            HitActors.Add(HitActor);
+
+                            if (!bHitEventFlag)
                             {
-                                PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
-                                HitActors.Add(HitActor);
-
-                                if (!bHitEventFlag)
-                                {
-                                    HitData->HitResult = HitResult;
-                                    RuntimeTargetData.Add(HitData);
-
-                                    EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
-                                    bHitEventFlag = true;
-                                }
+                                HitData->HitResult = HitResult;
+                                RuntimeTargetData.Add(HitData);
+                                EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                                bHitEventFlag = true;
                             }
                         }
                     }
+
+                    //TArray<FGameplayEffectSpecHandle> SpecHandles = 
+                    //    PGAbility->MakeOutgoingEffectSpecsFromEffectConfigs(Config.Effects);
+
+                    //for(const FGameplayEffectSpecHandle& SpecHandle : SpecHandles)
+                    //{
+                    //    if (SpecHandle.IsValid())
+                    //    {
+                    //        PGAbility->NativeApplyEffectSpecHandleToTarget(HitActor, SpecHandle);
+                    //        HitActors.Add(HitActor);
+
+                    //        if (!bHitEventFlag)
+                    //        {
+                    //            HitData->HitResult = HitResult;
+                    //            RuntimeTargetData.Add(HitData);
+
+                    //            EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnHit, RuntimeTargetData); // TODO:다른 이벤트와 혼용하지 않는지 확인
+                    //            bHitEventFlag = true;
+                    //        }
+                    //    }
+                    //}
                 }
                 PreviousTraceStart = CurrentTraceStart;
                 PreviousTraceEnd = CurrentTraceEnd;

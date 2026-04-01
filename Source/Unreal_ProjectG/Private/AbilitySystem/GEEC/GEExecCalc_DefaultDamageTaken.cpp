@@ -11,11 +11,13 @@ struct FPGDamageCapture
     // 캡처할 어트리 뷰트 정의 추가
     DECLARE_ATTRIBUTE_CAPTUREDEF(DamageTaken)
     DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower)
+    DECLARE_ATTRIBUTE_CAPTUREDEF(DamageResist)
 
     FPGDamageCapture()
     {
         // 어트리뷰트 캡처 설정
         DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, AttackPower, Source, false);
+        DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, DamageResist, Target, false);
     }
 };
 
@@ -30,6 +32,7 @@ UGEExecCalc_DefaultDamageTaken::UGEExecCalc_DefaultDamageTaken()
 {
     // 캡처할 어트리뷰트 정의를 RelevantAttributesToCapture 배열에 추가
     RelevantAttributesToCapture.Add(GetPGDamageCapture().AttackPowerDef);
+    RelevantAttributesToCapture.Add(GetPGDamageCapture().DamageResistDef);
 }
 
 float UGEExecCalc_DefaultDamageTaken::GetElementMultiplier(const FGameplayTagContainer& SourceTags, const FGameplayTagContainer& TargetTags)
@@ -132,6 +135,11 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
             ElementMultiplier = GetElementMultiplier(TempSourceTags, TempTargetTags);
         }
     }
+
+    // Target의 DamageResist 어트리뷰트 값을 계산해서 가져옴
+    float TargetDamageResist = 0.0f;
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetPGDamageCapture().DamageResistDef, EvaluationParameters, TargetDamageResist);
+    
     //================================================
     // 최종 데미지 계산
     //================================================
@@ -142,7 +150,7 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
 
     BaseDamage *= ElementMultiplier;
 
-    const float FinalDamage = BaseDamage;
+    const float FinalDamage = BaseDamage * (1.0f - TargetDamageResist);
 
     UE_LOG(LogTemp, Warning, TEXT("Final Damage Taken : %f"), FinalDamage);
 

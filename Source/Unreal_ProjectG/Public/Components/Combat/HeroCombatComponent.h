@@ -7,6 +7,8 @@
 #include "Types/PGEnumTypes.h"
 #include "HeroCombatComponent.generated.h"
 
+
+class ABaseStructure;
 /**
  * 
  */
@@ -21,6 +23,7 @@ public:
     void SetCombatMode(EHeroCombatMode NewCombatMode); // 전투 모드 설정 함수
     EHeroCombatMode GetCombatMode() const { return CombatMode; } // 전투 모드 반환 함수
     bool IsAutoMode() const { return CombatMode == EHeroCombatMode::Auto; } // 자동 모드 여부 반환 함수
+
 protected:
     virtual void BeginPlay() override;
     void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -43,6 +46,8 @@ private:
     void UpdateDetection();
     void HandleBasicAttack();                         // 기본 공격 처리 함수
 
+    void HandleAutoCombat();                            // 자동 전투 처리 함수
+
     AActor* FindNearestEnemy() const;                 // 가장 가까운 적을 찾는 함수
 
     // 인터페이스 관련 함수
@@ -56,6 +61,7 @@ private:
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TWeakObjectPtr<AActor> CurrentTarget; // 현재 타겟
+
 private:
     UPROPERTY()
     TObjectPtr<ACharacter> OwningCharacter;

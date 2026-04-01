@@ -216,7 +216,7 @@ void UHeroCombatComponent::HandleAutoCombat()
         {
             // 유효한 타깃이 없다면 속도를 500으로 설정하여 이동하도록 함, X방향으로 이동하도록 함.
             OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;
-            OwningCharacter->GetCharacterMovement()->InputMove
+            //OwningCharacter->GetCharacterMovement()->InputMove
             return;
         }
         else

@@ -384,7 +384,7 @@ struct FHeroSpawnableConfig : public FAbilityConfig
 
     // 0이면 단발성, 0초과면 장형 틱 데미지
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "시간 동안 히트 횟수", EditCondition = "ActorType == ESkillActorType::PersistentAOE", EditConditionHides))
-    float HitsPerLifeSpan = 1.f;
+    float HitsPerLifeSpan = 0.f;
 
     // 콜리전 반경(0이면 기본 콜리전 사용)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "반경"))

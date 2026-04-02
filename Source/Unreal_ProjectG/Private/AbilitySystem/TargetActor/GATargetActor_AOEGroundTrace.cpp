@@ -290,3 +290,12 @@ void AGATargetActor_AOEGroundTrace::ClearAllHighlightedActors()
     }
     OverlappedActors.Empty();
 }
+
+bool AGATargetActor_AOEGroundTrace::IsValidTarget(AActor* InActor)
+{
+    if (!IsValid(InActor)) return false;
+
+    // 플레이어 자신의 캐릭터는 무시
+    if (PrimaryPC && PrimaryPC->GetPawn() == InActor)
+        return false;
+}

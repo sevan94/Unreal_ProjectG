@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 #include "GATargetActor_AOEGroundTrace.generated.h"
+
 class USphereComponent;
+enum ESkillTargetPolicy;
 /**
  * 
  */
@@ -35,6 +37,9 @@ protected:
     void OnUnhighlightActorOutAOE(AActor* InActor);
     void ClearAllHighlightedActors();
 
+private:
+    bool IsValidTarget(AActor* InActor);
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
     float PreviewRadius;
@@ -44,6 +49,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
     TObjectPtr<AActor> OwnerActor;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
+    ESkillTargetPolicy TargetPolicy;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Targeting")

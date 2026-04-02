@@ -108,6 +108,7 @@ void USkillAbilityTask_SpawnActor::StartWaitTargetData()
             GroundTrace->PreviewRadius = Config.Radius;
             GroundTrace->AOETraceDecalMaterial = Config.IndicatorDecalMaterial;
             GroundTrace->OwnerActor = AvatarActor;
+            GroundTrace->TargetPolicy = Config.TargetPolicy;
         }
 
         TargetTask->FinishSpawningActor(Ability, SpawnedTargetActor);
@@ -271,18 +272,18 @@ void USkillAbilityTask_SpawnActor::PlayMontageOrSpawn()
 
     if (bWaitMontageFinish)
     {
+        UAbilityTask_WaitGameplayEvent* SpawnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+            Ability,
+            PGGameplayTags::Shared_Event_ActorSpawn);
+        SpawnEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnSpawnEventReceived);
+        SpawnEventTask->ReadyForActivation();
+
         UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(Ability, NAME_None, Config.Montage);
         MontageTask->OnCompleted.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnMontageFinished);
         MontageTask->OnBlendOut.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnMontageFinished);
         MontageTask->OnCancelled.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnMontageCancelled);
         MontageTask->OnInterrupted.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnMontageCancelled);
         MontageTask->ReadyForActivation();
-
-        UAbilityTask_WaitGameplayEvent* SpawnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-            Ability,
-            PGGameplayTags::Shared_Event_ActorSpawn);
-        SpawnEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnSpawnEventReceived);
-        SpawnEventTask->ReadyForActivation();
     }
     else
     {

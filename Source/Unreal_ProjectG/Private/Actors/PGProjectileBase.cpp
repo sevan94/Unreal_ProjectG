@@ -129,19 +129,23 @@ void APGProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
 
     APawn* HitPawn = Cast<APawn>(OtherActor);
     // 맞은 액터가 Pawn이면 데미지 적용
-    if(HitPawn)
+    if (HitPawn)
     {
         FGameplayEventData Data;
         Data.Instigator = this;
         Data.Target = HitPawn;
 
         HandleApplyProjectileDamage(HitPawn, Data);
+
         if (HitImpactVFX.IsValid())
         {
             UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitImpactVFX.Get(), Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
         }
+
+        // [수정] 기지 피격 처리를 위해 오버랩과 동일하게 HitReact 이벤트를 쏴주도록 추가
+        UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitPawn, PGGameplayTags::Shared_Event_HitReact, FGameplayEventData());
     }
-    //Destroy();
+
     DeactivateAndReturnToPool();
 
 }

@@ -50,6 +50,11 @@ bool UUnitSlotWidget::IsSpawnAble() const
 
 void UUnitSlotWidget::ExecuteSpawn()
 {
+    if (bIsSpawnCooldown)
+    {
+        return;
+    }
+
     if (!UnitData || !UnitData->UnitClass)
     {
         UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없음"));
@@ -80,7 +85,7 @@ void UUnitSlotWidget::ExecuteSpawn()
 
         FVector BaseForward = SpawnBase->GetActorForwardVector();
         FVector BaseRight = SpawnBase->GetActorRightVector();
-        float RandomRange = FMath::RandRange(-2.0f, 2.0f);
+        float RandomRange = FMath::RandRange(-50.0f, 50.0f);
 
         FVector FinalLocation = SpawnLocation + (BaseForward * 200.0f) + (BaseRight * RandomRange);
 
@@ -113,6 +118,9 @@ void UUnitSlotWidget::ExecuteSpawn()
             ReusedUnit->UnitLevel = TargetLevel;
 
             ReusedUnit->ActivateUnit();
+
+            bIsSpawnCooldown = true;
+            GetWorld()->GetTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &UUnitSlotWidget::ResetSpawnCooldown, 0.5f, false);
         }
     }
 }
@@ -132,4 +140,9 @@ void UUnitSlotWidget::OnUnitButtonClicked()
     {
         ExecuteSpawn();
     }
+}
+
+void UUnitSlotWidget::ResetSpawnCooldown()
+{
+    bIsSpawnCooldown = false;
 }

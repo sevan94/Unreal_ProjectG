@@ -41,6 +41,10 @@ protected:
     UFUNCTION()
     void OnUnitButtonClicked();
 
+private:
+    UFUNCTION()
+    void ResetSpawnCooldown();
+
 protected:
     UPROPERTY(BlueprintReadOnly, Category = "BattelUI")
     TObjectPtr<UUnitUIDataAsset> UnitData;
@@ -57,4 +61,10 @@ protected:
 private:
     TObjectPtr<ABaseStructure> SpawnBase;
     FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);
+
+    bool bIsSpawnCooldown = false;
+
+    FTimerHandle SpawnCooldownTimerHandle;
+
+
 };

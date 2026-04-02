@@ -126,6 +126,16 @@ void USkillAbilityTask_SpawnActor::OnTargetDataReady(const FGameplayAbilityTarge
         return;
     }
 
+    //==========================================================================================================
+    // 스폰 프로젝타일의 타깃 액터를 위한 연출 타이밍 함수와 변수들. 현재는 이 경우의 수 하나 뿐이라 이렇게 구현했지만, 추후에 다른 연출 타이밍이 추가된다면 더 범용적으로 바꿀 필요가 있을듯
+    // 타깃 데이터가 준비된 시점에 연출을 위한 이벤트 발송
+    const FHeroSpawnableConfig& Config = CachedActionRow.SpawnableConfig;
+    if (!bAutoMode && Config.SpawnLocationPolicy == ESpawnLocation::AtTargetPoint)
+    {
+        EmitRuntimeEvent(PGGameplayTags::Event_Trigger_OnTargetDataReady, TargetDataHandle);
+    }
+    //==========================================================================================================
+
     AActor* AvatarActor = Ability->GetAvatarActorFromActorInfo();
     CachedSpawnLocation = AvatarActor ? AvatarActor->GetActorLocation() : FVector::ZeroVector;
     CachedSpawnRotation = AvatarActor ? AvatarActor->GetActorRotation() : FRotator::ZeroRotator;

@@ -54,15 +54,6 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
             bBlockedMoveInputThisActivation = true;
         }
     }
-
-    // 스킬 프레젠테이션 데이터가 존재한다면 스킬 프레젠테이션 태스크 생성 및 실행
-    if (SkillData->PresentationData)
-    {
-        if (USkillAbilityTask_Presentation* PresentationTask = USkillAbilityTask_Presentation::Create(this, SkillData->PresentationData))
-        {
-            PresentationTask->ReadyForActivation();
-        }
-    }
     //==============================================================================
 
     if (const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
@@ -85,6 +76,18 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
 
     UHeroCombatComponent* CombatComp = UPGFunctionLibrary::NativeGetCombatComponentFromActor(GetAvatarActorFromActorInfo());
     bAutoMode = CombatComp ? CombatComp->IsAutoMode() : false;
+
+    //==========================================================================================================
+    // 스폰 프로젝타일의 타깃 액터를 위한 연출 타이밍 함수와 변수들. 현재는 이 경우의 수 하나 뿐이라 이렇게 구현했지만, 추후에 다른 연출 타이밍이 추가된다면 더 범용적으로 바꿀 필요가 있을듯
+    // 스킬 프레젠테이션 데이터가 존재한다면 스킬 프레젠테이션 태스크 생성 및 실행
+    bPresentationStarted = false;
+    bDelayPresentationUntilTargetConfirm = ShouldDelayPresentationStart();
+
+    if (!bDelayPresentationUntilTargetConfirm)
+    {
+        TryStartPresentationTask();
+    }
+    //==========================================================================================================
 
     ExecuteNextAction();
 }
@@ -162,6 +165,20 @@ bool UPGHeroSkillGameplayAbility::ConvertEventTagToTrigger(const FGameplayTag& E
 
 void UPGHeroSkillGameplayAbility::OnTaskRuntimeEvent(FGameplayTag EventTag, FGameplayAbilityTargetDataHandle TargetData)
 {
+    //==========================================================================================================
+    // 스폰 프로젝타일의 타깃 액터를 위한 연출 타이밍 함수와 변수들. 현재는 이 경우의 수 하나 뿐이라 이렇게 구현했지만, 추후에 다른 연출 타이밍이 추가된다면 더 범용적으로 바꿀 필요가 있을듯
+    // 연출 타이밍이 타겟 확정일 때, 프레젠테이션이 시작되지 않은 상태에서 타겟 확정 이벤트가 들어오면 프레젠테이션 시작
+    if (EventTag.MatchesTagExact(PGGameplayTags::Event_Trigger_OnTargetDataReady))
+    {
+        if (bDelayPresentationUntilTargetConfirm)
+        {
+            TryStartPresentationTask();
+            bDelayPresentationUntilTargetConfirm = false;
+        }
+        return;
+    }
+    //==========================================================================================================
+    
     // 만약 이벤트가 Commit 이벤트라면 먼저 적용하고 return
     if(EventTag.MatchesTagExact(PGGameplayTags::Event_Trigger_OnCommit))
     {
@@ -274,6 +291,9 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
     bAutoMode = false;
     bCommittedThisActivation = false;
     bBlockedMoveInputThisActivation = false;
+
+    bPresentationStarted = false;
+    bDelayPresentationUntilTargetConfirm = false;
 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -412,4 +432,40 @@ void UPGHeroSkillGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle
     SpecHandle.Data->SetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_Duration, CooldownDuration);
 
     ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+}
+
+//==========================================================================================================
+//==========================================================================================================
+// 스폰 프로젝타일의 타깃 액터를 위한 연출 타이밍 함수와 변수들. 현재는 이 경우의 수 하나 뿐이라 이렇게 구현했지만, 추후에 다른 연출 타이밍이 추가된다면 더 범용적으로 바꿀 필요가 있을듯
+//==========================================================================================================
+void UPGHeroSkillGameplayAbility::TryStartPresentationTask()
+{
+    if (bPresentationStarted || !SkillData || !SkillData->PresentationData)
+    {
+        return;
+    }
+
+    if (USkillAbilityTask_Presentation* PresentationTask = USkillAbilityTask_Presentation::Create(this, SkillData->PresentationData))
+    {
+        bPresentationStarted = true;
+        PresentationTask->ReadyForActivation();
+    }
+}
+
+bool UPGHeroSkillGameplayAbility::ShouldDelayPresentationStart() const
+{
+    // 액션이 스폰액터 - 타겟 지정일 때, 연출 시작을 타겟 확정 이벤트까지 지연
+    if (!RuntimeActionSequence.IsValidIndex(0))
+    {
+        return false;
+    }
+
+    const FSkillActionRow& FirstAction = RuntimeActionSequence[0];
+    if (FirstAction.ActionType != ESkillActionType::SpawnActor)
+    {
+        return false;
+    }
+
+    const FHeroSpawnableConfig& SpawnConfig = FirstAction.SpawnableConfig;
+    return (!bAutoMode && SpawnConfig.SpawnLocationPolicy == ESpawnLocation::AtTargetPoint);
 }

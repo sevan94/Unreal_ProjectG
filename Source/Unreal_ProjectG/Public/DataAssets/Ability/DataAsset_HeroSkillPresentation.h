@@ -52,7 +52,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Impact", meta = (DisplayName = "연출용 나이아가라 소켓"))
     FName ImpactNiagaraSocketName = NAME_None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Impact", meta = (DisplayName = "Impact Event Tag", Categories = "Shared.Event"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Impact", meta = (DisplayName = "Impact Event Tag", Categories = "Event.Trigger"))
     FGameplayTag ImpactEventTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|CameraShake", meta = (DisplayName = "카메라 셰이크"))

@@ -266,7 +266,8 @@ void UPGGameInstance::InitializeUnitMap()
                 Row->UnitID == 102 ||
                 Row->UnitID == 201 ||
                 Row->UnitID == 202 ||
-                Row->UnitID == 301
+                Row->UnitID == 301 ||
+                Row->UnitID == 401
                 );
 
             // 맵에 추가
@@ -305,9 +306,11 @@ void UPGGameInstance::InitializeEquipMap()
                 // 특정 ID만 시작 시 해금 상태로 설정
                 bool bIsUnlocked = (
                     Row->EquipID == 1001 || // 기본 무기
-                    Row->EquipID == 1003 || // 기본 무기
+                    Row->EquipID == 1004 || // 기본 무기
                     Row->EquipID == 2001 || // 기본 방어구
-                    Row->EquipID == 3002    // 기본 악세서리
+                    Row->EquipID == 2004 || // 기본 방어구
+                    Row->EquipID == 3001 || // 기본 악세서리
+                    Row->EquipID == 3004    // 기본 악세서리
                     );
 
                 // EquipMap에 추가

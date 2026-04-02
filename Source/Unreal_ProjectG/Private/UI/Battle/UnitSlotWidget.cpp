@@ -66,14 +66,20 @@ void UUnitSlotWidget::ExecuteSpawn()
     {
         if (Hero->ConsumeCost(UnitData->UnitCost))
         {
-            if (!SpawnBase)
+            TArray<AActor*> FoundBases;
+            UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
+
+            for (AActor* BaseActor : FoundBases)
             {
-                ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
-                if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                if (!SpawnBase)
                 {
-                    SpawnBase = TempBase;
-                    SpawnLocation = SpawnBase->GetActorLocation();
-                    break;
+                    ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
+                    if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                    {
+                        SpawnBase = TempBase;
+                        SpawnLocation = SpawnBase->GetActorLocation();
+                        break;
+                    }
                 }
             }
         }

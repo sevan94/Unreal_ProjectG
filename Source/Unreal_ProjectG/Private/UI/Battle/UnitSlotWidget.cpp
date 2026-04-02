@@ -10,8 +10,8 @@
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "UI/Battle/UnitSlotWidget.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "AbilitySystem/PGCharacterAttributeSet.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -40,91 +40,6 @@ void UUnitSlotWidget::UpdateSlot(float InCost)
     }
 }
 
-bool UUnitSlotWidget::IsSpawnAble() const
-{
-    if (!UnitData) return false;
-
-    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    return Hero && Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
-}
-
-void UUnitSlotWidget::ExecuteSpawn()
-{
-    if (bIsSpawnCooldown)
-    {
-        return;
-    }
-
-    if (!UnitData || !UnitData->UnitClass)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없음"));
-        return;
-    }
-
-    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    if (Hero->ConsumeCost(UnitData->UnitCost))
-    {
-        if (!SpawnBase)
-        {
-            TArray<AActor*> FoundBases;
-            UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
-
-            for (AActor* BaseActor : FoundBases)
-            {
-                ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
-                if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
-                {
-                    SpawnBase = TempBase;
-                    SpawnLocation = SpawnBase->GetActorLocation();
-                    break;
-                }
-            }
-        }
-
-        if (!SpawnBase) return;
-
-        FVector BaseForward = SpawnBase->GetActorForwardVector();
-        FVector BaseRight = SpawnBase->GetActorRightVector();
-        float RandomRange = FMath::RandRange(-50.0f, 50.0f);
-
-        FVector FinalLocation = SpawnLocation + (BaseForward * 200.0f) + (BaseRight * RandomRange);
-
-        FinalLocation.Z += 50.0f;
-
-        FRotator SpawnRotation = SpawnBase->GetActorRotation();
-
-        UUnitSpawnSubsystem* SpawnSystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>();
-        if (!SpawnSystem) return;
-
-        AUnitCharacter* ReusedUnit = SpawnSystem->GetUnitInstance(UnitData->UnitClass);
-
-        if (ReusedUnit)
-        {
-            ReusedUnit->SetActorLocationAndRotation(FinalLocation, SpawnRotation);
-
-            int32 TargetLevel = 1;
-            UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-
-            if (GI)
-            {
-                if (FUnitSaveData* FoundData = GI->UnitLevelMap.Find(UnitData->UnitID))
-                {
-                    if (FoundData->bIsUnlocked)
-                    {
-                        TargetLevel = FoundData->Level;
-                    }
-                }
-            }
-            ReusedUnit->UnitLevel = TargetLevel;
-
-            ReusedUnit->ActivateUnit();
-
-            bIsSpawnCooldown = true;
-            GetWorld()->GetTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &UUnitSlotWidget::ResetSpawnCooldown, 0.5f, false);
-        }
-    }
-}
-
 void UUnitSlotWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -134,15 +49,67 @@ void UUnitSlotWidget::NativeConstruct()
         UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
     }
 }
+
 void UUnitSlotWidget::OnUnitButtonClicked()
 {
-    if (IsSpawnAble())
+    if (!UnitData || !UnitData->UnitClass)
     {
-        ExecuteSpawn();
+        UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없음"));
+        return;
+    }
+
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    if(Hero)
+    {
+        if (Hero->ConsumeCost(UnitData->UnitCost))
+        {
+            if (!SpawnBase)
+            {
+                TArray<AActor*> FoundBases;
+                UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
+
+                for (AActor* BaseActor : FoundBases)
+                {
+                    SpawnBase = Cast<ABaseStructure>(BaseActor);
+                    if (SpawnBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                    {
+                        SpawnLocation = SpawnBase->GetActorLocation();
+                    }
+                }
+            }
+            float RandomRange = FMath::RandRange(-250.0f, 250.0f);
+            FVector FinalLocation = FVector(SpawnLocation.X + 200.0f, SpawnLocation.Y + RandomRange, 100.0f);
+            FRotator SpawnRotation = FRotator::ZeroRotator;
+
+            UUnitSpawnSubsystem* SpawnSystem = GetWorld()->GetSubsystem<UUnitSpawnSubsystem>();
+            if (!SpawnSystem) return;
+
+            AUnitCharacter* ReusedUnit = SpawnSystem->GetUnitInstance(UnitData->UnitClass);
+
+            if (ReusedUnit)
+            {
+                ReusedUnit->SetActorLocationAndRotation(FinalLocation, SpawnRotation);
+
+                int32 TargetLevel = 1;
+                UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
+
+                if (GI)
+                {
+                    if (FUnitSaveData* FoundData = GI->UnitLevelMap.Find(UnitData->UnitID))
+                    {
+                        if (FoundData->bIsUnlocked)
+                        {
+                            TargetLevel = FoundData->Level;
+                        }
+                    }
+                }
+                ReusedUnit->UnitLevel = TargetLevel;
+
+                ReusedUnit->ActivateUnit();
+
+                UE_LOG(LogTemp, Log, TEXT("Spawned(Reused) Unit: %d with Level: %d"), UnitData->UnitID, TargetLevel);
+            }
+        }
     }
 }
 
-void UUnitSlotWidget::ResetSpawnCooldown()
-{
-    bIsSpawnCooldown = false;
-}

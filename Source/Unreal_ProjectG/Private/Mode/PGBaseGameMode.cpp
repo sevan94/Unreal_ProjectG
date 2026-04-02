@@ -8,8 +8,8 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "UI/Battle/BattleHUD.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "Character/HeroController.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "Character/Hero/HeroCharacter.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {
@@ -36,18 +36,6 @@ void APGBaseGameMode::BeginPlay()
                         }
                     }
                 }
-
-                if (GI && !GI->CurrentStageData.StageBGM.IsNull())
-                {
-                    // 사운드 에셋 로드 후 재생
-                    USoundBase* BGM = GI->CurrentStageData.StageBGM.LoadSynchronous();
-                    if (BGM)
-                    {
-                        // 전역적으로 관리되는 사운드 믹스와 클래스를 적용하여 재생
-                        UGameplayStatics::PlaySound2D(this, BGM);
-                        // 또는 지속적인 BGM을 위해 SpawnSound2D 후 참조 유지
-                    }
-                }
             }
         }
     }
@@ -68,20 +56,9 @@ void APGBaseGameMode::BeginPlay()
             {
                 AllyBase = Base;
             }
-            if (Base->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
-            {
-                EnemyBase = Base;
-            }
             // 기지가 파괴되면 OnGameOver 함수가 실행되도록 연결
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
-    }
-
-    // 카메라 이동 범위 제한
-    AHeroController* PC = Cast<AHeroController>(GetWorld()->GetFirstPlayerController());
-    if (PC)
-    {
-        PC->SetCameraClamp(AllyBase->GetActorLocation().X + 200.0f, EnemyBase->GetActorLocation().X - 200.0f);
     }
 }
 
@@ -140,36 +117,6 @@ void APGBaseGameMode::SetStageResult()
     }
 }
 
-int32 APGBaseGameMode::CalculateStarCount(const FBattleResultData& ResultData)
-{
-    UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-    if (!GI) return 1;
-
-    float CurrentValue = 0.0f;
-    // 리워드 타입에 따른 현재 값 설정
-    switch (GI->CurrentStageData.RewardType)
-    {
-    case ERewardCategory::Time:   CurrentValue = ResultData.TotalPlayTime; break;
-    case ERewardCategory::Health: CurrentValue = ResultData.RemainingHealthPercent; break;
-    case ERewardCategory::Cost:   CurrentValue = ResultData.TotalSpentCost; break;
-    }
-
-    // 조건 비교
-    bool bLowerIsBetter = (GI->CurrentStageData.RewardType != ERewardCategory::Health);
-    if (bLowerIsBetter)
-    {
-        if (CurrentValue <= GI->CurrentStageData.Star3) return 3;
-        if (CurrentValue <= GI->CurrentStageData.Star2) return 2;
-    }
-    else
-    {
-        if (CurrentValue >= GI->CurrentStageData.Star3) return 3;
-        if (CurrentValue >= GI->CurrentStageData.Star2) return 2;
-    }
-
-    return 1;
-}
-
 // --- 시간 및 등급 관리 ---
 float APGBaseGameMode::GetCurrentPlayTime() const
 {
@@ -196,29 +143,38 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         Result.RemainingHealthPercent = (BaseAttribute->GetHealth() / BaseAttribute->GetMaxHealth()) * 100.0f;
     }
 
-    if (DefeatedTeam == ETeamType::Enemy) // 플레이어 승리
+    // 파괴된 팀이 'Enemy'라면 -> 플레이어 승리
+    if (DefeatedTeam == ETeamType::Enemy)
     {
         Result.bIsVictory = true;
 
-        UPGGameInstance* GI = Cast<UPGGameInstance>(GetGameInstance());
-        if (GI)
+        // 클리어 시간 체크
+        float PlayTime = GetCurrentPlayTime();
+        UE_LOG(LogTemp, Warning, TEXT("Game Clear! PlayTime: %.2f sec"), PlayTime);
+
+        if (PlayTime <= ClearTimeLimit_3Stars)
         {
-            // 최초 클리어 여부 판정
-            int32* OldStars = GI->StageClearData.Find(GI->CurrentStageData.StageCode);
-            Result.bIsFirstClear = (OldStars == nullptr || *OldStars == 0);
-
-            // 별 개수 계산
-            Result.StarCount = CalculateStarCount(Result);
-
-            // 스테이지 클리어 데이터 업데이트
-            GI->UpdateStageClearData(GI->CurrentStageData.StageCode, Result.StarCount);
+            Result.StarCount = 3; // 3성 (빠른 클리어)
         }
+        else if (PlayTime <= ClearTimeLimit_2Stars)
+        {
+            Result.StarCount = 2; // 2성 (보통)
+        }
+        else
+        {
+            Result.StarCount = 1; // 1성 (턱걸이)
+        }
+
+        SetStageResult();
+
+        UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
+
+        // 여기서 GameInstance를 불러와서 클리어 보상(골드 등)을 저장(Save)하는 로직을 추가 가능
     }
     else // 플레이어 기지 파괴 -> 패배
     {
         Result.bIsVictory = false;
         Result.StarCount = 0; // 패배 시 별 없음
-        Result.bIsFirstClear = false;
         UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
 

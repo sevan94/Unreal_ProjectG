@@ -204,6 +204,7 @@ void UBattleUIWidget::OnAutoButtonClicked()
     bIsAuto = !bIsAuto;
     if (bIsAuto)
     {
+        Hero->SetAuto(true);
         Hero->ChangeCombatMode(EHeroCombatMode::Auto);
         CurrentAutoSpawnIndex = 0;
         GetWorld()->GetTimerManager().SetTimer(AutoSpawnTimerHandle, this, &UBattleUIWidget::AutoUnitSpawn, 0.5f, true);
@@ -213,6 +214,7 @@ void UBattleUIWidget::OnAutoButtonClicked()
     }
     else
     {
+        Hero->SetAuto(false);
         Hero->ChangeCombatMode(EHeroCombatMode::Manual);
         GetWorld()->GetTimerManager().ClearTimer(AutoSpawnTimerHandle);
 

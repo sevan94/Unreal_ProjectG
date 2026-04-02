@@ -18,9 +18,6 @@ struct FBattleResultData
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
-    bool bIsFirstClear = false;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Result")
     bool bIsVictory = false;
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
@@ -86,9 +83,6 @@ protected:
     // 스테이지 결과 계산
     void SetStageResult();
 
-    // 별 개수 계산 로직
-    int32 CalculateStarCount(const FBattleResultData& ResultData);
-
 public:
     //기지 파괴 시 호출될 게임오버 함수
     UFUNCTION()
@@ -99,7 +93,9 @@ protected:
     bool bIsGameOver = false;
     float GameStartTime = 0.0f;
 
-    // 기지 캐싱
+    // 체력 달성도 확인용 아군 기지
     TObjectPtr<ABaseStructure> AllyBase;
-    TObjectPtr<ABaseStructure> EnemyBase;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
+    TObjectPtr<class AHeroCharacter> HeroCharacter = nullptr;
 };

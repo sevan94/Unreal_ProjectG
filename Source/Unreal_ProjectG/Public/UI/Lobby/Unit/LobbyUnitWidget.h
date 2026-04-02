@@ -26,14 +26,17 @@ class UNREAL_PROJECTG_API ULobbyUnitWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+    // 초기화 함수
+    void InitializeUnitList();
+    void InitializePartySlots();
+
 protected:
     virtual void NativeConstruct() override;
 
     // 파티 슬롯 클릭 시 호출될 함수
     UFUNCTION()
     void HandlePartySlotClick(int32 SlotIndex);
-
-    void InitializePartySlots();
 
     UFUNCTION()
     void UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue);

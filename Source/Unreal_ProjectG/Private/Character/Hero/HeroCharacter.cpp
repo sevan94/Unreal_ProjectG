@@ -22,11 +22,6 @@
 #include "EngineUtils.h"
 #include "Components/Combat/HeroCombatComponent.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_BasicAttack, "Player.Ability.BasicAttack");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit.Side.Foe");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit.Side.Ally");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values

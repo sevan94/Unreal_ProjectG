@@ -60,6 +60,13 @@ void APGBaseGameMode::BeginPlay()
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
     }
+
+    // 카메라 이동 범위 제한
+    AHeroController* PC = Cast<AHeroController>(GetWorld()->GetFirstPlayerController());
+    if (PC)
+    {
+        PC->SetCameraClamp(AllyBase->GetActorLocation().X + 200.0f, EnemyBase->GetActorLocation().X - 200.0f);
+    }
 }
 
 void APGBaseGameMode::ShowStageResult(const FBattleResultData& ResultData)

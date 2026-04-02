@@ -97,6 +97,11 @@ void ULobbyUnitWidget::HandlePartySlotClick(int32 SlotIndex)
     }
 }
 
+void ULobbyUnitWidget::InitializeUnitList()
+{
+    UnitList->InitializeUnitList();
+}
+
 void ULobbyUnitWidget::InitializePartySlots()
 {
     if (PartyBox)

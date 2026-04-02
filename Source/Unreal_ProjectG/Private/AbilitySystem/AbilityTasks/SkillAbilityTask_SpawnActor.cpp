@@ -97,6 +97,7 @@ void USkillAbilityTask_SpawnActor::StartWaitTargetData()
     TargetTask->ValidData.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnTargetDataReady);
     TargetTask->Cancelled.AddDynamic(this, &USkillAbilityTask_SpawnActor::OnTargetDataCancelled);
 
+    // GroundTrace 타겟 액터를 미리 스폰하여 위치 피드백 제공
     AGameplayAbilityTargetActor* SpawnedTargetActor = nullptr;
     if (TargetTask->BeginSpawningActor(Ability, AGATargetActor_AOEGroundTrace::StaticClass(), SpawnedTargetActor))
     {
@@ -134,6 +135,14 @@ void USkillAbilityTask_SpawnActor::OnTargetDataReady(const FGameplayAbilityTarge
         {
             CachedSpawnLocation = Hit->Location;
         }
+    }
+
+    // 스폰 몽타주 재생 전에 캐릭터 방향을 타겟 방향으로 조정
+    if(AvatarActor)
+    {
+        FRotator LookAtRotation = (CachedSpawnLocation - AvatarActor->GetActorLocation()).Rotation();
+        LookAtRotation.Pitch = 0.f; // 수평 회전만 적용
+        AvatarActor->SetActorRotation(LookAtRotation);
     }
 
     PlayMontageOrSpawn();

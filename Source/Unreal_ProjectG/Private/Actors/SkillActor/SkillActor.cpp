@@ -94,7 +94,10 @@ bool ASkillActor::IsValidTarget(AActor* TargetActor) const
     switch (Config.TargetPolicy)
     {
     case ESkillTargetPolicy::Enemy:
+    {
+        UE_LOG(LogTemp, Log, TEXT("Is Target Hostile? %s"), UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor) ? TEXT("Yes") : TEXT("No"));
         return UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor);
+    }
     case ESkillTargetPolicy::Ally:
         return !UPGFunctionLibrary::IsTargetCharacterHostile(GetOwner(), TargetActor);
     case ESkillTargetPolicy::AllyWithOutSelf:

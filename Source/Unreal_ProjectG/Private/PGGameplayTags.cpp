@@ -11,6 +11,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_SubSkill, "Input.ActiveSkill.SubSkill");
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_MainSkill, "Input.ActiveSkill.MainSkill");
     UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_Move, "State.InputBlock.Move");
+    UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_ScreenTouch, "State.InputBlock.ScreenTouch");
 
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");
@@ -28,6 +29,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_ChainSword, "Equipment.Set.ChainSword");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_RockStar, "Equipment.Set.RockStar");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_DevilBat, "Equipment.Set.DevilBat");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");

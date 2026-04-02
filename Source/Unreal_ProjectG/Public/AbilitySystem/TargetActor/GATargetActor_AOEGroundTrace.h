@@ -61,6 +61,14 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Targeting", meta = (ExposeOnSpawn = true))
     bool bShowDebugSphere = false;
 
+private:
+    bool bHasActiveTouchIndex = false;
+    ETouchIndex::Type ActiveTouchIndex = ETouchIndex::Touch1;
+    TSet<ETouchIndex::Type> IgnoredTouchIndices;
+
+    TWeakObjectPtr<UAbilitySystemComponent> CachedOwnerASC;
+    bool bAddedBattleUIBlockTag = false;
+
     bool bIsTouching = false;
     FVector LastTouchLocation;
 };

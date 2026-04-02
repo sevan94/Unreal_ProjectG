@@ -24,6 +24,9 @@ struct FBattleResultData
     bool bIsVictory = false;
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
+    bool bIsFirstClear = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Result")
     int32 StarCount = 0;
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")

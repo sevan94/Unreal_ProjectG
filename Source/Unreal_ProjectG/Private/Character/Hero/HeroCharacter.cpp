@@ -20,8 +20,9 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
-#include "Components/Combat/HeroCombatComponent.h"
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit_Side_Ally");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit_Side_Foe");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values

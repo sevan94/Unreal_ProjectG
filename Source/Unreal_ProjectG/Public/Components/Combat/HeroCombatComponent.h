@@ -42,6 +42,7 @@ private:
 
     void UpdateDetection();
     void HandleBasicAttack();                         // 기본 공격 처리 함수
+    void HandleAutoCombat();                          // 자동 공격 처리 함수
 
     AActor* FindNearestEnemy() const;                 // 가장 가까운 적을 찾는 함수
 

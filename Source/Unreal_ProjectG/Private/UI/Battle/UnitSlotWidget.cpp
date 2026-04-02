@@ -7,11 +7,11 @@
 #include "Components/Image.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
+#include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
-#include "UI/Battle/UnitSlotWidget.h"
-#include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -40,18 +40,21 @@ void UUnitSlotWidget::UpdateSlot(float InCost)
     }
 }
 
-void UUnitSlotWidget::NativeConstruct()
+bool UUnitSlotWidget::IsSpawnAble() const
 {
-    Super::NativeConstruct();
+    if (!UnitData) return false;
 
-    if (UnitButton)
-    {
-        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
-    }
+    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+    return Hero && Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
 }
 
-void UUnitSlotWidget::OnUnitButtonClicked()
+void UUnitSlotWidget::ExecuteSpawn()
 {
+    if (bIsSpawnCooldown)
+    {
+        return;
+    }
+
     if (!UnitData || !UnitData->UnitClass)
     {
         UE_LOG(LogTemp, Warning, TEXT("유닛 데이터가 없음"));
@@ -59,7 +62,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
     }
 
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    if(Hero)
+    if (Hero)
     {
         if (Hero->ConsumeCost(UnitData->UnitCost))
         {
@@ -117,7 +120,7 @@ void UUnitSlotWidget::OnUnitButtonClicked()
             }
             bIsSpawnCooldown = true;
             GetWorld()->GetTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &UUnitSlotWidget::ResetSpawnCooldown, 0.5f, false);
-            
+
             ReusedUnit->UnitLevel = TargetLevel;
             ReusedUnit->ActivateUnit();
 
@@ -125,3 +128,24 @@ void UUnitSlotWidget::OnUnitButtonClicked()
     }
 }
 
+void UUnitSlotWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    if (UnitButton)
+    {
+        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
+    }
+}
+void UUnitSlotWidget::OnUnitButtonClicked()
+{
+    if (IsSpawnAble())
+    {
+        ExecuteSpawn();
+    }
+}
+
+void UUnitSlotWidget::ResetSpawnCooldown()
+{
+    bIsSpawnCooldown = false;
+}

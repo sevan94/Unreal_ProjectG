@@ -10,8 +10,8 @@
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "UI/Battle/UnitSlotWidget.h"
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
-#include "AbilitySystem/PGCharacterAttributeSet.h"
 
 void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
 {
@@ -40,15 +40,17 @@ void UUnitSlotWidget::UpdateSlot(float InCost)
     }
 }
 
-bool UUnitSlotWidget::IsSpawnAble() const
+void UUnitSlotWidget::NativeConstruct()
 {
-    if (!UnitData) return false;
+    Super::NativeConstruct();
 
-    AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    return Hero && Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
+    if (UnitButton)
+    {
+        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
+    }
 }
 
-void UUnitSlotWidget::ExecuteSpawn()
+void UUnitSlotWidget::OnUnitButtonClicked()
 {
     if (!UnitData || !UnitData->UnitClass)
     {
@@ -57,21 +59,24 @@ void UUnitSlotWidget::ExecuteSpawn()
     }
 
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    if (Hero->ConsumeCost(UnitData->UnitCost))
+    if(Hero)
     {
-        if (!SpawnBase)
+        if (Hero->ConsumeCost(UnitData->UnitCost))
         {
             TArray<AActor*> FoundBases;
             UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
 
             for (AActor* BaseActor : FoundBases)
             {
-                ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
-                if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                if (!SpawnBase)
                 {
-                    SpawnBase = TempBase;
-                    SpawnLocation = SpawnBase->GetActorLocation();
-                    break;
+                    ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
+                    if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
+                    {
+                        SpawnBase = TempBase;
+                        SpawnLocation = SpawnBase->GetActorLocation();
+                        break;
+                    }
                 }
             }
         }
@@ -80,7 +85,7 @@ void UUnitSlotWidget::ExecuteSpawn()
 
         FVector BaseForward = SpawnBase->GetActorForwardVector();
         FVector BaseRight = SpawnBase->GetActorRightVector();
-        float RandomRange = FMath::RandRange(-2.0f, 2.0f);
+        float RandomRange = FMath::RandRange(-50.0f, 50.0f);
 
         FVector FinalLocation = SpawnLocation + (BaseForward * 200.0f) + (BaseRight * RandomRange);
 
@@ -110,26 +115,13 @@ void UUnitSlotWidget::ExecuteSpawn()
                     }
                 }
             }
+            bIsSpawnCooldown = true;
+            GetWorld()->GetTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &UUnitSlotWidget::ResetSpawnCooldown, 0.5f, false);
+            
             ReusedUnit->UnitLevel = TargetLevel;
-
             ReusedUnit->ActivateUnit();
+
         }
     }
 }
 
-void UUnitSlotWidget::NativeConstruct()
-{
-    Super::NativeConstruct();
-
-    if (UnitButton)
-    {
-        UnitButton->OnClicked.AddDynamic(this, &UUnitSlotWidget::OnUnitButtonClicked);
-    }
-}
-void UUnitSlotWidget::OnUnitButtonClicked()
-{
-    if (IsSpawnAble())
-    {
-        ExecuteSpawn();
-    }
-}

@@ -214,9 +214,9 @@ void UHeroCombatComponent::HandleAutoCombat()
         OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = true; // Movement 방향으로 회전하도록 설정
         if (!CurrentTarget.IsValid())
         {
-            // 유효한 타깃이 없다면 속도를 500으로 설정하여 이동하도록 함, X방향으로 이동하도록 함.
-            OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;
-            //OwningCharacter->GetCharacterMovement()->InputMove
+            //// 유효한 타깃이 없다면 속도를 500으로 설정하여 이동하도록 함, X방향으로 이동하도록 함.
+            //OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;
+            //OwningCharacter->GetCharacterMovement()->InputMove;
             return;
         }
         else

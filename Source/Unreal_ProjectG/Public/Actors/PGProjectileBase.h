@@ -32,6 +32,16 @@ public:
 
     void SetProjectileDamageEffectSpecHandle(const FGameplayEffectSpecHandle& InEffectSpecHandle);
 
+    // --- [오브젝트 풀링 전용 이벤트] ---   
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pooling")
+    void OnActivatedFromPool();
+
+    virtual void OnActivatedFromPool_Implementation();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pooling")
+    void OnReturnedToPool();
+
+    virtual void OnReturnedToPool_Implementation();
 protected:
     virtual void Tick(float DeltaTime) override;
 
@@ -46,6 +56,8 @@ protected:
 private:
     void HandleApplyProjectileDamage(APawn* InHitPawn, const FGameplayEventData& InPayload);
 
+    // 파괴(Destroy) 대신 풀로 돌려보내는 도우미 함수
+    void DeactivateAndReturnToPool();
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile|Components")
     TObjectPtr<UBoxComponent> ProjectileCollisionComponent;
@@ -73,4 +85,8 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
     float ProjectileSpan = 2.0f;
+
+private:
+    // 수명(LifeSpan)을 직접 관리하기 위한 타이머
+    FTimerHandle LifeSpanTimerHandle;
 };

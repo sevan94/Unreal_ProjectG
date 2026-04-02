@@ -4,6 +4,7 @@
 #include "PGFunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "PGGameplayTags.h"
+#include "Character/Unit/SubSystem/PGObjectPoolSubsystem.h"
 
 APGMageMagicBase::APGMageMagicBase()
 {
@@ -33,12 +34,18 @@ APGMageMagicBase::APGMageMagicBase()
 void APGMageMagicBase::BeginPlay()
 {
     Super::BeginPlay();
-    MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    //MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     MagicNiagaraComponent->OnSystemFinished.AddDynamic(this, &APGMageMagicBase::OnNiagaraFinished);
 }
 
 void APGMageMagicBase::OnMagicBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+    if (GetInstigator() == nullptr)
+    {
+        UE_LOG(LogTemp, Error, TEXT("MageMagic: 오버랩이 발생했지만 Instigator가 NULL입니다! (어빌리티에서 스폰 순서를 확인하세요)"));
+        return;
+    }
+
     if (!UPGFunctionLibrary::IsTargetCharacterHostile(GetInstigator(), OtherActor))
     {
         return;
@@ -58,9 +65,58 @@ void APGMageMagicBase::OnMagicBeginOverlap(UPrimitiveComponent* OverlappedCompon
     }
 }
 
+// --- [풀링: 창고에서 꺼낼 때 실행되는 초기화 로직] ---
+void APGMageMagicBase::OnActivatedFromPool_Implementation()
+{
+    // 1. 콜리전 다시 켜기
+    if (MagicCollisionComponent)
+    {
+        MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    }
+
+    // 2. 나이아가라 이펙트 다시 재생하기
+    if (MagicNiagaraComponent)
+    {
+        MagicNiagaraComponent->Activate(true); // 이펙트 초기화 및 재생
+    }
+
+    // 3. 액터 보이기
+    SetActorHiddenInGame(false);
+}
+
+// --- [풀링: 창고로 들어갈 때 실행되는 정리 로직] ---
+void APGMageMagicBase::OnReturnedToPool_Implementation()
+{
+    // 1. 콜리전 끄기 (창고 안에서 데미지 판정 방지)
+    if (MagicCollisionComponent)
+    {
+        MagicCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+
+    // 2. 이펙트 정지
+    if (MagicNiagaraComponent)
+    {
+        MagicNiagaraComponent->Deactivate();
+    }
+
+    // 3. 액터 숨기기
+    SetActorHiddenInGame(true);
+}
+
+// 풀 반납 도우미 함수
+void APGMageMagicBase::DeactivateAndReturnToPool()
+{
+    OnReturnedToPool();
+
+    if (UPGObjectPoolSubsystem* PoolSubsystem = GetWorld()->GetSubsystem<UPGObjectPoolSubsystem>())
+    {
+        PoolSubsystem->ReturnActorToPool(this);
+    }
+}
+
 void APGMageMagicBase::OnNiagaraFinished(UNiagaraComponent* PSystem)
 {
-    Destroy();
+    DeactivateAndReturnToPool();
 }
 
 void APGMageMagicBase::SetMagicDamageEffectSpecHandle(const TArray<FGameplayEffectSpecHandle>& InSpecHandles)

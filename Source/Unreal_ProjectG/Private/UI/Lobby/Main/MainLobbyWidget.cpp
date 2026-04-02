@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "UI/Lobby/Main/GoodsBarWidget.h"
 #include "UI/Lobby/Main/OptionWidget.h"
+#include "UI/Lobby/Unit/LobbyUnitWidget.h"
 #include "Mode/Save/PGGameInstance.h"
 
 void UMainLobbyWidget::NativeConstruct()
@@ -45,7 +46,15 @@ void UMainLobbyWidget::UpdateGoodsBar(EGoodsCategory InCategory, int32 InValue)
 
 void UMainLobbyWidget::OnUnitButtonClick()
 {
-    if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(1);
+    if (WidgetSwitcher) 
+    { 
+        ULobbyUnitWidget* UnitWidget = Cast<ULobbyUnitWidget>(WidgetSwitcher->GetWidgetAtIndex(1));
+        if (UnitWidget)
+        {
+            UnitWidget->InitializeUnitList();
+        }
+        WidgetSwitcher->SetActiveWidgetIndex(1); 
+    }
 }
 
 void UMainLobbyWidget::OnEquipButtonClick()

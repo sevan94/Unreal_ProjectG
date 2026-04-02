@@ -40,7 +40,6 @@ AUnitCharacter::AUnitCharacter()
     if (USkeletalMeshComponent* CharacterMesh = GetMesh())
     {
         CharacterMesh->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
-
         CharacterMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
         CharacterMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); 
     }

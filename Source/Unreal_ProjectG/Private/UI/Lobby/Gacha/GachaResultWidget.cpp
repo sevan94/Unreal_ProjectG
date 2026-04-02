@@ -11,6 +11,8 @@
 #include "NiagaraSystemWidget.h"
 #include "Animation/WidgetAnimation.h"
 #include "Kismet/GameplayStatics.h"
+#include "Mode/PGLobbyMode.h"
+#include "UI/Lobby/Gacha/GachaActor.h"
 
 void UGachaResultWidget::InitUnitData(UUnitUIDataAsset* InData)
 {
@@ -128,6 +130,13 @@ void UGachaResultWidget::ResetGachaResult()
     GachaReaultPanel->SetVisibility(ESlateVisibility::Hidden);
     GachaEffect->DeactivateSystem();
     SkipButton->SetVisibility(ESlateVisibility::Visible);
+
+    // 뽑기 액터 상태 초기화
+    APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
+    if (GM && GM->UnitGachaActor)
+    {
+        GM->UnitGachaActor->GachaReset();
+    }
 
     // 재생 중인 오디오 컴포넌트 중지
     if (AudioComponent && AudioComponent->IsPlaying())

@@ -7,6 +7,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "DataAssets/Ability/DataAsset_SkillData.h"
+#include "Character/Unit/SubSystem/PGObjectPoolSubsystem.h"
+
 
 void UUnitAbility_SpawnProjectile::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -70,17 +72,30 @@ void UUnitAbility_SpawnProjectile::SpawnProjectile(FGameplayEventData InEventDat
 {
     FVector SpawnLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
     FRotator SpawnRotation = GetAvatarActorFromActorInfo()->GetActorForwardVector().Rotation();
+    FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
-    APGProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<APGProjectileBase>(UnitSpawnProjectileConfig.SpawnedProjectileClass.Get(), FTransform(SpawnRotation, SpawnLocation),
-        GetAvatarActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    // 1. 풀링 서브시스템 가져오기
+    UPGObjectPoolSubsystem* PoolSubsystem = GetWorld()->GetSubsystem<UPGObjectPoolSubsystem>();
+    if (!PoolSubsystem) return;
+
+    // 2.  투사체 꺼내기 (없으면 새로 스폰됨)
+    APGProjectileBase* SpawnedProjectile = Cast<APGProjectileBase>(
+        PoolSubsystem->GetActorFromPool(UnitSpawnProjectileConfig.SpawnedProjectileClass.Get(), SpawnTransform)
+    );
 
     if (SpawnedProjectile)
     {
+        // 3. 소유자 세팅 (데미지 판정을 위해 필수)
+        SpawnedProjectile->SetOwner(GetAvatarActorFromActorInfo());
+        SpawnedProjectile->SetInstigator(Cast<APawn>(GetAvatarActorFromActorInfo()));
+
+        // 4. 데미지 이펙트 스펙 전달
         float ProjectileMultiplierValue = UnitSpawnProjectileConfig.SkillMultiplier.GetValueAtLevel(GetAbilityLevel());
         FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle = MakeOutgoingEffectSpecWithMultiplier(UnitSpawnProjectileConfig.DamageEffectClass.Get(), ProjectileMultiplierValue);
         SpawnedProjectile->SetProjectileDamageEffectSpecHandle(ProjectileDamageEffectSpecHandle);
 
-        SpawnedProjectile->FinishSpawning(FTransform(SpawnRotation, SpawnLocation));
+        // 5. 보관된 곳에 자원 꺼냈음을 알리고 활성화 (BeginPlay 대체)
+        SpawnedProjectile->OnActivatedFromPool();
     }
 }
 

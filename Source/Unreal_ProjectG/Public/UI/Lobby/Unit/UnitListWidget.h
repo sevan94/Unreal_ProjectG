@@ -22,13 +22,13 @@ class UNREAL_PROJECTG_API UUnitListWidget : public UUserWidget
 public:
     UPROPERTY(BlueprintAssignable, Category = "Unit")
     FOnUnitSelected OnUnitSelected;
-	
-protected:
-    virtual void NativeConstruct() override;
 
     // Tile View 초기화
     UFUNCTION(BlueprintCallable, Category = "Unit")
     void InitializeUnitList();
+
+protected:
+    virtual void NativeConstruct() override;
 
     // 유닛 클릭시
     UFUNCTION()

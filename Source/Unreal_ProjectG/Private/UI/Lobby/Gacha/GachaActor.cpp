@@ -13,7 +13,8 @@ AGachaActor::AGachaActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
 
-    Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+    Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh")); 
+    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     SetRootComponent(Mesh);
 
     GachaEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("GachaEffect"));
@@ -71,6 +72,24 @@ void AGachaActor::GachaOpen(FLinearColor InColor)
 
 void AGachaActor::GachaReset()
 {
+    // 타임라인 중지 및 초기화
+    if (MoveTimeline)
+    {
+        MoveTimeline->Stop();
+    }
+
+    // 애니메이션 중지 및 메시 초기화
+    if (Mesh)
+    {
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        UAnimInstance* AnimInst = Mesh->GetAnimInstance();
+        if (AnimInst)
+        {
+            // 초기 상태로 되돌림
+            AnimInst->Montage_Stop(0.0f);
+        }
+    }
+
     // 위치 초기화
     SetActorLocation(StartLocation);
 
@@ -86,8 +105,11 @@ void AGachaActor::GachaReset()
 
 void AGachaActor::OnGachaeEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-    // 애니메이션이 끝나면 브로드캐스트
-    OnGachaOpenFinished.Broadcast();
+    // 애니메이션이 정상적으로 끝나면 브로드캐스트
+    if (!bInterrupted)
+    {
+        OnGachaOpenFinished.Broadcast();
+    }
 }
 
 // Called when the game starts or when spawned
@@ -138,5 +160,9 @@ void AGachaActor::HandleTimelineFinished()
     {
         GachaEffect->SetVariableLinearColor(TEXT("Color"), FLinearColor::White);
         GachaEffect->Activate();
+    }
+    if (Mesh)
+    {
+        Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     }
 }

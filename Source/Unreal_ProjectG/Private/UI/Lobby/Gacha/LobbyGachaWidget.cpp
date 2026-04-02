@@ -62,9 +62,8 @@ void ULobbyGachaWidget::OnUnitGachaClick()
     if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(5);
 
     APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
-    if (GM && GM->UnitGachaActor)
+    if (GM)
     {
-        GM->UnitGachaActor->GachaReset();
         GM->PlayUnitGacha(PickupUnit);
     }
 }

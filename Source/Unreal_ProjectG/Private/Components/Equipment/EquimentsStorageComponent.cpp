@@ -94,4 +94,6 @@ void UEquipmentsStorageComponent::EquipHeroAccessory(UDataAsset_AccessoryData* I
     );
     const FGameplayAbilitySpecHandle GivenHandle = ASC->GiveAbility(AbilitySpec);
     ASC->TryActivateAbility(GivenHandle);
+
+    
 }

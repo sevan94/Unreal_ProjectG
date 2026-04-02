@@ -18,9 +18,6 @@ struct FBattleResultData
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")
-    bool bIsFirstClear = false;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Result")
     bool bIsVictory = false;
 
     UPROPERTY(BlueprintReadOnly, Category = "Result")

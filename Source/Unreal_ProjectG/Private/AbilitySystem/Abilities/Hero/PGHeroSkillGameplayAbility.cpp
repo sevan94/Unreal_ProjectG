@@ -3,6 +3,7 @@
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_MeleeTrace.h"
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_SpawnActor.h"
 #include "AbilitySystem/AbilityTasks/SkillAbilityTask_Buff.h"
+#include "AbilitySystem/AbilityTasks/SkillAbilityTask_Presentation.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "AbilitySystemComponent.h"
 #include "DataAssets/Ability/DataAsset_HeroSkillData.h"
@@ -23,6 +24,7 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+    // 먼저 커밋 체크, 커밋 체크 실패 시 어빌리티 종료
     if(!CommitCheck(Handle, ActorInfo, ActivationInfo))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -51,6 +53,13 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
             ASC->AddLooseGameplayTag(PGGameplayTags::State_InputBlock_Move);
             bBlockedMoveInputThisActivation = true;
         }
+    }
+
+    // 스킬 프레젠테이션 데이터가 존재한다면 스킬 프레젠테이션 태스크 생성 및 실행
+    if (!SkillData->PresentationData.IsNull())
+    {
+        USkillAbilityTask_Presentation* PresentationTask = USkillAbilityTask_Presentation::Create(this, SkillData->PresentationData);
+        PresentationTask->ReadyForActivation();
     }
     //==============================================================================
 

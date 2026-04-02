@@ -7,6 +7,7 @@
 #include "DataAsset_HeroSkillData.generated.h"
 
 class UAbilitySystemComponent;
+class UDataAsset_HeroSkillPresentation;
 
 UENUM(BlueprintType)
 enum class ESkillActionType : uint8
@@ -211,6 +212,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬", meta = (DisplayName = "스킬 쿨다운"))
     FScalableFloat SkillCooldown = FScalableFloat(0.f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|프레젠테이션", meta=(DisplayName="스킬 프레젠테이션 데이터"))
+    TObjectPtr<UDataAsset_HeroSkillPresentation> PresentationData = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|메인 시퀀스", meta=(DisplayName="기본 액션 시퀀스"))
     TArray<FSkillActionRow> ActionSequence;

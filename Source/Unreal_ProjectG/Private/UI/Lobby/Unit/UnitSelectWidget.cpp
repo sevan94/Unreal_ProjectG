@@ -69,9 +69,9 @@ void UUnitSelectWidget::UpdateWidget(UUnitEntryObject* InEntryObject)
     }
 
     // 소유 여부에 따른 잠금 표시 처리
-    if (LockOverlay && SaveData.bIsUnlocked)
+    if (LockOverlay)
     {
-        ESlateVisibility LockVisibility = InEntryObject->IsOwned() ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
+        ESlateVisibility LockVisibility = SaveData.bIsUnlocked ? ESlateVisibility::Hidden : ESlateVisibility::HitTestInvisible;
         LockOverlay->SetVisibility(LockVisibility);
     }
 }

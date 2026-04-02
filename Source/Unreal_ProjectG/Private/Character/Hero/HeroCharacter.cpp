@@ -20,6 +20,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
+#include "Components/Combat/HeroCombatComponent.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_1, "Player.Ability.Skill.1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Ability_Skill_2, "Player.Ability.Skill.2");
@@ -76,6 +77,20 @@ float AHeroCharacter::GetBasicAttackRange_Implementation() const
         return CharacterAttributeSet->GetAttackRange();
     }
     return 0.0f; // 기본 공격 범위 반환, 어트리뷰트셋이 없는 경우 기본값으로 0.0f 반환
+}
+
+void AHeroCharacter::AutoMode()
+{
+    if (PotentialTargets.IsEmpty())
+    {
+        UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
+        //HeroCombatComponent->StopCombat();
+        AddMovementInput(FVector::ForwardVector);
+    }
+    else
+    {
+        //HeroCombatComponent->StartCombat();
+    }
 }
 
 bool AHeroCharacter::TryExecuteBasicAttack_Implementation()
@@ -223,7 +238,7 @@ void AHeroCharacter::BeginPlay()
         }
     }
 
-    if (EquipmentsStorageComponent)
+    if (EquipmentsStorageComponent && Weapon && Armor && Accessory)
     {
         EquipmentsStorageComponent->Startup(Weapon, Armor, Accessory);
     }
@@ -304,6 +319,15 @@ void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
     OnHeroMaxCostChanged.Broadcast(Data.NewValue);
 }
 #pragma endregion
+
+void AHeroCharacter::Tick(float DeltaSeconds)
+{
+    if (bIsAuto)
+    {
+        UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
+        AutoMode();
+    }
+}
 
 
 #pragma region MyRegion

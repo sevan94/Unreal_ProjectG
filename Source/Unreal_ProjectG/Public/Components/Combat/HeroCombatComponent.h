@@ -21,6 +21,8 @@ public:
     void SetCombatMode(EHeroCombatMode NewCombatMode); // 전투 모드 설정 함수
     EHeroCombatMode GetCombatMode() const { return CombatMode; } // 전투 모드 반환 함수
     bool IsAutoMode() const { return CombatMode == EHeroCombatMode::Auto; } // 자동 모드 여부 반환 함수
+    void StartCombat();                               // 전투 시작 함수
+    void StopCombat();                                // 전투 중지 함수
 protected:
     virtual void BeginPlay() override;
     void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -30,8 +32,6 @@ protected:
     void DeactivateCombat();        // 전투 비활성화 함수
 
 private:
-    void StartCombat();                               // 전투 시작 함수
-    void StopCombat();                                // 전투 중지 함수
     
     void StartDetectTimer();                          // 탐색 타이머 시작 함수
     void StopDetectTimer();                           // 탐색 타이머 중지 함수

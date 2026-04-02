@@ -98,12 +98,14 @@ void UBattleUIWidget::OnAutoButtonClicked()
     bIsAuto = !bIsAuto;
     if (bIsAuto)
     {
+        Hero->SetAuto(true);
         Hero->ChangeCombatMode(EHeroCombatMode::Auto);
         PlayAnimation(ControlPanelSlide, 0.0f, 1);
         AutoActiveEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     else
     {
+        Hero->SetAuto(false);
         Hero->ChangeCombatMode(EHeroCombatMode::Manual);
         PlayAnimation(ControlPanelSlide, 0.0f, 1, EUMGSequencePlayMode::Reverse);
         AutoActiveEffect->SetVisibility(ESlateVisibility::Hidden);

@@ -85,6 +85,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tag")
     FGameplayTag GetPlayerTag() { return PlayerTag; }
 
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void SetAuto(bool bInAuto) { bIsAuto = bInAuto; }
+
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
 protected:
     virtual void BeginPlay() override;
@@ -97,6 +100,7 @@ protected:
     void MaxCostChange(const FOnAttributeChangeData& Data) const;
 
 private:
+    virtual void Tick(float DeltaSeconds) override;
 
     //공격 범위 안에 유닛이 들어옴
     UFUNCTION()
@@ -119,6 +123,8 @@ private:
     UFUNCTION()
     float GetBasicAttackRange_Implementation() const override;
 
+    UFUNCTION()
+    void AutoMode();
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")

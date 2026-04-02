@@ -207,7 +207,7 @@ void AGATargetActor_AOEGroundTrace::OnSphereOverlapBegin(UPrimitiveComponent* Ov
         return;
 
     // 적팀이면 액터 빛나게 하기
-    if (UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, OtherActor))
+    if (IsValidTarget(OtherActor))
     {
         // 오버랩된 액터 추가
         OverlappedActors.AddUnique(OtherActor);

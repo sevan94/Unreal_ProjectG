@@ -62,14 +62,11 @@ void UUnitSlotWidget::ExecuteSpawn()
     }
 
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    if (Hero->ConsumeCost(UnitData->UnitCost))
+    if(Hero)
     {
-        if (!SpawnBase)
+        if (Hero->ConsumeCost(UnitData->UnitCost))
         {
-            TArray<AActor*> FoundBases;
-            UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseStructure::StaticClass(), FoundBases);
-
-            for (AActor* BaseActor : FoundBases)
+            if (!SpawnBase)
             {
                 ABaseStructure* TempBase = Cast<ABaseStructure>(BaseActor);
                 if (TempBase && TempBase->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Ally"))))
@@ -115,12 +112,12 @@ void UUnitSlotWidget::ExecuteSpawn()
                     }
                 }
             }
-            ReusedUnit->UnitLevel = TargetLevel;
-
-            ReusedUnit->ActivateUnit();
-
             bIsSpawnCooldown = true;
             GetWorld()->GetTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &UUnitSlotWidget::ResetSpawnCooldown, 0.5f, false);
+            
+            ReusedUnit->UnitLevel = TargetLevel;
+            ReusedUnit->ActivateUnit();
+
         }
     }
 }

@@ -78,6 +78,16 @@ public:
     // UI 업데이트용 함수
     void BroadCastAttributeSet();
 
+    //리스폰 위치 설정
+    UFUNCTION()
+    void SetRespawnposition(FVector InPosition) { RespawnPosition = InPosition; }
+
+    UFUNCTION(BlueprintCallable, Category = "Tag")
+    FGameplayTag GetPlayerTag() { return PlayerTag; }
+
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void SetAuto(bool bInAuto) { bIsAuto = bInAuto; }
+
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
     class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 
@@ -92,6 +102,7 @@ protected:
     void MaxCostChange(const FOnAttributeChangeData& Data) const;
 
 private:
+    virtual void Tick(float DeltaSeconds) override;
 
     //공격 범위 안에 유닛이 들어옴
     UFUNCTION()
@@ -114,6 +125,8 @@ private:
     UFUNCTION()
     float GetBasicAttackRange_Implementation() const override;
 
+    UFUNCTION()
+    void AutoMode();
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "Event")
@@ -210,4 +223,12 @@ private:
     FGameplayAbilitySpecHandle AttackHandle;
     //스킬 어빌리티 핸들이 들은 배열
     TArray<FGameplayAbilitySpecHandle> SkillHandle;
+
+    //플레이어임을 표시하는 태그
+    UPROPERTY()
+    FGameplayTag PlayerTag;
+
+    //부활할 위치. 아군 베이스의 위치로 설정
+    UPROPERTY()
+    FVector RespawnPosition = FVector::ZeroVector;
 };

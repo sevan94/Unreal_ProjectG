@@ -13,6 +13,13 @@
 #include "AbilitySystem/PGCharacterAttributeSet.h"
 #include "PGFunctionLibrary.h"
 
+void UEquipmentsStorageComponent::Startup(UDataAsset_WeaponData* InWeaponData, UDataAsset_ArmorData* InArmorData, UDataAsset_AccessoryData* InAccessoryData)
+{
+    EquipHeroWeapon(InWeaponData);
+    EquipHeroArmor(InArmorData);
+    EquipHeroAccessory(InAccessoryData);
+}
+
 void UEquipmentsStorageComponent::EquipHeroWeapon(UDataAsset_WeaponData* InWeaponData)
 {
     UPGAbilitySystemComponent* ASC = UPGFunctionLibrary::NativeGetPGASCFromActor(GetOwner());

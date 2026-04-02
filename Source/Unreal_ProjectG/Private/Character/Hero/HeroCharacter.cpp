@@ -18,6 +18,11 @@
 #include "Character/Unit/SubSystem/UnitSubsystem.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h"
+#include "Components/Combat/HeroCombatComponent.h"
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values
 AHeroCharacter::AHeroCharacter()
@@ -69,6 +74,20 @@ float AHeroCharacter::GetBasicAttackRange_Implementation() const
     return 0.0f; // 기본 공격 범위 반환, 어트리뷰트셋이 없는 경우 기본값으로 0.0f 반환
 }
 
+void AHeroCharacter::AutoMode()
+{
+    if (PotentialTargets.IsEmpty())
+    {
+        UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
+        //HeroCombatComponent->StopCombat();
+        AddMovementInput(FVector::ForwardVector);
+    }
+    else
+    {
+        //HeroCombatComponent->StartCombat();
+    }
+}
+
 bool AHeroCharacter::TryExecuteBasicAttack_Implementation()
 {
     if (PGAbilitySystemComponent)
@@ -101,9 +120,12 @@ void AHeroCharacter::SpawnHero()
     MeshComp->SetSimulatePhysics(false);
     MeshComp->SetCollisionProfileName(TEXT("CharacterMesh"));
 
+    UE_LOG(LogTemp, Log, TEXT("Respawn Position : %f %f %f"), RespawnPosition.X, RespawnPosition.Y, RespawnPosition.Z);
     MeshComp->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-    MeshComp->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+    //MeshComp->SetWorldLocation(RespawnPosition);
     MeshComp->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
+    SetActorLocation(RespawnPosition);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     MovementComponent->SetComponentTickEnabled(true);
@@ -206,25 +228,12 @@ void AHeroCharacter::BeginPlay()
         }
     }
 
-    //// 주석
-    //// =============================================================================
-    //// StartUpData에서 어빌리티로 Give하는중, 삭제해도 동작
-    //// =============================================================================
-    //if (PGAbilitySystemComponent)
-    //{
-    //    if (GA_Die)
-    //    {
-    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Die, 1, 0, this));
-    //    }
-    //    //if (Weapon)
-    //    //{
-    //    //    //PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Weapon->GetHeroWeaponData()->BaseAttackAbility, 1, 1, this));
-    //    //}
-    //    if (GA_Initialize)
-    //    {
-    //        PGAbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GA_Initialize, 1, 2, this));
-    //    }
-    //}
+    if (EquipmentsStorageComponent && Weapon && Armor && Accessory)
+    {
+        EquipmentsStorageComponent->Startup(Weapon, Armor, Accessory);
+    }
+
+    PlayerTag = TAG_Player;
 
     if (AggroCollision)
     {
@@ -241,6 +250,19 @@ void AHeroCharacter::BeginPlay()
 
     //ABP 가져오기
     //AnimInstance = GetMesh()->GetAnimInstance();
+
+    if (UWorld* world = GetWorld())
+    {
+        for (TActorIterator<APlayerStart> PlayerStart(world); PlayerStart; ++PlayerStart)
+        {
+            APlayerStart* startPoint = *PlayerStart;
+            if (startPoint)
+            {
+                RespawnPosition = startPoint->GetActorLocation();
+                UE_LOG(LogTemp, Log, TEXT("Hero : PlayerStart Found"));
+            }
+        }
+    }
 }
 
 #pragma region Input
@@ -288,6 +310,15 @@ void AHeroCharacter::MaxCostChange(const FOnAttributeChangeData& Data) const
     OnHeroMaxCostChanged.Broadcast(Data.NewValue);
 }
 #pragma endregion
+
+void AHeroCharacter::Tick(float DeltaSeconds)
+{
+    if (bIsAuto)
+    {
+        UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
+        AutoMode();
+    }
+}
 
 
 #pragma region MyRegion

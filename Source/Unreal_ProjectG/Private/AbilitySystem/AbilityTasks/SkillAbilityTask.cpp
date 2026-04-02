@@ -9,7 +9,7 @@
 #include "PGGameplayTags.h"
 
 // 헬퍼 함수
-// EffectContextHandle에 이펙트 타입을 담는다.
+ //EffectContextHandle에 이펙트 타입을 담는다.
 namespace SkillCueHelper
 {
     // 스태틱 큐를 적용할지 판단하는 헬퍼 함수

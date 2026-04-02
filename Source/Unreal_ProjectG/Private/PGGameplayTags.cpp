@@ -29,6 +29,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_ChainSword, "Equipment.Set.ChainSword");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_RockStar, "Equipment.Set.RockStar");
+    UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_DevilBat, "Equipment.Set.DevilBat");
 
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Dimension, "Equipment.Set.Dimension");
     UE_DEFINE_GAMEPLAY_TAG(Equipment_Set_Healer, "Equipment.Set.Healer");

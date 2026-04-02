@@ -80,6 +80,15 @@ public:
     static TArray<FGameplayEffectSpecHandle> MakeOutgoingGameplayEffectSpecsFromEffectConfigs(UPGAbilitySystemComponent* SourceASC, const TArray<FEffectConfig>& EffectConfigs, AActor* Instigator, UObject* SourceObject, int32 InAbilityLevel = 1);
 
     //================================================================================================
+    // 게임플레이 큐 관련 함수들
+    //================================================================================================
+    // Actor Cue: GE Context에 태그 정보를 주입
+    static FGameplayEffectContextHandle  NativeAddActorCueIntoSpecHandle(FGameplayEffectSpecHandle& InOutSpecHandle, const FEffectConfig& InEffectConfig);
+
+    // Static Cue: GE Context에 태그 정보를 주입하여 실행
+    static void NativeExecuteStaticCue(AActor* TargetActor, const FEffectConfig& InEffectConfig, const FGameplayEffectContextHandle& EffectContext);
+
+    //================================================================================================
     // 게임플레이 큐 관련 헬퍼 함수들
     //================================================================================================
     UFUNCTION(BlueprintPure, Category = "PG|Cue")
@@ -87,4 +96,6 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "PG|Cue")
     static FGameplayTag GetCueVariantTagFromCueParams(const FGameplayCueParameters& InCueParams, bool& bHasValidPGContext);
+
+
 };

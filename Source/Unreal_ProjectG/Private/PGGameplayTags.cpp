@@ -10,6 +10,8 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill, "Input.ActiveSkill");
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_SubSkill, "Input.ActiveSkill.SubSkill");
     UE_DEFINE_GAMEPLAY_TAG(Input_ActiveSkill_MainSkill, "Input.ActiveSkill.MainSkill");
+
+    // 플레이어 상태 태그
     UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_Move, "State.InputBlock.Move");
     UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_ScreenTouch, "State.InputBlock.ScreenTouch");
 
@@ -21,7 +23,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Die, "Player.Ability.Die");
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Initialize, "Player.Ability.Initialize");
 
-    // 어빌리티 태그
+    // 어빌리티 쿨다운 태그
     UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_MainSkill, "Ability.Cooldown.MainSkill");
     UE_DEFINE_GAMEPLAY_TAG(Ability_Cooldown_SubSkill, "Ability.Cooldown.SubSkill");
 
@@ -46,7 +48,6 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Cost, "Attribute.Cost");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_AttackPower, "Attribute.AttackPower");
     UE_DEFINE_GAMEPLAY_TAG(Attribute_MoveSpeed, "Attribute.MoveSpeed");
-
 
     // 유닛 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Unit_Ability_MagicCharge, "Unit.Ability.MagicCharge");
@@ -118,5 +119,4 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Static, "GameplayCue.SVFX.Static");
 
     UE_DEFINE_GAMEPLAY_TAG(GameplayCue_SVFX_Actor, "GameplayCue.SVFX.Actor");
-
 }

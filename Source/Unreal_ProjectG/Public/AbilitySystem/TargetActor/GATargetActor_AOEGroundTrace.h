@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
+#include "Types/PGEnumTypes.h"
 #include "GATargetActor_AOEGroundTrace.generated.h"
 
 class USphereComponent;
-enum ESkillTargetPolicy;
 /**
  * 
  */

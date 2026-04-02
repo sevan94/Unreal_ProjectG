@@ -249,7 +249,7 @@ void AHeroCharacter::BeginPlay()
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
-        Subsystem->RegisterUnit(this, TAG_Unit_Side_Ally);
+        Subsystem->RegisterUnit(this, PGGameplayTags::Unit_Side_Ally);
     }
 
     //ABP 가져오기
@@ -412,7 +412,7 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.AddUnique(Unit);
         }
@@ -431,7 +431,7 @@ void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.RemoveSwap(Unit);
         }

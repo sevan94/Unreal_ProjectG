@@ -10,6 +10,7 @@
 #include "Character/Unit/SubSystem/UnitSpawnSubsystem.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Character/Hero/HeroCharacter.h"
+#include "Character/HeroController.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {

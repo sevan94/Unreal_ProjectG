@@ -265,6 +265,8 @@ void AGATargetActor_AOEGroundTrace::OnHighlightActorInAOE(AActor* InActor)
     // 머티리얼 변경하여 하이라이트 효과 적용
     if (!IsValid(InActor)) return;
 
+    if (!IsValidTarget(InActor)) return;
+
     if(InActor->GetClass()->ImplementsInterface(UVisualEffectTargetInterface::StaticClass()))
     {
         IVisualEffectTargetInterface::Execute_SetAOEHighlightEnabled(InActor, true);
@@ -295,7 +297,18 @@ bool AGATargetActor_AOEGroundTrace::IsValidTarget(AActor* InActor)
 {
     if (!IsValid(InActor)) return false;
 
-    // 플레이어 자신의 캐릭터는 무시
-    if (PrimaryPC && PrimaryPC->GetPawn() == InActor)
-        return false;
+    // 타겟팅 정책에 따라 유효한 타겟인지 확인
+    switch (TargetPolicy)
+    {
+        case ESkillTargetPolicy::Enemy:
+            return UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, InActor);
+        case ESkillTargetPolicy::AllyWithOutSelf:
+            return !UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, InActor) && InActor != OwnerActor;
+        case ESkillTargetPolicy::Ally:
+            return !UPGFunctionLibrary::IsTargetCharacterHostile(OwnerActor, InActor);
+        case ESkillTargetPolicy::Self:
+            return InActor == OwnerActor;
+        default:
+            return false;
+    }
 }

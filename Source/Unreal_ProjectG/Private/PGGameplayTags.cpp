@@ -41,6 +41,7 @@ namespace PGGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnHit, "Event.Trigger.OnHit");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnKill, "Event.Trigger.OnKill");
     UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnCommit, "Event.Trigger.OnCommit");
+    UE_DEFINE_GAMEPLAY_TAG(Event_Trigger_OnSkillPresentation, "Event.Trigger.OnSkillPresentation");
 
     // 어트리뷰트 태그(버프/디버프 구분 등에 사용)
     UE_DEFINE_GAMEPLAY_TAG(Attribute_Health, "Attribute.Health");

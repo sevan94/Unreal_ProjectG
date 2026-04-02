@@ -89,6 +89,7 @@ public:
     void SetAuto(bool bInAuto) { bIsAuto = bInAuto; }
 
     FORCEINLINE UStaticMeshComponent* GetWeaponStaticMesh() const { return WeaponStaticMesh; }
+    class UCameraComponent* GetHeroCameraComponent() const { return CameraComponent; }
     class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 
 protected:

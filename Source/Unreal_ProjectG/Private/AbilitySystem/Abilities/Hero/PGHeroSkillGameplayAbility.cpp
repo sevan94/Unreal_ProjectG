@@ -56,10 +56,12 @@ void UPGHeroSkillGameplayAbility::ActivateAbility(
     }
 
     // 스킬 프레젠테이션 데이터가 존재한다면 스킬 프레젠테이션 태스크 생성 및 실행
-    if (!SkillData->PresentationData.IsNull())
+    if (SkillData->PresentationData)
     {
-        USkillAbilityTask_Presentation* PresentationTask = USkillAbilityTask_Presentation::Create(this, SkillData->PresentationData);
-        PresentationTask->ReadyForActivation();
+        if (USkillAbilityTask_Presentation* PresentationTask = USkillAbilityTask_Presentation::Create(this, SkillData->PresentationData))
+        {
+            PresentationTask->ReadyForActivation();
+        }
     }
     //==============================================================================
 

@@ -213,7 +213,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "스킬", meta = (DisplayName = "스킬 쿨다운"))
     FScalableFloat SkillCooldown = FScalableFloat(0.f);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|프레젠테이션", meta=(DisplayName="스킬 프레젠테이션 데이터"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|연출", meta=(DisplayName="스킬 연출 데이터[없으면 연출 없음]"))
     TObjectPtr<UDataAsset_HeroSkillPresentation> PresentationData = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="스킬|메인 시퀀스", meta=(DisplayName="기본 액션 시퀀스"))

@@ -3,10 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "SkillAbilityTask_Presentation.generated.h"
 
+class UCameraComponent;
 class UDataAsset_HeroSkillPresentation;
+class USpringArmComponent;
 /**
  * 
  */
@@ -16,7 +19,7 @@ class UNREAL_PROJECTG_API USkillAbilityTask_Presentation : public UAbilityTask
 	GENERATED_BODY()
 
 public:
-    static USkillAbilityTask_Presentation* Create(UGameplayAbility* OwningAbility, UDataAsset_HeroSkillPresentation* PresentationData);
+    static USkillAbilityTask_Presentation* Create(UGameplayAbility* OwningAbility, UDataAsset_HeroSkillPresentation* InPresentationData);
 	
     virtual void Activate() override;
     virtual void TickTask(float DeltaTime) override;
@@ -34,17 +37,45 @@ private:
     void RestoreImmediate();
 
 private:
+    UPROPERTY()
     TObjectPtr<UDataAsset_HeroSkillPresentation> PresentationData = nullptr;
 
-    TWeakObjectPtr<APlayerCameraManager> CameraManager;
+    TWeakObjectPtr<UCameraComponent> HeroCamera;
+    TWeakObjectPtr<USpringArmComponent> SpringArm;
 
-    float OriginalFOVOffset = 12.0f;
+    float OriginalFOV = 0.0f;
 
-    float OriginalSpringArmLengthOffset = 0.0f;
+    float OriginalSpringArmLength = 0.0f;
 
     FVector OriginalSpringArmTargetOffset = FVector::ZeroVector;
 
     FVector OriginalSpringArmSocketOffset = FVector::ZeroVector;
 
-    FRotator OriginalSpringArmRotationOffset = FRotator::ZeroRotator;
+    FRotator OriginalSpringArmRotation = FRotator::ZeroRotator;
+
+    float ZoomedSpringArmLength = 0.0f;
+    FVector ZoomedSpringArmTargetOffset = FVector::ZeroVector;
+    FVector ZoomedSpringArmSocketOffset = FVector::ZeroVector;
+    FRotator ZoomedSpringArmRotation = FRotator::ZeroRotator;
+
+    float LerpElapsed = 0.0f;
+    float LerpDuration = 0.0f;
+    float LerpStartFOV = 0.0f;
+    float LerpTargetFOV = 0.0f;
+    float LerpStartSpringArmLength = 0.0f;
+    float LerpTargetSpringArmLength = 0.0f;
+    FVector LerpStartSpringArmTargetOffset = FVector::ZeroVector;
+    FVector LerpTargetSpringArmTargetOffset = FVector::ZeroVector;
+    FVector LerpStartSpringArmSocketOffset = FVector::ZeroVector;
+    FVector LerpTargetSpringArmSocketOffset = FVector::ZeroVector;
+    FRotator LerpStartSpringArmRotation = FRotator::ZeroRotator;
+    FRotator LerpTargetSpringArmRotation = FRotator::ZeroRotator;
+
+    FTimerHandle HitStopTimerHandle;
+    float CachedBaseGlobalTimeDilation = 1.0f;
+
+    bool bLerpActive = false;
+    bool bEndTaskWhenLerpDone = false;
+    bool bImpactHandled = false;
+    bool bHitStopActive = false;
 };

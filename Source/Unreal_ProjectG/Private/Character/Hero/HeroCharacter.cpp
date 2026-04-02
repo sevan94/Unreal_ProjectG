@@ -21,8 +21,6 @@
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit_Side_Ally");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit_Side_Foe");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values
@@ -79,7 +77,7 @@ void AHeroCharacter::AutoMode()
 {
     if (PotentialTargets.IsEmpty())
     {
-        UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
+        //UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
         //HeroCombatComponent->StopCombat();
         AddMovementInput(FVector::ForwardVector);
     }
@@ -250,7 +248,7 @@ void AHeroCharacter::BeginPlay()
 
     if (UUnitSubsystem* Subsystem = GetWorld()->GetSubsystem<UUnitSubsystem>())
     {
-        Subsystem->RegisterUnit(this, TAG_Unit_Side_Ally);
+        Subsystem->RegisterUnit(this, PGGameplayTags::Unit_Side_Ally);
     }
 
     //ABP 가져오기
@@ -320,7 +318,7 @@ void AHeroCharacter::Tick(float DeltaSeconds)
 {
     if (bIsAuto)
     {
-        UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
+        //UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
         AutoMode();
     }
 }
@@ -413,7 +411,7 @@ void AHeroCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.AddUnique(Unit);
         }
@@ -432,7 +430,7 @@ void AHeroCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 
     if (Unit)
     {
-        if (Unit->GetTeamTag().MatchesTag(TAG_Unit_Side_Foe))
+        if (Unit->GetTeamTag().MatchesTag(PGGameplayTags::Unit_Side_Foe))
         {
             PotentialTargets.RemoveSwap(Unit);
         }

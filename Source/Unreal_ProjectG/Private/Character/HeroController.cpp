@@ -41,7 +41,7 @@ void AHeroController::MoveCamera(float DeltaY)
     float FinalCameraY = FMath::Clamp(HeroY + OffsetY, MapMin, MapMax);
 
     CameraTargetY = FinalCameraY - HeroY;
-    UE_LOG(LogTemp, Log, TEXT("맵 최소 : %f, 맵 최대 : %f, 현재 카메라 위치 : %f"), MapMin, MapMax , FinalCameraY);
+    //UE_LOG(LogTemp, Log, TEXT("맵 최소 : %f, 맵 최대 : %f, 현재 카메라 위치 : %f"), MapMin, MapMax , FinalCameraY);
 }
 
 void AHeroController::SaveCameraPosition()

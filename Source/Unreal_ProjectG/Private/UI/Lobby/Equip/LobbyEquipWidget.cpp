@@ -118,6 +118,7 @@ void ULobbyEquipWidget::UpdateSetEffects()
                 SetEffectWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 
                 bAnySetFound = true;
+                GI->CurrentSetTag = Row->SetTag;
                 break;
             }
         }
@@ -126,6 +127,7 @@ void ULobbyEquipWidget::UpdateSetEffects()
     if (!bAnySetFound)
     {
         SetEffectWidget->SetVisibility(ESlateVisibility::Collapsed);
+        GI->CurrentSetTag = FGameplayTag::EmptyTag;
     }
 }
 

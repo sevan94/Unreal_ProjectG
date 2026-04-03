@@ -268,7 +268,7 @@ void UPGGameInstance::InitializeUnitMap()
                 Row->UnitID == 101 ||
                 Row->UnitID == 102 ||
                 Row->UnitID == 201 ||
-                Row->UnitID == 202 ||
+                Row->UnitID == 204 ||
                 Row->UnitID == 301 ||
                 Row->UnitID == 401
                 );

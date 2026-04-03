@@ -23,7 +23,7 @@ class UNREAL_PROJECTG_API UUnitSlotWidget : public UUserWidget
 public:
     // 데이터 에셋을 가져와서 초기화
     UFUNCTION(BlueprintCallable, Category = "BattelUI")
-    void InitializeSlot(UUnitUIDataAsset* InDataAsset);
+    void InitializeSlot(UUnitUIDataAsset* InDataAsset, bool bInIsLockedSlot);
 
     void UpdateSlot(float InCost);
 
@@ -58,6 +58,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UnitCost;
 
+    bool bIsLockedTarget = false;
 private:
     TObjectPtr<ABaseStructure> SpawnBase;
     FVector SpawnLocation = FVector(0.0f, 0.0f, 100.0f);

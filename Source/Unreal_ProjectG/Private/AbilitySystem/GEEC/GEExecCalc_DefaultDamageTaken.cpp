@@ -12,12 +12,13 @@ struct FPGDamageCapture
     DECLARE_ATTRIBUTE_CAPTUREDEF(DamageTaken)
     DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower)
     DECLARE_ATTRIBUTE_CAPTUREDEF(DamageResist)
-
+    DECLARE_ATTRIBUTE_CAPTUREDEF(Health)
     FPGDamageCapture()
     {
         // 어트리뷰트 캡처 설정
         DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, AttackPower, Source, false);
         DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, DamageResist, Target, false);
+        DEFINE_ATTRIBUTE_CAPTUREDEF(UPGCharacterAttributeSet, Health, Target, false);
     }
 };
 
@@ -33,6 +34,7 @@ UGEExecCalc_DefaultDamageTaken::UGEExecCalc_DefaultDamageTaken()
     // 캡처할 어트리뷰트 정의를 RelevantAttributesToCapture 배열에 추가
     RelevantAttributesToCapture.Add(GetPGDamageCapture().AttackPowerDef);
     RelevantAttributesToCapture.Add(GetPGDamageCapture().DamageResistDef);
+    RelevantAttributesToCapture.Add(GetPGDamageCapture().HealthDef);
 }
 
 float UGEExecCalc_DefaultDamageTaken::GetElementMultiplier(const FGameplayTagContainer& SourceTags, const FGameplayTagContainer& TargetTags)
@@ -140,6 +142,12 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
     float TargetDamageResist = 0.0f;
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetPGDamageCapture().DamageResistDef, EvaluationParameters, TargetDamageResist);
     
+    
+    // Target의 Health(체력) 어트리뷰트 값을 계산해서 가져옴
+    float TargetHealth = 0.0f;
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetPGDamageCapture().HealthDef, EvaluationParameters, TargetHealth);
+    
+    
     //================================================
     // 최종 데미지 계산
     //================================================
@@ -150,7 +158,15 @@ void UGEExecCalc_DefaultDamageTaken::Execute_Implementation(const FGameplayEffec
 
     BaseDamage *= ElementMultiplier;
 
-    const float FinalDamage = BaseDamage * (1.0f - TargetDamageResist);
+    float FinalDamage = BaseDamage * (1.0f - TargetDamageResist);
+
+    if (EvaluationParameters.TargetTags && EvaluationParameters.TargetTags->HasTag(PGGameplayTags::Unit_State_Demise))
+    {
+        if ((TargetHealth - FinalDamage) <= 50.0f)
+        {
+            FinalDamage = TargetHealth * 100.0f;
+        }
+    }
 
     UE_LOG(LogTemp, Warning, TEXT("Final Damage Taken : %f"), FinalDamage);
 

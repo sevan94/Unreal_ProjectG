@@ -126,9 +126,12 @@ void UActiveSkillWidget::OnActiveButtonClicked()
     // 이미 사용중인 상태라면
     if (Spec->IsActive())
     {
-        // 토글형 스킬인 경우 취소 로직
-        AbilitySystemComponent->CancelAbilityHandle(AbilitySpecHandle);
-        UpdateSlot(true);
+        if (bIsToggle)
+        {
+            // 토글형 스킬인 경우 취소 로직
+            AbilitySystemComponent->CancelAbilityHandle(AbilitySpecHandle);
+            UpdateSlot(true);
+        }
     }
     else
     {

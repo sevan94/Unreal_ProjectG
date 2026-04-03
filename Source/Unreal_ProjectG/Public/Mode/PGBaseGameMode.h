@@ -99,4 +99,14 @@ protected:
     // 체력 달성도 확인용 아군 기지
     TObjectPtr<ABaseStructure> AllyBase;
     TObjectPtr<ABaseStructure> EnemyBase;
+
+    // 전투 결과 사운드
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> VictorySound;
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> DefeatSound;
+
+    // 오디오 컴포넌트
+    UPROPERTY()
+    TObjectPtr<UAudioComponent> AudioComponent;
 };

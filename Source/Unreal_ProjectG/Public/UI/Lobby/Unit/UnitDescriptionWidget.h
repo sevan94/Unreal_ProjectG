@@ -119,4 +119,10 @@ protected:
     TObjectPtr<UTexture2D> UnlockIcon;
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Goods")
     TObjectPtr<UTexture2D> GoldIcon;
+
+    // 버튼 사운드
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> UpgradeSound;
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> UnlockSound;
 };

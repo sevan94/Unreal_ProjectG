@@ -13,7 +13,6 @@ ABaseStructure::ABaseStructure()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-
     // 3. GAS 컴포넌트 생성
     if (PGAbilitySystemComponent)
     {

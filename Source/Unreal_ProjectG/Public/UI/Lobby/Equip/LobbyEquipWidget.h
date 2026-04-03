@@ -117,6 +117,12 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<USetEffectWidget> SetEffectWidget;
 
+    // 버튼 사운드
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> EquipSound;
+    UPROPERTY(EditAnywhere, Category = "Audio")
+    TObjectPtr<USoundBase> UnlockSound;
+
 private:
     // 현재 선택된 카테고리
     EEquipCategory CurrentActiveCategory;

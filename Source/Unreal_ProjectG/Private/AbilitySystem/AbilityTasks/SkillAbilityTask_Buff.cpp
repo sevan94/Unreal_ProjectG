@@ -42,6 +42,12 @@ void USkillAbilityTask_Buff::Activate()
 
     if (bWaitMontageFinish)
     {
+        UAbilityTask_WaitGameplayEvent* BuffEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+            Ability,
+            PGGameplayTags::Shared_Event_SupportExecute);
+        BuffEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_Buff::OnBuffEventReceived);
+        BuffEventTask->ReadyForActivation();
+
         UAbilityTask_PlayMontageAndWait* MontageTask =
             UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(Ability, NAME_None, Config.Montage);
 
@@ -51,11 +57,6 @@ void USkillAbilityTask_Buff::Activate()
         MontageTask->OnInterrupted.AddDynamic(this, &USkillAbilityTask_Buff::OnMontageCancelled);
         MontageTask->ReadyForActivation();
 
-        UAbilityTask_WaitGameplayEvent* BuffEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-            Ability,
-            PGGameplayTags::Shared_Event_SupportExecute);
-        BuffEventTask->EventReceived.AddDynamic(this, &USkillAbilityTask_Buff::OnBuffEventReceived);
-        BuffEventTask->ReadyForActivation();
         return;
     }
 

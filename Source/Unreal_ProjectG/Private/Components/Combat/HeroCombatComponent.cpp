@@ -62,11 +62,6 @@ void UHeroCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     OwningCharacter->GetController()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
     OwningCharacter->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
-
-    if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
-    {
-        HandleAutoCombat();
-    }
 }
 
 void UHeroCombatComponent::ActivateManualCombat()
@@ -204,28 +199,6 @@ void UHeroCombatComponent::HandleBasicAttack()
     if(CanUseCombatInterface())
     {
         IHeroCombatInterface::Execute_TryExecuteBasicAttack(OwningCharacter);
-    }
-}
-
-void UHeroCombatComponent::HandleAutoCombat()
-{   // Auto 모드에서는 타깃이 있든 없든 항상 Tick이 활성화 되어 있어야 함
-    if (CombatMode == EHeroCombatMode::Auto && CanUseCombatInterface())
-    {
-        OwningCharacter->GetCharacterMovement()->bOrientRotationToMovement = true; // Movement 방향으로 회전하도록 설정
-        if (!CurrentTarget.IsValid())
-        {
-            //// 유효한 타깃이 없다면 속도를 500으로 설정하여 이동하도록 함, X방향으로 이동하도록 함.
-            //OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 500.f;
-            //OwningCharacter->GetCharacterMovement()->InputMove;
-            return;
-        }
-        else
-        {
-            // 유효한 타깃이 있다면 속도를 300으로 설정하여 이동하도록 함
-            OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = 300.f;
-        }
-
-        IHeroCombatInterface::Execute_TryExecuteActiveSkill(OwningCharacter);
     }
 }
 

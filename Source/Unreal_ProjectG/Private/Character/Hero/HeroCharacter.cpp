@@ -21,8 +21,6 @@
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Ally, "Unit_Side_Ally");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Unit_Side_Foe, "Unit_Side_Foe");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Player, "Player");
 
 // Sets default values
@@ -79,7 +77,7 @@ void AHeroCharacter::AutoMode()
 {
     if (PotentialTargets.IsEmpty())
     {
-        UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
+        //UE_LOG(LogTemp, Log, TEXT("AutoBattle Active"));
         //HeroCombatComponent->StopCombat();
         AddMovementInput(FVector::ForwardVector);
     }
@@ -320,7 +318,7 @@ void AHeroCharacter::Tick(float DeltaSeconds)
 {
     if (bIsAuto)
     {
-        UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
+        //UE_LOG(LogTemp, Log, TEXT("bIsAuto = true"));
         AutoMode();
     }
 }

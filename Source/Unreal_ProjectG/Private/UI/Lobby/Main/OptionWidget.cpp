@@ -20,12 +20,14 @@ void UOptionWidget::NativeConstruct()
         if (MasterVolume) MasterVolume->SetValue(GI->CurrentMasterVolume);
         if (BGMVolume) BGMVolume->SetValue(GI->CurrentBGMVolume);
         if (SFXVolume) SFXVolume->SetValue(GI->CurrentSFXVolume);
+        if (VoiceVolume) SFXVolume->SetValue(GI->CurrentSFXVolume);
     }
 
     // 슬라이더 이벤트 연결
     if (MasterVolume) MasterVolume->OnValueChanged.AddDynamic(this, &UOptionWidget::OnMasterChanged);
     if (BGMVolume) BGMVolume->OnValueChanged.AddDynamic(this, &UOptionWidget::OnBGMChanged);
     if (SFXVolume) SFXVolume->OnValueChanged.AddDynamic(this, &UOptionWidget::OnSFXChanged);
+    if (VoiceVolume) VoiceVolume->OnValueChanged.AddDynamic(this, &UOptionWidget::OnVoiceChanged);
 
     if (ExitButton) ExitButton->OnClicked.AddDynamic(this, &UOptionWidget::OnExitClicked);
 
@@ -35,7 +37,7 @@ void UOptionWidget::UpdateVolumes()
 {
     if (GI)
     {
-        GI->SetSoundVolumes(GI->CurrentMasterVolume, GI->CurrentBGMVolume, GI->CurrentSFXVolume);
+        GI->SetSoundVolumes(GI->CurrentMasterVolume, GI->CurrentBGMVolume, GI->CurrentSFXVolume, GI->CurrentVoiceVolume);
     }
 }
 
@@ -65,6 +67,16 @@ void UOptionWidget::OnSFXChanged(float Value)
         UpdateVolumes();
     }
 }
+
+void UOptionWidget::OnVoiceChanged(float Value)
+{
+    if (GI)
+    {
+        GI->CurrentVoiceVolume = Value;
+        UpdateVolumes();
+    }
+}
+
 
 void UOptionWidget::OnExitClicked()
 {

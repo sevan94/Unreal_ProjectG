@@ -57,6 +57,10 @@ void APGBaseGameMode::BeginPlay()
             {
                 AllyBase = Base;
             }
+            if (Base->GetTeamTag().MatchesTag(FGameplayTag::RequestGameplayTag(FName("Unit.Side.Foe"))))
+            {
+                EnemyBase = Base;
+            }
             // 기지가 파괴되면 OnGameOver 함수가 실행되도록 연결
             Base->OnBaseDestroyed.AddDynamic(this, &APGBaseGameMode::OnGameOver);
         }
@@ -158,7 +162,7 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
 
         // 클리어 시간 체크
         float PlayTime = GetCurrentPlayTime();
-        UE_LOG(LogTemp, Warning, TEXT("Game Clear! PlayTime: %.2f sec"), PlayTime);
+        //UE_LOG(LogTemp, Warning, TEXT("Game Clear! PlayTime: %.2f sec"), PlayTime);
 
         if (PlayTime <= ClearTimeLimit_3Stars)
         {
@@ -175,7 +179,7 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
 
         SetStageResult();
 
-        UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
+        //UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
 
         // 여기서 GameInstance를 불러와서 클리어 보상(골드 등)을 저장(Save)하는 로직을 추가 가능
     }
@@ -183,7 +187,7 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
     {
         Result.bIsVictory = false;
         Result.StarCount = 0; // 패배 시 별 없음
-        UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
+        //UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
 
     ShowStageResult(Result);

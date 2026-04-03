@@ -36,6 +36,9 @@ private:
     void OnSFXChanged(float Value);
 
     UFUNCTION()
+    void OnVoiceChanged(float Value);
+
+    UFUNCTION()
     void OnExitClicked();
 
 protected:
@@ -47,6 +50,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<USlider> SFXVolume;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USlider> VoiceVolume;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ExitButton;

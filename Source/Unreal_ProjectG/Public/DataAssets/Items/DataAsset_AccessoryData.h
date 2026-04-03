@@ -9,6 +9,7 @@
 
 class UPGHeroSkillGameplayAbility;
 class UDataAsset_HeroSkillData;
+class UGameplayAbility;
 /**
  * 
  */
@@ -26,9 +27,12 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Equipment.Set"))
     FGameplayTag SetTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability", meta = (DisplayName = "히어로 스킬 기반 어빌리티 클래스(어빌리티 데이터 필요)"))
     TSubclassOf<UPGHeroSkillGameplayAbility> AccessoryAbilityClass;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability", meta = (DisplayName = "히어로 스킬 기반 어빌리티 데이터"))
     TSoftObjectPtr<UDataAsset_HeroSkillData> AccessoryAbilityData;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability", meta = (DisplayName = "히어로 스킬 기반 어빌리티 클래스"))
+    TSoftClassPtr<UGameplayAbility> AccessoryAbility;
 };

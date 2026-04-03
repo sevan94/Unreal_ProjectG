@@ -13,7 +13,9 @@
 #include "UI/Lobby/Equip/SetEffectWidget.h"
 #include "UI/DataTable/SetEffectDataTable.h"
 #include "DataAssets/UI/EquipUIDataAsset.h"
+#include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "Mode/PGLobbyMode.h"
 
 void ULobbyEquipWidget::SetEquipList(EEquipCategory InType)
 {
@@ -152,9 +154,18 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
         switch (CurrentActiveCategory)
         {
         case EEquipCategory::Weapon:
+        {
             if (WeaponEquip) WeaponEquip->UpdateEquipSlot(SelectedEquip);
             GI->CurrentWeapon = SelectedEquip;
+
+            // 렌더 타깃에 무기를 적용
+            APGLobbyMode* GM = Cast<APGLobbyMode>(GetWorld()->GetAuthGameMode());
+            if (GM)
+            {
+                GM->HeroWeaponChange(Cast<UDataAsset_WeaponData>(SelectedEquip->EquipDataAsset.LoadSynchronous()));
+            }
             break;
+        }
         case EEquipCategory::Armor:
             if (ArmorEquip) ArmorEquip->UpdateEquipSlot(SelectedEquip);
             GI->CurrentArmor = SelectedEquip;

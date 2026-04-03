@@ -7,6 +7,8 @@
 #include "CineCameraActor.h"
 #include "CineCameraSettings.h"
 #include "CineCameraComponent.h"
+#include "Character/Hero/HeroCharacter.h"
+#include "Components/Equipment/EquipmentsStorageComponent.h"
 #include "UI/Lobby/Gacha/GachaActor.h"
 #include "UI/Lobby/Gacha/EquipGachaActor.h"
 #include "UI/Lobby/Main/LobbyHUD.h"
@@ -27,9 +29,20 @@ void APGLobbyMode::PlayEquipGacha()
     }
 }
 
+void APGLobbyMode::HeroWeaponChange(UDataAsset_WeaponData* InWeapon)
+{
+    if (RenderHero)
+    {
+        RenderHero->GetEquipmentsStorageComponent()->EquipHeroWeapon(InWeapon);
+    }
+}
+
 void APGLobbyMode::BeginPlay()
 {
     Super::BeginPlay();
+
+    // 레벨에서 히어로 액터를 찾아 저장
+    RenderHero = Cast<AHeroCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AHeroCharacter::StaticClass()));
 
     // 레벨에서 장비 가챠 액터를 찾아 저장
     EquipGachaActor = Cast<AEquipGachaActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AEquipGachaActor::StaticClass()));

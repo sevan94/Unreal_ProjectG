@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "DataAssets/UI/UnitUIDataAsset.h"
+#include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "PGLobbyMode.generated.h"
 
+class AHeroCharacter;
 class AGachaActor;
 class AEquipGachaActor;
 
@@ -21,6 +23,8 @@ class UNREAL_PROJECTG_API APGLobbyMode : public AGameModeBase
 public:
     void PlayUnitGacha(UUnitUIDataAsset* InData);
     void PlayEquipGacha();
+
+    void HeroWeaponChange(UDataAsset_WeaponData* InWeapon);
 	
 protected:
     virtual void BeginPlay() override;
@@ -31,6 +35,10 @@ protected:
     void OnChestAnimationFinished();
 
 public:
+    // 스폰된 유닛 가챠 액터 인스턴스 저장
+    UPROPERTY(BlueprintReadWrite, Category = "Gacha")
+    TObjectPtr<AHeroCharacter> RenderHero;
+
     // 스폰할 가챠 액터 클래스 (에디터에서 할당)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gacha")
     TSubclassOf<AActor> GachaActorClass;

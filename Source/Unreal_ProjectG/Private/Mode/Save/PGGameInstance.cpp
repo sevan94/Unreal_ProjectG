@@ -363,7 +363,7 @@ void UPGGameInstance::SetupDefaultSetting()
         {
             if (Row->EquipID == 1001) CurrentWeapon = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
             if (Row->EquipID == 2001) CurrentArmor = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
-            if (Row->EquipID == 3002) CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
+            if (Row->EquipID == 3001) CurrentAccessory = TSoftObjectPtr<UEquipUIDataAsset>(Row->EquipData);
         }
     }
 }

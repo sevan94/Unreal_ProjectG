@@ -44,19 +44,19 @@ void UUnitPanelWidget::NativeConstruct()
 
 void UUnitPanelWidget::SetUnitSlot()
 {
-    // UnitDataAsset 전달
+    int32 RandomLockedIndex = FMath::RandRange(0, SlotArray.Num() - 1);
+
     for (int32 i = 0; i < SlotArray.Num(); ++i)
     {
-        // 오류 검사
         if (UnitDataList.IsValidIndex(i) && UnitDataList[i])
         {
-            // 유닛 슬롯 초기화 함수 호출
-            SlotArray[i]->InitializeSlot(UnitDataList[i]);
+            bool bShouldLock = (i == RandomLockedIndex);
+
+            SlotArray[i]->InitializeSlot(UnitDataList[i], bShouldLock);
             SlotArray[i]->SetVisibility(ESlateVisibility::Visible);
         }
         else
         {
-            // 데이터가 없는 슬롯은 숨기거나 비활성화 처리
             SlotArray[i]->SetVisibility(ESlateVisibility::Collapsed);
         }
     }

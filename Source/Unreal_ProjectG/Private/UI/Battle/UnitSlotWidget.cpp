@@ -12,12 +12,14 @@
 #include "Pawn/BaseStructure.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mode/Save/PGGameInstance.h"
+#include "PGGameplayTags.h"
 
-void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset)
+void UUnitSlotWidget::InitializeSlot(UUnitUIDataAsset* InDataAsset, bool bInIsLockedSlot)
 {
     if (!InDataAsset) return;
 
     UnitData = InDataAsset;
+    bIsLockedTarget = bInIsLockedSlot;
 
     // 텍스트 설정
     if (UnitCost && UnitData)
@@ -36,7 +38,19 @@ void UUnitSlotWidget::UpdateSlot(float InCost)
 {
     if (UnitData)
     {
-        UnitButton->SetIsEnabled(InCost >= UnitData->UnitCost);
+        bool bCanAfford = (InCost >= UnitData->UnitCost);
+        bool bIsLockedByTag = false;
+
+        if (bIsLockedTarget)
+        {
+            AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
+            if (Hero && Hero->GetAbilitySystemComponent())
+            {
+                bIsLockedByTag = Hero->GetAbilitySystemComponent()->HasMatchingGameplayTag(PGGameplayTags::Unit_State_Binding);
+            }
+        }
+
+        UnitButton->SetIsEnabled(bCanAfford && !bIsLockedByTag);
     }
 }
 
@@ -45,7 +59,18 @@ bool UUnitSlotWidget::IsSpawnAble() const
     if (!UnitData) return false;
 
     AHeroCharacter* Hero = Cast<AHeroCharacter>(GetOwningPlayerPawn());
-    return Hero && Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
+    if (!Hero) return false;
+
+    bool bHasEnoughCost = Hero->GetPGCharacterAttributeSet()->GetCost() >= UnitData->UnitCost;
+    bool bIsLockedByTag = false;
+
+    if (bIsLockedTarget)
+    {
+        bIsLockedByTag = Hero->GetAbilitySystemComponent()->HasMatchingGameplayTag(PGGameplayTags::Unit_State_Binding);
+
+    }
+
+    return bHasEnoughCost && !bIsLockedByTag;
 }
 
 void UUnitSlotWidget::ExecuteSpawn()

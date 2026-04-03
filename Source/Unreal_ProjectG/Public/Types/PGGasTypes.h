@@ -26,11 +26,11 @@ struct FPGAttributeModifierEntry
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FGameplayAttribute Attribute;
+    FGameplayAttribute Attribute;                         // 수정할 속성
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    EPGEffectModOp ModifierOp = EPGEffectModOp::Additive;
+    EPGEffectModOp ModifierOp = EPGEffectModOp::Additive; // 계산 방식(더하기, 곱하기 등)
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    FScalableFloat ModifierValue;
+    FScalableFloat ModifierValue;                         // 계산에 사용할 값
 };

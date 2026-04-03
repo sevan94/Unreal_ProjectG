@@ -309,12 +309,10 @@ void USkillAbilityTask_Buff::ApplyEffectsToTargets(const TArray<AActor*>& Target
 
             const FActiveGameplayEffectHandle AppliedHandle = PGAbility->NativeApplyEffectSpecHandleToTarget(TargetActor, SpecHandle);
 
-            if (AppliedHandle.IsValid())
-            {
-                const FGameplayEffectContextHandle ContextToUse = CueContext.IsValid() ? CueContext : (SpecHandle.Data.IsValid() ? SpecHandle.Data->GetContext() : FGameplayEffectContextHandle());
+            const FGameplayEffectContextHandle ContextToUse = CueContext.IsValid() ? CueContext : (SpecHandle.Data.IsValid() ? SpecHandle.Data->GetContext() : FGameplayEffectContextHandle());
+            
+            ExecuteStaticCue(TargetActor, EffectConfig, ContextToUse); // 적용 후
 
-                ExecuteStaticCue(TargetActor, EffectConfig, ContextToUse); // 적용 후
-            }
         }
     }
 

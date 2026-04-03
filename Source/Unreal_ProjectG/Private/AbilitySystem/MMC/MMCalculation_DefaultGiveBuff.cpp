@@ -29,9 +29,9 @@ UMMCalculation_DefaultGiveBuff::UMMCalculation_DefaultGiveBuff()
 
 float UMMCalculation_DefaultGiveBuff::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
-    const float Multiplier = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, true, 0.0f);
+    const float Multiplier = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_SkillMultiplier, false, 0.0f);
 
-    const float BaseBuffAmount = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseAmount, true, 0.0f);
+    const float BaseBuffAmount = Spec.GetSetByCallerMagnitude(PGGameplayTags::Shared_SetByCaller_BaseAmount, false, 0.0f);
     
     float SourceAttackPower = 0.f;
     FAggregatorEvaluateParameters EvaluationParameters;

@@ -1,0 +1,7 @@
+---,1
+AttackPower_BaseAmount,5
+AttackPower_SkillMultiplier,0.3
+MoveSpeed_BaseAmount,50
+MoveSpeed_SkillMultiplier,0.2
+DamageResist_SkillMultiplier,0
+DamageResist_BaseAmount,0.05

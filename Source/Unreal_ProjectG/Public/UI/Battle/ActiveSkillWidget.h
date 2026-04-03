@@ -37,6 +37,8 @@ public:
     // 쿨타임 UI 업데이트용
     void UpdateCoolTimeProgress();
 
+    void SkillCancel(const FGameplayTag CallbackTag, int32 NewCount);
+
 protected:
     virtual void NativeConstruct() override;
     UFUNCTION()
@@ -67,6 +69,7 @@ protected:
     TObjectPtr<UTexture2D> CancelIcon;
 
     FGameplayTag CooldownTag;
+    FGameplayTag DieTag;
 
 private:
     // 영웅 어빌리티 시스템

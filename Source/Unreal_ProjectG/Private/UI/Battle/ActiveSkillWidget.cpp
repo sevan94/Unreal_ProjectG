@@ -40,6 +40,13 @@ void UActiveSkillWidget::SetAbilitySpec(FGameplayAbilitySpec InSpec)
         AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved)
             .AddUObject(this, &UActiveSkillWidget::OnCoolDownTagChanged);
     }
+    
+    DieTag = PGGameplayTags::State_Hero_Die;
+    if (DieTag.IsValid())
+    {
+        AbilitySystemComponent->RegisterGameplayTagEvent(DieTag, EGameplayTagEventType::NewOrRemoved)
+            .AddUObject(this, &UActiveSkillWidget::SkillCancel);
+    }
 }
 
 void UActiveSkillWidget::SetSkillIcon(UTexture2D* InIcon)
@@ -96,6 +103,11 @@ void UActiveSkillWidget::UpdateCoolTimeProgress()
             OnCoolDownTagChanged(CooldownTag, 0);
         }
     }
+}
+
+void UActiveSkillWidget::SkillCancel(const FGameplayTag CallbackTag, int32 NewCount)
+{
+    UpdateSlot(true);
 }
 
 void UActiveSkillWidget::NativeConstruct()

@@ -129,6 +129,7 @@ void AHeroCharacter::SpawnHero()
     {
         Subsystem->RegisterUnit(this, PGGameplayTags::Unit_Side_Ally);
     }
+    PGAbilitySystemComponent->RemoveLooseGameplayTag(PGGameplayTags::State_Hero_Die);
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     MovementComponent->SetComponentTickEnabled(true);
@@ -154,6 +155,7 @@ void AHeroCharacter::MakeHeroDead()
     {
         Subsystem->UnregisterUnit(this, PGGameplayTags::Unit_Side_Ally);
     }
+    PGAbilitySystemComponent->AddLooseGameplayTag(PGGameplayTags::State_Hero_Die);
 
     if (OnPlayerDied.IsBound())
     {

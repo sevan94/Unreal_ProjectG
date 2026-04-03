@@ -14,6 +14,7 @@ namespace PGGameplayTags
     // 플레이어 상태 태그
     UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_Move, "State.InputBlock.Move");
     UE_DEFINE_GAMEPLAY_TAG(State_InputBlock_ScreenTouch, "State.InputBlock.ScreenTouch");
+    UE_DEFINE_GAMEPLAY_TAG(State_Hero_Die, "State.Hero.Die");
 
     // 플레이어 어빌리티 태그
     UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Combat_BasicAttack, "Player.Ability.Combat.BasicAttack");

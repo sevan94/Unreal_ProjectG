@@ -283,6 +283,7 @@ void UPGHeroSkillGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
         if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
         {
             ASC->RemoveLooseGameplayTag(PGGameplayTags::State_InputBlock_Move);
+            ASC->RemoveLooseGameplayTag(PGGameplayTags::State_InputBlock_ScreenTouch);
         }
     }
 

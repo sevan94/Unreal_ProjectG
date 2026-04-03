@@ -30,10 +30,10 @@ protected:
     FBlackboardKeySelector TargetLocationKey;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    float SearchRadius = 1000.0f;
+    float SearchRadius = 500.0f;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    float InFrontCheckDistance = 700.0f;
+    float InFrontCheckDistance = 400.0f;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
     float DistanceBehindAlly = 200.0f; 

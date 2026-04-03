@@ -237,7 +237,7 @@ void ULobbyEquipWidget::HandleEquipSelected(UEquipUIDataAsset* InData)
             EquipButtonText->SetText(FText::FromString(TEXT("해금")));
             UnlockCostWidget->UpdateGoodsText(InData->UnlockCost);
             UnlockCostWidget->SetVisibility(ESlateVisibility::Visible);
-            if (InData->UnlockCost >= GI->CurrentPlayerUnlock)
+            if (GI->CurrentPlayerUnlock < InData->UnlockCost)
                 EquipButton->SetIsEnabled(false);
             else
                 EquipButton->SetIsEnabled(true);

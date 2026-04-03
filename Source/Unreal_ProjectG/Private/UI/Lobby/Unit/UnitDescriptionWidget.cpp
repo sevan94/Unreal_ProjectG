@@ -39,6 +39,7 @@ void UUnitDescriptionWidget::UpdateDescription(UUnitEntryObject* InEntryObject)
     UnitImage->SetBrushFromTexture(CurrentUIData->UnitImage);
     UnitCost->SetText(FText::AsNumber(CurrentUIData->UnitCost));
     UnitLevel->SetText(FText::AsNumber(SaveData.Level));
+    UnitDetail->SetText(FText::FromString(CurrentUIData->UnitDetail));
     UnitRank->SetBrushFromTexture(CurrentUIData->UnitRankImage);
     UnitType->SetBrushFromTexture(CurrentUIData->UnitTypeImage);
 

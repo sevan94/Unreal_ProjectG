@@ -80,20 +80,38 @@ void UEquipmentsStorageComponent::EquipHeroAccessory(UDataAsset_AccessoryData* I
         return;
     }
 
-    UDataAsset_HeroSkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
-    if (!AccessoryAbilityAsset)
+    if (InAccessoryData->AccessoryAbilityData.IsValid())
     {
-        return;
+        UDataAsset_HeroSkillData* AccessoryAbilityAsset = InAccessoryData->AccessoryAbilityData.LoadSynchronous();
+        if (!AccessoryAbilityAsset)
+        {
+            return;
+        }
+
+        FGameplayAbilitySpec AbilitySpec(
+            InAccessoryData->AccessoryAbilityClass,
+            1,
+            INDEX_NONE,
+            AccessoryAbilityAsset
+        );
+        const FGameplayAbilitySpecHandle GivenHandle = ASC->GiveAbility(AbilitySpec);
+        ASC->TryActivateAbility(GivenHandle);
+        return; // 데이터기반 어빌리티가 있다면 그것만 부여하고 끝냄
+     }
+
+    if(InAccessoryData->AccessoryAbility.IsValid())
+    {
+        TSubclassOf<UPGHeroGameplayAbility> AccessoryAbility = InAccessoryData->AccessoryAbility.LoadSynchronous();
+        if (AccessoryAbility)
+        {
+            FGameplayAbilitySpec AbilitySpec(
+                AccessoryAbility,
+                1,
+                INDEX_NONE,
+                nullptr
+            );
+            const FGameplayAbilitySpecHandle GivenHandle = ASC->GiveAbility(AbilitySpec);
+            ASC->TryActivateAbility(GivenHandle); // 아마 OnGiven으로 바로 활성화 할테지만 그래도 한번 호출
+        }
     }
-
-    FGameplayAbilitySpec AbilitySpec(
-        InAccessoryData->AccessoryAbilityClass,
-        1,
-        INDEX_NONE,
-        AccessoryAbilityAsset
-    );
-    const FGameplayAbilitySpecHandle GivenHandle = ASC->GiveAbility(AbilitySpec);
-    ASC->TryActivateAbility(GivenHandle);
-
-    
 }

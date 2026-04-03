@@ -11,6 +11,7 @@
 #include "DataAssets/UI/UnitUIDataAsset.h"
 #include "Character/Hero/HeroCharacter.h"
 #include "Character/HeroController.h"
+#include "Components/AudioComponent.h"
 
 APGBaseGameMode::APGBaseGameMode()
 {
@@ -35,6 +36,16 @@ void APGBaseGameMode::BeginPlay()
                         {
                             SpawnSystem->PrewarmPool(LoadedUnitData->UnitClass, 5);
                         }
+                    }
+                }
+
+                if (GI && !GI->CurrentStageData.StageBGM.IsNull())
+                {
+                    // 사운드 에셋 로드 후 재생
+                    USoundBase* BGM = GI->CurrentStageData.StageBGM.LoadSynchronous();
+                    if (BGM)
+                    {
+                        AudioComponent = UGameplayStatics::SpawnSound2D(this, BGM);
                     }
                 }
             }
@@ -142,6 +153,12 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
     if (bIsGameOver) return; // 이미 종료된 게임이면 무시
     bIsGameOver = true;
 
+    if (AudioComponent && AudioComponent->IsPlaying())
+    {
+        // 0.5초 동안 페이드 아웃하며 자연스럽게 중단
+        AudioComponent->FadeOut(0.5f, 0.0f);
+    }
+
     FBattleResultData Result;
 
     Result.bIsVictory = false;
@@ -176,17 +193,22 @@ void APGBaseGameMode::OnGameOver(ETeamType DefeatedTeam)
         {
             Result.StarCount = 1; // 1성 (턱걸이)
         }
-
+        
         SetStageResult();
 
-        //UE_LOG(LogTemp, Warning, TEXT("클리어 등급: %d 성"), Result.StarCount);
-
-        // 여기서 GameInstance를 불러와서 클리어 보상(골드 등)을 저장(Save)하는 로직을 추가 가능
+        if (VictorySound)
+        {
+            UGameplayStatics::PlaySound2D(this, VictorySound);
+        }
     }
     else // 플레이어 기지 파괴 -> 패배
     {
         Result.bIsVictory = false;
         Result.StarCount = 0; // 패배 시 별 없음
+        if (DefeatSound)
+        {
+            UGameplayStatics::PlaySound2D(this, DefeatSound);
+        }
         //UE_LOG(LogTemp, Warning, TEXT("Game Over... Player Base Destroyed."));
     }
 

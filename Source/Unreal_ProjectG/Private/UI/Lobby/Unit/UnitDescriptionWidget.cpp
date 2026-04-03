@@ -11,6 +11,7 @@
 #include "Mode/Save/PGGameInstance.h"
 #include "Types/PGEnumTypes.h"
 #include "Character/Unit/UnitCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 void UUnitDescriptionWidget::NativeConstruct()
 {
@@ -125,6 +126,10 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
             {
                 GI->ConsumeGoods(EGoodsCategory::Gold, CurrentCost);
                 TargetData->Level++;
+                if (UpgradeSound)
+                {
+                    UGameplayStatics::PlaySound2D(this, UpgradeSound);
+                }
             }
 
         }
@@ -136,6 +141,10 @@ void UUnitDescriptionWidget::OnUpgradeButtonClicked()
             {
                 GI->ConsumeGoods(EGoodsCategory::Unlock, CurrentUIData->UnitUnlock);
                 TargetData->bIsUnlocked = true;
+                if (UnlockSound)
+                {
+                    UGameplayStatics::PlaySound2D(this, UnlockSound);
+                }
 
                 // 해금 성공 시 델리게이트 호출
                 if (OnUnitUnlocked.IsBound())

@@ -16,6 +16,7 @@
 #include "DataAssets/Items/DataAsset_WeaponData.h"
 #include "Mode/Save/PGGameInstance.h"
 #include "Mode/PGLobbyMode.h"
+#include "Kismet/GameplayStatics.h"
 
 void ULobbyEquipWidget::SetEquipList(EEquipCategory InType)
 {
@@ -175,6 +176,10 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
             GI->CurrentAccessory = SelectedEquip;
             break;
         }
+        if (EquipSound)
+        {
+            UGameplayStatics::PlaySound2D(this, EquipSound);
+        }
     }
     else
     {
@@ -184,6 +189,10 @@ void ULobbyEquipWidget::OnEquipButtonClicked()
 
             // EquipMap 업데이트 및 저장
             GI->EquipMap.Add(TargetID, true);
+            if (UnlockSound)
+            {
+                UGameplayStatics::PlaySound2D(this, UnlockSound);
+            }
             GI->SaveGameData();
 
             if (EquipButtonText) EquipButtonText->SetText(FText::FromString(TEXT("장착")));

@@ -8,6 +8,7 @@
 
 class UImage;
 class UTextBlock;
+class UOverlay;
 class UEquipUIDataAsset;
 
 /**
@@ -28,6 +29,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> SkillImage2;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UOverlay> Skill2ImagePanel;
 
     // 스킬 설명
     UPROPERTY(meta = (BindWidget))

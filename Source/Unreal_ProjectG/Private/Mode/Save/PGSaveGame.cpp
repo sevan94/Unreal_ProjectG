@@ -16,4 +16,5 @@ UPGSaveGame::UPGSaveGame()
     MasterVolume = 1.0f;
     BGMVolume = 1.0f;
     SFXVolume = 1.0f;
+    VoiceVolume = 1.0f;
 }

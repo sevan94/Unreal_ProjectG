@@ -69,4 +69,7 @@ public:
 
     UPROPERTY(VisibleAnywhere, Category = "Settings|Sound")
     float SFXVolume = 1.0f;
+
+    UPROPERTY(VisibleAnywhere, Category = "Settings|Sound")
+    float VoiceVolume = 1.0f;
 };

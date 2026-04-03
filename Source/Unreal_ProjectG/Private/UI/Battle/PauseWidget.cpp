@@ -21,12 +21,14 @@ void UPauseWidget::NativeConstruct()
         if (MasterVolume) MasterVolume->SetValue(GI->CurrentMasterVolume);
         if (BGMVolume) BGMVolume->SetValue(GI->CurrentBGMVolume);
         if (SFXVolume) SFXVolume->SetValue(GI->CurrentSFXVolume);
+        if (VoiceVolume) VoiceVolume->SetValue(GI->CurrentVoiceVolume);
     }
 
     // 볼륨 슬라이더 이벤트 연결
     if (MasterVolume) MasterVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnMasterChanged);
     if (BGMVolume) BGMVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnBGMChanged);
     if (SFXVolume) SFXVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnSFXChanged);
+    if (VoiceVolume) VoiceVolume->OnValueChanged.AddDynamic(this, &UPauseWidget::OnVoiceChanged);
 
     // 버튼 이벤트 연결
     if (LobbyButton) LobbyButton->OnClicked.AddDynamic(this, &UPauseWidget::OnLobbyButtonClicked);
@@ -37,7 +39,7 @@ void UPauseWidget::UpdateVolumes()
 {
     if (GI)
     {
-        GI->SetSoundVolumes(GI->CurrentMasterVolume, GI->CurrentBGMVolume, GI->CurrentSFXVolume);
+        GI->SetSoundVolumes(GI->CurrentMasterVolume, GI->CurrentBGMVolume, GI->CurrentSFXVolume, GI->CurrentVoiceVolume);
     }
 }
 
@@ -64,6 +66,15 @@ void UPauseWidget::OnSFXChanged(float Value)
     if (GI)
     {
         GI->CurrentSFXVolume = Value;
+        UpdateVolumes();
+    }
+}
+
+void UPauseWidget::OnVoiceChanged(float Value)
+{
+    if (GI)
+    {
+        GI->CurrentVoiceVolume = Value;
         UpdateVolumes();
     }
 }

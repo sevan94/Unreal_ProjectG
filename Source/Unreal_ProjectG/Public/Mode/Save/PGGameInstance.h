@@ -59,7 +59,7 @@ public:
     // ==========================================================
     // 1. 사운드 볼륨 조절 (0.0 ~ 1.0)
     UFUNCTION(BlueprintCallable, Category = "Settings|Sound")
-    void SetSoundVolumes(float InMaster, float InBGM, float InSFX);
+    void SetSoundVolumes(float InMaster, float InBGM, float InSFX, float InVoice);
 
     // 2. 화면 모드 설정 (0: 전체화면, 1: 비율(테두리없는)화면, 2: 창모드)
     UFUNCTION(BlueprintCallable, Category = "Settings|Display")
@@ -163,12 +163,12 @@ public:
     // --- [환경설정 런타임 변수 (사운드)] ---
     UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
     float CurrentMasterVolume = 1.0f;
-
     UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
     float CurrentBGMVolume = 1.0f;
-
     UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
     float CurrentSFXVolume = 1.0f;
+    UPROPERTY(BlueprintReadWrite, Category = "Settings|Sound")
+    float CurrentVoiceVolume = 1.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
     TObjectPtr<USoundMix> MainSoundMix;
@@ -181,6 +181,8 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
     TObjectPtr<USoundClass> SFXSoundClass;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Sound")
+    TObjectPtr<USoundClass> VoiceSoundClass;
 
 
 protected:

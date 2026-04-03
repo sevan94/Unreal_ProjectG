@@ -34,6 +34,9 @@ protected:
     UFUNCTION()
     void OnSFXChanged(float Value);
 
+    UFUNCTION()
+    void OnVoiceChanged(float Value);
+
     // 버튼 이벤트
     UFUNCTION()
     void OnLobbyButtonClicked();
@@ -51,6 +54,9 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<USlider> SFXVolume;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USlider> VoiceVolume;
 
     // 버튼 바인딩
     UPROPERTY(meta = (BindWidget))

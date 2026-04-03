@@ -92,8 +92,9 @@ void UPGGameInstance::LoadGameData()
     CurrentMasterVolume = CachedSaveData->MasterVolume;
     CurrentBGMVolume = CachedSaveData->BGMVolume;
     CurrentSFXVolume = CachedSaveData->SFXVolume;
+    CurrentVoiceVolume = CachedSaveData->VoiceVolume;
 
-    SetSoundVolumes(CurrentMasterVolume, CurrentBGMVolume, CurrentSFXVolume);
+    SetSoundVolumes(CurrentMasterVolume, CurrentBGMVolume, CurrentSFXVolume, CurrentVoiceVolume);
 
     if (bIsNewGame) SaveGameData();
 }
@@ -163,12 +164,13 @@ void UPGGameInstance::ConsumeGoods(EGoodsCategory InCategory, int32 InValue)
     }
 }
 
-void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX)
+void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX, float InVoice)
 {
     // 볼륨 값을 0.0 ~ 1.0 사이 설정
     CurrentMasterVolume = FMath::Clamp(InMaster, 0.0001f, 1.0f);
     CurrentBGMVolume = FMath::Clamp(InBGM, 0.0001f, 1.0f);
     CurrentSFXVolume = FMath::Clamp(InSFX, 0.0001f, 1.0f);
+    CurrentVoiceVolume = FMath::Clamp(InVoice, 0.0001f, 1.0f);
     //UE_LOG(LogTemp, Log, TEXT("Master: %f, BGM: %f, SFX: %f"), InMaster, InBGM, InSFX);
 
     // 언리얼 엔진 사운드 믹스에 오버라이드 (적용)
@@ -178,6 +180,7 @@ void UPGGameInstance::SetSoundVolumes(float InMaster, float InBGM, float InSFX)
         if (MasterSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, MasterSoundClass, CurrentMasterVolume, 1.0f, 0.0f, true);
         if (BGMSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, BGMSoundClass, CurrentBGMVolume, 1.0f, 0.0f, true);
         if (SFXSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, SFXSoundClass, CurrentSFXVolume, 1.0f, 0.0f, true);
+        if (VoiceSoundClass) UGameplayStatics::SetSoundMixClassOverride(this, MainSoundMix, VoiceSoundClass, CurrentVoiceVolume, 1.0f, 0.0f, true);
     }
 
     // 볼륨이 바뀔 때마다 세이브 파일에 덮어쓰기
@@ -266,7 +269,8 @@ void UPGGameInstance::InitializeUnitMap()
                 Row->UnitID == 102 ||
                 Row->UnitID == 201 ||
                 Row->UnitID == 202 ||
-                Row->UnitID == 301
+                Row->UnitID == 301 ||
+                Row->UnitID == 401
                 );
 
             // 맵에 추가
@@ -305,9 +309,11 @@ void UPGGameInstance::InitializeEquipMap()
                 // 특정 ID만 시작 시 해금 상태로 설정
                 bool bIsUnlocked = (
                     Row->EquipID == 1001 || // 기본 무기
-                    Row->EquipID == 1003 || // 기본 무기
+                    Row->EquipID == 1004 || // 기본 무기
                     Row->EquipID == 2001 || // 기본 방어구
-                    Row->EquipID == 3002    // 기본 악세서리
+                    Row->EquipID == 2004 || // 기본 방어구
+                    Row->EquipID == 3001 || // 기본 악세서리
+                    Row->EquipID == 3004    // 기본 악세서리
                     );
 
                 // EquipMap에 추가

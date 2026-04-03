@@ -185,9 +185,10 @@ public:
     TObjectPtr<USoundClass> VoiceSoundClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Graphics")
-    int32 GraphicsValue = 2;
+    int32 GraphicsValue;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Graphics")
-    int32 ScreenValue = 0;
+    int32 ScreenValue;
+
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")

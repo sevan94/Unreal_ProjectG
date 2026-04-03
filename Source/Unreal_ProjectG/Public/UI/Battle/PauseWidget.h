@@ -65,6 +65,6 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> ContinueButton;
 
-private:
+    UPROPERTY(BlueprintReadOnly)
     TObjectPtr<UPGGameInstance> GI;
 };

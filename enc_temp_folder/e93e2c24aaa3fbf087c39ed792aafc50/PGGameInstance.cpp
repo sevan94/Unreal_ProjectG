@@ -196,7 +196,6 @@ void UPGGameInstance::SetScreenMode(int32 ModeIndex)
         if (ModeIndex == 0) NewMode = EWindowMode::Fullscreen;               // 전체화면
         else if (ModeIndex == 1) NewMode = EWindowMode::WindowedFullscreen;  // 비율화면 (테두리 없는 창모드)
         else if (ModeIndex == 2) NewMode = EWindowMode::Windowed;            // 창모드
-        ScreenValue = ModeIndex;
 
         UserSettings->SetFullscreenMode(NewMode);
         UserSettings->ApplySettings(false); // 해상도 및 모드 즉시 적용
